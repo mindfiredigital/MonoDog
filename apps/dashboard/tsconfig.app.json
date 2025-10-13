@@ -1,0 +1,17 @@
+{
+  // This is the crucial change: Extend the shared React config
+  "extends": "@lakinmindfire/tsconfig/react.json",
+
+  "compilerOptions": {
+    // Keep application-specific path aliases
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    // Keep the app-specific build info file
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo"
+  },
+  "include": ["src"]
+  // All other compiler options (target, strict, jsx, module, etc.)
+  // are now inherited from @monorepo-dashboard/tsconfig/react.json!
+}

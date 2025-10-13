@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 Running pre-commit checks..."
+
+# Run lint-staged
+npx lint-staged
+
+# Type checking
+echo "📝 Type checking..."
+pnpm turbo type-check
+
+# Run tests for changed packages
+echo "🧪 Running tests..."
+pnpm turbo test --filter='...[HEAD~1]'
+
+echo "✅ Pre-commit checks completed"

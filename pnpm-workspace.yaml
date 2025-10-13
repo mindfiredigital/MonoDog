@@ -1,0 +1,9 @@
+packages:
+  # Applications
+  - "apps/*"
+  # Shared packages and libraries
+  - "packages/*"
+  # Exclude test directories and dist folders
+  - "!**/dist"
+  - "!**/node_modules"
+  - "!**/*.test.*"
