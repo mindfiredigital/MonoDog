@@ -1,4 +1,3 @@
-import React from 'react';
 import { SetupProgress as ProgressType } from '../types/setup.types';
 
 interface SetupProgressProps {

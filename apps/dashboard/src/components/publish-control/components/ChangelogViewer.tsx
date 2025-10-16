@@ -1,4 +1,3 @@
-import React from 'react';
 import { DocumentTextIcon, TagIcon } from '@heroicons/react/24/outline';
 
 interface ChangelogEntry {

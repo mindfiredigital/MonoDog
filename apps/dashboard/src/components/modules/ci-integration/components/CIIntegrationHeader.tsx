@@ -1,4 +1,3 @@
-import React from 'react';
 import { PlayIcon, CpuChipIcon } from '@heroicons/react/24/outline';
 
 interface CIIntegrationHeaderProps {

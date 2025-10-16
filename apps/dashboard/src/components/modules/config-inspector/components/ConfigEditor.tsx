@@ -1,4 +1,3 @@
-import React from 'react';
 import { ConfigEditorProps } from '../types/config.types';
 import { maskSecrets, detectLanguage } from '../utils/config.utils';
 

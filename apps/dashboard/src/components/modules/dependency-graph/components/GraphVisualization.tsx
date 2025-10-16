@@ -1,4 +1,3 @@
-import React from 'react';
 import { GraphVisualizationProps } from '../types/dependency.types';
 import {
   getStatusColor,

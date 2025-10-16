@@ -1,4 +1,3 @@
-import React from 'react';
 import { SettingsComponentProps } from '../types/config.types';
 import { formatFeatureKey } from '../utils/config.utils';
 

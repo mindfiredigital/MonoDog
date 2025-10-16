@@ -1,4 +1,3 @@
-import React from 'react';
 import { PackageDetail } from '../types/packages.types';
 import { getCommitTypeColor, formatDate } from '../utils/packages.utils';
 

@@ -1,5 +1,4 @@
 // Example components demonstrating the new theme system usage
-import React from 'react';
 import {
   CheckCircleIcon,
   ExclamationTriangleIcon,

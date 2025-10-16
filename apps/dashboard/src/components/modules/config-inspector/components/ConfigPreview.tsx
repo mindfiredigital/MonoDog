@@ -1,4 +1,3 @@
-import React from 'react';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { ConfigPreviewProps } from '../types/config.types';
 import { maskSecrets, formatJson } from '../utils/config.utils';

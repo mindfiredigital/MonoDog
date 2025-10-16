@@ -1,4 +1,3 @@
-import React from 'react';
 import { ArrowPathIcon, CogIcon } from '@heroicons/react/24/outline';
 import { DashboardConfig } from '../../configuration/Configuration';
 

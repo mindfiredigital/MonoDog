@@ -1,4 +1,3 @@
-import React from 'react';
 import { CogIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 interface ConfigurationHeaderProps {

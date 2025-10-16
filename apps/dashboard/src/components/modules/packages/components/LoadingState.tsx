@@ -1,4 +1,3 @@
-import React from 'react';
 import { LoadingStateProps } from '../types/packages.types';
 
 export default function LoadingState({

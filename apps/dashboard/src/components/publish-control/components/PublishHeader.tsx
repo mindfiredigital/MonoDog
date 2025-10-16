@@ -1,4 +1,3 @@
-import React from 'react';
 import { CloudArrowUpIcon } from '@heroicons/react/24/outline';
 
 interface PublishHeaderProps {

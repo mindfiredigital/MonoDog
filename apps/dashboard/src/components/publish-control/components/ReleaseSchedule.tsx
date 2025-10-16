@@ -1,4 +1,3 @@
-import React from 'react';
 import { CalendarIcon, ClockIcon } from '@heroicons/react/24/outline';
 import { Release } from '../types/publish.types';
 import { getStatusColor } from '../utils/publish.utils';

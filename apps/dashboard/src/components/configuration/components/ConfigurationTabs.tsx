@@ -1,4 +1,3 @@
-import React from 'react';
 import { ConfigurationTabsProps } from '../types/config.types';
 import { getTabDefinitions } from '../utils/config.utils';
 
