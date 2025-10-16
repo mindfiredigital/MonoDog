@@ -3,7 +3,7 @@
 /**
  * Brand Colors
  *
- * Primary (Blue): Used for main actions, links, and active states
+ * Primary (Red): Used for main actions, links, and active states
  * Secondary (Green): Used for success states, positive actions, and nature-related elements
  * Accent (Yellow): Used for warnings, highlights, and attention-grabbing elements
  */
@@ -12,15 +12,13 @@ export const colors = {
   primary: {
     50: '#eff6ff',
     100: '#dbeafe',
-    200: '#bfdbfe',
-    300: '#93c5fd',
-    400: '#60a5fa',
-    500: '#3b82f6', // Base primary
-    600: '#2563eb', // Primary buttons
-    700: '#1d4ed8', // Primary button hover
-    800: '#1e40af',
-    900: '#1e3a8a',
-    950: '#172554',
+    200: '#f7777f',
+    300: '#f33a45',
+    400: '#f01622',
+    500: '#ff0000', // Base primary
+    600: '#cc0511', // Primary buttons
+    700: '#b70510', // Primary button hover
+    800: '#99040d'
   },
 
   // Secondary brand color (Green)
@@ -95,10 +93,10 @@ export const semanticColors = {
     100: '#e0f2fe',
     200: '#bae6fd',
     300: '#7dd3fc',
-    400: '#38bdf8',
-    500: '#0ea5e9',
+    400: '#22d3ee',
+    500: '#06b6d4',
     600: '#0284c7',
-    700: '#0369a1',
+    700: '#0e7490',
     800: '#075985',
     900: '#0c4a6e',
     950: '#082f49',
@@ -122,7 +120,7 @@ export const typography = {
       '"Helvetica Neue"',
       'Arial',
       '"Noto Sans"',
-      'sans-serif',
+      'sans-serif'
     ],
     display: [
       'Inter',
@@ -130,7 +128,7 @@ export const typography = {
       '-apple-system',
       'BlinkMacSystemFont',
       '"Segoe UI"',
-      'sans-serif',
+      'sans-serif'
     ],
     mono: [
       '"JetBrains Mono"',
@@ -140,7 +138,7 @@ export const typography = {
       'Menlo',
       'Monaco',
       '"Courier New"',
-      'monospace',
+      'monospace'
     ],
   },
 
@@ -180,23 +178,23 @@ export const typography = {
  */
 export const spacing = {
   0: '0px',
-  1: '0.25rem', // 4px
-  2: '0.5rem', // 8px
-  3: '0.75rem', // 12px
-  4: '1rem', // 16px
-  5: '1.25rem', // 20px
-  6: '1.5rem', // 24px
-  8: '2rem', // 32px
-  10: '2.5rem', // 40px
-  12: '3rem', // 48px
-  16: '4rem', // 64px
-  18: '4.5rem', // 72px
-  20: '5rem', // 80px
-  24: '6rem', // 96px
-  32: '8rem', // 128px
-  88: '22rem', // 352px
-  128: '32rem', // 512px
-  144: '36rem', // 576px
+  1: '0.25rem',  // 4px
+  2: '0.5rem',   // 8px
+  3: '0.75rem',  // 12px
+  4: '1rem',     // 16px
+  5: '1.25rem',  // 20px
+  6: '1.5rem',   // 24px
+  8: '2rem',     // 32px
+  10: '2.5rem',  // 40px
+  12: '3rem',    // 48px
+  16: '4rem',    // 64px
+  18: '4.5rem',  // 72px
+  20: '5rem',    // 80px
+  24: '6rem',    // 96px
+  32: '8rem',    // 128px
+  88: '22rem',   // 352px
+  128: '32rem',  // 512px
+  144: '36rem',  // 576px
 } as const;
 
 /**
@@ -206,10 +204,8 @@ export const spacing = {
  */
 export const shadows = {
   soft: '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
-  medium:
-    '0 4px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-  large:
-    '0 10px 40px -15px rgba(0, 0, 0, 0.1), 0 4px 25px -5px rgba(0, 0, 0, 0.07)',
+  medium: '0 4px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+  large: '0 10px 40px -15px rgba(0, 0, 0, 0.1), 0 4px 25px -5px rgba(0, 0, 0, 0.07)',
 } as const;
 
 /**
