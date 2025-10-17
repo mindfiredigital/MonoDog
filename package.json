@@ -4,13 +4,15 @@
   "description": "Self-hosted monorepo package manager dashboard",
   "private": true,
   "packageManager": "pnpm@8.10.0",
+
   "engines": {
     "node": ">=18.0.0",
     "pnpm": ">=8.0.0"
   },
   "workspaces": [
     "apps/*",
-    "packages/*"
+    "packages/*",
+    "libs/*"
   ],
   "scripts": {
     "prepare": "husky install",
@@ -26,7 +28,12 @@
     "release": "semantic-release",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "publish-packages": "changeset publish"
+    "publish-packages": "changeset publish",
+    "refresh": "tsx scripts/refresh.ts",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio"
   },
   "devDependencies": {
     "@changesets/cli": "^2.26.2",
@@ -44,7 +51,8 @@
     "semantic-release": "^21.1.1",
     "semantic-release-monorepo": "^7.0.5",
     "turbo": "^1.10.14",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "tsx": "^4.6.0"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": [
