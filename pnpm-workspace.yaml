@@ -3,6 +3,8 @@ packages:
   - "apps/*"
   # Shared packages and libraries
   - "packages/*"
+  - "libs/*"
+
   # Exclude test directories and dist folders
   - "!**/dist"
   - "!**/node_modules"

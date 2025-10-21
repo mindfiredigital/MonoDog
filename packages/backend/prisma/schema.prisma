@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id    Int     @id @default(autoincrement())
+  name  String
+  email String  @unique
+  posts Post[]
+}
+
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String?
+  published Boolean  @default(false)
+  authorId  Int
+  author    User     @relation(fields: [authorId], references: [id])
+}
+
+// --- MONOREPO DATA MODEL ---
+
+/// Represents a single package within the monorepo, based on the pnpm/package.json data.
+model Package {
+  // Primary Key and Identity Field (using the package name as the unique ID)
+  // Example: '@monodog/dashboard'
+  name String @id @unique
+
+  // Core Package Metadata
+  version String
+  type    String // e.g., 'app', 'package'
+
+  // Timestamps
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Key Metrics and Relationships
+  dependencies String  // The total number of direct dependencies (12 in your example)
+  // Manual Serialization Required: Stores a JSON array string of maintainers, e.g., '["team-frontend"]'
+  maintainers       String
+  // Manual Serialization Required: Stores a JSON array string of tags, e.g., '["core", "ui"]'
+  path              String // The relative path in the file system, e.g., 'apps/dashboard'
+
+  // Descriptions and Configuration
+  description String
+  license String
+  repository String?
+
+
+  // Manual Serialization Required: Stores the scripts object as a JSON string
+  // Example: '{"dev": "vite", "build": "tsc && vite build"}'
+  scripts String?
+  status      String @default("healthy")
+
+  // Dependency Lists (Manual Serialization Required)
+  // Stores a JSON array string of dependencies.
+  dependenciesList    String?
+  devDependencies     String?
+}
