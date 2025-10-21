@@ -41,30 +41,31 @@ model Package {
   // Core Package Metadata
   version String
   type    String // e.g., 'app', 'package'
-  status  String // e.g., 'healthy', 'warning', 'error'
 
   // Timestamps
-  lastUpdated      DateTime // The date/time of the last known update (e.g., commit date)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
   // Key Metrics and Relationships
-  dependenciesCount Int    // The total number of direct dependencies (12 in your example)
+  dependencies String  // The total number of direct dependencies (12 in your example)
   // Manual Serialization Required: Stores a JSON array string of maintainers, e.g., '["team-frontend"]'
   maintainers       String
   // Manual Serialization Required: Stores a JSON array string of tags, e.g., '["core", "ui"]'
-  tags              String
   path              String // The relative path in the file system, e.g., 'apps/dashboard'
-  private           Boolean
 
   // Descriptions and Configuration
   description String
+  license String
+  repository String?
+
 
   // Manual Serialization Required: Stores the scripts object as a JSON string
   // Example: '{"dev": "vite", "build": "tsc && vite build"}'
   scripts String?
+  status      String @default("healthy")
 
   // Dependency Lists (Manual Serialization Required)
   // Stores a JSON array string of dependencies.
-  dependenciesList    String
+  dependenciesList    String?
+  devDependencies     String?
 }

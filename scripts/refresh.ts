@@ -1,6 +1,10 @@
 #!/usr/bin/env tsx
 
-import { scanner, quickScan, generateReports } from '../packages/monorepo-scanner';
+import {
+  scanner,
+  quickScan,
+  generateReports,
+} from '../packages/monorepo-scanner';
 import { ciStatusManager, getMonorepoCIStatus } from '../packages/ci-status';
 import { scanMonorepo, generateMonorepoStats } from '../libs/utils/helpers';
 import { PrismaClient } from '@prisma/client';
@@ -70,7 +74,6 @@ class MonorepoRefresher {
 
       const duration = Date.now() - startTime;
       console.log(`✅ Refresh completed in ${duration}ms`);
-
     } catch (error) {
       console.error('❌ Error during refresh:', error);
       process.exit(1);
@@ -84,30 +87,35 @@ class MonorepoRefresher {
    */
   private async performFullScan(): Promise<void> {
     console.log('📦 Performing full monorepo scan...');
-    
+
     try {
       // Use the scanner to get comprehensive results
       const scanResult = await quickScan();
-      
+
       // Store scan results in database
       await this.storeScanResults(scanResult);
-      
+
       // Generate detailed reports
       const reports = await generateReports();
       await this.storePackageReports(reports);
-      
-      console.log(`📊 Scan completed: ${scanResult.packages.length} packages found`);
-      
+
+      console.log(
+        `📊 Scan completed: ${scanResult.packages.length} packages found`
+      );
+
       if (this.options.verbose) {
         console.log('📋 Scan Summary:');
         console.log(`  - Total packages: ${scanResult.stats.totalPackages}`);
         console.log(`  - Applications: ${scanResult.stats.apps}`);
         console.log(`  - Libraries: ${scanResult.stats.libraries}`);
         console.log(`  - Tools: ${scanResult.stats.tools}`);
-        console.log(`  - Circular dependencies: ${scanResult.circularDependencies.length}`);
-        console.log(`  - Outdated packages: ${scanResult.outdatedPackages.length}`);
+        console.log(
+          `  - Circular dependencies: ${scanResult.circularDependencies.length}`
+        );
+        console.log(
+          `  - Outdated packages: ${scanResult.outdatedPackages.length}`
+        );
       }
-      
     } catch (error) {
       console.error('❌ Error during full scan:', error);
       throw error;
@@ -119,29 +127,34 @@ class MonorepoRefresher {
    */
   private async updateCIStatus(): Promise<void> {
     console.log('🚀 Updating CI status...');
-    
+
     try {
       // Get all packages from database or scan
       const packages = await this.getPackages();
-      
+
       // Get CI status for the monorepo
       const ciStatus = await getMonorepoCIStatus(packages);
-      
+
       // Store CI status in database
       await this.storeCIStatus(ciStatus);
-      
-      console.log(`📊 CI status updated: ${ciStatus.totalPackages} packages processed`);
-      
+
+      console.log(
+        `📊 CI status updated: ${ciStatus.totalPackages} packages processed`
+      );
+
       if (this.options.verbose) {
         console.log('📋 CI Status Summary:');
-        console.log(`  - Overall health: ${ciStatus.overallHealth.toFixed(1)}%`);
+        console.log(
+          `  - Overall health: ${ciStatus.overallHealth.toFixed(1)}%`
+        );
         console.log(`  - Healthy packages: ${ciStatus.healthyPackages}`);
         console.log(`  - Warning packages: ${ciStatus.warningPackages}`);
         console.log(`  - Error packages: ${ciStatus.errorPackages}`);
-        console.log(`  - Test success rate: ${ciStatus.tests.successRate.toFixed(1)}%`);
+        console.log(
+          `  - Test success rate: ${ciStatus.tests.successRate.toFixed(1)}%`
+        );
         console.log(`  - Coverage: ${ciStatus.coverage.overall.toFixed(1)}%`);
       }
-      
     } catch (error) {
       console.error('❌ Error updating CI status:', error);
       throw error;
@@ -153,18 +166,18 @@ class MonorepoRefresher {
    */
   private async performHealthChecks(): Promise<void> {
     console.log('🏥 Performing health checks...');
-    
+
     try {
       const packages = await this.getPackages();
       let healthyCount = 0;
       let warningCount = 0;
       let errorCount = 0;
-      
+
       for (const pkg of packages) {
         try {
           const health = await this.checkPackageHealth(pkg);
           await this.storeHealthMetrics(pkg.id, health);
-          
+
           if (health.overallScore >= 80) {
             healthyCount++;
           } else if (health.overallScore >= 60) {
@@ -172,15 +185,15 @@ class MonorepoRefresher {
           } else {
             errorCount++;
           }
-          
         } catch (error) {
           console.warn(`⚠️  Health check failed for ${pkg.name}:`, error);
           errorCount++;
         }
       }
-      
-      console.log(`📊 Health checks completed: ${healthyCount} healthy, ${warningCount} warnings, ${errorCount} errors`);
-      
+
+      console.log(
+        `📊 Health checks completed: ${healthyCount} healthy, ${warningCount} warnings, ${errorCount} errors`
+      );
     } catch (error) {
       console.error('❌ Error during health checks:', error);
       throw error;
@@ -192,25 +205,26 @@ class MonorepoRefresher {
    */
   private async updateDependencies(): Promise<void> {
     console.log('🔗 Updating dependency information...');
-    
+
     try {
       const packages = await this.getPackages();
-      
+
       for (const pkg of packages) {
         try {
           // Get package dependencies
           const dependencies = await this.getPackageDependencies(pkg);
-          
+
           // Store dependencies in database
           await this.storeDependencies(pkg.id, dependencies);
-          
         } catch (error) {
-          console.warn(`⚠️  Failed to update dependencies for ${pkg.name}:`, error);
+          console.warn(
+            `⚠️  Failed to update dependencies for ${pkg.name}:`,
+            error
+          );
         }
       }
-      
+
       console.log(`📊 Dependencies updated for ${packages.length} packages`);
-      
     } catch (error) {
       console.error('❌ Error updating dependencies:', error);
       throw error;
@@ -222,20 +236,21 @@ class MonorepoRefresher {
    */
   private async exportResults(): Promise<void> {
     if (!this.options.export) return;
-    
-    console.log(`📤 Exporting results in ${this.options.export.toUpperCase()} format...`);
-    
+
+    console.log(
+      `📤 Exporting results in ${this.options.export.toUpperCase()} format...`
+    );
+
     try {
       const scanResult = await quickScan();
       const exportData = scanner.exportResults(scanResult, this.options.export);
-      
+
       if (this.options.outputFile) {
         fs.writeFileSync(this.options.outputFile, exportData);
         console.log(`📁 Results exported to: ${this.options.outputFile}`);
       } else {
         console.log(exportData);
       }
-      
     } catch (error) {
       console.error('❌ Error exporting results:', error);
       throw error;
@@ -255,7 +270,7 @@ class MonorepoRefresher {
     } catch (error) {
       // Database not available, fall back to scanning
     }
-    
+
     // Fall back to scanning
     return scanMonorepo(this.rootDir);
   }
@@ -265,18 +280,19 @@ class MonorepoRefresher {
    */
   private async storeScanResults(scanResult: any): Promise<void> {
     try {
-      await prisma.monorepoScan.create({
-        data: {
-          scanTimestamp: scanResult.scanTimestamp,
-          scanDuration: scanResult.scanDuration,
-          totalPackages: scanResult.stats.totalPackages,
-          healthyPackages: scanResult.stats.healthyPackages,
-          warningPackages: scanResult.stats.warningPackages,
-          errorPackages: scanResult.stats.errorPackages,
-          overallHealth: scanResult.stats.healthyPackages / scanResult.stats.totalPackages * 100,
-          scanData: scanResult,
-        },
-      });
+      console.log(scanResult);
+      // await prisma.monorepoScan.create({
+      //   data: {
+      //     scanTimestamp: scanResult.scanTimestamp,
+      //     scanDuration: scanResult.scanDuration,
+      //     totalPackages: scanResult.stats.totalPackages,
+      //     healthyPackages: scanResult.stats.healthyPackages,
+      //     warningPackages: scanResult.stats.warningPackages,
+      //     errorPackages: scanResult.stats.errorPackages,
+      //     overallHealth: scanResult.stats.healthyPackages / scanResult.stats.totalPackages * 100,
+      //     scanData: scanResult,
+      //   },
+      // });
     } catch (error) {
       console.warn('⚠️  Failed to store scan results in database:', error);
     }
@@ -289,13 +305,13 @@ class MonorepoRefresher {
     for (const report of reports) {
       try {
         const pkg = report.package;
-        
+
         // Create or update package
         const dbPackage = await prisma.package.upsert({
           where: { name: pkg.name },
           update: {
             version: pkg.version,
-            type: pkg.type.toUpperCase(),
+            type: pkg.type,
             path: pkg.path,
             description: pkg.description,
             license: pkg.license,
@@ -303,32 +319,53 @@ class MonorepoRefresher {
             updatedAt: new Date(),
           },
           create: {
+            // Timestamps
+            createdAt: new Date(),
+            updatedAt: new Date(),
+
+            // Key Metrics and Relationships
+            dependencies: JSON.stringify(pkg.dependencies), // The total number of direct dependencies (12 in your example)
+            // Manual Serialization Required: Stores a JSON array string of maintainers, e.g., '["team-frontend"]'
+            maintainers: pkg.maintainers.join(','),
+            // Manual Serialization Required: Stores a JSON array string of tags, e.g., '["core", "ui"]'
+
+            // Manual Serialization Required: Stores the scripts object as a JSON string
+            // Example: '{"dev": "vite", "build": "tsc && vite build"}'
+            scripts: JSON.stringify(pkg.scripts),
+
+            // Dependency Lists (Manual Serialization Required)
+            // Stores a JSON array string of dependencies.
+            dependenciesList: JSON.stringify(pkg.dependenciesList),
+            devDependencies: JSON.stringify(pkg.devDependencies),
             name: pkg.name,
             version: pkg.version,
-            type: pkg.type.toUpperCase(),
+            type: pkg.type,
             path: pkg.path,
             description: pkg.description,
             license: pkg.license,
             repository: pkg.repository,
+            status: '',
           },
         });
-        
+
         // Store health metrics
         if (report.health) {
-          await prisma.healthMetric.create({
-            data: {
-              packageId: dbPackage.id,
-              buildStatus: report.health.buildStatus.toUpperCase(),
-              testCoverage: report.health.testCoverage,
-              lintStatus: report.health.lintStatus.toUpperCase(),
-              securityAudit: report.health.securityAudit.toUpperCase(),
-              overallScore: report.health.overallScore,
-            },
-          });
+          // await prisma.healthMetric.create({
+          //   data: {
+          //     packageId: dbPackage.id,
+          //     buildStatus: report.health.buildStatus.toUpperCase(),
+          //     testCoverage: report.health.testCoverage,
+          //     lintStatus: report.health.lintStatus.toUpperCase(),
+          //     securityAudit: report.health.securityAudit.toUpperCase(),
+          //     overallScore: report.health.overallScore,
+          //   },
+          // });
         }
-        
       } catch (error) {
-        console.warn(`⚠️  Failed to store report for ${report.package.name}:`, error);
+        console.warn(
+          `⚠️  Failed to store report for ${report.package.name}:`,
+          error
+        );
       }
     }
   }
@@ -360,18 +397,21 @@ class MonorepoRefresher {
   /**
    * Store health metrics in database
    */
-  private async storeHealthMetrics(packageId: string, health: any): Promise<void> {
+  private async storeHealthMetrics(
+    packageId: string,
+    health: any
+  ): Promise<void> {
     try {
-      await prisma.healthMetric.create({
-        data: {
-          packageId,
-          buildStatus: health.buildStatus.toUpperCase(),
-          testCoverage: health.testCoverage,
-          lintStatus: health.lintStatus.toUpperCase(),
-          securityAudit: health.securityAudit.toUpperCase(),
-          overallScore: health.overallScore,
-        },
-      });
+      // await prisma.healthMetric.create({
+      //   data: {
+      //     packageId,
+      //     buildStatus: health.buildStatus.toUpperCase(),
+      //     testCoverage: health.testCoverage,
+      //     lintStatus: health.lintStatus.toUpperCase(),
+      //     securityAudit: health.securityAudit.toUpperCase(),
+      //     overallScore: health.overallScore,
+      //   },
+      // });
     } catch (error) {
       console.warn('⚠️  Failed to store health metrics:', error);
     }
@@ -389,7 +429,10 @@ class MonorepoRefresher {
   /**
    * Store dependencies in database
    */
-  private async storeDependencies(packageId: string, dependencies: any[]): Promise<void> {
+  private async storeDependencies(
+    packageId: string,
+    dependencies: any[]
+  ): Promise<void> {
     // This would store dependencies in the database
     // Implementation depends on your specific needs
   }
@@ -401,10 +444,10 @@ class MonorepoRefresher {
 function parseArgs(): RefreshOptions {
   const args = process.argv.slice(2);
   const options: RefreshOptions = {};
-  
+
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
-    
+
     switch (arg) {
       case '--no-scan':
         options.fullScan = false;
@@ -438,7 +481,7 @@ function parseArgs(): RefreshOptions {
         break;
     }
   }
-  
+
   return options;
 }
 

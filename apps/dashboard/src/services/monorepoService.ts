@@ -61,6 +61,7 @@ export interface ConfigFile {
   hasSecrets: boolean;
 }
 
+const API_BASE = `http://localhost:4000/api`;
 class MonorepoService {
   // Simulated monorepo data based on typical monorepo structure
   private mockPackages: Package[] = [
@@ -192,9 +193,9 @@ class MonorepoService {
   ];
 
   async getPackages(): Promise<Package[]> {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 300));
-    return [...this.mockPackages];
+    const res = await fetch(`${API_BASE}/packages`);
+    if (!res.ok) throw new Error('Failed to fetch packages');
+    return await res.json();
   }
 
   async getDependencies(): Promise<DependencyInfo[]> {

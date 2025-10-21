@@ -33,10 +33,11 @@ export const filterPackages = (
   return packages.filter(pkg => {
     const matchesSearch =
       pkg.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-      pkg.description.toLowerCase().includes(filters.search.toLowerCase()) ||
-      pkg.tags.some(tag =>
-        tag.toLowerCase().includes(filters.search.toLowerCase())
-      );
+      pkg.description.toLowerCase().includes(filters.search.toLowerCase());
+    // ||
+    // pkg.tags.some(tag =>
+    //   tag.toLowerCase().includes(filters.search.toLowerCase())
+    // )
     const matchesType = filters.type === 'all' || pkg.type === filters.type;
     const matchesStatus =
       filters.status === 'all' || pkg.status === filters.status;

@@ -2,10 +2,10 @@
 import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
-import { 
-  PackageInfo, 
-  DependencyInfo, 
-  PackageHealth, 
+import {
+  PackageInfo,
+  DependencyInfo,
+  PackageHealth,
   MonorepoStats,
   scanMonorepo,
   analyzeDependencies,
@@ -14,7 +14,7 @@ import {
   findCircularDependencies,
   generateDependencyGraph,
   checkOutdatedDependencies,
-  getPackageSize
+  getPackageSize,
 } from '../../libs/utils/helpers';
 
 export interface ScanResult {
@@ -55,7 +55,7 @@ export class MonorepoScanner {
    */
   async scan(): Promise<ScanResult> {
     const startTime = Date.now();
-    
+
     try {
       // Check cache first
       const cacheKey = 'full-scan';
@@ -65,23 +65,23 @@ export class MonorepoScanner {
       }
 
       console.log('🔍 Starting monorepo scan...');
-      
+
       // Scan all packages
       const packages = scanMonorepo(this.rootDir);
       console.log(`📦 Found ${packages.length} packages`);
-      
+
       // Generate statistics
       const stats = generateMonorepoStats(packages);
-      
+
       // Generate dependency graph
       const dependencyGraph = generateDependencyGraph(packages);
-      
+
       // Find circular dependencies
       const circularDependencies = findCircularDependencies(packages);
-      
+
       // Check for outdated packages
       const outdatedPackages = this.findOutdatedPackages(packages);
-      
+
       const result: ScanResult = {
         packages,
         stats,
@@ -91,13 +91,12 @@ export class MonorepoScanner {
         scanTimestamp: new Date(),
         scanDuration: Date.now() - startTime,
       };
-      
+
       // Cache the result
       this.setCache(cacheKey, result);
-      
+
       console.log(`✅ Scan completed in ${result.scanDuration}ms`);
       return result;
-      
     } catch (error) {
       console.error('❌ Error during scan:', error);
       throw error;
@@ -110,7 +109,7 @@ export class MonorepoScanner {
   async generatePackageReports(): Promise<PackageReport[]> {
     const packages = scanMonorepo(this.rootDir);
     const reports: PackageReport[] = [];
-    
+
     for (const pkg of packages) {
       try {
         const report = await this.generatePackageReport(pkg);
@@ -119,7 +118,7 @@ export class MonorepoScanner {
         console.error(`Error generating report for ${pkg.name}:`, error);
       }
     }
-    
+
     return reports;
   }
 
@@ -132,7 +131,7 @@ export class MonorepoScanner {
     const outdatedDeps = checkOutdatedDependencies(pkg);
     const lastModified = this.getLastModified(pkg.path);
     const gitInfo = await this.getGitInfo(pkg.path);
-    
+
     return {
       package: pkg,
       health,
@@ -149,30 +148,37 @@ export class MonorepoScanner {
   private async assessPackageHealth(pkg: PackageInfo): Promise<PackageHealth> {
     // Check build status
     const buildStatus = await this.checkBuildStatus(pkg);
-    
+
     // Check test coverage
     const testCoverage = await this.checkTestCoverage(pkg);
-    
+
     // Check lint status
     const lintStatus = await this.checkLintStatus(pkg);
-    
+
     // Check security audit
     const securityAudit = await this.checkSecurityAudit(pkg);
-    
-    return calculatePackageHealth(buildStatus, testCoverage, lintStatus, securityAudit);
+
+    return calculatePackageHealth(
+      buildStatus,
+      testCoverage,
+      lintStatus,
+      securityAudit
+    );
   }
 
   /**
    * Checks if a package builds successfully
    */
-  private async checkBuildStatus(pkg: PackageInfo): Promise<PackageHealth['buildStatus']> {
+  private async checkBuildStatus(
+    pkg: PackageInfo
+  ): Promise<PackageHealth['buildStatus']> {
     try {
       if (pkg.scripts.build) {
         // Try to run build command
-        execSync('npm run build', { 
-          cwd: pkg.path, 
+        execSync('npm run build', {
+          cwd: pkg.path,
           stdio: 'pipe',
-          timeout: 30000 
+          timeout: 30000,
         });
         return 'success';
       }
@@ -201,14 +207,16 @@ export class MonorepoScanner {
   /**
    * Checks lint status for a package
    */
-  private async checkLintStatus(pkg: PackageInfo): Promise<PackageHealth['lintStatus']> {
+  private async checkLintStatus(
+    pkg: PackageInfo
+  ): Promise<PackageHealth['lintStatus']> {
     try {
       if (pkg.scripts.lint) {
         // Try to run lint command
-        execSync('npm run lint', { 
-          cwd: pkg.path, 
+        execSync('npm run lint', {
+          cwd: pkg.path,
           stdio: 'pipe',
-          timeout: 10000 
+          timeout: 10000,
         });
         return 'pass';
       }
@@ -221,15 +229,17 @@ export class MonorepoScanner {
   /**
    * Checks security audit for a package
    */
-  private async checkSecurityAudit(pkg: PackageInfo): Promise<PackageHealth['securityAudit']> {
+  private async checkSecurityAudit(
+    pkg: PackageInfo
+  ): Promise<PackageHealth['securityAudit']> {
     try {
       // Run npm audit
-      const result = execSync('npm audit --json', { 
-        cwd: pkg.path, 
+      const result = execSync('npm audit --json', {
+        cwd: pkg.path,
         stdio: 'pipe',
-        timeout: 15000 
+        timeout: 15000,
       });
-      
+
       const audit = JSON.parse(result.toString());
       return audit.metadata.vulnerabilities.total === 0 ? 'pass' : 'fail';
     } catch (error) {
@@ -242,14 +252,14 @@ export class MonorepoScanner {
    */
   private findOutdatedPackages(packages: PackageInfo[]): string[] {
     const outdated: string[] = [];
-    
+
     for (const pkg of packages) {
       const outdatedDeps = checkOutdatedDependencies(pkg);
       if (outdatedDeps.length > 0) {
         outdated.push(pkg.name);
       }
     }
-    
+
     return outdated;
   }
 
@@ -268,37 +278,47 @@ export class MonorepoScanner {
   /**
    * Gets git information for a package
    */
-  private async getGitInfo(packagePath: string): Promise<PackageReport['gitInfo'] | undefined> {
+  private async getGitInfo(
+    packagePath: string
+  ): Promise<PackageReport['gitInfo'] | undefined> {
     try {
       // Check if this is a git repository
       const gitPath = path.join(packagePath, '.git');
       if (!fs.existsSync(gitPath)) {
         return undefined;
       }
-      
+
       // Get last commit info
-      const lastCommit = execSync('git rev-parse HEAD', { 
-        cwd: packagePath, 
-        stdio: 'pipe' 
-      }).toString().trim();
-      
+      const lastCommit = execSync('git rev-parse HEAD', {
+        cwd: packagePath,
+        stdio: 'pipe',
+      })
+        .toString()
+        .trim();
+
       const lastCommitDate = new Date(
-        execSync('git log -1 --format=%cd', { 
-          cwd: packagePath, 
-          stdio: 'pipe' 
-        }).toString().trim()
+        execSync('git log -1 --format=%cd', {
+          cwd: packagePath,
+          stdio: 'pipe',
+        })
+          .toString()
+          .trim()
       );
-      
-      const author = execSync('git log -1 --format=%an', { 
-        cwd: packagePath, 
-        stdio: 'pipe' 
-      }).toString().trim();
-      
-      const branch = execSync('git branch --show-current', { 
-        cwd: packagePath, 
-        stdio: 'pipe' 
-      }).toString().trim();
-      
+
+      const author = execSync('git log -1 --format=%an', {
+        cwd: packagePath,
+        stdio: 'pipe',
+      })
+        .toString()
+        .trim();
+
+      const branch = execSync('git branch --show-current', {
+        cwd: packagePath,
+        stdio: 'pipe',
+      })
+        .toString()
+        .trim();
+
       return {
         lastCommit: lastCommit.substring(0, 7),
         lastCommitDate,
@@ -315,17 +335,17 @@ export class MonorepoScanner {
    */
   scanForFileTypes(fileTypes: string[]): Record<string, string[]> {
     const results: Record<string, string[]> = {};
-    
+
     for (const fileType of fileTypes) {
       results[fileType] = [];
     }
-    
+
     const packages = scanMonorepo(this.rootDir);
-    
+
     for (const pkg of packages) {
       this.scanPackageForFiles(pkg.path, fileTypes, results);
     }
-    
+
     return results;
   }
 
@@ -333,16 +353,16 @@ export class MonorepoScanner {
    * Recursively scans a package directory for specific file types
    */
   private scanPackageForFiles(
-    packagePath: string, 
-    fileTypes: string[], 
+    packagePath: string,
+    fileTypes: string[],
     results: Record<string, string[]>
   ): void {
     try {
       const items = fs.readdirSync(packagePath, { withFileTypes: true });
-      
+
       for (const item of items) {
         const fullPath = path.join(packagePath, item.name);
-        
+
         if (item.isDirectory()) {
           // Skip certain directories
           if (!['node_modules', 'dist', 'build', '.git'].includes(item.name)) {
@@ -409,15 +429,21 @@ export class MonorepoScanner {
    * Exports results to CSV format
    */
   private exportToCSV(results: ScanResult): string {
-    const headers = ['Package', 'Type', 'Version', 'Dependencies', 'Health Score'];
+    const headers = [
+      'Package',
+      'Type',
+      'Version',
+      'Dependencies',
+      'Health Score',
+    ];
     const rows = results.packages.map(pkg => [
       pkg.name,
       pkg.type,
       pkg.version,
       Object.keys(pkg.dependencies).length,
-      'N/A' // Would need health calculation
+      'N/A', // Would need health calculation
     ]);
-    
+
     return [headers, ...rows]
       .map(row => row.map(cell => `"${cell}"`).join(','))
       .join('\n');
@@ -460,14 +486,18 @@ export class MonorepoScanner {
               <th>Version</th>
               <th>Dependencies</th>
             </tr>
-            ${results.packages.map(pkg => `
+            ${results.packages
+              .map(
+                pkg => `
               <tr>
                 <td>${pkg.name}</td>
                 <td>${pkg.type}</td>
                 <td>${pkg.version}</td>
                 <td>${Object.keys(pkg.dependencies).length}</td>
               </tr>
-            `).join('')}
+            `
+              )
+              .join('')}
           </table>
         </body>
       </html>

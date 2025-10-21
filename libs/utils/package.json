@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Shared utility functions for monodog monorepo dashboard",
   "main": "helpers.ts",
+  "license": "MIT",
   "scripts": {
     "build": "tsc",
     "test": "jest",

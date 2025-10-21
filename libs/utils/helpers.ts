@@ -48,14 +48,15 @@ export interface MonorepoStats {
  */
 export function scanMonorepo(rootDir: string): PackageInfo[] {
   const packages: PackageInfo[] = [];
-  
+
   // Scan packages directory
   const packagesDir = path.join(rootDir, 'packages');
   if (fs.existsSync(packagesDir)) {
-    const packageDirs = fs.readdirSync(packagesDir, { withFileTypes: true })
+    const packageDirs = fs
+      .readdirSync(packagesDir, { withFileTypes: true })
       .filter(dirent => dirent.isDirectory())
       .map(dirent => dirent.name);
-    
+
     for (const packageName of packageDirs) {
       const packagePath = path.join(packagesDir, packageName);
       const packageInfo = parsePackageInfo(packagePath, packageName);
@@ -64,14 +65,15 @@ export function scanMonorepo(rootDir: string): PackageInfo[] {
       }
     }
   }
-  
+
   // Scan apps directory
   const appsDir = path.join(rootDir, 'apps');
   if (fs.existsSync(appsDir)) {
-    const appDirs = fs.readdirSync(appsDir, { withFileTypes: true })
+    const appDirs = fs
+      .readdirSync(appsDir, { withFileTypes: true })
       .filter(dirent => dirent.isDirectory())
       .map(dirent => dirent.name);
-    
+
     for (const appName of appDirs) {
       const appPath = path.join(appsDir, appName);
       const appInfo = parsePackageInfo(appPath, appName, 'app');
@@ -80,14 +82,15 @@ export function scanMonorepo(rootDir: string): PackageInfo[] {
       }
     }
   }
-  
+
   // Scan libs directory
   const libsDir = path.join(rootDir, 'libs');
   if (fs.existsSync(libsDir)) {
-    const libDirs = fs.readdirSync(libsDir, { withFileTypes: true })
+    const libDirs = fs
+      .readdirSync(libsDir, { withFileTypes: true })
       .filter(dirent => dirent.isDirectory())
       .map(dirent => dirent.name);
-    
+
     for (const libName of libDirs) {
       const libPath = path.join(libsDir, libName);
       const libInfo = parsePackageInfo(libPath, libName, 'lib');
@@ -96,23 +99,27 @@ export function scanMonorepo(rootDir: string): PackageInfo[] {
       }
     }
   }
-  
+
   return packages;
 }
 
 /**
  * Parses package.json and determines package type
  */
-function parsePackageInfo(packagePath: string, packageName: string, forcedType?: 'app' | 'lib' | 'tool'): PackageInfo | null {
+function parsePackageInfo(
+  packagePath: string,
+  packageName: string,
+  forcedType?: 'app' | 'lib' | 'tool'
+): PackageInfo | null {
   const packageJsonPath = path.join(packagePath, 'package.json');
-  
+
   if (!fs.existsSync(packageJsonPath)) {
     return null;
   }
-  
+
   try {
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-    
+
     // Determine package type
     let packageType: 'app' | 'lib' | 'tool' = 'lib';
     if (forcedType) {
@@ -122,7 +129,7 @@ function parsePackageInfo(packagePath: string, packageName: string, forcedType?:
     } else if (packageJson.keywords && packageJson.keywords.includes('tool')) {
       packageType = 'tool';
     }
-    
+
     return {
       name: packageJson.name || packageName,
       version: packageJson.version || '0.0.0',
@@ -167,7 +174,7 @@ export function calculatePackageHealth(
   securityAudit: PackageHealth['securityAudit']
 ): PackageHealth {
   let score = 0;
-  
+
   // Build status (30 points)
   switch (buildStatus) {
     case 'success':
@@ -182,10 +189,10 @@ export function calculatePackageHealth(
     default:
       score += 10;
   }
-  
+
   // Test coverage (25 points)
   score += Math.min(25, (testCoverage / 100) * 25);
-  
+
   // Lint status (25 points)
   switch (lintStatus) {
     case 'pass':
@@ -197,7 +204,7 @@ export function calculatePackageHealth(
     default:
       score += 10;
   }
-  
+
   // Security audit (20 points)
   switch (securityAudit) {
     case 'pass':
@@ -209,7 +216,7 @@ export function calculatePackageHealth(
     default:
       score += 10;
   }
-  
+
   return {
     buildStatus,
     testCoverage,
@@ -234,13 +241,13 @@ export function generateMonorepoStats(packages: PackageInfo[]): MonorepoStats {
     outdatedDependencies: 0,
     totalDependencies: 0,
   };
-  
+
   // Calculate dependency counts
   packages.forEach(pkg => {
     stats.totalDependencies += Object.keys(pkg.dependencies).length;
     stats.totalDependencies += Object.keys(pkg.devDependencies).length;
   });
-  
+
   return stats;
 }
 
@@ -252,43 +259,43 @@ export function findCircularDependencies(packages: PackageInfo[]): string[][] {
   const visited = new Set<string>();
   const recursionStack = new Set<string>();
   const circularDeps: string[][] = [];
-  
+
   // Build dependency graph
   packages.forEach(pkg => {
     graph.set(pkg.name, Object.keys(pkg.dependencies));
   });
-  
+
   function dfs(node: string, path: string[]): void {
     if (recursionStack.has(node)) {
       const cycleStart = path.indexOf(node);
       circularDeps.push(path.slice(cycleStart));
       return;
     }
-    
+
     if (visited.has(node)) {
       return;
     }
-    
+
     visited.add(node);
     recursionStack.add(node);
     path.push(node);
-    
+
     const dependencies = graph.get(node) || [];
     for (const dep of dependencies) {
       if (graph.has(dep)) {
         dfs(dep, [...path]);
       }
     }
-    
+
     recursionStack.delete(node);
   }
-  
+
   for (const node of graph.keys()) {
     if (!visited.has(node)) {
       dfs(node, []);
     }
   }
-  
+
   return circularDeps;
 }
 
@@ -303,9 +310,9 @@ export function generateDependencyGraph(packages: PackageInfo[]) {
     version: pkg.version,
     dependencies: Object.keys(pkg.dependencies).length,
   }));
-  
+
   const edges: Array<{ from: string; to: string; type: string }> = [];
-  
+
   packages.forEach(pkg => {
     Object.keys(pkg.dependencies).forEach(depName => {
       // Only include internal dependencies
@@ -318,16 +325,18 @@ export function generateDependencyGraph(packages: PackageInfo[]) {
       }
     });
   });
-  
+
   return { nodes, edges };
 }
 
 /**
  * Checks if a package has outdated dependencies
  */
-export function checkOutdatedDependencies(packageInfo: PackageInfo): DependencyInfo[] {
+export function checkOutdatedDependencies(
+  packageInfo: PackageInfo
+): DependencyInfo[] {
   const outdated: DependencyInfo[] = [];
-  
+
   // This would typically involve checking against npm registry
   // For now, we'll simulate with some basic checks
   Object.entries(packageInfo.dependencies).forEach(([name, version]) => {
@@ -341,7 +350,7 @@ export function checkOutdatedDependencies(packageInfo: PackageInfo): DependencyI
       });
     }
   });
-  
+
   return outdated;
 }
 
@@ -349,7 +358,10 @@ export function checkOutdatedDependencies(packageInfo: PackageInfo): DependencyI
  * Formats version numbers for comparison
  */
 export function parseVersion(version: string): number[] {
-  return version.replace(/^[^0-9]*/, '').split('.').map(Number);
+  return version
+    .replace(/^[^0-9]*/, '')
+    .split('.')
+    .map(Number);
 }
 
 /**
@@ -358,32 +370,35 @@ export function parseVersion(version: string): number[] {
 export function compareVersions(v1: string, v2: string): number {
   const parsed1 = parseVersion(v1);
   const parsed2 = parseVersion(v2);
-  
+
   for (let i = 0; i < Math.max(parsed1.length, parsed2.length); i++) {
     const num1 = parsed1[i] || 0;
     const num2 = parsed2[i] || 0;
-    
+
     if (num1 > num2) return 1;
     if (num1 < num2) return -1;
   }
-  
+
   return 0;
 }
 
 /**
  * Gets package size information
  */
-export function getPackageSize(packagePath: string): { size: number; files: number } {
+export function getPackageSize(packagePath: string): {
+  size: number;
+  files: number;
+} {
   try {
     let totalSize = 0;
     let fileCount = 0;
-    
+
     function calculateSize(dirPath: string): void {
       const items = fs.readdirSync(dirPath, { withFileTypes: true });
-      
+
       for (const item of items) {
         const fullPath = path.join(dirPath, item.name);
-        
+
         if (item.isDirectory()) {
           // Skip node_modules and other build artifacts
           if (!['node_modules', 'dist', 'build', '.git'].includes(item.name)) {
@@ -400,9 +415,9 @@ export function getPackageSize(packagePath: string): { size: number; files: numb
         }
       }
     }
-    
+
     calculateSize(packagePath);
-    
+
     return {
       size: totalSize,
       files: fileCount,

@@ -11,7 +11,7 @@ import {
   PackageSearchFilter,
   PackageTable,
 } from './components';
-
+import { monorepoService } from '../../services/monorepoService';
 // Import types and utilities
 import { Package, PackageStats } from './types/dashboard.types';
 import {
@@ -44,52 +44,73 @@ const defaultConfig: DashboardConfig = {
 };
 
 // Mock data - this would be replaced by actual monorepo scanning
-const mockPackages: Package[] = [
-  {
-    name: 'dashboard',
-    version: '1.0.0',
-    type: 'app',
-    path: 'apps/dashboard',
-    dependencies: { react: '^18.0.0', utils: 'workspace:*' },
-    devDependencies: { typescript: '^5.0.0' },
-    scripts: { dev: 'vite', build: 'tsc', test: 'jest' },
-    description: 'Main dashboard application',
-    license: 'MIT',
-    maintainers: ['team@company.com'],
-  },
-  {
-    name: 'utils',
-    version: '1.0.0',
-    type: 'lib',
-    path: 'libs/utils',
-    dependencies: {},
-    devDependencies: { typescript: '^5.0.0' },
-    scripts: { build: 'tsc', test: 'jest' },
-    description: 'Shared utility functions',
-    license: 'MIT',
-    maintainers: ['team@company.com'],
-  },
-  {
-    name: 'backend',
-    version: '1.0.0',
-    type: 'app',
-    path: 'packages/backend',
-    dependencies: { express: '^4.18.0', utils: 'workspace:*' },
-    devDependencies: { typescript: '^5.0.0' },
-    scripts: { dev: 'tsx watch', start: 'tsx', build: 'tsc' },
-    description: 'Backend API server',
-    license: 'MIT',
-    maintainers: ['team@company.com'],
-  },
-];
+// const mockPackages: Package[] = [
+//   {
+//     name: 'dashboard',
+//     version: '1.0.0',
+//     type: 'app',
+//     path: 'apps/dashboard',
+//     dependencies: { react: '^18.0.0', utils: 'workspace:*' },
+//     devDependencies: { typescript: '^5.0.0' },
+//     scripts: { dev: 'vite', build: 'tsc', test: 'jest' },
+//     description: 'Main dashboard application',
+//     license: 'MIT',
+//     maintainers: ['team@company.com'],
+//   },
+//   {
+//     name: 'utils',
+//     version: '1.0.0',
+//     type: 'lib',
+//     path: 'libs/utils',
+//     dependencies: {},
+//     devDependencies: { typescript: '^5.0.0' },
+//     scripts: { build: 'tsc', test: 'jest' },
+//     description: 'Shared utility functions',
+//     license: 'MIT',
+//     maintainers: ['team@company.com'],
+//   },
+//   {
+//     name: 'backend',
+//     version: '1.0.0',
+//     type: 'app',
+//     path: 'packages/backend',
+//     dependencies: { express: '^4.18.0', utils: 'workspace:*' },
+//     devDependencies: { typescript: '^5.0.0' },
+//     scripts: { dev: 'tsx watch', start: 'tsx', build: 'tsc' },
+//     description: 'Backend API server',
+//     license: 'MIT',
+//     maintainers: ['team@company.com'],
+//   },
+// ];
 
 export default function Dashboard() {
-  const [packages, setPackages] = useState<Package[]>(mockPackages);
+  const [packages, setPackages] = useState<Package[]>();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState<string>('all');
   const [config, setConfig] = useState<DashboardConfig>(defaultConfig);
   const [showConfig, setShowConfig] = useState(false);
   const [showSetupGuide, setShowSetupGuide] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch packages
+  useEffect(() => {
+    const fetchPackages = async () => {
+      try {
+        setLoading(true);
+        const data = await monorepoService.getPackages();
+        setPackages(data);
+        setError(null);
+      } catch (err) {
+        setError('Failed to fetch packages');
+        console.error('Error fetching packages:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPackages();
+  }, []);
 
   // Load configuration from localStorage or environment
   useEffect(() => {
@@ -110,11 +131,14 @@ export default function Dashboard() {
     // In a real app, this would refresh data from the API
     console.log('Refreshing dashboard data...');
   };
-
   // Calculate derived data using utility functions
-  const filteredPackages = filterPackages(packages, searchTerm, selectedType);
-  const packageTypes = getUniquePackageTypes(packages);
-  const stats = calculatePackageStats(packages);
+  const filteredPackages = filterPackages(
+    packages ?? [],
+    searchTerm,
+    selectedType
+  );
+  const packageTypes = getUniquePackageTypes(packages ?? []);
+  const stats = calculatePackageStats(packages ?? []);
 
   return (
     <div className="p-6 space-y-6">
@@ -131,7 +155,7 @@ export default function Dashboard() {
 
       {/* Package Type Distribution */}
       <PackageDistribution
-        packages={packages}
+        packages={packages ?? []}
         packageTypes={packageTypes}
         getTypeIcon={getTypeIcon}
       />

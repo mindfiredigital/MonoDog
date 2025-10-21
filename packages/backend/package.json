@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Backend API server for monodog monorepo dashboard",
   "main": "index.ts",
+  "license": "MIT",
   "scripts": {
     "dev": "tsx watch index.ts",
     "start": "tsx index.ts",

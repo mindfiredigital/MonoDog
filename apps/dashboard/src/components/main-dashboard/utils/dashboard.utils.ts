@@ -7,7 +7,7 @@ export const calculatePackageStats = (packages: Package[]): PackageStats => {
     apps: packages.filter(p => p.type === 'app').length,
     libs: packages.filter(p => p.type === 'lib').length,
     tools: packages.filter(p => p.type === 'tool').length,
-    custom: packages.filter(p => !['app', 'lib', 'tool'].includes(p.type))
+    custom: packages.filter(p => !['app', 'Plib', 'tool'].includes(p.type))
       .length,
     totalDependencies: packages.reduce(
       (sum, pkg) =>

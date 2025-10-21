@@ -2,6 +2,7 @@
   "name": "@monodog/dashboard",
   "version": "1.0.0",
   "description": "React dashboard for monodog monorepo management",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,13 +13,13 @@
     "clean": "rm -rf dist node_modules/.vite"
   },
   "dependencies": {
+    "@heroicons/react": "^2.0.18",
+    "clsx": "^2.0.0",
+    "date-fns": "^2.30.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.8.1",
-    "@heroicons/react": "^2.0.18",
     "recharts": "^2.8.0",
-    "clsx": "^2.0.0",
-    "date-fns": "^2.30.0",
     "zustand": "^4.4.6"
   },
   "devDependencies": {

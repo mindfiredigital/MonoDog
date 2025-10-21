@@ -1,4 +1,3 @@
-
 interface ConfigurationModalProps {
   isOpen: boolean;
   onClose: () => void;

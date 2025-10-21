@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "CI/CD status manager for monorepo packages",
   "main": "index.ts",
+  "license": "MIT",
   "scripts": {
     "dev": "tsx watch index.ts",
     "start": "tsx index.ts",

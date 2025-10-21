@@ -2,7 +2,14 @@ import { PackageInfo } from '../../libs/utils/helpers';
 
 export interface CIProvider {
   name: string;
-  type: 'github' | 'gitlab' | 'jenkins' | 'circleci' | 'travis' | 'azure' | 'custom';
+  type:
+    | 'github'
+    | 'gitlab'
+    | 'jenkins'
+    | 'circleci'
+    | 'travis'
+    | 'azure'
+    | 'custom';
   baseUrl: string;
   apiToken?: string;
 }
@@ -170,7 +177,7 @@ export class CIStatusManager {
    * Fetch CI status for a specific package
    */
   async getPackageStatus(
-    packageName: string, 
+    packageName: string,
     providerName?: string
   ): Promise<CIPackageStatus | null> {
     const cacheKey = `package-status-${packageName}-${providerName || 'all'}`;
@@ -190,7 +197,10 @@ export class CIStatusManager {
       } else {
         // Fetch from all providers
         for (const provider of this.providers.values()) {
-          const providerBuilds = await this.fetchBuildsFromProvider(provider, packageName);
+          const providerBuilds = await this.fetchBuildsFromProvider(
+            provider,
+            packageName
+          );
           builds.push(...providerBuilds);
         }
       }
@@ -224,7 +234,6 @@ export class CIStatusManager {
 
       this.setCache(cacheKey, status);
       return status;
-
     } catch (error) {
       console.error(`Error fetching CI status for ${packageName}:`, error);
       return null;
@@ -272,8 +281,12 @@ export class CIStatusManager {
     // Calculate overall metrics
     const totalPackages = packages.length;
     const healthyPackages = packageStatuses.filter(s => s.isHealthy).length;
-    const warningPackages = packageStatuses.filter(s => !s.isHealthy && s.issues.length < 3).length;
-    const errorPackages = packageStatuses.filter(s => !s.isHealthy && s.issues.length >= 3).length;
+    const warningPackages = packageStatuses.filter(
+      s => !s.isHealthy && s.issues.length < 3
+    ).length;
+    const errorPackages = packageStatuses.filter(
+      s => !s.isHealthy && s.issues.length >= 3
+    ).length;
     const overallHealth = (healthyPackages / totalPackages) * 100;
 
     // Sort builds by time
@@ -283,9 +296,11 @@ export class CIStatusManager {
 
     // Calculate overall coverage
     const coverageValues = Object.values(packageCoverage);
-    const overallCoverage = coverageValues.length > 0 
-      ? coverageValues.reduce((sum, val) => sum + val, 0) / coverageValues.length 
-      : 0;
+    const overallCoverage =
+      coverageValues.length > 0
+        ? coverageValues.reduce((sum, val) => sum + val, 0) /
+          coverageValues.length
+        : 0;
 
     const status: CIMonorepoStatus = {
       totalPackages,
@@ -316,12 +331,12 @@ export class CIStatusManager {
    * Fetch builds from a specific CI provider
    */
   private async fetchBuildsFromProvider(
-    provider: CIProvider, 
+    provider: CIProvider,
     packageName: string
   ): Promise<CIBuild[]> {
     // This is a mock implementation
     // In a real implementation, you would make API calls to the CI provider
-    
+
     const mockBuilds: CIBuild[] = [
       {
         id: `build-${Date.now()}-1`,
@@ -442,7 +457,7 @@ export class CIStatusManager {
    */
   private calculateSuccessRate(builds: CIBuild[]): number {
     if (builds.length === 0) return 0;
-    
+
     const successfulBuilds = builds.filter(b => b.status === 'success').length;
     return (successfulBuilds / builds.length) * 100;
   }
@@ -452,11 +467,14 @@ export class CIStatusManager {
    */
   private calculateAverageDuration(builds: CIBuild[]): number {
     if (builds.length === 0) return 0;
-    
+
     const completedBuilds = builds.filter(b => b.duration !== undefined);
     if (completedBuilds.length === 0) return 0;
-    
-    const totalDuration = completedBuilds.reduce((sum, b) => sum + (b.duration || 0), 0);
+
+    const totalDuration = completedBuilds.reduce(
+      (sum, b) => sum + (b.duration || 0),
+      0
+    );
     return totalDuration / completedBuilds.length;
   }
 
@@ -465,10 +483,10 @@ export class CIStatusManager {
    */
   private determinePackageHealth(builds: CIBuild[]): boolean {
     if (builds.length === 0) return true;
-    
+
     const recentBuilds = builds.slice(0, 5); // Last 5 builds
     const successRate = this.calculateSuccessRate(recentBuilds);
-    
+
     return successRate >= 80; // 80% success rate threshold
   }
 
@@ -477,16 +495,16 @@ export class CIStatusManager {
    */
   private identifyIssues(builds: CIBuild[]): string[] {
     const issues: string[] = [];
-    
+
     if (builds.length === 0) return issues;
-    
+
     const recentBuilds = builds.slice(0, 3); // Last 3 builds
     const successRate = this.calculateSuccessRate(recentBuilds);
-    
+
     if (successRate < 50) {
       issues.push('High failure rate in recent builds');
     }
-    
+
     const failedBuilds = recentBuilds.filter(b => b.status === 'failed');
     for (const build of failedBuilds) {
       const failedSteps = build.steps.filter(s => s.status === 'failed');
@@ -496,13 +514,14 @@ export class CIStatusManager {
         }
       }
     }
-    
+
     // Check for long build times
     const avgDuration = this.calculateAverageDuration(recentBuilds);
-    if (avgDuration > 10 * 60 * 1000) { // 10 minutes
+    if (avgDuration > 10 * 60 * 1000) {
+      // 10 minutes
       issues.push('Builds are taking longer than expected');
     }
-    
+
     return issues;
   }
 
@@ -546,16 +565,18 @@ export class CIStatusManager {
    * Trigger a new build for a package
    */
   async triggerBuild(
-    packageName: string, 
-    providerName: string, 
+    packageName: string,
+    providerName: string,
     branch: string = 'main'
   ): Promise<{ success: boolean; buildId?: string; error?: string }> {
     try {
       // Mock implementation
       const buildId = `build-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      
-      console.log(`Triggering build for ${packageName} on ${branch} via ${providerName}`);
-      
+
+      console.log(
+        `Triggering build for ${packageName} on ${branch} via ${providerName}`
+      );
+
       return {
         success: true,
         buildId,
@@ -571,7 +592,10 @@ export class CIStatusManager {
   /**
    * Get build artifacts
    */
-  async getBuildArtifacts(buildId: string, providerName: string): Promise<CIArtifact[]> {
+  async getBuildArtifacts(
+    buildId: string,
+    providerName: string
+  ): Promise<CIArtifact[]> {
     // Mock implementation
     return [
       {
@@ -594,17 +618,21 @@ export class CIStatusManager {
 export const ciStatusManager = new CIStatusManager();
 
 // Export convenience functions
-export async function getPackageCIStatus(packageName: string): Promise<CIPackageStatus | null> {
+export async function getPackageCIStatus(
+  packageName: string
+): Promise<CIPackageStatus | null> {
   return ciStatusManager.getPackageStatus(packageName);
 }
 
-export async function getMonorepoCIStatus(packages: PackageInfo[]): Promise<CIMonorepoStatus> {
+export async function getMonorepoCIStatus(
+  packages: PackageInfo[]
+): Promise<CIMonorepoStatus> {
   return ciStatusManager.getMonorepoStatus(packages);
 }
 
 export async function triggerPackageBuild(
-  packageName: string, 
-  providerName: string, 
+  packageName: string,
+  providerName: string,
   branch?: string
 ): Promise<{ success: boolean; buildId?: string; error?: string }> {
   return ciStatusManager.triggerBuild(packageName, providerName, branch);

@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      '@prisma/client':
+        specifier: ^5.7.0
+        version: 5.22.0(prisma@5.22.0)
     devDependencies:
       '@changesets/cli':
         specifier: ^2.26.2
@@ -44,6 +48,9 @@ importers:
       prettier:
         specifier: ^3.0.3
         version: 3.6.2
+      prisma:
+        specifier: ^5.22.0
+        version: 5.22.0
       semantic-release:
         specifier: ^21.1.1
         version: 21.1.2(typescript@5.9.3)

@@ -3,7 +3,15 @@ import cors from 'cors';
 import { json } from 'body-parser';
 import { scanner, quickScan, generateReports } from '../monorepo-scanner';
 import { ciStatusManager, getMonorepoCIStatus } from '../ci-status';
-import { scanMonorepo, generateMonorepoStats, findCircularDependencies, generateDependencyGraph } from '../../libs/utils/helpers';
+import {
+  scanMonorepo,
+  generateMonorepoStats,
+  findCircularDependencies,
+  generateDependencyGraph,
+} from '../../libs/utils/helpers';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 const app = express();
 app.use(cors());
@@ -11,25 +19,55 @@ app.use(json());
 
 // Health check
 app.get('/api/health', (_, res) => {
-  res.json({ 
-    status: 'ok', 
+  res.json({
+    status: 'ok',
     timestamp: Date.now(),
     version: '1.0.0',
     services: {
       scanner: 'active',
       ci: 'active',
-      database: 'active'
-    }
+      database: 'active',
+    },
   });
 });
 
 // Get all packages
 app.get('/api/packages', async (req, res) => {
   try {
-    const packages = scanMonorepo(process.cwd());
-    res.json(packages);
+    const dbPackages = await prisma.package.findMany();
+
+    const transformedPackages = dbPackages.map(pkg => {
+      // We create a new object 'transformedPkg' based on the database record 'pkg'
+      const transformedPkg = { ...pkg };
+
+      // --- APPLY PARSING TO EACH FIELD ---
+
+      // 1. Maintainers (Your Logic)
+      transformedPkg.maintainers = pkg.maintainers
+        ? JSON.parse(pkg.maintainers)
+        : [];
+
+      // 2. Tags
+      // transformedPkg.tags = pkg.tags
+      //     ? JSON.parse(pkg.tags)
+      //     : [];
+
+      // 3. Scripts (should default to an object, not an array)
+      transformedPkg.scripts = pkg.scripts ? JSON.parse(pkg.scripts) : {};
+
+      // 4. Dependencies List
+      transformedPkg.dependenciesList = pkg.dependenciesList
+        ? JSON.parse(pkg.dependenciesList)
+        : [];
+
+      // ... and so on for all serialized fields
+
+      return transformedPkg; // Return the fully transformed object
+    });
+
+    res.json(transformedPackages);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch packages' });
+    res.status(500).json({ error: 'Failed to fetch packagesss' });
   }
 });
 
@@ -37,23 +75,26 @@ app.get('/api/packages', async (req, res) => {
 app.get('/api/packages/:name', async (req, res) => {
   try {
     const { name } = req.params;
-    const packages = scanMonorepo(process.cwd());
-    const packageInfo = packages.find(p => p.name === name);
-    
+    const packageInfo = await prisma.package.findUnique({
+      where: {
+        name: name,
+      },
+    });
+
     if (!packageInfo) {
       return res.status(404).json({ error: 'Package not found' });
     }
-    
+
     // Get additional package information
     const reports = await generateReports();
     const packageReport = reports.find(r => r.package.name === name);
-    
+
     const result = {
       ...packageInfo,
       report: packageReport,
       ciStatus: await ciStatusManager.getPackageStatus(name),
     };
-    
+
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch package details' });
@@ -66,7 +107,7 @@ app.get('/api/graph', async (req, res) => {
     const packages = scanMonorepo(process.cwd());
     const graph = generateDependencyGraph(packages);
     const circularDeps = findCircularDependencies(packages);
-    
+
     res.json({
       ...graph,
       circularDependencies: circularDeps,
@@ -74,7 +115,7 @@ app.get('/api/graph', async (req, res) => {
         totalNodes: graph.nodes.length,
         totalEdges: graph.edges.length,
         circularDependencies: circularDeps.length,
-      }
+      },
     });
   } catch (error) {
     res.status(500).json({ error: 'Failed to generate dependency graph' });
@@ -86,7 +127,7 @@ app.get('/api/stats', async (req, res) => {
   try {
     const packages = scanMonorepo(process.cwd());
     const stats = generateMonorepoStats(packages);
-    
+
     res.json({
       ...stats,
       timestamp: Date.now(),
@@ -113,11 +154,11 @@ app.get('/api/ci/packages/:name', async (req, res) => {
   try {
     const { name } = req.params;
     const status = await ciStatusManager.getPackageStatus(name);
-    
+
     if (!status) {
       return res.status(404).json({ error: 'Package CI status not found' });
     }
-    
+
     res.json(status);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch package CI status' });
@@ -128,27 +169,27 @@ app.get('/api/ci/packages/:name', async (req, res) => {
 app.post('/api/ci/trigger', async (req, res) => {
   try {
     const { packageName, providerName, branch } = req.body;
-    
+
     if (!packageName) {
       return res.status(400).json({ error: 'Package name is required' });
     }
-    
+
     const result = await ciStatusManager.triggerBuild(
-      packageName, 
-      providerName || 'github', 
+      packageName,
+      providerName || 'github',
       branch || 'main'
     );
-    
+
     if (result.success) {
-      res.json({ 
-        success: true, 
+      res.json({
+        success: true,
         buildId: result.buildId,
-        message: `Build triggered for ${packageName}` 
+        message: `Build triggered for ${packageName}`,
       });
     } else {
-      res.status(400).json({ 
-        success: false, 
-        error: result.error 
+      res.status(400).json({
+        success: false,
+        error: result.error,
       });
     }
   } catch (error) {
@@ -161,12 +202,15 @@ app.get('/api/ci/builds/:buildId/logs', async (req, res) => {
   try {
     const { buildId } = req.params;
     const { provider } = req.query;
-    
+
     if (!provider) {
       return res.status(400).json({ error: 'Provider is required' });
     }
-    
-    const logs = await ciStatusManager.getBuildLogs(buildId, provider as string);
+
+    const logs = await ciStatusManager.getBuildLogs(
+      buildId,
+      provider as string
+    );
     res.json({ buildId, logs });
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch build logs' });
@@ -178,12 +222,15 @@ app.get('/api/ci/builds/:buildId/artifacts', async (req, res) => {
   try {
     const { buildId } = req.params;
     const { provider } = req.query;
-    
+
     if (!provider) {
       return res.status(400).json({ error: 'Provider is required' });
     }
-    
-    const artifacts = await ciStatusManager.getBuildArtifacts(buildId, provider as string);
+
+    const artifacts = await ciStatusManager.getBuildArtifacts(
+      buildId,
+      provider as string
+    );
     res.json({ buildId, artifacts });
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch build artifacts' });
@@ -194,21 +241,21 @@ app.get('/api/ci/builds/:buildId/artifacts', async (req, res) => {
 app.post('/api/scan', async (req, res) => {
   try {
     const { force } = req.body;
-    
+
     if (force) {
       scanner.clearCache();
     }
-    
+
     const result = await quickScan();
     res.json({
       success: true,
       message: 'Scan completed successfully',
-      result
+      result,
     });
   } catch (error) {
-    res.status(500).json({ 
-      success: false, 
-      error: 'Failed to perform scan' 
+    res.status(500).json({
+      success: false,
+      error: 'Failed to perform scan',
     });
   }
 });
@@ -228,22 +275,25 @@ app.get('/api/scan/export/:format', async (req, res) => {
   try {
     const { format } = req.params;
     const { filename } = req.query;
-    
+
     if (!['json', 'csv', 'html'].includes(format)) {
       return res.status(400).json({ error: 'Invalid export format' });
     }
-    
+
     const result = await quickScan();
-    const exportData = scanner.exportResults(result, format as 'json' | 'csv' | 'html');
-    
+    const exportData = scanner.exportResults(
+      result,
+      format as 'json' | 'csv' | 'html'
+    );
+
     if (format === 'json') {
       res.json(result);
     } else {
       const contentType = format === 'csv' ? 'text/csv' : 'text/html';
-      const contentDisposition = filename 
-        ? `attachment; filename="${filename}"` 
+      const contentDisposition = filename
+        ? `attachment; filename="${filename}"`
         : `attachment; filename="monorepo-scan.${format}"`;
-      
+
       res.setHeader('Content-Type', contentType);
       res.setHeader('Content-Disposition', contentDisposition);
       res.send(exportData);
@@ -259,11 +309,11 @@ app.get('/api/health/packages/:name', async (req, res) => {
     const { name } = req.params;
     const packages = scanMonorepo(process.cwd());
     const packageInfo = packages.find(p => p.name === name);
-    
+
     if (!packageInfo) {
       return res.status(404).json({ error: 'Package not found' });
     }
-    
+
     // Get health metrics (mock data for now)
     const health = {
       buildStatus: 'success',
@@ -273,7 +323,7 @@ app.get('/api/health/packages/:name', async (req, res) => {
       overallScore: Math.floor(Math.random() * 40) + 60,
       lastUpdated: new Date(),
     };
-    
+
     res.json({
       packageName: name,
       health,
@@ -292,7 +342,7 @@ app.get('/api/health/packages', async (req, res) => {
   try {
     const packages = scanMonorepo(process.cwd());
     const healthMetrics = await Promise.all(
-      packages.map(async (pkg) => {
+      packages.map(async pkg => {
         try {
           const health = {
             buildStatus: 'success' as const,
@@ -301,7 +351,7 @@ app.get('/api/health/packages', async (req, res) => {
             securityAudit: 'pass' as const,
             overallScore: Math.floor(Math.random() * 40) + 60,
           };
-          
+
           return {
             packageName: pkg.name,
             health,
@@ -317,16 +367,17 @@ app.get('/api/health/packages', async (req, res) => {
         }
       })
     );
-    
+
     res.json({
       packages: healthMetrics,
       summary: {
         total: packages.length,
         healthy: healthMetrics.filter(h => h.isHealthy).length,
         unhealthy: healthMetrics.filter(h => !h.isHealthy).length,
-        averageScore: healthMetrics
-          .filter(h => h.health)
-          .reduce((sum, h) => sum + h.health!.overallScore, 0) / 
+        averageScore:
+          healthMetrics
+            .filter(h => h.health)
+            .reduce((sum, h) => sum + h.health!.overallScore, 0) /
           healthMetrics.filter(h => h.health).length,
       },
     });
@@ -340,29 +391,30 @@ app.get('/api/search', async (req, res) => {
   try {
     const { q: query, type, status } = req.query;
     const packages = scanMonorepo(process.cwd());
-    
+
     let filtered = packages;
-    
+
     // Filter by search query
     if (query) {
       const searchTerm = (query as string).toLowerCase();
-      filtered = filtered.filter(pkg => 
-        pkg.name.toLowerCase().includes(searchTerm) ||
-        pkg.description?.toLowerCase().includes(searchTerm)
+      filtered = filtered.filter(
+        pkg =>
+          pkg.name.toLowerCase().includes(searchTerm) ||
+          pkg.description?.toLowerCase().includes(searchTerm)
       );
     }
-    
+
     // Filter by type
     if (type && type !== 'all') {
       filtered = filtered.filter(pkg => pkg.type === type);
     }
-    
+
     // Filter by status (would need health data)
     if (status && status !== 'all') {
       // This would filter by actual health status
       // For now, just return all packages
     }
-    
+
     res.json({
       query,
       results: filtered,
@@ -379,23 +431,32 @@ app.get('/api/activity', async (req, res) => {
   try {
     const { limit = 20 } = req.query;
     const packages = scanMonorepo(process.cwd());
-    
+
     // Mock recent activity data
-    const activities = packages.slice(0, Math.min(Number(limit), packages.length)).map((pkg, index) => ({
-      id: `activity-${Date.now()}-${index}`,
-      type: ['package_updated', 'build_success', 'test_passed', 'dependency_updated'][Math.floor(Math.random() * 4)],
-      packageName: pkg.name,
-      message: `Activity for ${pkg.name}`,
-      timestamp: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000), // Random time in last week
-      metadata: {
-        version: pkg.version,
-        type: pkg.type,
-      },
-    }));
-    
+    const activities = packages
+      .slice(0, Math.min(Number(limit), packages.length))
+      .map((pkg, index) => ({
+        id: `activity-${Date.now()}-${index}`,
+        type: [
+          'package_updated',
+          'build_success',
+          'test_passed',
+          'dependency_updated',
+        ][Math.floor(Math.random() * 4)],
+        packageName: pkg.name,
+        message: `Activity for ${pkg.name}`,
+        timestamp: new Date(
+          Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000
+        ), // Random time in last week
+        metadata: {
+          version: pkg.version,
+          type: pkg.type,
+        },
+      }));
+
     // Sort by timestamp (newest first)
     activities.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-    
+
     res.json({
       activities: activities.slice(0, Number(limit)),
       total: activities.length,
@@ -423,18 +484,25 @@ app.get('/api/system', (_, res) => {
 });
 
 // Error handling middleware
-app.use((error: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error('Error:', error);
-  res.status(500).json({ 
-    error: 'Internal server error',
-    message: error.message,
-    timestamp: Date.now(),
-  });
-});
+app.use(
+  (
+    error: any,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    console.error('Error:', error);
+    res.status(500).json({
+      error: 'Internal server error',
+      message: error.message,
+      timestamp: Date.now(),
+    });
+  }
+);
 
 // 404 handler
 app.use('*', (_, res) => {
-  res.status(404).json({ 
+  res.status(404).json({
     error: 'Endpoint not found',
     timestamp: Date.now(),
   });
