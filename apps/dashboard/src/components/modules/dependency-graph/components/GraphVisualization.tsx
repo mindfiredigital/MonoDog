@@ -18,21 +18,22 @@ export default function GraphVisualization({
       <svg className="w-full h-full absolute inset-0" viewBox="0 0 800 600">
         {/* Render dependency arrows */}
         {packages.map(pkg =>
-          pkg.dependencies.map(depId => {
-            const dep = packages.find(d => d.id === depId);
+          Object.keys(pkg.dependencies).map(depName => {
+            const dep = packages.find(d => d.name === depName);
             if (!dep) return null;
+            console.log('Rendering edge from', pkg.name, 'to', dep.name);
 
             const isHighlighted =
-              hoveredPackage === pkg.id ||
-              hoveredPackage === depId ||
-              selectedPackage === pkg.id ||
-              selectedPackage === depId;
+              hoveredPackage === pkg.name ||
+              hoveredPackage === depName ||
+              selectedPackage === pkg.name ||
+              selectedPackage === depName;
 
             return (
-              <g key={`${pkg.id}-${depId}`}>
+              <g key={`${pkg.name}-${depName}`}>
                 <defs>
                   <marker
-                    id={`arrow-${pkg.id}-${depId}`}
+                    id={`arrow-${pkg.name}-${depName}`}
                     markerWidth="10"
                     markerHeight="10"
                     refX="9"
@@ -53,7 +54,7 @@ export default function GraphVisualization({
                   y2={pkg.y + 25}
                   stroke={isHighlighted ? '#3B82F6' : '#6B7280'}
                   strokeWidth={isHighlighted ? '3' : '2'}
-                  markerEnd={`url(#arrow-${pkg.id}-${depId})`}
+                  markerEnd={`url(#arrow-${pkg.name}-${depName})`}
                   className="transition-all duration-200"
                   style={{
                     opacity: isHighlighted ? 1 : 0.6,
@@ -66,15 +67,15 @@ export default function GraphVisualization({
 
         {/* Render package nodes */}
         {packages.map(pkg => {
-          const isSelected = selectedPackage === pkg.id;
-          const isHovered = hoveredPackage === pkg.id;
+          const isSelected = selectedPackage === pkg.name;
+          const isHovered = hoveredPackage === pkg.name;
           const isConnected =
             selectedPackage &&
-            (pkg.dependencies.includes(selectedPackage) ||
-              pkg.dependents.includes(selectedPackage));
+            (Object.keys(pkg.dependencies).includes(selectedPackage) ||
+              Object.keys(pkg.dependents).includes(selectedPackage));
 
           return (
-            <g key={pkg.id}>
+            <g key={pkg.name}>
               <rect
                 x={pkg.x}
                 y={pkg.y}
@@ -99,9 +100,9 @@ export default function GraphVisualization({
                       ? 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1))'
                       : 'none',
                 }}
-                onMouseEnter={() => onPackageHover(pkg.id)}
+                onMouseEnter={() => onPackageHover(pkg.name)}
                 onMouseLeave={() => onPackageHover(null)}
-                onClick={() => onPackageSelect(isSelected ? null : pkg.id)}
+                onClick={() => onPackageSelect(isSelected ? null : pkg.name)}
               />
 
               {/* Package name */}

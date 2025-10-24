@@ -176,7 +176,7 @@ class MonorepoRefresher {
       for (const pkg of packages) {
         try {
           const health = await this.checkPackageHealth(pkg);
-          await this.storeHealthMetrics(pkg.id, health);
+          await this.storeHealthMetrics(pkg.name, health);
 
           if (health.overallScore >= 80) {
             healthyCount++;
@@ -215,7 +215,7 @@ class MonorepoRefresher {
           const dependencies = await this.getPackageDependencies(pkg);
 
           // Store dependencies in database
-          await this.storeDependencies(pkg.id, dependencies);
+          await this.storeDependencies(pkg.name, dependencies);
         } catch (error) {
           console.warn(
             `⚠️  Failed to update dependencies for ${pkg.name}:`,
@@ -316,12 +316,12 @@ class MonorepoRefresher {
             description: pkg.description,
             license: pkg.license,
             repository: pkg.repository,
-            updatedAt: new Date(),
+            lastUpdated: new Date(),
           },
           create: {
             // Timestamps
             createdAt: new Date(),
-            updatedAt: new Date(),
+            lastUpdated: new Date(),
 
             // Key Metrics and Relationships
             dependencies: JSON.stringify(pkg.dependencies), // The total number of direct dependencies (12 in your example)
@@ -335,8 +335,9 @@ class MonorepoRefresher {
 
             // Dependency Lists (Manual Serialization Required)
             // Stores a JSON array string of dependencies.
-            dependenciesList: JSON.stringify(pkg.dependenciesList),
+            // dependenciesList: JSON.stringify(pkg.dependenciesList),
             devDependencies: JSON.stringify(pkg.devDependencies),
+            peerDependencies: JSON.stringify(pkg.peerDependencies),
             name: pkg.name,
             version: pkg.version,
             type: pkg.type,

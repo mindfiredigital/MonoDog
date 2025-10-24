@@ -194,7 +194,7 @@ export default function HealthMetricsTab({
               <div className="flex justify-between">
                 <span className="text-gray-600">Total Dependencies:</span>
                 <span className="font-medium">
-                  {packageData.dependencies.length}
+                  {Object.keys(packageData.dependencies).length}
                 </span>
               </div>
               <div className="flex justify-between">

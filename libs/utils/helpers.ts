@@ -8,6 +8,7 @@ export interface PackageInfo {
   path: string;
   dependencies: Record<string, string>;
   devDependencies: Record<string, string>;
+  peerDependencies?: Record<string, string>;
   scripts: Record<string, string>;
   maintainers?: string[];
   description?: string;
@@ -137,6 +138,7 @@ function parsePackageInfo(
       path: packagePath,
       dependencies: packageJson.dependencies || {},
       devDependencies: packageJson.devDependencies || {},
+      peerDependencies: packageJson.peerDependencies || {},
       scripts: packageJson.scripts || {},
       maintainers: packageJson.maintainers || [],
       description: packageJson.description,
@@ -246,6 +248,7 @@ export function generateMonorepoStats(packages: PackageInfo[]): MonorepoStats {
   packages.forEach(pkg => {
     stats.totalDependencies += Object.keys(pkg.dependencies).length;
     stats.totalDependencies += Object.keys(pkg.devDependencies).length;
+    stats.totalDependencies += Object.keys(pkg.peerDependencies ?? {}).length;
   });
 
   return stats;
@@ -304,7 +307,7 @@ export function findCircularDependencies(packages: PackageInfo[]): string[][] {
  */
 export function generateDependencyGraph(packages: PackageInfo[]) {
   const nodes = packages.map(pkg => ({
-    id: pkg.name,
+    // id: pkg.name,
     label: pkg.name,
     type: pkg.type,
     version: pkg.version,

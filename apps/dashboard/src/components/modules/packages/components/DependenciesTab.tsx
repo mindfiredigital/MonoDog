@@ -79,6 +79,7 @@ export default function DependenciesTab({ packageData }: DependenciesTabProps) {
     <div className="py-6">
       {renderDependencyTable(packageData.dependencies, 'Dependencies')}
       {renderDependencyTable(packageData.devDependencies, 'Dev Dependencies')}
+      {renderDependencyTable(packageData.peerDependencies, 'Peer Dependencies')}
 
       {/* Dependency Summary */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -89,7 +90,7 @@ export default function DependenciesTab({ packageData }: DependenciesTabProps) {
               Total Dependencies:
             </span>
             <span className="ml-2 text-blue-700">
-              {packageData.dependencies.length}
+              {Object.keys(packageData.dependencies).length}
             </span>
           </div>
           <div>
@@ -99,12 +100,19 @@ export default function DependenciesTab({ packageData }: DependenciesTabProps) {
             </span>
           </div>
           <div>
+            <span className="font-medium text-blue-800">Peer Dependencies:</span>
+            <span className="ml-2 text-blue-700">
+              {Object(packageData.peerDependencies).length}
+            </span>
+          </div>
+          <div>
             <span className="font-medium text-blue-800">Outdated:</span>
             <span className="ml-2 text-blue-700">
               {
                 [
                   ...packageData.dependencies,
                   ...packageData.devDependencies,
+                  ...packageData.peerDependencies,
                 ].filter(d => d.status === 'outdated').length
               }
             </span>
@@ -116,6 +124,7 @@ export default function DependenciesTab({ packageData }: DependenciesTabProps) {
                 [
                   ...packageData.dependencies,
                   ...packageData.devDependencies,
+                  ...packageData.peerDependencies,
                 ].filter(d => d.status === 'major-update').length
               }
             </span>

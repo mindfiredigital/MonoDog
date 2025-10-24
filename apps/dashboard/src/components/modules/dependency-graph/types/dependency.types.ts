@@ -1,15 +1,20 @@
 // Shared types for dependency graph module components
 
 export interface PackageNode {
-  id: string;
-  name: string;
-  type: 'app' | 'lib' | 'tool';
-  version: string;
-  status: 'healthy' | 'warning' | 'error';
-  dependencies: string[];
-  dependents: string[];
   x: number;
   y: number;
+  name: string;
+  version: string;
+  type: 'app' | 'lib' | 'tool' | 'service';
+  status: 'healthy' | 'warning' | 'error' | 'building';
+  description: string;
+  lastUpdated: string;
+  dependencies: string[];
+  tags: string[];
+  maintainers: string[];
+  devDependencies: string[];
+  peerDependencies: string[];
+  dependents: string[];
 }
 
 export interface DependencyEdge {

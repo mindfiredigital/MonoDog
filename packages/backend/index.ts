@@ -56,10 +56,15 @@ app.get('/api/packages', async (req, res) => {
       transformedPkg.scripts = pkg.scripts ? JSON.parse(pkg.scripts) : {};
 
       // 4. Dependencies List
-      transformedPkg.dependenciesList = pkg.dependenciesList
-        ? JSON.parse(pkg.dependenciesList)
+      transformedPkg.dependencies = pkg.dependencies
+        ? JSON.parse(pkg.dependencies)
         : [];
-
+      transformedPkg.devDependencies = pkg.devDependencies
+        ? JSON.parse(pkg.devDependencies)
+        : [];
+      transformedPkg.peerDependencies = pkg.peerDependencies
+        ? JSON.parse(pkg.peerDependencies)
+        : [];
       // ... and so on for all serialized fields
 
       return transformedPkg; // Return the fully transformed object

@@ -171,13 +171,19 @@ export default function PackageDetail() {
                     <div className="flex justify-between">
                       <span className="text-gray-600">Dependencies:</span>
                       <span className="font-medium">
-                        {packageData.dependencies.length}
+                        {Object.keys(packageData.dependencies).length}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Dev Dependencies:</span>
                       <span className="font-medium">
                         {packageData.devDependencies.length}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Peer Dependencies:</span>
+                      <span className="font-medium">
+                        {Object(packageData.peerDependencies).length}
                       </span>
                     </div>
                     <div className="flex justify-between">

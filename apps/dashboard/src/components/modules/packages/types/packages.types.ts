@@ -7,7 +7,7 @@ export interface Package {
   status: 'healthy' | 'warning' | 'error' | 'building';
   description: string;
   lastUpdated: string;
-  dependencies: number;
+  dependencies: string[];
   tags: string[];
   maintainers: string[];
 }
@@ -36,6 +36,7 @@ export interface PackageDetail {
   lastUpdated: string;
   dependencies: Dependency[];
   devDependencies: Dependency[];
+  peerDependencies: Dependency[];
   maintainers: string[];
   tags: string[];
   repository: string;
