@@ -99,7 +99,6 @@ model HealthStatus {
   packageName String @unique
   // package     Package @relation(fields: [packageName], references: [name], onDelete: Cascade)
 
-
   // Health Metrics
   overallScore   Float   // Overall health score (0-100)
   buildStatus    String  // e.g., "passing", "failing", "unknown"
@@ -107,7 +106,6 @@ model HealthStatus {
   lintStatus     String  // e.g., "passing", "warning", "failing"
   security       String  // e.g., "secure", "vulnerabilities", "unknown"
   dependencies   String  // e.g., "up-to-date", "outdated", "vulnerable"
-
   // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -129,4 +127,3 @@ model PackageHealth {
 
   @@map("package_health")
 }
-
