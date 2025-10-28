@@ -128,7 +128,6 @@ export default function PackageDetail() {
       try {
         const data = await monorepoService.getPackage(name ?? '');
         setPackageData(data);
-        console.log(packageData);
       } catch (err) {
         console.error('Error fetching packages:', err);
       }

@@ -59,7 +59,13 @@ export default function ConfigurationTab({
   "version": "${packageData.version}",
   "description": "${packageData.description}",
   "license": "${packageData.license}",
-  "repository": "${packageData.repository || {}}",
+  "repository": {${Object.entries(packageData.repository)
+    .map(
+      ([key, value]) => `
+    "${key}": "${value}"`
+    )
+    .join(',')}
+  },
   "scripts": {${Object.entries(packageData.scripts)
     .map(
       ([key, value]) => `
@@ -67,17 +73,17 @@ export default function ConfigurationTab({
     )
     .join(',')}
   },
-  "dependencies": {${packageData.dependencies
+  "dependencies": {${Object.keys(packageData.dependencies)
     .map(
-      dep => `
-    "${dep.name}": "${dep.version}"`
+      name => `
+    "${name}": "${packageData.dependencies[name]}"`
     )
     .join(',')}
   },
-  "devDependencies": {${packageData.devDependencies
+  "devDependencies": {${Object.keys(packageData.devDependencies)
     .map(
-      dep => `
-    "${dep.name}": "${dep.version}"`
+      name => `
+    "${name}": "${packageData.devDependencies[name]}"`
     )
     .join(',')}
   }

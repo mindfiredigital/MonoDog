@@ -1,6 +1,6 @@
 // Shared types for packages module components
 
-import type { DependencyInfo } from '@/services/monorepoService';
+import type { DependencyInfo } from "@/services/monorepoService";
 
 export interface Package {
   name: string;
@@ -41,7 +41,7 @@ export interface PackageDetail {
   peerDependencies: Dependency[];
   maintainers: string[];
   tags: string[];
-  repository: Record<string, string>;
+  repository: string;
   license: string;
   scripts: Record<string, string>;
   commits: Commit[];
@@ -49,7 +49,7 @@ export interface PackageDetail {
   buildStatus: 'success' | 'failed' | 'running' | 'unknown';
   testCoverage: number;
   lintStatus: 'pass' | 'fail' | 'warning';
-  dependenciesInfo: DependencyInfo[];
+  dependenciesInfo: DependencyInfo[]
 }
 
 export interface PackageStats {
