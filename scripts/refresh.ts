@@ -1,5 +1,9 @@
 #!/usr/bin/env tsx
 
+import dotenv from 'dotenv';
+
+dotenv.config({ path: path.resolve(__dirname, '../packages/backend/.env') });
+
 import {
   scanner,
   quickScan,

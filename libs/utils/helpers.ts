@@ -46,9 +46,9 @@ export interface MonorepoStats {
 /**
  * Scans the monorepo and returns information about all packages
  */
-export function scanMonorepo(rootDir: string): PackageInfo[] {
+function scanMonorepo(rootDir: string): PackageInfo[] {
   const packages: PackageInfo[] = [];
-
+  console.log('rootDir', rootDir);
   // Scan packages directory
   const packagesDir = path.join(rootDir, 'packages');
   if (fs.existsSync(packagesDir)) {
@@ -103,9 +103,7 @@ export function scanMonorepo(rootDir: string): PackageInfo[] {
   return packages;
 }
 
-/**
- * Parses package.json and determines package type
- */
+/*** Parses package.json and determines package type */
 function parsePackageInfo(
   packagePath: string,
   packageName: string,
@@ -152,7 +150,7 @@ function parsePackageInfo(
 /**
  * Analyzes dependencies and determines their status
  */
-export function analyzeDependencies(
+function analyzeDependencies(
   dependencies: Record<string, string>,
   type: 'production' | 'development' = 'production'
 ): DependencyInfo[] {
@@ -167,7 +165,7 @@ export function analyzeDependencies(
 /**
  * Calculates package health score based on various metrics
  */
-export function calculatePackageHealth(
+function calculatePackageHealth(
   buildStatus: PackageHealth['buildStatus'],
   testCoverage: number,
   lintStatus: PackageHealth['lintStatus'],
@@ -229,7 +227,7 @@ export function calculatePackageHealth(
 /**
  * Generates comprehensive monorepo statistics
  */
-export function generateMonorepoStats(packages: PackageInfo[]): MonorepoStats {
+function generateMonorepoStats(packages: PackageInfo[]): MonorepoStats {
   const stats: MonorepoStats = {
     totalPackages: packages.length,
     apps: packages.filter(p => p.type === 'app').length,
@@ -254,7 +252,7 @@ export function generateMonorepoStats(packages: PackageInfo[]): MonorepoStats {
 /**
  * Finds circular dependencies in the monorepo
  */
-export function findCircularDependencies(packages: PackageInfo[]): string[][] {
+function findCircularDependencies(packages: PackageInfo[]): string[][] {
   const graph = new Map<string, string[]>();
   const visited = new Set<string>();
   const recursionStack = new Set<string>();
@@ -302,7 +300,7 @@ export function findCircularDependencies(packages: PackageInfo[]): string[][] {
 /**
  * Generates a dependency graph for visualization
  */
-export function generateDependencyGraph(packages: PackageInfo[]) {
+function generateDependencyGraph(packages: PackageInfo[]) {
   const nodes = packages.map(pkg => ({
     id: pkg.name,
     label: pkg.name,
@@ -332,9 +330,7 @@ export function generateDependencyGraph(packages: PackageInfo[]) {
 /**
  * Checks if a package has outdated dependencies
  */
-export function checkOutdatedDependencies(
-  packageInfo: PackageInfo
-): DependencyInfo[] {
+function checkOutdatedDependencies(packageInfo: PackageInfo): DependencyInfo[] {
   const outdated: DependencyInfo[] = [];
 
   // This would typically involve checking against npm registry
@@ -357,7 +353,7 @@ export function checkOutdatedDependencies(
 /**
  * Formats version numbers for comparison
  */
-export function parseVersion(version: string): number[] {
+function parseVersion(version: string): number[] {
   return version
     .replace(/^[^0-9]*/, '')
     .split('.')
@@ -367,7 +363,7 @@ export function parseVersion(version: string): number[] {
 /**
  * Compares two version strings
  */
-export function compareVersions(v1: string, v2: string): number {
+function compareVersions(v1: string, v2: string): number {
   const parsed1 = parseVersion(v1);
   const parsed2 = parseVersion(v2);
 
@@ -385,7 +381,7 @@ export function compareVersions(v1: string, v2: string): number {
 /**
  * Gets package size information
  */
-export function getPackageSize(packagePath: string): {
+function getPackageSize(packagePath: string): {
   size: number;
   files: number;
 } {
@@ -426,3 +422,14 @@ export function getPackageSize(packagePath: string): {
     return { size: 0, files: 0 };
   }
 }
+
+export {
+  scanMonorepo,
+  generateMonorepoStats,
+  findCircularDependencies,
+  generateDependencyGraph,
+  checkOutdatedDependencies,
+  getPackageSize,
+  analyzeDependencies,
+  calculatePackageHealth,
+};

@@ -8,7 +8,9 @@
     "access": "public"
   },
   "scripts": {
-    "build": "echo \"Configuration package build success (no code compilation)\""
+    "build": "echo \"Configuration package build success (no code compilation)\"",
+    "lint": "eslint .",
+    "test:coverage": "jest --coverage"
   },
   "files": [
     "base.json",

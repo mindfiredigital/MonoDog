@@ -216,93 +216,240 @@ class MonorepoService {
     }));
   }
 
+  // async getHealthStatus(): Promise<{
+  //   overallScore: number;
+  //   metrics: HealthMetric[];
+  //   packageHealth: Array<{ package: string; score: number; issues: string[] }>;
+  // }> {
+  //   console.log('Fetching health status...');
+  //   try {
+  //     // Call your real backend API
+  //     const healthRes = await fetch(`${API_BASE}/health/packages`);
+
+  //     if (!healthRes.ok) {
+  //       throw new Error('Failed to fetch health data');
+  //     }
+
+  //     const healthData = await healthRes.json();
+  //     console.log('Health data:', healthData);
+
+  //     // Transform the data to match your frontend expectations
+  //     return this.transformHealthData(healthData);
+  //   } catch (error) {
+  //     console.error('Error fetching health data:', error);
+  //     // Fallback to the existing mock implementation
+  //     return await this.getFallbackHealthStatus();
+  //   }
+  // }
+
   async getHealthStatus(): Promise<{
+    overallScore: number;
+    metrics: HealthMetric[];
+    packageHealth: Array<{ package: string; score: number; issues: string[] }>;
+  }> {
+    console.log('getHealthStatus');
+    try {
+      // First attempt to get health data
+      const healthRes = await fetch(`${API_BASE}/health/packages`);
+      console.log('Health data from getHealthStatus:', healthRes);
+      if (!healthRes.ok) {
+        console.log('Health data not available, attempting refresh...');
+
+        // If initial fetch fails, try to refresh the data
+        const refreshRes = await fetch(`${API_BASE}/health/refresh`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!refreshRes.ok) {
+          throw new Error('Failed to refresh health data');
+        }
+
+        // Wait a moment for the refresh to complete, then fetch again
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        // Second attempt to get health data after refresh
+        const retryRes = await fetch(`${API_BASE}/health/packages`);
+
+        if (!retryRes.ok) {
+          throw new Error('Failed to fetch health data after refresh');
+        }
+
+        const healthData = await retryRes.json();
+        console.log('Health data after refresh:', healthData);
+        return healthData;
+        // return this.transformHealthData(healthData);
+      }
+
+      const healthData = await healthRes.json();
+      console.log('Health data from getHealthStatus:', healthData);
+      // return this.transformHealthData(healthData);
+      return healthData;
+    } catch (error) {
+      console.error('Error fetching health data:', error);
+      // Fallback to the existing mock implementation
+      return await this.getFallbackHealthStatus();
+    }
+  }
+
+  async refreshHealthStatus(): Promise<{
+    overallScore: number;
+    metrics: HealthMetric[];
+    packageHealth: Array<{ package: string; score: number; issues: string[] }>;
+  }> {
+    try {
+      // Call your real backend API
+      const healthRes = await fetch(`${API_BASE}/health/refresh`);
+
+      if (!healthRes.ok) {
+        throw new Error('Failed to fetch health data');
+      }
+
+      const healthData = await healthRes.json();
+      console.log('Health data from refreshHealthStatus:', healthData);
+
+      // Transform the data to match your frontend expectations
+      // return this.transformHealthData(healthData);
+      return healthData;
+    } catch (error) {
+      console.error('Error fetching health data:', error);
+      // Fallback to the existing mock implementation
+      return await this.getFallbackHealthStatus();
+    }
+  }
+  // Add this private method for fallback data
+  // async getHealthStatus(): Promise<{
+  //   overallScore: number;
+  //   metrics: HealthMetric[];
+  //   packageHealth: Array<{ package: string; score: number; issues: string[] }>;
+  // }> {
+  //   const healthRes = await fetch(`${API_BASE}/health/packages`);
+  //   await new Promise(resolve => setTimeout(resolve, 400));
+
+  //   const metrics: HealthMetric[] = [];
+  //   let totalScore = 0;
+
+  //   // Package count metric
+  //   const packageCount = this.mockPackages.length;
+  //   const packageCountScore = Math.min(100, (packageCount / 10) * 100);
+  //   metrics.push({
+  //     name: 'Package Count',
+  //     value: packageCount,
+  //     status:
+  //       packageCountScore >= 80
+  //         ? 'healthy'
+  //         : packageCountScore >= 60
+  //           ? 'warning'
+  //           : 'error',
+  //     description: `${packageCount} packages in monorepo`,
+  //   });
+  //   totalScore += packageCountScore;
+
+  //   // Dependency health metric
+  //   const avgDependencies =
+  //     this.mockPackages.reduce((sum, pkg) => sum + pkg.dependencies, 0) /
+  //     this.mockPackages.length;
+  //   const dependencyScore =
+  //     avgDependencies <= 15 ? 100 : avgDependencies <= 25 ? 80 : 60;
+  //   metrics.push({
+  //     name: 'Dependency Health',
+  //     value: Math.round(avgDependencies),
+  //     status:
+  //       dependencyScore >= 80
+  //         ? 'healthy'
+  //         : dependencyScore >= 60
+  //           ? 'warning'
+  //           : 'error',
+  //     description: `Average ${Math.round(avgDependencies)} dependencies per package`,
+  //   });
+  //   totalScore += dependencyScore;
+
+  //   // Version consistency metric
+  //   const versions = this.mockPackages.map(pkg => pkg.version);
+  //   const uniqueVersions = new Set(versions).size;
+  //   const versionScore =
+  //     uniqueVersions <= 3 ? 100 : uniqueVersions <= 5 ? 80 : 60;
+  //   metrics.push({
+  //     name: 'Version Consistency',
+  //     value: uniqueVersions,
+  //     status:
+  //       versionScore >= 80
+  //         ? 'healthy'
+  //         : versionScore >= 60
+  //           ? 'warning'
+  //           : 'error',
+  //     description: `${uniqueVersions} different versions in use`,
+  //   });
+  //   totalScore += versionScore;
+
+  //   // Package health analysis
+  //   const packageHealth = this.mockPackages.map(pkg => {
+  //     let score = 100;
+  //     const issues: string[] = [];
+
+  //     if (!pkg.description || pkg.description === 'No description provided') {
+  //       score -= 20;
+  //       issues.push('Missing description');
+  //     }
+
+  //     if (pkg.dependencies > 20) {
+  //       score -= 15;
+  //       issues.push('High dependency count');
+  //     }
+
+  //     if (pkg.private && !pkg.scripts?.build) {
+  //       score -= 10;
+  //       issues.push('Private package without build script');
+  //     }
+
+  //     return { package: pkg.name, score: Math.max(0, score), issues };
+  //   });
+
+  //   const overallScore = Math.round(totalScore / metrics.length);
+
+  //   return {
+  //     overallScore,
+  //     metrics,
+  //     packageHealth,
+  //   };
+  // }
+  private async getFallbackHealthStatus(): Promise<{
     overallScore: number;
     metrics: HealthMetric[];
     packageHealth: Array<{ package: string; score: number; issues: string[] }>;
   }> {
     await new Promise(resolve => setTimeout(resolve, 400));
 
-    const metrics: HealthMetric[] = [];
-    let totalScore = 0;
+    const metrics: HealthMetric[] = [
+      {
+        name: 'Package Count',
+        value: this.mockPackages.length,
+        status: 'healthy',
+        description: `${this.mockPackages.length} packages in monorepo`,
+      },
+      {
+        name: 'Dependency Health',
+        value: 85,
+        status: 'healthy',
+        description: 'Dependencies are up to date',
+      },
+      {
+        name: 'Build Status',
+        value: 95,
+        status: 'healthy',
+        description: 'Most builds are successful',
+      },
+    ];
 
-    // Package count metric
-    const packageCount = this.mockPackages.length;
-    const packageCountScore = Math.min(100, (packageCount / 10) * 100);
-    metrics.push({
-      name: 'Package Count',
-      value: packageCount,
-      status:
-        packageCountScore >= 80
-          ? 'healthy'
-          : packageCountScore >= 60
-            ? 'warning'
-            : 'error',
-      description: `${packageCount} packages in monorepo`,
-    });
-    totalScore += packageCountScore;
+    const packageHealth = this.mockPackages.map(pkg => ({
+      package: pkg.name,
+      score: pkg.status === 'healthy' ? 90 : pkg.status === 'warning' ? 70 : 50,
+      issues: pkg.status === 'healthy' ? [] : ['Needs attention'],
+    }));
 
-    // Dependency health metric
-    const avgDependencies =
-      this.mockPackages.reduce((sum, pkg) => sum + pkg.dependencies, 0) /
-      this.mockPackages.length;
-    const dependencyScore =
-      avgDependencies <= 15 ? 100 : avgDependencies <= 25 ? 80 : 60;
-    metrics.push({
-      name: 'Dependency Health',
-      value: Math.round(avgDependencies),
-      status:
-        dependencyScore >= 80
-          ? 'healthy'
-          : dependencyScore >= 60
-            ? 'warning'
-            : 'error',
-      description: `Average ${Math.round(avgDependencies)} dependencies per package`,
-    });
-    totalScore += dependencyScore;
-
-    // Version consistency metric
-    const versions = this.mockPackages.map(pkg => pkg.version);
-    const uniqueVersions = new Set(versions).size;
-    const versionScore =
-      uniqueVersions <= 3 ? 100 : uniqueVersions <= 5 ? 80 : 60;
-    metrics.push({
-      name: 'Version Consistency',
-      value: uniqueVersions,
-      status:
-        versionScore >= 80
-          ? 'healthy'
-          : versionScore >= 60
-            ? 'warning'
-            : 'error',
-      description: `${uniqueVersions} different versions in use`,
-    });
-    totalScore += versionScore;
-
-    // Package health analysis
-    const packageHealth = this.mockPackages.map(pkg => {
-      let score = 100;
-      const issues: string[] = [];
-
-      if (!pkg.description || pkg.description === 'No description provided') {
-        score -= 20;
-        issues.push('Missing description');
-      }
-
-      if (pkg.dependencies > 20) {
-        score -= 15;
-        issues.push('High dependency count');
-      }
-
-      if (pkg.private && !pkg.scripts?.build) {
-        score -= 10;
-        issues.push('Private package without build script');
-      }
-
-      return { package: pkg.name, score: Math.max(0, score), issues };
-    });
-
-    const overallScore = Math.round(totalScore / metrics.length);
+    const overallScore = 85;
 
     return {
       overallScore,
@@ -310,6 +457,80 @@ class MonorepoService {
       packageHealth,
     };
   }
+
+  // Add this private transform method
+  // private transformHealthData(healthData: any): {
+  //   overallScore: number;
+  //   metrics: HealthMetric[];
+  //   packageHealth: Array<{ package: string; score: number; issues: string[] }>;
+  // } {
+  //   console.log('-->', healthData);
+  //   const overallScore = healthData.summary?.averageScore || 75;
+
+  //   // Create metrics from health data
+  //   const metrics: HealthMetric[] = [
+  //     {
+  //       name: 'Package Health',
+  //       value: healthData.summary?.healthy || 0,
+  //       status: this.calculateHealthStatus(
+  //         healthData.summary?.healthy,
+  //         healthData.summary?.total
+  //       ),
+  //       description: `${healthData.summary?.healthy || 0} healthy packages out of ${healthData.summary?.total || 0}`,
+  //     },
+  //     {
+  //       name: 'Overall Score',
+  //       value: Math.round(overallScore),
+  //       status:
+  //         Math.round(overallScore) >= 80
+  //           ? 'healthy'
+  //           : Math.round(overallScore) >= 60
+  //             ? 'warning'
+  //             : 'error',
+  //       description: `Average health score: ${Math.round(overallScore)}/100`,
+  //     },
+  //     {
+  //       name: 'Unhealthy Packages',
+  //       value: healthData.summary?.unhealthy || 0,
+  //       status:
+  //         (healthData.summary?.unhealthy || 0) === 0
+  //           ? 'healthy'
+  //           : (healthData.summary?.unhealthy || 0) <= 2
+  //             ? 'warning'
+  //             : 'error',
+  //       description: `${healthData.summary?.unhealthy || 0} packages need attention`,
+  //     },
+  //   ];
+
+  //   // Transform package health data
+  //   const packageHealth = healthData.packages.map((pkg: any) => ({
+  //     package: pkg.packageName,
+  //     score: pkg.health?.overallScore || 0,
+  //     issues: pkg.error
+  //       ? [pkg.error]
+  //       : (pkg.health?.overallScore || 0) < 80
+  //         ? ['Needs improvement']
+  //         : [],
+  //   }));
+
+  //   return {
+  //     overallScore,
+  //     metrics,
+  //     packageHealth,
+  //   };
+  // }
+
+  // Add this helper method (RENAMED to avoid conflict)
+  // private calculateHealthStatus(
+  //   healthy: number,
+  //   total: number
+  // ): 'healthy' | 'warning' | 'error' {
+  //   if (total === 0) return 'healthy';
+  //   const ratio = healthy / total;
+  //   if (ratio >= 0.8) return 'healthy';
+  //   if (ratio >= 0.6) return 'warning';
+  //   return 'error';
+  // }
 
   async getBuildStatus(): Promise<BuildStatus[]> {
     await new Promise(resolve => setTimeout(resolve, 500));

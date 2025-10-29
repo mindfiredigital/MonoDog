@@ -1,15 +1,33 @@
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
 import { json } from 'body-parser';
-import { scanner, quickScan, generateReports } from '../monorepo-scanner';
+import {
+  scanner,
+  quickScan,
+  generateReports,
+  funCheckBuildStatus,
+  funCheckTestCoverage,
+  funCheckLintStatus,
+  funCheckSecurityAudit,
+} from '../monorepo-scanner';
 import { ciStatusManager, getMonorepoCIStatus } from '../ci-status';
 import {
   scanMonorepo,
   generateMonorepoStats,
   findCircularDependencies,
   generateDependencyGraph,
+  calculatePackageHealth,
 } from '../../libs/utils/helpers';
 import { PrismaClient } from '@prisma/client';
+import { error } from 'console';
+
+export interface HealthMetric {
+  name: string;
+  value: number;
+  status: 'healthy' | 'warning' | 'error';
+  description: string;
+}
 
 const prisma = new PrismaClient();
 
@@ -31,9 +49,10 @@ app.get('/api/health', (_, res) => {
   });
 });
 
-// Get all packages
+// Get all packages from database (DONE)
 app.get('/api/packages', async (req, res) => {
   try {
+    // Try to get packages from database first
     const dbPackages = await prisma.package.findMany();
 
     const transformedPackages = dbPackages.map(pkg => {
@@ -61,10 +80,8 @@ app.get('/api/packages', async (req, res) => {
         : [];
 
       // ... and so on for all serialized fields
-
       return transformedPkg; // Return the fully transformed object
     });
-
     res.json(transformedPackages);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch packagesss' });
@@ -80,7 +97,7 @@ app.get('/api/packages/:name', async (req, res) => {
         name: name,
       },
     });
-
+    console.log('packageInfo -->', packageInfo);
     if (!packageInfo) {
       return res.status(404).json({ error: 'Package not found' });
     }
@@ -303,9 +320,11 @@ app.get('/api/scan/export/:format', async (req, res) => {
   }
 });
 
+// ---------- HEALTH --------------------
 // Get package health metrics
 app.get('/api/health/packages/:name', async (req, res) => {
   try {
+    console.log('req.params -->', req.params);
     const { name } = req.params;
     const packages = scanMonorepo(process.cwd());
     const packageInfo = packages.find(p => p.name === name);
@@ -338,19 +357,163 @@ app.get('/api/health/packages/:name', async (req, res) => {
 });
 
 // Get all package health metrics
+// app.get('/api/health/packages', async (req, res) => {
+//   try {
+//     // Try to get health data from database
+//     const healthData = await prisma.healthStatus.findMany();
+//     console.log('healthData -->', healthData);
+//     // Transform the data to match the expected frontend format
+//     const transformedHealthData = healthData.map(health => {
+//       const transformedHealth = { ...health };
+
+//       // Parse any JSON fields that were stored as strings
+//       if (health.metrics) {
+//         transformedHealth.metrics = JSON.parse(health.metrics);
+//       } else {
+//         transformedHealth.metrics = [];
+//       }
+
+//       if (health.packageHealth) {
+//         transformedHealth.packageHealth = JSON.parse(health.packageHealth);
+//       } else {
+//         transformedHealth.packageHealth = [];
+//       }
+
+//       // Ensure we have all required fields with defaults
+//       return {
+//         id: transformedHealth.id,
+//         overallScore: transformedHealth.overallScore || 0,
+//         metrics: transformedHealth.metrics || [],
+//         packageHealth: transformedHealth.packageHealth || [],
+//         createdAt: transformedHealth.createdAt,
+//         updatedAt: transformedHealth.updatedAt,
+//       };
+//     });
+
+//     // Return the latest health data (you might want to sort by createdAt desc)
+//     const latestHealthData = transformedHealthData.sort(
+//       (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+//     )[0] || {
+//       overallScore: 0,
+//       metrics: [],
+//       packageHealth: [],
+//     };
+
+//     res.json(latestHealthData);
+//   } catch (error) {
+//     console.error('Error fetching health data:', error);
+//     res.status(500).json({ error: 'Failed to fetch health data' });
+//   }
+// });
+
 app.get('/api/health/packages', async (req, res) => {
   try {
-    const packages = scanMonorepo(process.cwd());
+    // Fetch all package health data from database
+    const packageHealthData = await prisma.packageHealth.findMany();
+    console.log('packageHealthData -->', packageHealthData.length);
+
+    // Transform the data to match the expected frontend format
+    const packages = packageHealthData.map(pkg => {
+      const health = {
+        buildStatus: pkg.packageBuildStatus,
+        testCoverage: pkg.packageTestCoverage,
+        lintStatus: pkg.packageLintStatus,
+        securityAudit: pkg.packageSecurity,
+        overallScore: pkg.packageOverallScore,
+      };
+
+      return {
+        packageName: pkg.packageName,
+        health: health,
+        isHealthy: pkg.packageOverallScore >= 80,
+      };
+    });
+
+    // Calculate summary statistics
+    const total = packages.length;
+    const healthy = packages.filter(pkg => pkg.isHealthy).length;
+    const unhealthy = packages.filter(pkg => !pkg.isHealthy).length;
+    const averageScore =
+      packages.length > 0
+        ? packages.reduce((sum, pkg) => sum + pkg.health.overallScore, 0) /
+          packages.length
+        : 0;
+
+    const response = {
+      packages: packages,
+      summary: {
+        total: total,
+        healthy: healthy,
+        unhealthy: unhealthy,
+        averageScore: averageScore,
+      },
+    };
+
+    console.log('Transformed health data -->', response.summary);
+    res.json(response);
+  } catch (error) {
+    console.error('Error fetching health data from database:', error);
+    res
+      .status(500)
+      .json({ error: 'Failed to fetch health data from database' });
+  }
+});
+
+app.get('/api/health/refresh', async (req, res) => {
+  try {
+    const rootDir = path.resolve(__dirname, '../../');
+    const packages = scanMonorepo(rootDir);
+    console.log('packages -->', packages.length);
     const healthMetrics = await Promise.all(
       packages.map(async pkg => {
         try {
+          // Await each health check function since they return promises
+          const buildStatus = await funCheckBuildStatus(pkg);
+          const testCoverage = await funCheckTestCoverage(pkg);
+          const lintStatus = await funCheckLintStatus(pkg);
+          const securityAudit = await funCheckSecurityAudit(pkg);
+          // Calculate overall health score
+          const overallScore = calculatePackageHealth(
+            buildStatus,
+            testCoverage,
+            lintStatus,
+            securityAudit
+          );
+
           const health = {
-            buildStatus: 'success' as const,
-            testCoverage: Math.floor(Math.random() * 100),
-            lintStatus: 'pass' as const,
-            securityAudit: 'pass' as const,
-            overallScore: Math.floor(Math.random() * 40) + 60,
+            buildStatus: buildStatus,
+            testCoverage: testCoverage,
+            lintStatus: lintStatus,
+            securityAudit: securityAudit,
+            overallScore: overallScore.overallScore,
           };
+
+          console.log(pkg.name, '-->', health);
+
+          // FIX: Use upsert to handle existing packages and proper Prisma syntax
+          await prisma.packageHealth.upsert({
+            where: {
+              packageName: pkg.name,
+            },
+            update: {
+              packageOverallScore: overallScore.overallScore,
+              packageBuildStatus: buildStatus,
+              packageTestCoverage: testCoverage,
+              packageLintStatus: lintStatus,
+              packageSecurity: securityAudit,
+              packageDependencies: '',
+              updatedAt: new Date(),
+            },
+            create: {
+              packageName: pkg.name,
+              packageOverallScore: overallScore.overallScore,
+              packageBuildStatus: buildStatus,
+              packageTestCoverage: testCoverage,
+              packageLintStatus: lintStatus,
+              packageSecurity: securityAudit,
+              packageDependencies: '',
+            },
+          });
 
           return {
             packageName: pkg.name,
@@ -367,7 +530,6 @@ app.get('/api/health/packages', async (req, res) => {
         }
       })
     );
-
     res.json({
       packages: healthMetrics,
       summary: {
@@ -385,7 +547,16 @@ app.get('/api/health/packages', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch health metrics' });
   }
 });
-
+function calculateHealthStatus(
+  healthy: number,
+  total: number
+): 'healthy' | 'warning' | 'error' {
+  if (total === 0) return 'healthy';
+  const ratio = healthy / total;
+  if (ratio >= 0.8) return 'healthy';
+  if (ratio >= 0.6) return 'warning';
+  return 'error';
+}
 // Search packages
 app.get('/api/search', async (req, res) => {
   try {
@@ -528,3 +699,57 @@ app.listen(PORT, () => {
 });
 
 export default app;
+
+// const overallScore =
+//   healthMetrics.reduce((sum, h) => sum + h.health!.overallScore, 0) /
+//   healthMetrics.length;
+
+// const metrics: HealthMetric[] = [
+//   {
+//     name: 'Package Health',
+//     value: healthMetrics.filter(h => h.isHealthy).length || 0,
+//     status: calculateHealthStatus(
+//       healthMetrics.filter(h => h.isHealthy).length,
+//       packages.length
+//     ),
+//     description: `${healthMetrics.filter(h => h.isHealthy).length || 0} healthy packages out of ${packages.length || 0}`,
+//   },
+//   {
+//     name: 'Overall Score',
+//     value: Math.round(overallScore),
+//     status:
+//       Math.round(overallScore) >= 80
+//         ? 'healthy'
+//         : Math.round(overallScore) >= 60
+//           ? 'warning'
+//           : 'error',
+//     description: `Average health score: ${Math.round(overallScore)}/100`,
+//   },
+//   {
+//     name: 'Unhealthy Packages',
+//     value: healthMetrics.filter(h => !h.isHealthy).length || 0,
+//     status:
+//       (healthMetrics.filter(h => !h.isHealthy).length || 0) === 0
+//         ? 'healthy'
+//         : (healthMetrics.filter(h => !h.isHealthy).length || 0) <= 2
+//           ? 'warning'
+//           : 'error',
+//     description: `${healthMetrics.filter(h => !h.isHealthy).length || 0} packages need attention`,
+//   },
+// ];
+
+// const packageHealth = packages.map((pkg: any) => ({
+//   package: pkg.packageName,
+//   score: pkg.health?.overallScore || 0,
+//   issues: pkg.error
+//     ? [pkg.error]
+//     : (pkg.health?.overallScore || 0) < 80
+//       ? ['Needs improvement']
+//       : [],
+// }));
+
+// res.status(200).json({
+//   overallScore,
+//   metrics,
+//   packageHealth,
+// });

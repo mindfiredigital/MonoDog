@@ -5,7 +5,7 @@ interface LoadingStateProps {
 }
 
 export default function LoadingState({
-  message = 'Loading health data...',
+  message = 'Loading abc data...',
 }: LoadingStateProps) {
   return (
     <div className="flex items-center justify-center h-64">

@@ -169,7 +169,7 @@ export class MonorepoScanner {
   /**
    * Checks if a package builds successfully
    */
-  private async checkBuildStatus(
+  async checkBuildStatus(
     pkg: PackageInfo
   ): Promise<PackageHealth['buildStatus']> {
     try {
@@ -191,15 +191,69 @@ export class MonorepoScanner {
   /**
    * Checks test coverage for a package
    */
-  private async checkTestCoverage(pkg: PackageInfo): Promise<number> {
+  // async checkTestCoverage(pkg: PackageInfo): Promise<number> {
+  //   try {
+  //     if (pkg.scripts.test) {
+  //       // This would typically run tests and parse coverage reports
+  //       // For now, return a mock value
+  //       return Math.floor(Math.random() * 100);
+  //     }
+  //     return 0;
+  //   } catch (error) {
+  //     return 0;
+  //   }
+  // }
+  async checkTestCoverage(pkg: PackageInfo): Promise<number> {
     try {
-      if (pkg.scripts.test) {
-        // This would typically run tests and parse coverage reports
-        // For now, return a mock value
-        return Math.floor(Math.random() * 100);
+      // First, check for existing coverage reports
+      const coveragePaths = [
+        path.join(pkg.path, 'coverage', 'coverage-summary.json'),
+        path.join(pkg.path, 'coverage', 'lcov.info'),
+        path.join(pkg.path, 'coverage', 'clover.xml'),
+        path.join(pkg.path, 'coverage.json'),
+      ];
+
+      // Look for any coverage file that exists
+      for (const coveragePath of coveragePaths) {
+        if (fs.existsSync(coveragePath)) {
+          if (coveragePath.endsWith('coverage-summary.json')) {
+            try {
+              const coverage = JSON.parse(
+                fs.readFileSync(coveragePath, 'utf8')
+              );
+              return (
+                coverage.total?.lines?.pct ||
+                coverage.total?.statements?.pct ||
+                0
+              );
+            } catch (error) {
+              console.warn(
+                `Error parsing coverage file for ${pkg.name}:`,
+                error
+              );
+            }
+          }
+          // If we find any coverage file but can't parse it, assume coverage exists
+          return 50; // Default coverage if files exist but can't parse
+        }
       }
+
+      // If no coverage files found and package has test script
+      if (pkg.scripts.test) {
+        // Return a reasonable default based on whether tests are likely to have coverage
+        const hasCoverageSetup =
+          pkg.scripts.test.includes('--coverage') ||
+          pkg.scripts.test.includes('coverage') ||
+          pkg.devDependencies?.jest ||
+          pkg.devDependencies?.nyc ||
+          pkg.devDependencies?.['@types/jest'];
+
+        return hasCoverageSetup ? 30 : 0; // Reasonable defaults
+      }
+
       return 0;
     } catch (error) {
+      console.warn(`Error checking coverage for ${pkg.name}:`, error);
       return 0;
     }
   }
@@ -207,7 +261,7 @@ export class MonorepoScanner {
   /**
    * Checks lint status for a package
    */
-  private async checkLintStatus(
+  async checkLintStatus(
     pkg: PackageInfo
   ): Promise<PackageHealth['lintStatus']> {
     try {
@@ -229,7 +283,7 @@ export class MonorepoScanner {
   /**
    * Checks security audit for a package
    */
-  private async checkSecurityAudit(
+  async checkSecurityAudit(
     pkg: PackageInfo
   ): Promise<PackageHealth['securityAudit']> {
     try {
@@ -519,4 +573,27 @@ export async function generateReports(): Promise<PackageReport[]> {
 
 export function scanForFiles(fileTypes: string[]): Record<string, string[]> {
   return scanner.scanForFileTypes(fileTypes);
+}
+
+// Fix these function signatures - they should accept single PackageInfo objects
+export async function funCheckBuildStatus(
+  pkg: PackageInfo
+): Promise<PackageHealth['buildStatus']> {
+  return scanner.checkBuildStatus(pkg);
+}
+
+export async function funCheckTestCoverage(pkg: PackageInfo): Promise<number> {
+  return scanner.checkTestCoverage(pkg);
+}
+
+export async function funCheckLintStatus(
+  pkg: PackageInfo
+): Promise<PackageHealth['lintStatus']> {
+  return scanner.checkLintStatus(pkg);
+}
+
+export async function funCheckSecurityAudit(
+  pkg: PackageInfo
+): Promise<PackageHealth['securityAudit']> {
+  return scanner.checkSecurityAudit(pkg);
 }

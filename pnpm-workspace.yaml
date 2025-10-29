@@ -1,11 +1,11 @@
 packages:
   # Applications
-  - "apps/*"
+  - 'apps/*'
   # Shared packages and libraries
-  - "packages/*"
-  - "libs/*"
+  - 'packages/*'
+  - 'libs/*'
 
   # Exclude test directories and dist folders
-  - "!**/dist"
-  - "!**/node_modules"
-  - "!**/*.test.*"
+  - '!**/dist'
+  - '!**/node_modules'
+  - '!**/*.test.*'

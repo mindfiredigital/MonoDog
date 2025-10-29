@@ -9,7 +9,10 @@
     "start": "tsx index.ts",
     "build": "tsc",
     "test": "jest",
-    "clean": "rm -rf dist node_modules/.cache"
+    "clean": "rm -rf dist node_modules/.cache",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "@prisma/client": "^5.7.0"
