@@ -66,6 +66,7 @@ model Package {
   peerDependencies String?
   dependenciesInfo DependencyInfo[]
   commits          Commit[]
+  packageHealth    PackageHealth?
 }
 
 model DependencyInfo {
@@ -82,23 +83,23 @@ model DependencyInfo {
 }
 
 model Commit {
-  hash        String   @id
+  hash        String    @id
   message     String
   author      String
   date        DateTime?
   type        String
   packageName String
-  package     Package  @relation(fields: [packageName], references: [name])
+  package     Package   @relation(fields: [packageName], references: [name])
 }
 
 model HealthStatus {
   id        Int     @id @default(autoincrement())
-  
+
   // Package reference (without formal relation)
   packageName String @unique
   // package     Package @relation(fields: [packageName], references: [name], onDelete: Cascade)
 
-  
+
   // Health Metrics
   overallScore   Float   // Overall health score (0-100)
   buildStatus    String  // e.g., "passing", "failing", "unknown"
@@ -106,7 +107,7 @@ model HealthStatus {
   lintStatus     String  // e.g., "passing", "warning", "failing"
   security       String  // e.g., "secure", "vulnerabilities", "unknown"
   dependencies   String  // e.g., "up-to-date", "outdated", "vulnerable"
-  
+
   // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -124,6 +125,7 @@ model PackageHealth {
   packageDependencies  String    // Changed from dependencies to packageDependencies
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
-  
+  package              Package   @relation(fields: [packageName], references: [name])
+
   @@map("package_health")
 }

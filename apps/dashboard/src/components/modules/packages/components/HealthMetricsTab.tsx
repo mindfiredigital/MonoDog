@@ -72,32 +72,32 @@ export default function HealthMetricsTab({
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-medium text-gray-900">Health Score</h3>
           <div
-            className={`text-3xl font-bold ${getHealthScoreColor(packageData.healthScore)}`}
+            className={`text-3xl font-bold ${getHealthScoreColor(packageData.packageHealth.packageOverallScore)}`}
           >
-            {packageData.healthScore}%
+            {packageData.packageHealth.packageOverallScore}%
           </div>
         </div>
 
         <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
           <div
             className={`h-3 rounded-full transition-all duration-300 ${
-              packageData.healthScore >= 80
+              packageData.packageHealth.packageOverallScore >= 80
                 ? 'bg-green-500'
-                : packageData.healthScore >= 60
+                : packageData.packageHealth.packageOverallScore >= 60
                   ? 'bg-yellow-500'
                   : 'bg-red-500'
             }`}
-            style={{ width: `${packageData.healthScore}%` }}
+            style={{ width: `${packageData.packageHealth.packageOverallScore}%` }}
           />
         </div>
 
         <p className="text-sm text-gray-600">
-          {packageData.healthScore >= 80 &&
+          {packageData.packageHealth.packageOverallScore >= 80 &&
             'Excellent health - package is in great condition'}
-          {packageData.healthScore >= 60 &&
-            packageData.healthScore < 80 &&
+          {packageData.packageHealth.packageOverallScore >= 60 &&
+            packageData.packageHealth.packageOverallScore < 80 &&
             'Good health - minor issues detected'}
-          {packageData.healthScore < 60 &&
+          {packageData.packageHealth.packageOverallScore < 60 &&
             'Needs attention - several issues require fixing'}
         </p>
       </div>
@@ -194,14 +194,14 @@ export default function HealthMetricsTab({
               <div className="flex justify-between">
                 <span className="text-gray-600">Total Dependencies:</span>
                 <span className="font-medium">
-                  {Object.keys(packageData.dependencies).length}
+                  {Object.keys(packageData.dependenciesInfo).length}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Outdated:</span>
                 <span className="font-medium text-yellow-600">
                   {
-                    packageData.dependencies.filter(
+                    packageData.dependenciesInfo.filter(
                       d => d.status === 'outdated'
                     ).length
                   }
@@ -211,7 +211,7 @@ export default function HealthMetricsTab({
                 <span className="text-gray-600">Major Updates Available:</span>
                 <span className="font-medium text-red-600">
                   {
-                    packageData.dependencies.filter(
+                    packageData.dependenciesInfo.filter(
                       d => d.status === 'major-update'
                     ).length
                   }

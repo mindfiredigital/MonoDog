@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
+import path from 'path';
 import { json } from 'body-parser';
 import {
   scanner,
@@ -29,6 +30,12 @@ export interface HealthMetric {
   description: string;
 }
 import { GitService } from './gitService';
+export interface HealthMetric {
+  name: string;
+  value: number;
+  status: 'healthy' | 'warning' | 'error';
+  description: string;
+}
 
 const prisma = new PrismaClient();
 
@@ -108,10 +115,10 @@ app.get('/api/packages/:name', async (req, res) => {
       include: {
         dependenciesInfo: true,
         commits: true,
+        packageHealth: true,
       },
     });
-
-    if (!packageInfo) {
+    if (!pkg) {
       return res.status(404).json({ error: 'Package not found' });
     }
     const transformedPkg = { ...pkg };
