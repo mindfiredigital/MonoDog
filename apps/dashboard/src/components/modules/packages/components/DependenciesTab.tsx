@@ -7,8 +7,9 @@ interface DependenciesTabProps {
 }
 
 export default function DependenciesTab({ packageData }: DependenciesTabProps) {
+  console.log(packageData);
   const renderDependencyTable = (
-    dependencies: PackageDetail['dependencies'],
+    dependencies: PackageDetail['dependenciesInfo'],
     title: string
   ) => (
     <div className="mb-8">
@@ -77,8 +78,18 @@ export default function DependenciesTab({ packageData }: DependenciesTabProps) {
 
   return (
     <div className="py-6">
-      {renderDependencyTable(packageData.dependencies, 'Dependencies')}
-      {renderDependencyTable(packageData.devDependencies, 'Dev Dependencies')}
+      {renderDependencyTable(
+        packageData.dependenciesInfo.filter(d => d.type == 'dependency'),
+        'Dependencies'
+      )}
+      {renderDependencyTable(
+        packageData.dependenciesInfo.filter(d => d.type == 'devDependency'),
+        'Dev Dependencies'
+      )}
+      {renderDependencyTable(
+        packageData.dependenciesInfo.filter(d => d.type == 'peerDependency'),
+        'Peer Dependencies'
+      )}
 
       {/* Dependency Summary */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -89,23 +100,41 @@ export default function DependenciesTab({ packageData }: DependenciesTabProps) {
               Total Dependencies:
             </span>
             <span className="ml-2 text-blue-700">
-              {packageData.dependencies.length}
+              {
+                packageData.dependenciesInfo.filter(d => d.type == 'dependency')
+                  .length
+              }
             </span>
           </div>
           <div>
             <span className="font-medium text-blue-800">Dev Dependencies:</span>
             <span className="ml-2 text-blue-700">
-              {packageData.devDependencies.length}
+              {
+                packageData.dependenciesInfo.filter(
+                  d => d.type == 'devDependency'
+                ).length
+              }
+            </span>
+          </div>
+          <div>
+            <span className="font-medium text-blue-800">
+              Peer Dependencies:
+            </span>
+            <span className="ml-2 text-blue-700">
+              {
+                packageData.dependenciesInfo.filter(
+                  d => d.type == 'peerDependency'
+                ).length
+              }
             </span>
           </div>
           <div>
             <span className="font-medium text-blue-800">Outdated:</span>
             <span className="ml-2 text-blue-700">
               {
-                [
-                  ...packageData.dependencies,
-                  ...packageData.devDependencies,
-                ].filter(d => d.status === 'outdated').length
+                packageData.dependenciesInfo.filter(
+                  d => d.status === 'outdated'
+                ).length
               }
             </span>
           </div>
@@ -113,10 +142,9 @@ export default function DependenciesTab({ packageData }: DependenciesTabProps) {
             <span className="font-medium text-blue-800">Major Updates:</span>
             <span className="ml-2 text-blue-700">
               {
-                [
-                  ...packageData.dependencies,
-                  ...packageData.devDependencies,
-                ].filter(d => d.status === 'major-update').length
+                packageData.dependenciesInfo.filter(
+                  d => d.status === 'major-update'
+                ).length
               }
             </span>
           </div>

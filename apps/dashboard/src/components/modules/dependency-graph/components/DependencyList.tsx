@@ -85,11 +85,11 @@ export default function DependencyList({
           <tbody className="bg-white divide-y divide-gray-200">
             {packages.map(pkg => (
               <tr
-                key={pkg.id}
+                key={pkg.name}
                 className={`hover:bg-gray-50 cursor-pointer transition-colors ${
-                  selectedPackage === pkg.id ? 'bg-blue-50' : ''
+                  selectedPackage === pkg.name ? 'bg-blue-50' : ''
                 }`}
-                onClick={() => onPackageSelect(pkg.id)}
+                onClick={() => onPackageSelect(pkg.name)}
               >
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
@@ -125,12 +125,12 @@ export default function DependencyList({
 
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-900">
-                    {pkg.dependencies.length}
-                    {pkg.dependencies.length > 0 && (
+                    {Object.keys(pkg.dependencies).length}
+                    {Object.keys(pkg.dependencies).length > 0 && (
                       <div className="text-xs text-gray-500 mt-1">
-                        {pkg.dependencies.slice(0, 3).join(', ')}
-                        {pkg.dependencies.length > 3 &&
-                          ` +${pkg.dependencies.length - 3} more`}
+                        {Object.keys(pkg.dependencies).slice(0, 3).join(', ')}
+                        {Object.keys(pkg.dependencies).length > 3 &&
+                          ` +${Object.keys(pkg.dependencies).length - 3} more`}
                       </div>
                     )}
                   </div>
@@ -151,7 +151,7 @@ export default function DependencyList({
 
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
                   <Link
-                    to={`/packages/${pkg.name}`}
+                    to={`/packages/${encodeURIComponent(pkg.name)}`}
                     className="text-blue-600 hover:text-blue-500"
                     onClick={e => e.stopPropagation()}
                   >

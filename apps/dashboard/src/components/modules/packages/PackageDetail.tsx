@@ -19,100 +19,102 @@ import {
   PackageDetailTab,
 } from './types/packages.types';
 
+import { monorepoService } from '../../../services/monorepoService';
+
 // Re-export types for backward compatibility
 export type { PackageDetail as PackageDetailType } from './types/packages.types';
 
 // Mock data (in real implementation, this would come from an API)
-const mockPackageDetail: PackageDetailType = {
-  name: '@myorg/ui-components',
-  version: '2.1.0',
-  type: 'lib',
-  status: 'healthy',
-  description: 'Reusable UI components library for our design system',
-  lastUpdated: '2024-01-15',
-  dependencies: [
-    {
-      name: 'react',
-      version: '18.2.0',
-      latest: '18.2.0',
-      status: 'up-to-date',
-    },
-    {
-      name: 'typescript',
-      version: '5.0.0',
-      latest: '5.3.0',
-      status: 'outdated',
-    },
-    {
-      name: '@types/react',
-      version: '18.0.0',
-      latest: '18.2.0',
-      status: 'outdated',
-    },
-    {
-      name: 'tailwindcss',
-      version: '3.3.0',
-      latest: '4.0.0',
-      status: 'major-update',
-    },
-  ],
-  devDependencies: [
-    { name: 'jest', version: '29.0.0', latest: '29.7.0', status: 'outdated' },
-    {
-      name: '@testing-library/react',
-      version: '13.0.0',
-      latest: '14.1.0',
-      status: 'major-update',
-    },
-    {
-      name: 'storybook',
-      version: '7.0.0',
-      latest: '7.6.0',
-      status: 'outdated',
-    },
-  ],
-  maintainers: ['john.doe@company.com', 'jane.smith@company.com'],
-  tags: ['ui', 'components', 'design-system', 'react'],
-  repository: 'https://github.com/myorg/monorepo',
-  license: 'MIT',
-  scripts: {
-    build: 'tsc && vite build',
-    dev: 'vite',
-    test: 'jest',
-    'test:watch': 'jest --watch',
-    lint: 'eslint src --ext .ts,.tsx',
-    'lint:fix': 'eslint src --ext .ts,.tsx --fix',
-    storybook: 'storybook dev -p 6006',
-    'build-storybook': 'storybook build',
-  },
-  recentCommits: [
-    {
-      hash: '1a2b3c4',
-      message: 'feat: add new Button variant with loading state',
-      author: 'John Doe',
-      date: '2024-01-15',
-      type: 'feature',
-    },
-    {
-      hash: '5d6e7f8',
-      message: 'fix: resolve accessibility issues in Modal component',
-      author: 'Jane Smith',
-      date: '2024-01-14',
-      type: 'fix',
-    },
-    {
-      hash: '9g0h1i2',
-      message: 'chore: update dependencies',
-      author: 'Bob Wilson',
-      date: '2024-01-13',
-      type: 'chore',
-    },
-  ],
-  healthScore: 85,
-  buildStatus: 'success',
-  testCoverage: 78,
-  lintStatus: 'pass',
-};
+// const mockPackageDetail: PackageDetailType = {
+//   name: '@myorg/ui-components',
+//   version: '2.1.0',
+//   type: 'lib',
+//   status: 'healthy',
+//   description: 'Reusable UI components library for our design system',
+//   lastUpdated: '2024-01-15',
+//   dependencies: [
+//     {
+//       name: 'react',
+//       version: '18.2.0',
+//       latest: '18.2.0',
+//       status: 'up-to-date',
+//     },
+//     {
+//       name: 'typescript',
+//       version: '5.0.0',
+//       latest: '5.3.0',
+//       status: 'outdated',
+//     },
+//     {
+//       name: '@types/react',
+//       version: '18.0.0',
+//       latest: '18.2.0',
+//       status: 'outdated',
+//     },
+//     {
+//       name: 'tailwindcss',
+//       version: '3.3.0',
+//       latest: '4.0.0',
+//       status: 'major-update',
+//     },
+//   ],
+//   devDependencies: [
+//     { name: 'jest', version: '29.0.0', latest: '29.7.0', status: 'outdated' },
+//     {
+//       name: '@testing-library/react',
+//       version: '13.0.0',
+//       latest: '14.1.0',
+//       status: 'major-update',
+//     },
+//     {
+//       name: 'storybook',
+//       version: '7.0.0',
+//       latest: '7.6.0',
+//       status: 'outdated',
+//     },
+//   ],
+//   maintainers: ['john.doe@company.com', 'jane.smith@company.com'],
+//   tags: ['ui', 'components', 'design-system', 'react'],
+//   repository: 'https://github.com/myorg/monorepo',
+//   license: 'MIT',
+//   scripts: {
+//     build: 'tsc && vite build',
+//     dev: 'vite',
+//     test: 'jest',
+//     'test:watch': 'jest --watch',
+//     lint: 'eslint src --ext .ts,.tsx',
+//     'lint:fix': 'eslint src --ext .ts,.tsx --fix',
+//     storybook: 'storybook dev -p 6006',
+//     'build-storybook': 'storybook build',
+//   },
+//   commits: [
+//     {
+//       hash: '1a2b3c4',
+//       message: 'feat: add new Button variant with loading state',
+//       author: 'John Doe',
+//       date: '2024-01-15',
+//       type: 'feature',
+//     },
+//     {
+//       hash: '5d6e7f8',
+//       message: 'fix: resolve accessibility issues in Modal component',
+//       author: 'Jane Smith',
+//       date: '2024-01-14',
+//       type: 'fix',
+//     },
+//     {
+//       hash: '9g0h1i2',
+//       message: 'chore: update dependencies',
+//       author: 'Bob Wilson',
+//       date: '2024-01-13',
+//       type: 'chore',
+//     },
+//   ],
+//   healthScore: 85,
+//   buildStatus: 'success',
+//   testCoverage: 78,
+//   lintStatus: 'pass',
+// };
 
 export default function PackageDetail() {
   const { name } = useParams<{ name: string }>();
@@ -122,9 +124,16 @@ export default function PackageDetail() {
   const [activeTab, setActiveTab] = useState<PackageDetailTab>('overview');
 
   useEffect(() => {
-    // In real implementation, fetch package data based on name
-    // For now, using mock data
-    setPackageData(mockPackageDetail);
+    const fetchPackage = async () => {
+      try {
+        const data = await monorepoService.getPackage(name ?? '');
+        setPackageData(data);
+      } catch (err) {
+        console.error('Error fetching packages:', err);
+      }
+    };
+
+    fetchPackage();
   }, [name]);
 
   // Loading state
@@ -155,7 +164,7 @@ export default function PackageDetail() {
                     Maintainers
                   </h4>
                   <div className="space-y-1">
-                    {packageData.maintainers.map(maintainer => (
+                    {Object.keys(packageData.maintainers).map(maintainer => (
                       <div key={maintainer} className="text-sm text-gray-600">
                         {maintainer}
                       </div>
@@ -171,13 +180,31 @@ export default function PackageDetail() {
                     <div className="flex justify-between">
                       <span className="text-gray-600">Dependencies:</span>
                       <span className="font-medium">
-                        {packageData.dependencies.length}
+                        {
+                          packageData.dependenciesInfo.filter(
+                            d => d.type == 'dependency'
+                          ).length
+                        }
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Dev Dependencies:</span>
                       <span className="font-medium">
-                        {packageData.devDependencies.length}
+                        {
+                          packageData.dependenciesInfo.filter(
+                            d => d.type == 'devDependency'
+                          ).length
+                        }
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Peer Dependencies:</span>
+                      <span className="font-medium">
+                        {
+                          packageData.dependenciesInfo.filter(
+                            d => d.type == 'peerDependency'
+                          ).length
+                        }
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -189,7 +216,7 @@ export default function PackageDetail() {
                     <div className="flex justify-between">
                       <span className="text-gray-600">Recent Commits:</span>
                       <span className="font-medium">
-                        {packageData.recentCommits.length}
+                        {packageData.commits?.length}
                       </span>
                     </div>
                   </div>

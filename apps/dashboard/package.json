@@ -12,6 +12,11 @@
     "test": "jest",
     "clean": "rm -rf dist node_modules/.vite"
   },
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/lakinmindfire/MonoDog.git",
+    "directory": "apps/dashboard"
+  },
   "dependencies": {
     "@heroicons/react": "^2.0.18",
     "clsx": "^2.0.0",

@@ -94,7 +94,7 @@ export default function PackageDetailHeader({
           <div className="text-right">
             <div className="text-sm text-gray-500 mb-2">Health Score</div>
             <div className="text-2xl font-bold text-blue-600">
-              {packageData.healthScore}%
+              {packageData.packageOverallScore}%
             </div>
           </div>
         </div>
@@ -135,12 +135,12 @@ export default function PackageDetailHeader({
               <div className="text-xs text-gray-500">Repository</div>
               <div className="text-sm font-medium truncate">
                 <a
-                  href={packageData.repository}
+                  href={packageData.repository.url || ''}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-600 hover:text-blue-500"
                 >
-                  {packageData.repository.split('/').pop()}
+                  {packageData.repository?.url?.split('/').pop()}
                 </a>
               </div>
             </div>
@@ -148,7 +148,7 @@ export default function PackageDetailHeader({
         </div>
 
         {/* Tags */}
-        {packageData.tags.length > 0 && (
+        {packageData.tags?.length > 0 && (
           <div className="mt-4">
             <div className="text-xs text-gray-500 mb-2">Tags</div>
             <div className="flex flex-wrap gap-2">

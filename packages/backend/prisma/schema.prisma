@@ -14,19 +14,19 @@ datasource db {
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
+  id    Int    @id @default(autoincrement())
   name  String
-  email String  @unique
+  email String @unique
   posts Post[]
 }
 
 model Post {
-  id        Int      @id @default(autoincrement())
+  id        Int     @id @default(autoincrement())
   title     String
   content   String?
-  published Boolean  @default(false)
+  published Boolean @default(false)
   authorId  Int
-  author    User     @relation(fields: [authorId], references: [id])
+  author    User    @relation(fields: [authorId], references: [id])
 }
 
 // --- MONOREPO DATA MODEL ---
@@ -42,41 +42,63 @@ model Package {
   type    String // e.g., 'app', 'package'
 
   // Timestamps
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  createdAt   DateTime @default(now())
+  lastUpdated DateTime @default(now())
 
   // Key Metrics and Relationships
-  dependencies String  // The total number of direct dependencies (12 in your example)
+  dependencies String? // The total number of direct dependencies
   // Manual Serialization Required: Stores a JSON array string of maintainers, e.g., '["team-frontend"]'
-  maintainers       String
+  maintainers  String
   // Manual Serialization Required: Stores a JSON array string of tags, e.g., '["core", "ui"]'
-  path              String // The relative path in the file system, e.g., 'apps/dashboard'
+  path         String // The relative path in the file system, e.g., 'apps/dashboard'
 
   // Descriptions and Configuration
   description String
-  license String
-  repository String?
-
+  license     String
+  repository  String?
 
   // Manual Serialization Required: Stores the scripts object as a JSON string
   // Example: '{"dev": "vite", "build": "tsc && vite build"}'
   scripts String?
-  status      String @default("healthy")
+  status  String  @default("")
 
-  // Dependency Lists (Manual Serialization Required)
-  // Stores a JSON array string of dependencies.
-  dependenciesList    String?
-  devDependencies     String?
+  devDependencies  String?
+  peerDependencies String?
+  dependenciesInfo DependencyInfo[]
+  commits          Commit[]
+  packageHealth    PackageHealth?
+}
+
+model DependencyInfo {
+  name        String
+  packageName String
+  version     String
+  type        String  @default("")
+  status      String  @default("")
+  latest      String?
+  outdated    Boolean @default(false)
+  package     Package @relation(fields: [packageName], references: [name])
+
+  @@unique([name, packageName]) // Composite unique constraint
+}
+
+model Commit {
+  hash        String    @id
+  message     String
+  author      String
+  date        DateTime?
+  type        String
+  packageName String
+  package     Package   @relation(fields: [packageName], references: [name])
 }
 
 model HealthStatus {
   id        Int     @id @default(autoincrement())
-  
+
   // Package reference (without formal relation)
   packageName String @unique
   // package     Package @relation(fields: [packageName], references: [name], onDelete: Cascade)
 
-  
   // Health Metrics
   overallScore   Float   // Overall health score (0-100)
   buildStatus    String  // e.g., "passing", "failing", "unknown"
@@ -84,7 +106,6 @@ model HealthStatus {
   lintStatus     String  // e.g., "passing", "warning", "failing"
   security       String  // e.g., "secure", "vulnerabilities", "unknown"
   dependencies   String  // e.g., "up-to-date", "outdated", "vulnerable"
-  
   // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -102,6 +123,8 @@ model PackageHealth {
   packageDependencies  String    // Changed from dependencies to packageDependencies
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
-  
+  package              Package   @relation(fields: [packageName], references: [name])
+
   @@map("package_health")
 }
+

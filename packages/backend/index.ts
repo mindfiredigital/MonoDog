@@ -28,6 +28,13 @@ export interface HealthMetric {
   status: 'healthy' | 'warning' | 'error';
   description: string;
 }
+import { GitService } from './gitService';
+export interface HealthMetric {
+  name: string;
+  value: number;
+  status: 'healthy' | 'warning' | 'error';
+  description: string;
+}
 
 const prisma = new PrismaClient();
 
@@ -71,14 +78,22 @@ app.get('/api/packages', async (req, res) => {
       //     ? JSON.parse(pkg.tags)
       //     : [];
 
-      // 3. Scripts (should default to an object, not an array)
+      // 3. Scripts/repository (should default to an object, not an array)
       transformedPkg.scripts = pkg.scripts ? JSON.parse(pkg.scripts) : {};
+      transformedPkg.repository = pkg.repository
+        ? JSON.parse(pkg.repository)
+        : {};
 
       // 4. Dependencies List
-      transformedPkg.dependenciesList = pkg.dependenciesList
-        ? JSON.parse(pkg.dependenciesList)
+      transformedPkg.dependencies = pkg.dependencies
+        ? JSON.parse(pkg.dependencies)
         : [];
-
+      transformedPkg.devDependencies = pkg.devDependencies
+        ? JSON.parse(pkg.devDependencies)
+        : [];
+      transformedPkg.peerDependencies = pkg.peerDependencies
+        ? JSON.parse(pkg.peerDependencies)
+        : [];
       // ... and so on for all serialized fields
       return transformedPkg; // Return the fully transformed object
     });
@@ -92,22 +107,55 @@ app.get('/api/packages', async (req, res) => {
 app.get('/api/packages/:name', async (req, res) => {
   try {
     const { name } = req.params;
-    const packageInfo = await prisma.package.findUnique({
+    const pkg = await prisma.package.findUnique({
       where: {
         name: name,
       },
+      include: {
+        dependenciesInfo: true,
+        commits: true,
+        packageHealth: true,
+      },
     });
-    console.log('packageInfo -->', packageInfo);
-    if (!packageInfo) {
+    if (!pkg) {
       return res.status(404).json({ error: 'Package not found' });
     }
+    const transformedPkg = { ...pkg };
 
+    // --- APPLY PARSING TO EACH FIELD ---
+
+    // 1. Maintainers (Your Logic)
+    // transformedPkg.maintainers = pkg.maintainers
+    //   ? JSON.parse(pkg.maintainers)
+    //   : [];
+
+    // 2. Tags
+    // transformedPkg.tags = pkg.tags
+    //     ? JSON.parse(pkg.tags)
+    //     : [];
+
+    // 3. Scripts/repository (should default to an object, not an array)
+    transformedPkg.scripts = pkg.scripts ? JSON.parse(pkg.scripts) : {};
+    transformedPkg.repository = pkg.repository
+      ? JSON.parse(pkg.repository)
+      : {};
+
+    // 4. Dependencies List
+    transformedPkg.dependencies = pkg.dependencies
+      ? JSON.parse(pkg.dependencies)
+      : [];
+    transformedPkg.devDependencies = pkg.devDependencies
+      ? JSON.parse(pkg.devDependencies)
+      : [];
+    transformedPkg.peerDependencies = pkg.peerDependencies
+      ? JSON.parse(pkg.peerDependencies)
+      : [];
     // Get additional package information
     const reports = await generateReports();
     const packageReport = reports.find(r => r.package.name === name);
 
     const result = {
-      ...packageInfo,
+      ...transformedPkg,
       report: packageReport,
       ciStatus: await ciStatusManager.getPackageStatus(name),
     };
@@ -115,6 +163,25 @@ app.get('/api/packages/:name', async (req, res) => {
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch package details' });
+  }
+});
+
+// Get commit details
+app.get('/api/commits/:packagePath', async (req, res) => {
+  try {
+    const { packagePath } = req.params;
+
+    const gitService = new GitService();
+    const commits = await gitService.getAllCommits(packagePath);
+
+    if (commits.length > 0) {
+      console.log(`Successfully fetched ${commits.length} commits.`);
+    } else {
+      console.log('Repository has no commits or path is incorrect.');
+    }
+    res.json(commits);
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to fetch commit details' });
   }
 });
 

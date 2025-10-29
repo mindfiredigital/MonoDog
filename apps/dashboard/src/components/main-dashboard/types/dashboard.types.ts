@@ -24,6 +24,8 @@ export interface Package {
   dependencies: string[];
   tags: string[];
   maintainers: string[];
+  devDependencies: string[];
+  peerDependencies: string[];
 }
 
 export interface PackageStats {
