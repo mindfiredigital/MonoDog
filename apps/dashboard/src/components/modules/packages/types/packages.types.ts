@@ -13,6 +13,7 @@ export interface Package {
   dependencies: string[];
   tags: string[];
   maintainers: string[];
+  packageHealth: PackageHealth
 }
 
 export interface Dependency {

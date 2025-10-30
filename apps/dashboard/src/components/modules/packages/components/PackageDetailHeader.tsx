@@ -94,7 +94,7 @@ export default function PackageDetailHeader({
           <div className="text-right">
             <div className="text-sm text-gray-500 mb-2">Health Score</div>
             <div className="text-2xl font-bold text-blue-600">
-              {packageData.packageOverallScore}%
+              {packageData.packageHealth.packageOverallScore}%
             </div>
           </div>
         </div>

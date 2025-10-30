@@ -345,7 +345,6 @@ class MonorepoRefresher {
             repository: JSON.stringify(pkg.repository),
             scripts: JSON.stringify(pkg.scripts),
             lastUpdated: new Date(),
-            status: '',
           },
           create: {
             // Timestamps

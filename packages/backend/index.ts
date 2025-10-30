@@ -554,8 +554,9 @@ app.get('/api/health/refresh', async (req, res) => {
             securityAudit: securityAudit,
             overallScore: overallScore.overallScore,
           };
+          const packageStatus = health.overallScore >= 80 ? 'healthy' : (health.overallScore >= 60 && health.overallScore < 80 ? 'warning' : 'error');
 
-          console.log(pkg.name, '-->', health);
+          console.log(pkg.name, '-->', health, packageStatus);
 
           // FIX: Use upsert to handle existing packages and proper Prisma syntax
           await prisma.packageHealth.upsert({
@@ -570,6 +571,12 @@ app.get('/api/health/refresh', async (req, res) => {
               packageSecurity: securityAudit,
               packageDependencies: '',
               updatedAt: new Date(),
+              package: {
+                update: {
+                  where: { name: pkg.name },
+                  data: { status: packageStatus },
+                },
+              },
             },
             create: {
               packageName: pkg.name,

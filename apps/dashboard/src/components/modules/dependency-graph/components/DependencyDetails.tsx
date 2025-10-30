@@ -180,7 +180,7 @@ export default function DependencyDetails({
         {/* Actions */}
         <div className="pt-2 border-t border-gray-200">
           <Link
-            to={`/packages/${pkg.name}`}
+            to={`/packages/${encodeURIComponent(pkg.name)}`}
             className="block w-full text-center bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 text-sm font-medium transition-colors"
           >
             View Package Details →
