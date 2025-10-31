@@ -63,6 +63,7 @@ export interface ConfigEditorProps {
   onValueChange: (value: string) => void;
   showSecrets: boolean;
   onToggleSecrets: () => void;
+  saving?: boolean;
 }
 
 export interface ConfigViewerProps {
@@ -87,6 +88,8 @@ export interface ConfigToolbarProps {
   onCancelEdit: () => void;
   onToggleSecrets: () => void;
   onRefresh: () => void;
+  saving?: boolean;
+  content?: string; // Add this
 }
 
 export interface ConfigPreviewProps {

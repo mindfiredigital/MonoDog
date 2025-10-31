@@ -564,160 +564,234 @@ class MonorepoService {
     return builds;
   }
 
+  //   async getConfigurationFiles(): Promise<ConfigFile[]> {
+  //     await new Promise(resolve => setTimeout(resolve, 300));
+
+  //     const configFiles: ConfigFile[] = [
+  //       {
+  //         id: 'config-package.json',
+  //         name: 'package.json',
+  //         path: 'package.json',
+  //         type: 'json',
+  //         content: JSON.stringify(
+  //           {
+  //             name: 'monodog',
+  //             version: '1.0.0',
+  //             description: 'Self-hosted monorepo package manager dashboard',
+  //             private: true,
+  //             workspaces: ['apps/*', 'packages/*', 'libs/*'],
+  //             scripts: {
+  //               dev: 'pnpm --filter @monodog/dashboard dev',
+  //               build: 'pnpm --filter @monodog/dashboard build',
+  //               test: 'pnpm run test --recursive',
+  //             },
+  //           },
+  //           null,
+  //           2
+  //         ),
+  //         lastModified: new Date().toISOString(),
+  //         size: 1024,
+  //         hasSecrets: false,
+  //       },
+  //       {
+  //         id: 'config-pnpm-workspace.yaml',
+  //         name: 'pnpm-workspace.yaml',
+  //         path: 'pnpm-workspace.yaml',
+  //         type: 'yaml',
+  //         content: `packages:
+  //   - 'apps/*'
+  //   - 'packages/*'
+  //   - 'libs/*'`,
+  //         lastModified: new Date().toISOString(),
+  //         size: 64,
+  //         hasSecrets: false,
+  //       },
+  //       {
+  //         id: 'config-turbo.json',
+  //         name: 'turbo.json',
+  //         path: 'turbo.json',
+  //         type: 'json',
+  //         content: JSON.stringify(
+  //           {
+  //             $schema: 'https://turbo.build/schema.json',
+  //             pipeline: {
+  //               build: {
+  //                 dependsOn: ['^build'],
+  //                 outputs: ['dist/**'],
+  //               },
+  //               test: {
+  //                 dependsOn: ['^build'],
+  //               },
+  //               dev: {
+  //                 cache: false,
+  //                 persistent: true,
+  //               },
+  //             },
+  //           },
+  //           null,
+  //           2
+  //         ),
+  //         lastModified: new Date().toISOString(),
+  //         size: 512,
+  //         hasSecrets: false,
+  //       },
+  //       {
+  //         id: 'config-tsconfig.json',
+  //         name: 'tsconfig.json',
+  //         path: 'tsconfig.json',
+  //         type: 'json',
+  //         content: JSON.stringify(
+  //           {
+  //             compilerOptions: {
+  //               target: 'ES2020',
+  //               useDefineForClassFields: true,
+  //               lib: ['ES2020', 'DOM', 'DOM.Iterable'],
+  //               module: 'ESNext',
+  //               skipLibCheck: true,
+  //               moduleResolution: 'bundler',
+  //               allowImportingTsExtensions: true,
+  //               resolveJsonModule: true,
+  //               isolatedModules: true,
+  //               noEmit: true,
+  //               jsx: 'react-jsx',
+  //               strict: true,
+  //               noUnusedLocals: true,
+  //               noUnusedParameters: true,
+  //               noFallthroughCasesInSwitch: true,
+  //             },
+  //             include: ['src'],
+  //             references: [{ path: './tsconfig.node.json' }],
+  //           },
+  //           null,
+  //           2
+  //         ),
+  //         lastModified: new Date().toISOString(),
+  //         size: 768,
+  //         hasSecrets: false,
+  //       },
+  //       {
+  //         id: 'config-vite.config.ts',
+  //         name: 'vite.config.ts',
+  //         path: 'vite.config.ts',
+  //         type: 'ts',
+  //         content: `import { defineConfig } from 'vite';
+  // import react from '@vitejs/plugin-react';
+
+  // export default defineConfig({
+  //   plugins: [react()],
+  // });`,
+  //         lastModified: new Date().toISOString(),
+  //         size: 256,
+  //         hasSecrets: false,
+  //       },
+  //       {
+  //         id: 'config-tailwind.config.js',
+  //         name: 'tailwind.config.js',
+  //         path: 'tailwind.config.js',
+  //         type: 'js',
+  //         content: `/** @type {import('tailwindcss').Config} */
+  // export default {
+  //   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  //   theme: {
+  //     extend: {},
+  //   },
+  //   plugins: [],
+  // }`,
+  //         lastModified: new Date().toISOString(),
+  //         size: 192,
+  //         hasSecrets: false,
+  //       },
+  //       {
+  //         id: 'config-env',
+  //         name: '.env.example',
+  //         path: '.env.example',
+  //         type: 'env',
+  //         content: `# Environment variables for monodog
+  // DATABASE_URL=postgresql://username:password@localhost:5432/monodog
+  // JWT_SECRET=your-jwt-secret-key-here
+  // API_KEY=your-api-key-here
+  // GITHUB_TOKEN=ghp_your-github-token-here`,
+  //         lastModified: new Date().toISOString(),
+  //         size: 256,
+  //         hasSecrets: true,
+  //       },
+  //     ];
+
+  //     return configFiles;
+  //   }
+
   async getConfigurationFiles(): Promise<ConfigFile[]> {
-    await new Promise(resolve => setTimeout(resolve, 300));
+    try {
+      console.log('Fetching configuration files from backend...');
 
-    const configFiles: ConfigFile[] = [
-      {
-        id: 'config-package.json',
-        name: 'package.json',
-        path: 'package.json',
-        type: 'json',
-        content: JSON.stringify(
-          {
-            name: 'monodog',
-            version: '1.0.0',
-            description: 'Self-hosted monorepo package manager dashboard',
-            private: true,
-            workspaces: ['apps/*', 'packages/*', 'libs/*'],
-            scripts: {
-              dev: 'pnpm --filter @monodog/dashboard dev',
-              build: 'pnpm --filter @monodog/dashboard build',
-              test: 'pnpm run test --recursive',
-            },
-          },
-          null,
-          2
-        ),
-        lastModified: new Date().toISOString(),
-        size: 1024,
-        hasSecrets: false,
-      },
-      {
-        id: 'config-pnpm-workspace.yaml',
-        name: 'pnpm-workspace.yaml',
-        path: 'pnpm-workspace.yaml',
-        type: 'yaml',
-        content: `packages:
-  - 'apps/*'
-  - 'packages/*'
-  - 'libs/*'`,
-        lastModified: new Date().toISOString(),
-        size: 64,
-        hasSecrets: false,
-      },
-      {
-        id: 'config-turbo.json',
-        name: 'turbo.json',
-        path: 'turbo.json',
-        type: 'json',
-        content: JSON.stringify(
-          {
-            $schema: 'https://turbo.build/schema.json',
-            pipeline: {
-              build: {
-                dependsOn: ['^build'],
-                outputs: ['dist/**'],
-              },
-              test: {
-                dependsOn: ['^build'],
-              },
-              dev: {
-                cache: false,
-                persistent: true,
-              },
-            },
-          },
-          null,
-          2
-        ),
-        lastModified: new Date().toISOString(),
-        size: 512,
-        hasSecrets: false,
-      },
-      {
-        id: 'config-tsconfig.json',
-        name: 'tsconfig.json',
-        path: 'tsconfig.json',
-        type: 'json',
-        content: JSON.stringify(
-          {
-            compilerOptions: {
-              target: 'ES2020',
-              useDefineForClassFields: true,
-              lib: ['ES2020', 'DOM', 'DOM.Iterable'],
-              module: 'ESNext',
-              skipLibCheck: true,
-              moduleResolution: 'bundler',
-              allowImportingTsExtensions: true,
-              resolveJsonModule: true,
-              isolatedModules: true,
-              noEmit: true,
-              jsx: 'react-jsx',
-              strict: true,
-              noUnusedLocals: true,
-              noUnusedParameters: true,
-              noFallthroughCasesInSwitch: true,
-            },
-            include: ['src'],
-            references: [{ path: './tsconfig.node.json' }],
-          },
-          null,
-          2
-        ),
-        lastModified: new Date().toISOString(),
-        size: 768,
-        hasSecrets: false,
-      },
-      {
-        id: 'config-vite.config.ts',
-        name: 'vite.config.ts',
-        path: 'vite.config.ts',
-        type: 'ts',
-        content: `import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+      // Call your real backend API
+      const res = await fetch(`${API_BASE}/config/files`);
 
-export default defineConfig({
-  plugins: [react()],
-});`,
-        lastModified: new Date().toISOString(),
-        size: 256,
-        hasSecrets: false,
-      },
-      {
-        id: 'config-tailwind.config.js',
-        name: 'tailwind.config.js',
-        path: 'tailwind.config.js',
-        type: 'js',
-        content: `/** @type {import('tailwindcss').Config} */
-export default {
-  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
-}`,
-        lastModified: new Date().toISOString(),
-        size: 192,
-        hasSecrets: false,
-      },
-      {
-        id: 'config-env',
-        name: '.env.example',
-        path: '.env.example',
-        type: 'env',
-        content: `# Environment variables for monodog
-DATABASE_URL=postgresql://username:password@localhost:5432/monodog
-JWT_SECRET=your-jwt-secret-key-here
-API_KEY=your-api-key-here
-GITHUB_TOKEN=ghp_your-github-token-here`,
-        lastModified: new Date().toISOString(),
-        size: 256,
-        hasSecrets: true,
-      },
-    ];
+      if (!res.ok) {
+        throw new Error(
+          `Failed to fetch config files: ${res.status} ${res.statusText}`
+        );
+      }
 
-    return configFiles;
+      const response = await res.json();
+
+      console.log('Response from config files API:', response);
+
+      if (response.success && response.files) {
+        console.log(
+          `Successfully fetched ${response.files.length} configuration files`
+        );
+        return response.files;
+      } else {
+        throw new Error('Invalid response format from config files API');
+      }
+    } catch (error) {
+      console.error('Error fetching configuration files from backend:', error);
+
+      // Fallback to mock data if backend call fails
+      console.log('Falling back to mock configuration files...');
+      // return await this.getMockConfigurationFiles();
+    }
+  }
+
+  async saveConfigurationFile(
+    fileId: string,
+    content: string
+  ): Promise<ConfigFile> {
+    try {
+      console.log('Saving configuration file:', fileId);
+
+      const res = await fetch(
+        `${API_BASE}/config/files/${encodeURIComponent(fileId)}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ content }),
+        }
+      );
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(
+          errorData.error ||
+            `Failed to save file: ${res.status} ${res.statusText}`
+        );
+      }
+
+      const response = await res.json();
+
+      if (response.success && response.file) {
+        console.log('File saved successfully:', fileId);
+        return response.file;
+      } else {
+        throw new Error('Invalid response format from save file API');
+      }
+    } catch (error) {
+      console.error('Error saving configuration file:', error);
+      throw error; // Re-throw to let the component handle it
+    }
   }
 
   private generateBuildStages(pkg: Package, status: string): BuildStage[] {

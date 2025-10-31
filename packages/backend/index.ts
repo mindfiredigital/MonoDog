@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
+import fs from 'fs';
+import { glob } from 'glob';
 import { json } from 'body-parser';
 import {
   scanner,
@@ -20,7 +22,9 @@ import {
   calculatePackageHealth,
 } from '../../libs/utils/helpers';
 import { PrismaClient } from '@prisma/client';
-import { error } from 'console';
+// Import the validateConfig function from your utils
+import { validateConfig } from '../../apps/dashboard/src/components/modules/config-inspector/utils/config.utils';
+import { GitService } from './gitService';
 
 export interface HealthMetric {
   name: string;
@@ -171,17 +175,55 @@ app.get('/api/commits/:packagePath', async (req, res) => {
   try {
     const { packagePath } = req.params;
 
-    const gitService = new GitService();
-    const commits = await gitService.getAllCommits(packagePath);
+    // Decode the package path
+    const decodedPath = decodeURIComponent(packagePath);
 
-    if (commits.length > 0) {
-      console.log(`Successfully fetched ${commits.length} commits.`);
-    } else {
-      console.log('Repository has no commits or path is incorrect.');
+    console.log('🔍 Fetching commits for path:', decodedPath);
+    console.log('📁 Current working directory:', process.cwd());
+
+    const gitService = new GitService();
+
+    // Check if this is an absolute path and convert to relative if needed
+    let relativePath = decodedPath;
+    const projectRoot = process.cwd();
+
+    // If it's an absolute path, make it relative to project root
+    if (path.isAbsolute(decodedPath)) {
+      relativePath = path.relative(projectRoot, decodedPath);
+      console.log('🔄 Converted absolute path to relative:', relativePath);
     }
+
+    // Check if the path exists
+    try {
+      await fs.promises.access(relativePath);
+      console.log('✅ Path exists:', relativePath);
+    } catch (fsError) {
+      console.log('❌ Path does not exist:', relativePath);
+      // Try the original path as well
+      try {
+        await fs.promises.access(decodedPath);
+        console.log('✅ Original path exists:', decodedPath);
+        relativePath = decodedPath; // Use original path if it exists
+      } catch (secondError) {
+        return res.status(404).json({
+          error: `Package path not found: ${relativePath} (also tried: ${decodedPath})`,
+        });
+      }
+    }
+
+    const commits = await gitService.getAllCommits(relativePath);
+
+    console.log(
+      `✅ Successfully fetched ${commits.length} commits for ${relativePath}`
+    );
     res.json(commits);
-  } catch (e) {
-    res.status(500).json({ error: 'Failed to fetch commit details' });
+  } catch (error: any) {
+    console.error('💥 Error fetching commit details:', error);
+    res.status(500).json({
+      error: 'Failed to fetch commit details',
+      message: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+    });
   }
 });
 
@@ -726,6 +768,433 @@ app.get('/api/system', (_, res) => {
       PORT: process.env.PORT,
     },
   });
+});
+
+// ------------------------- CONFIGURATION TAB ------------------------- //
+// Get all configuration files from the file system
+app.get('/api/config/files', async (req, res) => {
+  try {
+    // Find the monorepo root instead of using process.cwd()
+    const rootDir = findMonorepoRoot();
+    console.log('Monorepo root directory:', rootDir);
+    console.log('Backend directory:', __dirname);
+
+    const configFiles = await scanConfigFiles(rootDir);
+
+    // Transform to match frontend ConfigFile interface
+    const transformedFiles = configFiles.map(file => ({
+      id: file.id,
+      name: file.name,
+      path: file.path,
+      type: file.type,
+      content: file.content,
+      size: file.size,
+      lastModified: file.lastModified,
+      hasSecrets: file.hasSecrets,
+      isEditable: true,
+      validation: validateConfig(file.content, file.name),
+    }));
+
+    res.json({
+      success: true,
+      files: transformedFiles,
+      total: transformedFiles.length,
+      timestamp: Date.now(),
+    });
+  } catch (error) {
+    console.error('Error fetching configuration files:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch configuration files',
+    });
+  }
+});
+
+/**
+ * Find the monorepo root by looking for package.json with workspaces or pnpm-workspace.yaml
+ */
+function findMonorepoRoot(): string {
+  let currentDir = __dirname;
+
+  while (currentDir !== path.parse(currentDir).root) {
+    const packageJsonPath = path.join(currentDir, 'package.json');
+    const pnpmWorkspacePath = path.join(currentDir, 'pnpm-workspace.yaml');
+
+    // Check if this directory has package.json with workspaces or pnpm-workspace.yaml
+    if (fs.existsSync(packageJsonPath)) {
+      try {
+        const packageJson = JSON.parse(
+          fs.readFileSync(packageJsonPath, 'utf8')
+        );
+        // If it has workspaces or is the root monorepo package
+        if (packageJson.workspaces || fs.existsSync(pnpmWorkspacePath)) {
+          console.log('✅ Found monorepo root:', currentDir);
+          return currentDir;
+        }
+      } catch (error) {
+        // Continue searching if package.json is invalid
+      }
+    }
+
+    // Check if we're at the git root
+    const gitPath = path.join(currentDir, '.git');
+    if (fs.existsSync(gitPath)) {
+      console.log('✅ Found git root (likely monorepo root):', currentDir);
+      return currentDir;
+    }
+
+    // Go up one directory
+    const parentDir = path.dirname(currentDir);
+    if (parentDir === currentDir) break; // Prevent infinite loop
+    currentDir = parentDir;
+  }
+
+  // Fallback to process.cwd() if we can't find the root
+  console.log(
+    '⚠️ Could not find monorepo root, using process.cwd():',
+    process.cwd()
+  );
+  return process.cwd();
+}
+
+// Helper function to scan for configuration files
+async function scanConfigFiles(rootDir: string): Promise<any[]> {
+  const configPatterns = [
+    // Root level config files
+    'package.json',
+    'pnpm-workspace.yaml',
+    'pnpm-lock.yaml',
+    'turbo.json',
+    'tsconfig.json',
+    '.eslintrc.*',
+    '.prettierrc',
+    '.prettierignore',
+    '.editorconfig',
+    '.nvmrc',
+    '.gitignore',
+    'commitlint.config.js',
+    '.releaserc.json',
+    'env.example',
+
+    // App-specific config files
+    'vite.config.*',
+    'tailwind.config.*',
+    'postcss.config.*',
+    'components.json',
+
+    // Package-specific config files
+    'jest.config.*',
+    '.env*',
+    'dockerfile*',
+  ];
+
+  const configFiles: any[] = [];
+  const scannedPaths = new Set();
+
+  function scanDirectory(dir: string, depth = 0) {
+    if (scannedPaths.has(dir) || depth > 8) return; // Limit depth for safety
+    scannedPaths.add(dir);
+
+    try {
+      const items = fs.readdirSync(dir, { withFileTypes: true });
+
+      for (const item of items) {
+        const fullPath = path.join(dir, item.name);
+
+        if (item.isDirectory()) {
+          // Skip node_modules and other non-source directories
+          if (!shouldSkipDirectory(item.name, depth)) {
+            scanDirectory(fullPath, depth + 1);
+          }
+        } else {
+          // Check if file matches config patterns
+          if (isConfigFile(item.name)) {
+            try {
+              const stats = fs.statSync(fullPath);
+              const content = fs.readFileSync(fullPath, 'utf8');
+              const relativePath =
+                fullPath.replace(rootDir, '').replace(/\\/g, '/') ||
+                `/${item.name}`;
+
+              configFiles.push({
+                id: relativePath,
+                name: item.name,
+                path: relativePath,
+                type: getFileType(item.name),
+                content: content,
+                size: stats.size,
+                lastModified: stats.mtime.toISOString(),
+                hasSecrets: containsSecrets(content, item.name),
+              });
+            } catch (error) {
+              console.warn(`Could not read file: ${fullPath}`);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.warn(`Could not scan directory: ${dir}`);
+    }
+  }
+
+  function shouldSkipDirectory(dirName: string, depth: number): boolean {
+    const skipDirs = [
+      'node_modules',
+      'dist',
+      'build',
+      '.git',
+      '.next',
+      '.vscode',
+      '.turbo',
+      '.husky',
+      '.github',
+      '.vite',
+      'migrations',
+      'coverage',
+      '.cache',
+      'tmp',
+      'temp',
+    ];
+
+    // At root level, be more permissive
+    if (depth === 0) {
+      return skipDirs.includes(dirName);
+    }
+
+    // Deeper levels, skip more directories
+    return skipDirs.includes(dirName) || dirName.startsWith('.');
+  }
+
+  function isConfigFile(filename: string): boolean {
+    return configPatterns.some(pattern => {
+      if (pattern.includes('*')) {
+        const regex = new RegExp('^' + pattern.replace(/\*/g, '.*') + '$');
+        return regex.test(filename.toLowerCase());
+      }
+      return filename.toLowerCase() === pattern.toLowerCase();
+    });
+  }
+
+  console.log(`🔍 Scanning for config files in: ${rootDir}`);
+
+  // Start scanning from root
+  scanDirectory(rootDir);
+
+  // Sort files by path for consistent ordering
+  configFiles.sort((a, b) => a.path.localeCompare(b.path));
+
+  console.log(`📁 Found ${configFiles.length} configuration files`);
+
+  // Log some sample files for debugging
+  if (configFiles.length > 0) {
+    console.log('Sample config files found:');
+    configFiles.slice(0, 5).forEach(file => {
+      console.log(`  - ${file.path} (${file.type})`);
+    });
+    if (configFiles.length > 5) {
+      console.log(`  ... and ${configFiles.length - 5} more`);
+    }
+  }
+
+  return configFiles;
+}
+
+function getFileType(filename: string): string {
+  const extension = filename.split('.').pop()?.toLowerCase();
+  switch (extension) {
+    case 'json':
+      return 'json';
+    case 'yaml':
+    case 'yml':
+      return 'yaml';
+    case 'js':
+      return 'javascript';
+    case 'ts':
+      return 'typescript';
+    case 'env':
+      return 'env';
+    case 'md':
+      return 'markdown';
+    case 'cjs':
+      return 'javascript';
+    case 'config':
+      return 'text';
+    case 'example':
+      return filename.includes('.env') ? 'env' : 'text';
+    default:
+      return 'text';
+  }
+}
+
+function containsSecrets(content: string, filename: string): boolean {
+  // Only check .env files and files that might contain secrets
+  if (!filename.includes('.env') && !filename.includes('config')) {
+    return false;
+  }
+
+  const secretPatterns = [
+    /password\s*=\s*[^\s]/i,
+    /secret\s*=\s*[^\s]/i,
+    /key\s*=\s*[^\s]/i,
+    /token\s*=\s*[^\s]/i,
+    /auth\s*=\s*[^\s]/i,
+    /credential\s*=\s*[^\s]/i,
+    /api_key\s*=\s*[^\s]/i,
+    /private_key\s*=\s*[^\s]/i,
+    /DATABASE_URL/i,
+    /JWT_SECRET/i,
+    /GITHUB_TOKEN/i,
+  ];
+
+  return secretPatterns.some(pattern => pattern.test(content));
+}
+
+// Save configuration file
+// app.put('/api/config/files/:id', async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const { content } = req.body;
+
+//     if (!content) {
+//       return res.status(400).json({
+//         success: false,
+//         error: 'Content is required',
+//       });
+//     }
+
+//     const rootDir = process.cwd();
+//     const filePath = path.join(rootDir, id.startsWith('/') ? id.slice(1) : id);
+
+//     // Security check: ensure the file is within the project directory
+//     if (!filePath.startsWith(rootDir)) {
+//       return res.status(403).json({
+//         success: false,
+//         error: 'Access denied',
+//       });
+//     }
+
+//     // Check if file exists and is writable
+//     try {
+//       await fs.promises.access(filePath, fs.constants.W_OK);
+//     } catch (error) {
+//       return res.status(403).json({
+//         success: false,
+//         error: 'File is not writable or does not exist',
+//       });
+//     }
+
+//     // // Backup the original file (optional but recommended)
+//     // const backupPath = `${filePath}.backup-${Date.now()}`;
+//     // try {
+//     //   await fs.promises.copyFile(filePath, backupPath);
+//     // } catch (error) {
+//     //   console.warn('Could not create backup file:', error);
+//     // }
+
+//     // Write the new content
+//     await fs.promises.writeFile(filePath, content, 'utf8');
+
+//     // Get file stats for updated information
+//     const stats = await fs.promises.stat(filePath);
+//     const filename = path.basename(filePath);
+
+//     const updatedFile = {
+//       id: id,
+//       name: filename,
+//       path: id,
+//       type: getFileType(filename),
+//       content: content,
+//       size: stats.size,
+//       lastModified: stats.mtime.toISOString(),
+//       hasSecrets: containsSecrets(content, filename),
+//       isEditable: true,
+//       validation: validateConfig(content, filename),
+//     };
+
+//     res.json({
+//       success: true,
+//       file: updatedFile,
+//       message: 'File saved successfully',
+//       // backupCreated: fs.existsSync(backupPath),
+//     });
+//   } catch (error) {
+//     console.error('Error saving configuration file:', error);
+//     res.status(500).json({
+//       success: false,
+//       error: 'Failed to save configuration file',
+//     });
+//   }
+// });
+
+app.put('/api/config/files/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { content } = req.body;
+
+    if (!content) {
+      return res.status(400).json({
+        success: false,
+        error: 'Content is required',
+      });
+    }
+
+    // Use the monorepo root
+    const rootDir = findMonorepoRoot();
+    const filePath = path.join(rootDir, id.startsWith('/') ? id.slice(1) : id);
+
+    console.log('💾 Saving file:', filePath);
+    console.log('📁 Root directory:', rootDir);
+
+    // Security check: ensure the file is within the project directory
+    if (!filePath.startsWith(rootDir)) {
+      return res.status(403).json({
+        success: false,
+        error: 'Access denied',
+      });
+    }
+
+    // Check if file exists and is writable
+    try {
+      await fs.promises.access(filePath, fs.constants.W_OK);
+    } catch (error) {
+      return res.status(403).json({
+        success: false,
+        error: 'File is not writable or does not exist',
+      });
+    }
+
+    // Write the new content
+    await fs.promises.writeFile(filePath, content, 'utf8');
+
+    // Get file stats for updated information
+    const stats = await fs.promises.stat(filePath);
+    const filename = path.basename(filePath);
+
+    const updatedFile = {
+      id: id,
+      name: filename,
+      path: id,
+      type: getFileType(filename),
+      content: content,
+      size: stats.size,
+      lastModified: stats.mtime.toISOString(),
+      hasSecrets: containsSecrets(content, filename),
+      isEditable: true,
+      validation: validateConfig(content, filename),
+    };
+
+    res.json({
+      success: true,
+      file: updatedFile,
+      message: 'File saved successfully',
+    });
+  } catch (error) {
+    console.error('Error saving configuration file:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to save configuration file',
+    });
+  }
 });
 
 // Error handling middleware

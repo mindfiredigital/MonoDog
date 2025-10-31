@@ -322,9 +322,11 @@ class MonorepoRefresher {
   }
   async getCommits(path: string): Promise<Commit[]> {
     const res = await fetch(API_BASE + `/commits/` + encodeURIComponent(path));
+    // console.log('res', res);
     if (!res.ok) throw new Error('Failed to fetch commits');
     return await res.json();
   }
+
   /**
    * Store package reports in database
    */
