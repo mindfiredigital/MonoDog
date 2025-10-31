@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-
+import { useState, useEffect, useMemo } from 'react';
+import { monorepoService } from '../../../services/monorepoService';
 // Import sub-components
 import {
   LoadingState,
@@ -21,64 +21,47 @@ import {
   detectCircularDependencies,
   sortPackages,
   calculateLayout,
+  mapAllDependents,
 } from './utils/dependency.utils';
 
 // Re-export types for backward compatibility
 export type { PackageNode } from './types/dependency.types';
 
-// Mock data for dependency graph
-const mockPackages: PackageNode[] = [
-  {
-    id: 'dashboard',
-    name: 'dashboard',
-    type: 'app',
-    version: '0.1.0',
-    status: 'healthy',
-    dependencies: ['utils', 'backend'],
-    dependents: [],
-    x: 400,
-    y: 100,
-  },
-  {
-    id: 'backend',
-    name: 'backend',
-    type: 'app',
-    version: '1.2.0',
-    status: 'healthy',
-    dependencies: ['utils'],
-    dependents: ['dashboard'],
-    x: 200,
-    y: 200,
-  },
-  {
-    id: 'utils',
-    name: 'utils',
-    type: 'lib',
-    version: '2.0.1',
-    status: 'healthy',
-    dependencies: [],
-    dependents: ['dashboard', 'backend', 'cli-tool'],
-    x: 100,
-    y: 300,
-  },
-  {
-    id: 'cli-tool',
-    name: 'cli-tool',
-    type: 'tool',
-    version: '1.0.5',
-    status: 'warning',
-    dependencies: ['utils'],
-    dependents: [],
-    x: 300,
-    y: 400,
-  },
-];
 
 export default function DependencyGraph() {
+  // Fetch packages
+  useEffect(() => {
+    const fetchPackages = async () => {
+      try {
+        setLoading(true);
+        const pkgs = await monorepoService.getPackages();
+        const dependentsMap = mapAllDependents(pkgs);
+        const packagesMap = pkgs.map(pkg => ({
+          ...pkg, // Keep all existing package data
+          dependencies: {
+            ...pkg.dependencies,
+            ...pkg.devDependencies,
+            ...pkg.peerDependencies,
+          },
+          dependents: dependentsMap[pkg.name],
+        }));
+
+        setPackages(packagesMap);
+        setError(null);
+      } catch (err) {
+        setError('Failed to fetch packages');
+        console.error('Error fetching packages:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPackages();
+  }, []);
   // State management
-  const [loading] = useState(false);
-  const [error] = useState<string | null>(null);
-  const [packages] = useState<PackageNode[]>(mockPackages);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [packages, setPackages] = useState<PackageNode[]>([]);
 
   // View state
   const [viewMode, setViewMode] = useState<'graph' | 'list'>('graph');
@@ -98,7 +81,7 @@ export default function DependencyGraph() {
 
   // Computed values
   const layoutedPackages = useMemo(() => {
-    return calculateLayout(packages, layout, 800, 600);
+    return calculateLayout(packages ?? [], layout, 800, 600);
   }, [packages, layout]);
 
   const sortedPackages = useMemo(() => {
@@ -114,7 +97,7 @@ export default function DependencyGraph() {
   }, [packages]);
 
   const selectedPackageData = selectedPackage
-    ? packages.find(pkg => pkg.id === selectedPackage) || null
+    ? packages.find(pkg => pkg.name === selectedPackage) || null
     : null;
 
   // Event handlers
@@ -152,7 +135,7 @@ export default function DependencyGraph() {
       <DependencyGraphHeader onRefresh={handleRefresh} loading={loading} />
 
       {/* Stats */}
-      <GraphStats stats={stats} packages={packages} />
+      <GraphStats stats={stats} packages={packages ?? []} />
 
       {/* Circular Dependencies Warning */}
       {circularDependencies.length > 0 && (

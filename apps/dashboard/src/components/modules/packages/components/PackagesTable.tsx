@@ -125,11 +125,17 @@ export default function PackagesTable({
                   <span
                     className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(pkg.status)}`}
                   >
-                    {pkg.status}
+                    { pkg.status }
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {pkg.dependencies}
+                    {Object.keys(pkg.dependencies).length > 0 && (
+                      <div className="text-xs text-gray-500 mt-1">
+                        {Object.keys(pkg.dependencies).slice(0, 3).join(', ')}
+                        {Object.keys(pkg.dependencies).length > 3 &&
+                          ` +${Object.keys(pkg.dependencies).length - 3} more`}
+                      </div>
+                    )}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {formatDate(pkg.lastUpdated)}

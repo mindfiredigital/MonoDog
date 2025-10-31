@@ -63,15 +63,16 @@ export default function PackageTable({
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 {Object.keys(pkg.dependencies).length +
-                  Object.keys(pkg.devDependencies).length}
+                  Object.keys(pkg.devDependencies).length +
+                  Object.keys(pkg.peerDependencies).length}
               </td>
               <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate">
                 {pkg.description || 'No description'}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <Link
-                  to={`/packages/${pkg.name}`}
-                  className="text-blue-600 hover:text-blue-900"
+                  to={`/packages/${encodeURIComponent(pkg.name)}`}
+                  className="text-blue-600 hover:text-blue-500"
                 >
                   View Details
                 </Link>

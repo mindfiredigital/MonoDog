@@ -81,7 +81,7 @@ export default function PackageReleaseTable({
                         {pkg.name}
                       </div>
                       <div className="text-sm text-gray-500">
-                        {pkg.dependencies.length} dependencies
+                        {Object.keys(pkg.dependencies).length} dependencies
                       </div>
                     </div>
                   </div>

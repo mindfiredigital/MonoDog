@@ -51,16 +51,16 @@ export default function DependencyDetails({
           <div className="flex items-center justify-between mb-2">
             <h4 className="text-sm font-medium text-gray-700">Dependencies</h4>
             <span className="text-xs text-gray-500">
-              ({pkg.dependencies.length})
+              ({Object.keys(pkg.dependencies).length})
             </span>
           </div>
-          {pkg.dependencies.length > 0 ? (
+          {Object.keys(pkg.dependencies).length > 0 ? (
             <div className="space-y-1 max-h-32 overflow-y-auto">
-              {pkg.dependencies.map(depId => {
-                const dep = packages.find(p => p.id === depId);
+              {Object.keys(pkg.dependencies).map(depName => {
+                const dep = packages.find(p => p.name === depName);
                 return dep ? (
                   <div
-                    key={depId}
+                    key={depName}
                     className="flex items-center justify-between text-sm py-1"
                   >
                     <span className="text-gray-600 truncate">{dep.name}</span>
@@ -69,7 +69,7 @@ export default function DependencyDetails({
                         {dep.version}
                       </span>
                       <span
-                        className={`${getDependencyStatusColor(depId, packages)}`}
+                        className={`${getDependencyStatusColor(depName, packages)}`}
                       >
                         {dep.status === 'healthy'
                           ? '✓'
@@ -80,8 +80,8 @@ export default function DependencyDetails({
                     </div>
                   </div>
                 ) : (
-                  <div key={depId} className="text-sm text-gray-400 py-1">
-                    {depId} (not found)
+                  <div key={depName} className="text-sm text-gray-400 py-1">
+                    {depName} (not found)
                   </div>
                 );
               })}
@@ -103,11 +103,11 @@ export default function DependencyDetails({
           </div>
           {pkg.dependents.length > 0 ? (
             <div className="space-y-1 max-h-32 overflow-y-auto">
-              {pkg.dependents.map(depId => {
-                const dep = packages.find(p => p.id === depId);
+              {pkg.dependents.map(depName => {
+                const dep = packages.find(p => p.name === depName);
                 return dep ? (
                   <div
-                    key={depId}
+                    key={depName}
                     className="flex items-center justify-between text-sm py-1"
                   >
                     <span className="text-gray-600 truncate">{dep.name}</span>
@@ -116,7 +116,7 @@ export default function DependencyDetails({
                         {dep.version}
                       </span>
                       <span
-                        className={`${getDependencyStatusColor(depId, packages)}`}
+                        className={`${getDependencyStatusColor(depName, packages)}`}
                       >
                         {dep.status === 'healthy'
                           ? '✓'
@@ -127,8 +127,8 @@ export default function DependencyDetails({
                     </div>
                   </div>
                 ) : (
-                  <div key={depId} className="text-sm text-gray-400 py-1">
-                    {depId} (not found)
+                  <div key={depName} className="text-sm text-gray-400 py-1">
+                    {depName} (not found)
                   </div>
                 );
               })}
@@ -148,7 +148,9 @@ export default function DependencyDetails({
           <div className="space-y-1 text-xs text-gray-600">
             <div className="flex justify-between">
               <span>Direct dependencies:</span>
-              <span className="font-medium">{pkg.dependencies.length}</span>
+              <span className="font-medium">
+                {Object.keys(pkg.dependencies).length}
+              </span>
             </div>
             <div className="flex justify-between">
               <span>Direct dependents:</span>
@@ -178,7 +180,7 @@ export default function DependencyDetails({
         {/* Actions */}
         <div className="pt-2 border-t border-gray-200">
           <Link
-            to={`/packages/${pkg.name}`}
+            to={`/packages/${encodeURIComponent(pkg.name)}`}
             className="block w-full text-center bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 text-sm font-medium transition-colors"
           >
             View Package Details →

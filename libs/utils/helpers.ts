@@ -1,26 +1,34 @@
+import { Package } from '@prisma/client';
 import fs from 'fs';
 import path from 'path';
 
 export interface PackageInfo {
   name: string;
   version: string;
-  type: 'app' | 'lib' | 'tool';
+  type: string; //'app' | 'lib' | 'tool';
   path: string;
   dependencies: Record<string, string>;
   devDependencies: Record<string, string>;
+  peerDependencies: Record<string, string>;
   scripts: Record<string, string>;
-  maintainers?: string[];
+  maintainers: string[];
   description?: string;
   license?: string;
-  repository?: string;
+  repository?: Record<string, string>;
 }
 
 export interface DependencyInfo {
+  // name: string;
+  // currentVersion: string;
+  // latestVersion?: string;
+  // status: 'up-to-date' | 'outdated' | 'major-update' | 'unknown';
+  // type: 'production' | 'development';
   name: string;
-  currentVersion: string;
-  latestVersion?: string;
-  status: 'up-to-date' | 'outdated' | 'major-update' | 'unknown';
-  type: 'production' | 'development';
+  version: string;
+  type: 'dependency' | 'devDependency' | 'peerDependency';
+  latest?: string;
+  status?: 'up-to-date' | 'outdated' | 'major-update' | 'unknown';
+  outdated?: boolean;
 }
 
 export interface PackageHealth {
@@ -135,11 +143,12 @@ function parsePackageInfo(
       path: packagePath,
       dependencies: packageJson.dependencies || {},
       devDependencies: packageJson.devDependencies || {},
+      peerDependencies: packageJson.peerDependencies || {},
       scripts: packageJson.scripts || {},
       maintainers: packageJson.maintainers || [],
       description: packageJson.description,
       license: packageJson.license,
-      repository: packageJson.repository?.url || packageJson.repository,
+      repository: packageJson.repository || {},
     };
   } catch (error) {
     console.error(`Error parsing package.json for ${packageName}:`, error);
@@ -244,6 +253,7 @@ function generateMonorepoStats(packages: PackageInfo[]): MonorepoStats {
   packages.forEach(pkg => {
     stats.totalDependencies += Object.keys(pkg.dependencies).length;
     stats.totalDependencies += Object.keys(pkg.devDependencies).length;
+    stats.totalDependencies += Object.keys(pkg.peerDependencies ?? {}).length;
   });
 
   return stats;
@@ -302,7 +312,7 @@ function findCircularDependencies(packages: PackageInfo[]): string[][] {
  */
 function generateDependencyGraph(packages: PackageInfo[]) {
   const nodes = packages.map(pkg => ({
-    id: pkg.name,
+    // id: pkg.name,
     label: pkg.name,
     type: pkg.type,
     version: pkg.version,

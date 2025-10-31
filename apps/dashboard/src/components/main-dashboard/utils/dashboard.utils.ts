@@ -13,6 +13,7 @@ export const calculatePackageStats = (packages: Package[]): PackageStats => {
       (sum, pkg) =>
         sum +
         Object.keys(pkg.dependencies).length +
+        Object.keys(pkg.peerDependencies).length +
         Object.keys(pkg.devDependencies).length,
       0
     ),

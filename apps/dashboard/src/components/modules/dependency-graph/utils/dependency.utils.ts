@@ -34,10 +34,10 @@ export const getTypeColor = (type: string): string => {
 
 // Get dependency status color for visualization
 export const getDependencyStatusColor = (
-  depId: string,
+  depName: string,
   packages: PackageNode[]
 ): string => {
-  const dep = packages.find(pkg => pkg.id === depId);
+  const dep = packages.find(pkg => pkg.name === depName);
   if (!dep) return 'text-gray-400';
 
   switch (dep.status) {
@@ -56,13 +56,13 @@ export const getDependencyStatusColor = (
 export const calculateGraphStats = (packages: PackageNode[]): GraphStats => {
   const totalPackages = packages.length;
   const totalDependencies = packages.reduce(
-    (sum, pkg) => sum + pkg.dependencies.length,
+    (sum, pkg) => sum + Object.keys(pkg.dependencies).length,
     0
   );
 
   // Find packages with no dependencies (leaf packages)
   const leafPackages = packages.filter(
-    pkg => pkg.dependencies.length === 0
+    pkg => Object.keys(pkg.dependencies).length === 0
   ).length;
 
   // Find packages with no dependents (root packages)
@@ -94,15 +94,15 @@ export const calculateMaxDepth = (packages: PackageNode[]): number => {
   const visited = new Set<string>();
   let maxDepth = 0;
 
-  const dfs = (packageId: string, depth: number): number => {
-    if (visited.has(packageId)) return depth;
-    visited.add(packageId);
+  const dfs = (packageName: string, depth: number): number => {
+    if (visited.has(packageName)) return depth;
+    visited.add(packageName);
 
-    const pkg = packages.find(p => p.id === packageId);
+    const pkg = packages.find(p => p.name === packageName);
     if (!pkg) return depth;
 
     let currentMaxDepth = depth;
-    for (const depId of pkg.dependencies) {
+    for (const depId of Object.keys(pkg.dependencies)) {
       const depDepth = dfs(depId, depth + 1);
       currentMaxDepth = Math.max(currentMaxDepth, depDepth);
     }
@@ -111,8 +111,8 @@ export const calculateMaxDepth = (packages: PackageNode[]): number => {
   };
 
   for (const pkg of packages) {
-    if (!visited.has(pkg.id)) {
-      const depth = dfs(pkg.id, 0);
+    if (!visited.has(pkg.name)) {
+      const depth = dfs(pkg.name, 0);
       maxDepth = Math.max(maxDepth, depth);
     }
   }
@@ -129,11 +129,11 @@ export const detectCircularDependencies = (
   const recursionStack = new Set<string>();
   const currentPath: string[] = [];
 
-  const dfs = (packageId: string): boolean => {
-    if (recursionStack.has(packageId)) {
+  const dfs = (packageName: string): boolean => {
+    if (recursionStack.has(packageName)) {
       // Found a cycle
-      const cycleStart = currentPath.indexOf(packageId);
-      const cycle = currentPath.slice(cycleStart).concat(packageId);
+      const cycleStart = currentPath.indexOf(packageName);
+      const cycle = currentPath.slice(cycleStart).concat(packageName);
 
       cycles.push({
         cycle,
@@ -144,27 +144,27 @@ export const detectCircularDependencies = (
       return true;
     }
 
-    if (visited.has(packageId)) return false;
+    if (visited.has(packageName)) return false;
 
-    visited.add(packageId);
-    recursionStack.add(packageId);
-    currentPath.push(packageId);
+    visited.add(packageName);
+    recursionStack.add(packageName);
+    currentPath.push(packageName);
 
-    const pkg = packages.find(p => p.id === packageId);
+    const pkg = packages.find(p => p.name === packageName);
     if (pkg) {
-      for (const depId of pkg.dependencies) {
+      for (const depId of Object.keys(pkg.dependencies)) {
         if (dfs(depId)) return true;
       }
     }
 
-    recursionStack.delete(packageId);
+    recursionStack.delete(packageName);
     currentPath.pop();
     return false;
   };
 
   for (const pkg of packages) {
-    if (!visited.has(pkg.id)) {
-      dfs(pkg.id);
+    if (!visited.has(pkg.name)) {
+      dfs(pkg.name);
     }
   }
 
@@ -187,8 +187,8 @@ export const sortPackages = (
         bValue = b.name.toLowerCase();
         break;
       case 'dependencies':
-        aValue = a.dependencies.length;
-        bValue = b.dependencies.length;
+        aValue = Object.keys(a.dependencies).length;
+        bValue = Object.keys(b.dependencies).length;
         break;
       case 'dependents':
         aValue = a.dependents.length;
@@ -239,30 +239,43 @@ const calculateHierarchicalLayout = (
   const visited = new Set<string>();
 
   // Group packages by dependency level
-  const assignLayers = (packageId: string, layer: number) => {
-    if (visited.has(packageId)) return;
-    visited.add(packageId);
+  const assignLayers = (packageName: string, layer: number) => {
+    if (visited.has(packageName)) return;
+    visited.add(packageName);
 
     if (!layers[layer]) layers[layer] = [];
-    layers[layer].push(packageId);
+    layers[layer].push(packageName);
 
-    const pkg = packages.find(p => p.id === packageId);
+    const pkg = packages.find(p => p.name === packageName);
     if (pkg) {
-      pkg.dependents.forEach(depId => assignLayers(depId, layer + 1));
+      pkg.dependents.forEach(depName => assignLayers(depName, layer + 1));
     }
   };
-
-  // Start with packages that have no dependencies
+  // Start with packages that have no dependencies and build downwards with their dependents
   packages
-    .filter(pkg => pkg.dependencies.length === 0)
+    .filter(
+      pkg =>
+        Object.keys(pkg.dependencies).length === 0 && pkg.dependents.length > 0
+    )
     .forEach(pkg => {
-      assignLayers(pkg.id, 0);
+      assignLayers(pkg.name, 0);
     });
+  if (layers.length === 0) {
+    // In case there are no root packages with dependents, start with others
+    packages
+      .filter(
+        pkg =>
+          Object.keys(pkg.dependencies).length > 0 && pkg.dependents.length > 0
+      )
+      .forEach(pkg => {
+        assignLayers(pkg.name, 0);
+      });
+  }
 
   // Position packages
   return packages.map(pkg => {
-    const layer = layers.findIndex(l => l.includes(pkg.id));
-    const positionInLayer = layers[layer]?.indexOf(pkg.id) || 0;
+    const layer = layers.findIndex(l => l.includes(pkg.name));
+    const positionInLayer = layers[layer]?.indexOf(pkg.name) || 0;
     const layerSize = layers[layer]?.length || 1;
 
     return {
@@ -314,7 +327,7 @@ const calculateForceLayout = (
 
       // Repulsion from other nodes
       positioned.forEach(other => {
-        if (other.id !== pkg.id) {
+        if (other.name !== pkg.name) {
           const dx = pkg.x - other.x;
           const dy = pkg.y - other.y;
           const distance = Math.sqrt(dx * dx + dy * dy) || 1;
@@ -325,8 +338,8 @@ const calculateForceLayout = (
       });
 
       // Attraction to connected nodes
-      pkg.dependencies.forEach(depId => {
-        const dep = positioned.find(p => p.id === depId);
+      Object.keys(pkg.dependencies).forEach(depId => {
+        const dep = positioned.find(p => p.name === depId);
         if (dep) {
           const dx = dep.x - pkg.x;
           const dy = dep.y - pkg.y;
@@ -367,4 +380,57 @@ export const getPackageTypeIcon = (type: string): string => {
 // Format package name for display
 export const formatPackageName = (name: string): string => {
   return name.length > 12 ? `${name.substring(0, 12)}...` : name;
+};
+
+// --- DATA TRANSFORMATION UTILITY ---
+
+/**
+ * Type definition for the final output map.
+ * Key: Dependency Name (e.g., 'react', '@monodog/backend')
+ * Value: Array of Package Names that depend on the key (e.g., ['@monodog/dashboard'])
+ */
+type DependentsMap = Record<string, string[]>;
+
+/**
+ * Calculates and returns a map of all packages that depend on every other package
+ * and third-party library in the monorepo.
+ * * @param packages The array of packages, where dependency lists are already parsed into string arrays.
+ * @returns A map where keys are dependencies and values are arrays of dependents.
+ */
+export const mapAllDependents = (packages: PackageNode[]): DependentsMap => {
+  // Use a Record to build the map efficiently.
+  const allDependentsMap: DependentsMap = {};
+
+  // 1. First, ensure every package itself is registered as a dependency, even if nothing
+  // currently depends on it (it will start with an empty array).
+  packages.forEach(pkg => {
+    allDependentsMap[pkg.name] = [];
+  });
+
+  // 2. Iterate through every package to find out what depends on them.
+  packages.forEach(dependentPkg => {
+    const dependentName = dependentPkg.name;
+
+    // Combine runtime and dev dependencies into a single set for efficient iteration
+    const allDependencies = [
+      ...Object.keys(dependentPkg.dependencies ?? {}),
+      ...Object.keys(dependentPkg.devDependencies ?? {}),
+      ...Object.keys(dependentPkg.peerDependencies ?? {}),
+    ];
+
+    allDependencies.forEach(dependencyName => {
+      // Initialize the array for the dependency if it doesn't exist yet (for external libraries)
+      if (!allDependentsMap[dependencyName]) {
+        allDependentsMap[dependencyName] = [];
+      }
+
+      // Add the current package (the dependent) to the dependency's list
+      // Check to prevent duplicates, although it's rare in this context
+      if (!allDependentsMap[dependencyName].includes(dependentName)) {
+        allDependentsMap[dependencyName].push(dependentName);
+      }
+    });
+  });
+
+  return allDependentsMap;
 };

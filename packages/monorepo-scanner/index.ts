@@ -523,7 +523,7 @@ export class MonorepoScanner {
           <h1>Monorepo Scan Report</h1>
           <p>Generated: ${results.scanTimestamp}</p>
           <p>Duration: ${results.scanDuration}ms</p>
-          
+
           <h2>Summary</h2>
           <ul>
             <li>Total Packages: ${results.stats.totalPackages}</li>
@@ -531,7 +531,7 @@ export class MonorepoScanner {
             <li>Libraries: ${results.stats.libraries}</li>
             <li>Tools: ${results.stats.tools}</li>
           </ul>
-          
+
           <h2>Packages</h2>
           <table>
             <tr>

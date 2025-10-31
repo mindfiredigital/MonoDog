@@ -69,8 +69,8 @@ export const sortPackages = (
         bValue = new Date(b.lastUpdated);
         break;
       case 'dependencies':
-        aValue = a.dependencies;
-        bValue = b.dependencies;
+        aValue = Object.keys(a.dependencies).length;
+        bValue = Object.keys(b.dependencies).length;
         break;
       default:
         return 0;

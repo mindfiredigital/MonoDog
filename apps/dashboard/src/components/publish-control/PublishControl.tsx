@@ -123,7 +123,7 @@ export default function PublishControl() {
           lastPublished: pkg.lastUpdated,
           changelog: pkg.description || 'No changelog available',
           commits: Math.floor(Math.random() * 20) + 1,
-          dependencies: pkg.dependenciesList || [],
+          dependencies: pkg.dependencies || [],
           publishType: getPublishType(),
         }));
         setPackages(publishPackages);
