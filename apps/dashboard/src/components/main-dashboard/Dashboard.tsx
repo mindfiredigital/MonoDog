@@ -92,6 +92,7 @@ export default function Dashboard() {
   const [showSetupGuide, setShowSetupGuide] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   // Fetch packages
   useEffect(() => {
@@ -127,10 +128,30 @@ export default function Dashboard() {
   };
 
   // Handle refresh action
-  const handleRefresh = () => {
-    // In a real app, this would refresh data from the API
-    console.log('Refreshing dashboard data...');
-  };
+    const handleRefresh = async () => {
+      try {
+        setRefreshing(true);
+        setError(null);
+        setLoading(true);
+        try {
+          const data = await monorepoService.refreshPackages();
+          console.log('package data:', data);
+        setPackages(data);
+          setError(null);
+        } catch (err) {
+          setError('Failed to fetch package data');
+          console.error('Error fetching package data:', err);
+        } finally {
+          setLoading(false);
+        }
+
+      } catch (err) {
+        setError('Failed to refresh package data');
+        console.error('Error refreshing package data:', err);
+      } finally {
+        setRefreshing(false);
+      }
+    };
   // Calculate derived data using utility functions
   const filteredPackages = filterPackages(
     packages ?? [],
@@ -142,6 +163,15 @@ export default function Dashboard() {
 
   return (
     <div className="p-6 space-y-6">
+            {/* Show refreshing overlay when refreshing with existing data */}
+      {refreshing && packages && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-700">Refreshing packages...</p>
+          </div>
+        </div>
+      )}
       {/* Header Section */}
       <Header
         config={config}

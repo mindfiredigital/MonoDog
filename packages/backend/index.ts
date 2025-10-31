@@ -21,6 +21,7 @@ import {
   generateDependencyGraph,
   calculatePackageHealth,
 } from '../../libs/utils/helpers';
+import {storePackage} from './utils/helpers';
 import { PrismaClient } from '@prisma/client';
 // Import the validateConfig function from your utils
 import { validateConfig } from '../../apps/dashboard/src/components/modules/config-inspector/utils/config.utils';
@@ -65,12 +66,12 @@ app.get('/api/packages', async (req, res) => {
   try {
     // Try to get packages from database first
     const dbPackages = await prisma.package.findMany();
-
+    if (!dbPackages.length) {
+        throw new Error(`No package found`);
+    }
     const transformedPackages = dbPackages.map(pkg => {
       // We create a new object 'transformedPkg' based on the database record 'pkg'
       const transformedPkg = { ...pkg };
-
-      // --- APPLY PARSING TO EACH FIELD ---
 
       // 1. Maintainers (Your Logic)
       transformedPkg.maintainers = pkg.maintainers
@@ -98,12 +99,26 @@ app.get('/api/packages', async (req, res) => {
       transformedPkg.peerDependencies = pkg.peerDependencies
         ? JSON.parse(pkg.peerDependencies)
         : [];
-      // ... and so on for all serialized fields
       return transformedPkg; // Return the fully transformed object
     });
     res.json(transformedPackages);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch packagesss' });
+    res.status(500).json({ error: 'Failed to fetch packages' });
+  }
+});
+
+app.get('/api/packages/refresh', async (req, res) => {
+  try {
+    const rootDir = path.resolve(__dirname, '../../');
+    const packages = scanMonorepo(rootDir);
+    console.log('packages -->', packages.length);
+    for (const pkg of packages) {
+      storePackage(pkg)
+    }
+
+    res.json(packages);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to refresh packages' });
   }
 });
 
@@ -1228,8 +1243,10 @@ app.listen(PORT, () => {
   console.log(`🚀 Backend server running on http://localhost:${PORT}`);
   console.log(`📊 API endpoints available:`);
   console.log(`   - GET  /api/health`);
+  console.log(`   - GET  /api/packages/refresh`);
   console.log(`   - GET  /api/packages`);
   console.log(`   - GET  /api/packages/:name`);
+  console.log(`   - GET  /api/commits/:packagePath`);
   console.log(`   - GET  /api/graph`);
   console.log(`   - GET  /api/stats`);
   console.log(`   - GET  /api/ci/status`);
