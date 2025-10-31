@@ -24,6 +24,7 @@ import {
 import { PrismaClient } from '@prisma/client';
 // Import the validateConfig function from your utils
 import { validateConfig } from '../../apps/dashboard/src/components/modules/config-inspector/utils/config.utils';
+import { GitService } from './gitService';
 
 export interface HealthMetric {
   name: string;
@@ -121,27 +122,6 @@ app.get('/api/packages/:name', async (req, res) => {
   }
 });
 
-<<<<<<< Updated upstream
-=======
-// Get commit details
-// app.get('/api/commits/:packagePath', async (req, res) => {
-//   try {
-//     const { packagePath } = req.params;
-
-//     const gitService = new GitService();
-//     const commits = await gitService.getAllCommits(packagePath);
-
-//     if (commits.length > 0) {
-//       console.log(`Successfully fetched ${commits.length} commits.`);
-//     } else {
-//       console.log('Repository has no commits or path is incorrect.');
-//     }
-//     res.json(commits);
-//   } catch (e) {
-//     res.status(500).json({ error: 'Failed to fetch commit details' });
-//   }
-// });
-// Get commit details
 app.get('/api/commits/:packagePath', async (req, res) => {
   try {
     const { packagePath } = req.params;
@@ -198,7 +178,6 @@ app.get('/api/commits/:packagePath', async (req, res) => {
   }
 });
 
->>>>>>> Stashed changes
 // Get dependency graph
 app.get('/api/graph', async (req, res) => {
   try {
