@@ -13,7 +13,8 @@ import {
 } from './components';
 
 // Import types and utilities
-import { ConfigFile, ConfigFilters } from './types/config.types';
+// Import types and utilities
+import type { ConfigFile, ConfigFilters } from './types/config.types';
 import {
   filterConfigs,
   validateConfig,
@@ -30,6 +31,7 @@ export type { ConfigFile, ConfigFilters } from './types/config.types';
 export default function ConfigInspector() {
   // State management
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null);
   const [configFiles, setConfigFiles] = useState<ConfigFile[]>([]);
 
@@ -53,6 +55,8 @@ export default function ConfigInspector() {
       try {
         setLoading(true);
         const data = await monorepoService.getConfigurationFiles();
+
+        console.log('Config data from inside useEffect:', data);
 
         // Transform the data to match our ConfigFile interface
         const transformedData: ConfigFile[] = data.map((file: any) => ({
@@ -108,27 +112,78 @@ export default function ConfigInspector() {
     }
   };
 
-  const handleSaveEdit = () => {
-    if (selectedConfigData) {
-      // In a real implementation, this would save to the backend
-      console.log('Saving config:', selectedConfigData.name, editValue);
+  // const handleSaveEdit = () => {
+  //   if (selectedConfigData) {
+  //     // In a real implementation, this would save to the backend
+  //     console.log('Saving config:', selectedConfigData.name, editValue);
 
-      // Update local state
-      setConfigFiles(prev =>
-        prev.map(config =>
-          config.id === selectedConfig
-            ? {
-                ...config,
-                content: editValue,
-                validation: validateConfig(editValue, config.name),
-                lastModified: new Date().toISOString(),
+  //     // Update local state
+  //     setConfigFiles(prev =>
+  //       prev.map(config =>
+  //         config.id === selectedConfig
+  //           ? {
+  //             ...config,
+  //             content: editValue,
+  //             validation: validateConfig(editValue, config.name),
+  //             lastModified: new Date().toISOString(),
+  //           }
+  //           : config
+  //       )
+  //     );
+
+  //     setIsEditing(false);
+  //     setEditValue('');
+  //   }
+  // };
+  const handleSaveEdit = async () => {
+    if (selectedConfigData && !saving) {
+      try {
+        setSaving(true);
+        setError(null);
+
+        console.log('Saving config:', selectedConfigData.name, editValue);
+
+        // Call the backend API to save the file
+        const updatedFile = await monorepoService.saveConfigurationFile(
+          selectedConfigData.id,
+          editValue
+        );
+
+        // Update local state with the response from backend
+        setConfigFiles(prev =>
+          prev.map(config =>
+            config.id === selectedConfig
+              ? {
+                ...updatedFile,
+                // Keep the original isEditable flag
+                isEditable: config.isEditable,
               }
-            : config
-        )
-      );
+              : config
+          )
+        );
 
-      setIsEditing(false);
-      setEditValue('');
+        // If the currently selected config was updated, update it too
+        if (selectedConfig === selectedConfigData.id) {
+          setSelectedConfig(selectedConfigData.id); // This will trigger a re-render with updated data
+        }
+
+        setIsEditing(false);
+        setEditValue('');
+
+        // Show success message (you can add a toast notification here)
+        console.log('Config file saved successfully');
+
+      } catch (err: any) {
+        console.error('Error saving config file:', err);
+        // Show error message to user
+        setError(`Failed to save configuration: ${err.message}`);
+
+        // You could add a toast notification here:
+        // toast.error(`Failed to save configuration: ${err.message}`);
+      }
+      finally {
+        setSaving(false);
+      }
     }
   };
 
@@ -183,11 +238,13 @@ export default function ConfigInspector() {
                 canEdit={selectedConfigData.isEditable}
                 hasSecrets={selectedConfigData.hasSecrets}
                 showSecrets={showSecrets}
+                saving={saving} // Pass saving state to toolbar
                 onStartEdit={handleStartEdit}
                 onSaveEdit={handleSaveEdit}
                 onCancelEdit={handleCancelEdit}
                 onToggleSecrets={handleToggleSecrets}
                 onRefresh={handleRefresh}
+                content={isEditing ? editValue : selectedConfigData?.content} // Add this line
               />
             </div>
           )}
@@ -198,6 +255,7 @@ export default function ConfigInspector() {
               config={selectedConfigData}
               isEditing={isEditing}
               editValue={editValue}
+              saving={saving} // Pass saving state to editor if needed
               onStartEdit={handleStartEdit}
               onSaveEdit={handleSaveEdit}
               onCancelEdit={handleCancelEdit}
@@ -237,28 +295,28 @@ export default function ConfigInspector() {
           </h3>
           <p className="text-gray-600 mb-4">
             {filters.search ||
-            filters.type !== 'all' ||
-            filters.status !== 'all'
+              filters.type !== 'all' ||
+              filters.status !== 'all'
               ? 'Try adjusting your filters to see more results.'
               : 'No configuration files are available to inspect.'}
           </p>
           {(filters.search ||
             filters.type !== 'all' ||
             filters.status !== 'all') && (
-            <button
-              onClick={() =>
-                setFilters({
-                  section: 'all',
-                  type: 'all',
-                  status: 'all',
-                  search: '',
-                })
-              }
-              className="text-blue-600 hover:text-blue-500"
-            >
-              Clear Filters
-            </button>
-          )}
+              <button
+                onClick={() =>
+                  setFilters({
+                    section: 'all',
+                    type: 'all',
+                    status: 'all',
+                    search: '',
+                  })
+                }
+                className="text-blue-600 hover:text-blue-500"
+              >
+                Clear Filters
+              </button>
+            )}
         </div>
       )}
     </div>
