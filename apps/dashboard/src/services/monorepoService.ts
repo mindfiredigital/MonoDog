@@ -198,13 +198,18 @@ class MonorepoService {
       const res = await fetch(`${API_BASE}/packages`);
 
       if (!res.ok) {
-        throw new Error(`Failed to fetch package data: HTTP status ${res.status}`);
+        throw new Error(
+          `Failed to fetch package data: HTTP status ${res.status}`
+        );
       }
 
       const data = await res.json();
       return data;
     } catch (error) {
-      console.error('Error during getPackages. Attempting to refresh data...', error);
+      console.error(
+        'Error during getPackages. Attempting to refresh data...',
+        error
+      );
 
       const refreshedData = await this.refreshPackages();
       return refreshedData;
@@ -219,13 +224,35 @@ class MonorepoService {
     return await res.json();
   }
 
+  async getDependencies(): Promise<DependencyInfo[]> {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    const allDeps = new Set<string>();
+    try {
+      if (!pkg.ok) {
+        // Log the failure status before throwing (which will be caught below)
+        throw new Error(
+          `Failed to fetch package data: HTTP status ${pkg.status}`
+        );
+      }
+      const pkgData = await pkg.json();
+      console.log('data from refreshPackage:', pkgData);
+
+      return pkgData;
+    } catch (error) {
+      console.error('Error fetching package data (refresh):', error);
+      return [];
+    }
+  }
+
   async refreshPackages(): Promise<Package[]> {
     try {
       const pkg = await fetch(`${API_BASE}/packages/refresh`);
 
       if (!pkg.ok) {
         // Log the failure status before throwing (which will be caught below)
-        throw new Error(`Failed to fetch package data: HTTP status ${pkg.status}`);
+        throw new Error(
+          `Failed to fetch package data: HTTP status ${pkg.status}`
+        );
       }
       const pkgData = await pkg.json();
       console.log('data from refreshPackage:', pkgData);

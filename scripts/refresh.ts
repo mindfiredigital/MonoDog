@@ -21,7 +21,6 @@ import path from 'path';
 import fs from 'fs';
 
 const API_BASE = `http://localhost:4000/api`;
-
 const prisma = new PrismaClient();
 
 interface RefreshOptions {
@@ -320,6 +319,7 @@ class MonorepoRefresher {
       console.warn('⚠️  Failed to store scan results in database:', error);
     }
   }
+
   async getCommits(path: string): Promise<Commit[]> {
     const res = await fetch(API_BASE + `/commits/` + encodeURIComponent(path));
     // console.log('res', res);
@@ -344,6 +344,8 @@ class MonorepoRefresher {
             path: pkg.path,
             description: pkg.description,
             license: pkg.license,
+            // repository: pkg.repository,
+            // updatedAt: new Date(),
             repository: JSON.stringify(pkg.repository),
             scripts: JSON.stringify(pkg.scripts),
             lastUpdated: new Date(),
@@ -351,6 +353,7 @@ class MonorepoRefresher {
           create: {
             // Timestamps
             createdAt: new Date(),
+            // updatedAt: new Date(),
             lastUpdated: new Date(),
 
             // Key Metrics and Relationships
@@ -375,6 +378,7 @@ class MonorepoRefresher {
             description: pkg.description,
             license: pkg.license,
             repository: JSON.stringify(pkg.repository),
+            // repository: pkg.repository || {},
             status: '',
           },
         });
