@@ -1,0 +1,29 @@
+{
+  // 1. Inherit rules from the shared monorepo configuration
+  "extends": "@lakinmindfire/tsconfig/node.json",
+
+  "compilerOptions": {
+    // 2. Explicitly set output directory
+    "outDir": "./dist",
+
+    // 3. Ensure compatibility: Set module type to CommonJS
+    "module": "CommonJS",
+    "moduleResolution": "node",
+
+    // 4. Common fixes for Node/TS projects
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "verbatimModuleSyntax": false
+  },
+
+  // 5. CRITICAL: Include all source files in the current package directory
+  "include": [
+    "**/*.ts"
+  ],
+
+  // 6. Exclude generated files and dependencies
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}

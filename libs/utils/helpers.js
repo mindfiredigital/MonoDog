@@ -328,6 +328,6 @@ function getPackageSize(packagePath) {
         return { size: 0, files: 0 };
     }
 }
-export { scanMonorepo, generateMonorepoStats, findCircularDependencies, generateDependencyGraph, checkOutdatedDependencies, getPackageSize, 
+export { scanMonorepo, generateMonorepoStats, findCircularDependencies, generateDependencyGraph, checkOutdatedDependencies, getPackageSize,
 // analyzeDependencies,
 calculatePackageHealth, };
