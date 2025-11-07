@@ -98,10 +98,10 @@ export default function PackagesOverview() {
             Manage and monitor all packages in your monorepo
           </p>
         </div>
-        <button className="btn-primary flex items-center space-x-2">
+        {/* <button className="btn-primary flex items-center space-x-2">
           <PlusIcon className="w-5 h-5" />
           <span>Add Package</span>
-        </button>
+        </button> */}
       </div>
 
       {/* Stats Cards */}

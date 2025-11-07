@@ -8,14 +8,27 @@ The Monorepo Dashboard addresses the complexity of managing many interconnected 
 
 ## Installation
 
-### Install Package
+### Install Package in Monorepo
 
 ```bash
-# npm
-npm install @lakinmindfire/monodog
+# Install Backend Server
+pnpm install  @monodog/backend -w
+# Install dashboard
+pnpm install  @monodog/dashboard -w
 
-# pnpm
-pnpm add @lakinmindfire/monodog
+#setup dashboard as workspace and run backend server
+pnpm monodog-cli @monodog/dashboard --serve --root .
+
+#setup database
+pnpm prisma migrate dev --schema ./node_modules/@monodog/backend/prisma/schema.prisma
+
+pnpm prisma generate --schema ./node_modules/@monodog/backend/prisma/schema.prisma
+
+#run dashborad app
+cd packages/monodog-dashboard
+pnpm install
+pnpm run build
+pnpm run preview
 ```
 
 ## License

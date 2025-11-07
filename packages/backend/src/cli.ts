@@ -66,7 +66,7 @@ if (serve) {
     copyPackageToWorkspace(rootPath);
 } else {
     // Default mode: print usage or run a default report if no command is specified
-    console.log(`Monodog CLI: No operation specified. Use --serve to start the API or -h for help.`);
+    console.log(`Monodog CLI: No operation specified. Use --serve to start the API or -h for help. Ex: pnpm monodog-cli @monodog/dashboard --serve --root .`);
 }
 
 /**
@@ -77,11 +77,13 @@ function copyPackageToWorkspace(rootDir: string): void  {
     // The package name is expected as the first command-line argument (process.argv[2])
     const packageName = process.argv[2];
 
-    if (!packageName) {
-        console.error("Error: Please provide the package name as an argument.");
-        console.log("Usage: node copy-to-workspace.js <package-name>");
-        console.log("Example: node copy-to-workspace.js @monodog/dashboard");
-        process.exit(1);
+    if (!packageName || packageName.startsWith('--')) {
+        console.error("Error: Please provide the package name as an argument if you want to setup dashboard.");
+        console.log("Usage: pnpm monodog-cli @monodog/dashboard --serve --root .");
+    }
+    if(packageName !== '@monodog/dashboard'){
+        console.log("\n--- Skipping workspace setup for @monodog/dashboard to avoid self-copying. ---");
+        return;
     }
 
     // const rootDir = process.cwd();
@@ -136,11 +138,11 @@ function copyPackageToWorkspace(rootDir: string): void  {
         // Post-copy instructions
         console.log("\n*** IMPORTANT NEXT STEPS (MANDATORY) ***");
         console.log("1.Migrate Database:");
-        console.log(`   - pnpm exec prisma migrate --schema ./node_modules/${folderName}/backend/prisma/schema.prisma`);
+        console.log(`   - pnpm prisma migrate --schema ./node_modules/@monodog/backend/prisma/schema.prisma`);
         console.log("2. Generate Client:");
-        console.log(`   - pnpm exec prisma generate --schema ./node_modules/${folderName}/backend/prisma/schema.prisma`);
-        console.log("3. Run Backend app server");
-        console.log(`   - pnpm monodog-cli ${folderName} --serve --root .`);
+        console.log(`   - pnpm exec prisma generate --schema ./node_modules/@monodog/backend/prisma/schema.prisma`);
+        console.log("3. Run Backend app server with dashboard setup");
+        console.log(`   - pnpm monodog-cli @monodog/dashboard --serve --root .`);
 
     } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);

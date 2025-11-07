@@ -65,7 +65,7 @@ export default function Layout({ children }: LayoutProps) {
                 'Dashboard'}
             </h2>
             {/* System stats */}
-            <div className="flex items-center gap-6 ml-8">
+            {/* <div className="flex items-center gap-6 ml-8">
               <div className="flex items-center gap-2 text-sm text-neutral-700">
                 <CpuChipIcon className="h-5 w-5 text-primary-500" />
                 <span>
@@ -78,7 +78,7 @@ export default function Layout({ children }: LayoutProps) {
                   Memory: <span className="font-medium">2.1 GB / 8 GB</span>
                 </span>
               </div>
-            </div>
+            </div> */}
           </div>
           {/* User info */}
           <div className="flex items-center gap-3">

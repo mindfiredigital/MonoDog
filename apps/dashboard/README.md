@@ -1,73 +1,63 @@
-# React + TypeScript + Vite
+# Monodog: Monorepo Health Dashboard (Frontend)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 🎯 Overview
 
-Currently, two official plugins are available:
+This is the **client-side application** designed to consume data from the **Monorepo Analytics and Health API** backend service.
+It provides a **real-time, visual dashboard** for tracking the health, dependencies, and overall status of all packages within the monorepo.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## 🛠 Technology Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Component | Technology | Description |
+|------------|-------------|--------------|
+| **Framework** | React (Functional Components) | Core library for building the user interface. |
+| **Styling** | Tailwind CSS | Utility-first framework for responsive, modern, and aesthetic design. |
+| **Data Fetching** | Fetch API (Native JavaScript) | Handles communication with the backend Express API. |
+| **Icons** | Lucide React | Simple, clean vector icons for visualization. |
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## ⚙️ Prerequisites
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+To run this application, ensure the following:
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- **Node.js** and a package manager (`npm`, `yarn`, or `pnpm`) are installed.
+- The **Monorepo Analytics API** backend service is running and accessible.
+  - Default backend URL: **http://localhost:4000**
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+---
+
+## 🚨 API Connection Details
+
+The dashboard connects to the backend API using the following base URL:
+
+```javascript
+const API_BASE_URL = 'http://localhost:4000/api';
+
+# Install dependencies (if not already installed)
+pnpm install
+
+pnpm run dev
+
 ```
+## 🚀 Getting Started
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+###  Installation
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x';
-import reactDom from 'eslint-plugin-react-dom';
+Clone the repository and install the dependencies:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+```bash
+# Clone the repository
+git clone https://github.com/lakinmindfire/MonoDog.git
+cd apps/dashboard
+
+# Install dependencies
+pnpm install
+
+# build
+pnpm run build
+
+# run dashboard
+pnpm run dev
 ```

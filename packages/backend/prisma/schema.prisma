@@ -13,22 +13,6 @@ datasource db {
   url      = "file:./monolite.db"
 }
 
-model User {
-  id    Int    @id @default(autoincrement())
-  name  String
-  email String @unique
-  posts Post[]
-}
-
-model Post {
-  id        Int     @id @default(autoincrement())
-  title     String
-  content   String?
-  published Boolean @default(false)
-  authorId  Int
-  author    User    @relation(fields: [authorId], references: [id])
-}
-
 // --- MONOREPO DATA MODEL ---
 
 /// Represents a single package within the monorepo, based on the pnpm/package.json data.

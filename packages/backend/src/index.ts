@@ -145,7 +145,7 @@ app.get('/api/packages/refresh', async (_req, res) => {
     const packages = scanMonorepo(rootDir);
     console.log('packages -->', packages.length);
     for (const pkg of packages) {
-      storePackage(pkg)
+      await storePackage(pkg)
     }
 
     res.json(packages);
@@ -275,25 +275,25 @@ app.get('/api/commits/:packagePath', async (_req, res) => {
 });
 
 // Get dependency graph
-app.get('/api/graph', async (_req, res) => {
-  try {
-    const packages = scanMonorepo(process.cwd());
-    const graph = generateDependencyGraph(packages);
-    const circularDeps = findCircularDependencies(packages);
+// app.get('/api/graph', async (_req, res) => {
+//   try {
+//     const packages = scanMonorepo(process.cwd());
+//     const graph = generateDependencyGraph(packages);
+//     const circularDeps = findCircularDependencies(packages);
 
-    res.json({
-      ...graph,
-      circularDependencies: circularDeps,
-      metadata: {
-        totalNodes: graph.nodes.length,
-        totalEdges: graph.edges.length,
-        circularDependencies: circularDeps.length,
-      },
-    });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to generate dependency graph' });
-  }
-});
+//     res.json({
+//       ...graph,
+//       circularDependencies: circularDeps,
+//       metadata: {
+//         totalNodes: graph.nodes.length,
+//         totalEdges: graph.edges.length,
+//         circularDependencies: circularDeps.length,
+//       },
+//     });
+//   } catch (error) {
+//     res.status(500).json({ error: 'Failed to generate dependency graph' });
+//   }
+// });
 
 // Get monorepo statistics
 app.get('/api/stats', async (_req, res) => {
@@ -1279,7 +1279,7 @@ app.listen(PORT, () => {
   console.log(`   - GET  /api/packages`);
   console.log(`   - GET  /api/packages/:name`);
   console.log(`   - GET  /api/commits/:packagePath`);
-  console.log(`   - GET  /api/graph`);
+  // console.log(`   - GET  /api/graph`);
   console.log(`   - GET  /api/stats`);
   console.log(`   - GET  /api/ci/status`);
   console.log(`   - POST /api/ci/trigger`);

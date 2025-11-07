@@ -21,7 +21,7 @@ export default function DependencyGraphHeader({
         <button
           onClick={onRefresh}
           disabled={loading}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 transition-colors"
+          className="hidden bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 transition-colors"
         >
           <ArrowPathIcon
             className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`}
