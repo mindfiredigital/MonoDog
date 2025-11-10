@@ -219,7 +219,9 @@ class MonorepoService {
   async getPackage(name: string): Promise<Package[]> {
     const res = await fetch(`${API_BASE}/packages/` + encodeURIComponent(name));
     if (!res.ok) {
-      throw new Error(`Failed to fetch package details for "${name}" (Status: ${res.status})`);
+      throw new Error(
+        `Failed to fetch package details for "${name}" (Status: ${res.status})`
+      );
     }
     return await res.json();
   }

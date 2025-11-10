@@ -1,8 +1,7 @@
 import express, { type Request, type Response, type NextFunction } from 'express';
 import cors from 'cors';
 import path from 'path';
-import  fs from 'fs';
-// import { glob } from 'glob';
+import fs from 'fs';
 import { json } from 'body-parser';
 import {
   scanner,
