@@ -14,6 +14,10 @@ interface MonodogConfig {
     user: string;
     path: string; // Used for SQLite path or general data storage path
   };
+  dashboard: {
+    host: string;
+    port: number;
+  };
   server: {
     host: string;
     port: number;
@@ -78,6 +82,10 @@ const defaultContent = {
   },
   "database": {
     "path": "file:./monodog.db" // SQLite database file path, relative to prisma schema location
+  },
+  "dashboard": {
+    "host": "0.0.0.0",
+    "port": "3010"
   },
   "server": {
     "host": "0.0.0.0", // Default host for the API server

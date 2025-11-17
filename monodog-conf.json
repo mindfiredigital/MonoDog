@@ -6,6 +6,10 @@
   "database": {
     "path": "file:./monodog.db"
   },
+  "dashboard": {
+    "host": "0.0.0.0",
+    "port": "3010"
+  },
   "server": {
     "host": "0.0.0.0",
     "port": 4000

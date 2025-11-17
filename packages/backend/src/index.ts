@@ -1514,10 +1514,31 @@ app.listen(PORT, host ,async () => {
 
 }
 
+export function serveDashboard(rootPath: string, port: number|string, host: string): void {
+const app = express();
 
-// This is a test file to ensure the TypeScript compiler can find an input.
-// export const runBackend = (name: string): string => {
-//   return `Backend running successfully for ${name}.`;
-// };
+// This code makes sure that any request that does not matches a static file
+// in the build folder, will just serve index.html. Client side routing is
+// going to make sure that the correct content will be loaded.
+app.use((req, res, next) => {
+    if (/(.ico|.js|.css|.jpg|.png|.map)$/i.test(req.path)) {
+        next();
+    } else {
+        res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+        res.header('Expires', '-1');
+        res.header('Pragma', 'no-cache');
+        res.sendFile('index.html', { root: path.resolve(rootPath,'monodog-dashboard','dist') });
+    }
+});
+    const staticPath = path.resolve(rootPath,'monodog-dashboard','dist');
+    console.log('Serving static files from:', staticPath);
+    app.use(express.static(staticPath));
+// Start the server
+const PORT = parseInt(port ? port.toString() :  '3999');
 
-// console.log(runBackend("MonoDog"));
+app.listen(PORT, host , () => {
+    console.log(`App listening on ${host}:${port}`);
+    console.log('Press Ctrl+C to quit.');
+});
+}
+

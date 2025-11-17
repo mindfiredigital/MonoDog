@@ -11,7 +11,7 @@
 import * as fs from 'fs';
 
 import * as path from 'path';
-import { startServer } from './index'; // Assume index.ts exports this function
+import { startServer, serveDashboard} from './index'; // Assume index.ts exports this function
 
 import { loadConfig } from './config-loader';
 
@@ -87,6 +87,8 @@ if (serve) {
     console.log(`Analyzing monorepo at root: ${rootPath}`);
     // Start the Express server and begin analysis
     startServer(rootPath, port, host);
+    serveDashboard(path.join(rootPath, appConfig.workspace.install_path), appConfig.dashboard.port, appConfig.dashboard.host);
+
 } else {
       console.log(`\nInitializing Configurations...`);
 
@@ -191,6 +193,10 @@ const defaultContent = {
   },
   "database": {
     "path": "./monodog.db" // SQLite database file path, relative to prisma schema location
+  },
+  "dashboard": {
+    "host": "0.0.0.0",
+    "port": "3010"
   },
   "server": {
     "host": "0.0.0.0", // Default host for the API server
