@@ -13,14 +13,23 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { startServer } from './index'; // Assume index.ts exports this function
 
+import { loadConfig } from './config-loader';
+
+  const appConfig = loadConfig();
+
 // --- Argument Parsing ---
 
 // 1. Get arguments excluding the node executable and script name
 const args = process.argv.slice(2);
 
 // Default settings
+const DEFAULT_PORT = 4000;
+let rootPath = path.resolve(appConfig.workspace.root_dir ?? process.cwd()); // Default to the current working directory
+let port = appConfig.server.port ?? DEFAULT_PORT; //Default port
+const host = appConfig.server.host ?? 'localhost'; //Default host
+
 let serve = false;
-let rootPath = process.cwd(); // Default to the current working directory
+
 
 // Simple argument parsing loop
 for (let i = 0; i < args.length; i++) {
@@ -37,7 +46,21 @@ for (let i = 0; i < args.length; i++) {
             console.error('Error: --root requires a path argument.');
             process.exit(1);
         }
-    } else if (arg === '-h' || arg === '--help') {
+    } else if (arg === '--port') {
+        // Look at the next argument for the port number
+        if (i + 1 < args.length) {
+            const portValue = parseInt(args[i + 1], 10);
+            if (isNaN(portValue) || portValue <= 0 || portValue > 65535) {
+                console.error('Error: --port requires a valid port number (1-65535).');
+                process.exit(1);
+            }
+            port = portValue;
+            i++; // Skip the next argument
+        } else {
+            console.error('Error: --port requires a number argument.');
+            process.exit(1);
+        }
+    }  else if (arg === '-h' || arg === '--help') {
         console.log(`
 Monodog CLI - Monorepo Analysis Engine
 
@@ -47,6 +70,7 @@ Usage:
 Options:
   --serve            Start the Monorepo Dashboard API server (default: off).
   --root <path>      Specify the root directory of the monorepo to analyze (default: current working directory).
+  --port <number>    Specify the port for the API server (default: 4000).
   -h, --help         Show this help message.
 
 Example:
@@ -62,15 +86,18 @@ if (serve) {
     console.log(`Starting Monodog API server...`);
     console.log(`Analyzing monorepo at root: ${rootPath}`);
     // Start the Express server and begin analysis
-    startServer(rootPath);
-    copyPackageToWorkspace(rootPath);
+    startServer(rootPath, port, host);
 } else {
-    // Default mode: print usage or run a default report if no command is specified
+      console.log(`\nInitializing Configurations...`);
+
+      // createConfigFileIfMissing(rootPath ?? process.cwd());
+      copyPackageToWorkspace(rootPath);
+
     console.log(`Monodog CLI: No operation specified. Use --serve to start the API or -h for help. Ex: pnpm monodog-cli @monodog/dashboard --serve --root .`);
 }
 
 /**
- * Copies an installed NPM package from node_modules into the local packages/ workspace directory.
+ * Copies an installed NPM package from node_modules into the local install_path workspace directory.
  */
 function copyPackageToWorkspace(rootDir: string): void  {
     // 1. Get package name from arguments
@@ -81,8 +108,8 @@ function copyPackageToWorkspace(rootDir: string): void  {
         console.error("Error: Please provide the package name as an argument if you want to setup dashboard.");
         console.log("Usage: pnpm monodog-cli @monodog/dashboard --serve --root .");
     }
-    if(packageName !== '@monodog/dashboard'){
-        console.log("\n--- Skipping workspace setup for @monodog/dashboard to avoid self-copying. ---");
+    if(!(packageName == '@monodog/backend' || packageName == '@monodog/dashboard')){
+        console.log("\n--- Skipping workspace setup for @monodog/backend to avoid self-copying. ---");
         return;
     }
 
@@ -92,11 +119,11 @@ function copyPackageToWorkspace(rootDir: string): void  {
     // Convert package name to a valid folder name (e.g., @scope/name -> scope-name)
     // This is optional but makes file paths cleaner.
     const folderName = packageName.replace('@', '').replace('/', '-');
-    const destinationPath = path.join(rootDir, 'packages', folderName);
+    const destinationPath = path.join(rootDir, appConfig.workspace.install_path, folderName);
 
     console.log(`\n--- Monorepo Workspace Conversion ---`);
     console.log(`Target Package: ${packageName}`);
-    console.log(`New Workspace:  packages/${folderName}`);
+    console.log(`New Workspace:  ${appConfig.workspace.install_path}/${folderName}`);
     console.log(`-----------------------------------`);
 
 
@@ -114,11 +141,11 @@ function copyPackageToWorkspace(rootDir: string): void  {
         process.exit(1);
     }
 
-    // Ensure the 'packages' directory exists
-    const packagesDir = path.join(rootDir, 'packages');
+    // Ensure the 'install_path' directory exists
+    const packagesDir = path.join(rootDir, appConfig.workspace.install_path);
     if (!fs.existsSync(packagesDir)) {
         fs.mkdirSync(packagesDir, { recursive: true });
-        console.log(`Created packages directory: ${packagesDir}`);
+        console.log(`Created ${appConfig.workspace.install_path} directory: ${packagesDir}`);
     }
 
     // 4. Perform the copy operation
@@ -149,5 +176,46 @@ function copyPackageToWorkspace(rootDir: string): void  {
     console.error(`\n❌ Failed to copy files: ${message}`);
     process.exit(1);
   }
+}
+
+function createConfigFileIfMissing(rootPath: string): void {
+// --- CONFIGURATION ---
+const configFileName = 'monodog-conf.json';
+const configFilePath = path.resolve(rootPath, configFileName);
+
+// The default content for the configuration file
+const defaultContent = {
+  "workspace": {
+    "root_dir": "./",  // Relative to where the config file is located
+    "install_path":"packages" // Where to install monodog packages
+  },
+  "database": {
+    "path": "./monodog.db" // SQLite database file path, relative to prisma schema location
+  },
+  "server": {
+    "host": "0.0.0.0", // Default host for the API server
+    "port": 4000 // Default port for the API server
+  }
+};
+
+const contentString = JSON.stringify(defaultContent, null, 2);
+// ---------------------
+
+console.log(`\n[monodog] Checking for ${configFileName}...`);
+
+if (fs.existsSync(configFilePath)) {
+  console.log(`[monodog] ${configFileName} already exists. Skipping creation.`);
+} else {
+  try {
+    // Write the default content to the file
+    fs.writeFileSync(configFilePath, contentString, 'utf-8');
+    console.log(`[monodog] Successfully generated default ${configFileName} in the workspace root.`);
+    console.log('[monodog] Please review and update settings like "host" and "port".');
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(`[monodog Error] Failed to generate ${configFileName}:`, message);
+    process.exit(1);
+  }
+}
 }
 

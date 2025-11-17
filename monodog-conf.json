@@ -1,0 +1,13 @@
+{
+  "workspace": {
+    "root_dir": "./",
+    "install_path": "packages"
+  },
+  "database": {
+    "path": "file:./monodog.db"
+  },
+  "server": {
+    "host": "0.0.0.0",
+    "port": 4000
+  }
+}

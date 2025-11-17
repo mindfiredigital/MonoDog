@@ -10,7 +10,7 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./monolite.db"
+  url      = env("DATABASE_URL")
 }
 
 // --- MONOREPO DATA MODEL ---

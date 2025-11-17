@@ -4,7 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import { json } from 'body-parser';
 import {
-  scanner,
+  MonorepoScanner,
   quickScan,
   generateReports,
   funCheckBuildStatus,
@@ -12,6 +12,8 @@ import {
   funCheckLintStatus,
   funCheckSecurityAudit,
 } from '@monodog/monorepo-scanner';
+export const scanner = new MonorepoScanner();
+
 import { ciStatusManager, getMonorepoCIStatus } from '@monodog/ci-status';
 import {
   scanMonorepo,
@@ -40,11 +42,9 @@ export interface HealthMetric {
 }
 
 const prisma = new PrismaClient();
-const DEFAULT_PORT = 4000;
 // The main function exported and called by the CLI
-export function startServer(rootPath: string) {
+export function startServer(rootPath: string, port: number|string, host: string): void {
 const app = express();
-    const port = process.env.PORT ? parseInt(process.env.PORT) : DEFAULT_PORT;
 
     // --- Middleware ---
 
@@ -55,18 +55,6 @@ const app = express();
     });
 app.use(cors());
 app.use(json());
-    // // 2. CORS (Critical for the frontend app to talk to this local server)
-    // // In a production setup, this would be highly restricted, but for local monorepo tools,
-    // // we often allow all origins or restrict to a known local hostname/port.
-    // app.use((_req: Request, res: Response, next: NextFunction) => {
-    //     res.setHeader('Access-Control-Allow-Origin', '*'); // Adjust this in production
-    //     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-    //     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    //     next();
-    // });
-
-    // // 3. JSON body parser
-    // app.use(express.json());
 
 // Health check
 app.get('/api/health', (_, res) => {
@@ -1424,10 +1412,13 @@ app.use('*', (_, res) => {
   });
 });
 
-const PORT = process.env.PORT || 4000;
+const PORT = parseInt(port ? port.toString() :  '4000');
 
-app.listen(PORT, () => {
-  console.log(`🚀 Backend server running on http://localhost:${PORT}`);
+app.listen(PORT, host ,async () => {
+    const pcount = await prisma.package.count();
+    console.log(`[Database] Total packages found: ${pcount}`);
+
+  console.log(`🚀 Backend server running on http://${host}:${PORT}`);
   console.log(`📊 API endpoints available:`);
   console.log(`   - GET  /api/health`);
   console.log(`   - GET  /api/packages/refresh`);
@@ -1446,7 +1437,7 @@ app.listen(PORT, () => {
 }).on('error', (err) => {
         // Handle common errors like EADDRINUSE (port already in use)
         if (err.message.includes('EADDRINUSE')) {
-            console.error(`Error: Port ${port} is already in use. Please specify a different port via the PORT environment variable.`);
+            console.error(`Error: Port ${port} is already in use. Please specify a different port via configuration file.`);
             process.exit(1);
         } else {
             console.error('Server failed to start:', err);

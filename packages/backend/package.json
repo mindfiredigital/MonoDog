@@ -1,11 +1,10 @@
 {
   "name": "@monodog/backend",
-  "version": "1.2.2",
+  "version": "1.5.0",
   "description": "Backend API server for monodog monorepo dashboard",
-  "main": "dist/index.js",
   "license": "MIT",
   "bin": {
-    "monodog-cli": "src/cli.ts"
+    "monodog-cli": "dist/cli.js"
   },
   "scripts": {
     "dev": "tsx watch src/index.ts",
@@ -14,16 +13,17 @@
     "build": "rm -rf dist && tsc -p tsconfig.json",
     "prestart": "npm run build",
     "cli": "pnpm run build && node dist/cli.js",
-    "test": "jest --coverage",
     "clean": "rm -rf dist node_modules/.cache",
-    "test:coverage": "jest --coverage",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
-  },
+    "lint:fix": "eslint . --fix",
+"db:url": "node dist/get-db-url.js",
+   "generate": "DATABASE_URL=$(npm run db:url --silent 2>/dev/null | tr -d '\\n') prisma generate",
+    "migrate": "DATABASE_URL=$(npm run db:url --silent 2>/dev/null | tr -d '\\n') prisma migrate dev",
+"serve": "DATABASE_URL=$(npm run db:url --silent 2>/dev/null | tr -d '\\n') node dist/cli.js --serve --root ../../"  },
   "dependencies": {
-    "@monodog/ci-status": "1.1.1",
+    "@monodog/ci-status": "1.1.2",
     "@monodog/monorepo-scanner": "1.0.7",
-    "@monodog/utils": "1.0.0",
+    "@monodog/utils": "1.0.1",
     "@prisma/client": "^5.7.0",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
@@ -32,12 +32,14 @@
     "prisma": "^5.22.0"
   },
   "devDependencies": {
-    "typescript": "^5.3.8",
     "@types/body-parser": "^1.19.5",
     "@types/cors": "^2.8.17",
     "@types/dotenv": "^8.2.0",
     "@types/express": "^4.17.21",
     "@types/node": "^20.10.0",
-    "tsx": "^4.6.0"
+    "cross-env": "^10.1.0",
+    "ts-node": "^10.0.0",
+    "tsx": "^4.6.0",
+    "typescript": "^5.3.8"
   }
 }

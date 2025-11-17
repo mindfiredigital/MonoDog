@@ -4,12 +4,21 @@ import {
   PackageInfo,
   DependencyInfo,
 } from '@monodog/utils/helpers'
-import dotenv from 'dotenv';
+// import dotenv from 'dotenv';
 import path from 'path';
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
+// dotenv.config({ path: path.resolve(__dirname, '../.env') });
 import { PrismaClient, Prisma, Commit } from '@prisma/client';
+import { loadConfig } from '../config-loader';
+
+  const appConfig = loadConfig();
+
+// Default settings
+const DEFAULT_PORT = 4000;
+const port = appConfig.server.port ?? DEFAULT_PORT; //Default port
+const host = appConfig.server.host ?? 'localhost'; //Default host
+
 const prisma = new PrismaClient();
-const API_BASE = `http://localhost:4000/api`;
+const API_BASE = `http://${host}:${port}/api`;
 
 async function getCommits(path: string): Promise<Commit[]> {
   const res = await fetch(API_BASE + `/commits/` + encodeURIComponent(path));
