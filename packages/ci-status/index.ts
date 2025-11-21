@@ -1,4 +1,4 @@
-import { PackageInfo } from '../../libs/utils/helpers';
+import { PackageInfo } from '@monodog/utils/helpers';
 
 export interface CIProvider {
   name: string;
@@ -331,7 +331,7 @@ export class CIStatusManager {
    * Fetch builds from a specific CI provider
    */
   private async fetchBuildsFromProvider(
-    provider: CIProvider,
+    _provider: CIProvider,
     packageName: string
   ): Promise<CIBuild[]> {
     // This is a mock implementation
@@ -594,7 +594,7 @@ export class CIStatusManager {
    */
   async getBuildArtifacts(
     buildId: string,
-    providerName: string
+    _providerName: string
   ): Promise<CIArtifact[]> {
     // Mock implementation
     return [

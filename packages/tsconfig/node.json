@@ -1,9 +1,16 @@
 {
   "extends": "./base.json",
   "compilerOptions": {
-    "lib": ["ES2022"],
+
     "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "types": ["node"]
+    "moduleResolution": "node",
+
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "sourceMap": true,
+    "outDir": "dist"
   }
 }

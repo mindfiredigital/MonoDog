@@ -1,11 +1,12 @@
 {
   "name": "@monodog/utils",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Shared utility functions for monodog monorepo dashboard",
-  "main": "helpers.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "license": "MIT",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --build",
     "test": "jest",
     "clean": "rm -rf dist node_modules/.cache"
   },

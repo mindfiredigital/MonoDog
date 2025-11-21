@@ -1,20 +1,21 @@
 {
   "name": "@monodog/monorepo-scanner",
-  "version": "1.0.0",
+  "version": "1.0.8",
   "description": "Monorepo scanner for analyzing packages, dependencies, and health",
-  "main": "index.ts",
-  "license": "MIT",
+  "main": "dist/index.js",
+   "license": "MIT",
   "scripts": {
-    "dev": "tsx watch index.ts",
-    "start": "tsx index.ts",
-    "build": "echo \"Configuration package build success (no code compilation)\"",
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "build": "tsc",
     "test": "jest",
     "clean": "rm -rf dist node_modules/.cache",
     "lint": "eslint .",
     "test:coverage": "jest --coverage"
   },
   "dependencies": {
-    "@prisma/client": "^5.7.0"
+    "@prisma/client": "^5.7.0",
+    "@monodog/utils": "1.0.1"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
@@ -23,6 +24,5 @@
     "prisma": "^5.7.0"
   },
   "peerDependencies": {
-    "@monodog/utils": "workspace:*"
   }
 }

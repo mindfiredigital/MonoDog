@@ -8,15 +8,17 @@ The Monorepo Dashboard addresses the complexity of managing many interconnected 
 
 ## Installation
 
-### Install Package
+Install dependencies:
 
-```bash
-# npm
-npm install @lakinmindfire/monodog
+    pnpm install
 
-# pnpm
-pnpm add @lakinmindfire/monodog
-```
+Build Setup:
+
+    pnpm run build
+
+Run monoapp workspace using serve script:
+
+    npm --workspace @monodog/monoapp run serve
 
 ## License
 

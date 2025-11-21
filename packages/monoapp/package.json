@@ -1,0 +1,45 @@
+{
+  "name": "@monodog/monoapp",
+  "version": "1.2.54",
+  "description": "App for monodog monorepo",
+  "license": "MIT",
+  "bin": {
+    "monoapp-setup": "dist/setup.js"
+  },
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx index.ts",
+    "prepublishOnly": "pnpm run build",
+    "build": "rm -rf dist && tsc -p tsconfig.json",
+    "prestart": "npm run build",
+    "cli": "pnpm run build && node dist/setup.js",
+    "clean": "rm -rf dist node_modules/.cache",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "db:url": "node dist/get-db-url.js",
+    "generate": "DATABASE_URL=$(npm run db:url --silent 2>/dev/null | tr -d '\\n') prisma generate",
+    "migrate": "DATABASE_URL=$(npm run db:url --silent 2>/dev/null | tr -d '\\n') prisma migrate dev",
+    "migrate:reset": "DATABASE_URL=$(npm run db:url --silent 2>/dev/null | tr -d '\\n') prisma migrate reset",
+    "serve": "DATABASE_URL=$(npm run db:url --silent 2>/dev/null | tr -d '\\n') node dist/setup.js --serve --root ../../",
+    "postinstall": "npm run generate && npm run migrate && pnpm monoapp-setup @monodog/monoapp --root $INIT_CWD"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.7.0",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "init": "^0.1.2",
+    "prisma": "^5.22.0"
+  },
+  "devDependencies": {
+    "@types/body-parser": "^1.19.5",
+    "@types/cors": "^2.8.17",
+    "@types/dotenv": "^8.2.0",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.10.0",
+    "cross-env": "^10.1.0",
+    "ts-node": "^10.0.0",
+    "tsx": "^4.6.0",
+    "typescript": "^5.3.8"
+  }
+}

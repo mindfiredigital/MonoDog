@@ -1,0 +1,375 @@
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.scanMonorepo = scanMonorepo;
+exports.generateMonorepoStats = generateMonorepoStats;
+exports.findCircularDependencies = findCircularDependencies;
+exports.generateDependencyGraph = generateDependencyGraph;
+exports.checkOutdatedDependencies = checkOutdatedDependencies;
+exports.getPackageSize = getPackageSize;
+exports.calculatePackageHealth = calculatePackageHealth;
+// import { Package } from '@prisma/client';
+const fs = __importStar(require("fs"));
+const path_1 = __importDefault(require("path"));
+/**
+ * Scans the monorepo and returns information about all packages
+ */
+function scanMonorepo(rootDir) {
+    const packages = [];
+    console.log('rootDir', rootDir);
+    // Scan packages directory
+    const packagesDir = path_1.default.join(rootDir, 'packages');
+    if (fs.existsSync(packagesDir)) {
+        const packageDirs = fs
+            .readdirSync(packagesDir, { withFileTypes: true })
+            .filter(dirent => dirent.isDirectory())
+            .map(dirent => dirent.name);
+        for (const packageName of packageDirs) {
+            const packagePath = path_1.default.join(packagesDir, packageName);
+            const packageInfo = parsePackageInfo(packagePath, packageName);
+            if (packageInfo) {
+                packages.push(packageInfo);
+            }
+        }
+    }
+    // Scan apps directory
+    const appsDir = path_1.default.join(rootDir, 'apps');
+    if (fs.existsSync(appsDir)) {
+        const appDirs = fs
+            .readdirSync(appsDir, { withFileTypes: true })
+            .filter(dirent => dirent.isDirectory())
+            .map(dirent => dirent.name);
+        for (const appName of appDirs) {
+            const appPath = path_1.default.join(appsDir, appName);
+            const appInfo = parsePackageInfo(appPath, appName, 'app');
+            if (appInfo) {
+                packages.push(appInfo);
+            }
+        }
+    }
+    // Scan libs directory
+    const libsDir = path_1.default.join(rootDir, 'libs');
+    if (fs.existsSync(libsDir)) {
+        const libDirs = fs
+            .readdirSync(libsDir, { withFileTypes: true })
+            .filter(dirent => dirent.isDirectory())
+            .map(dirent => dirent.name);
+        for (const libName of libDirs) {
+            const libPath = path_1.default.join(libsDir, libName);
+            const libInfo = parsePackageInfo(libPath, libName, 'lib');
+            if (libInfo) {
+                packages.push(libInfo);
+            }
+        }
+    }
+    return packages;
+}
+/*** Parses package.json and determines package type */
+function parsePackageInfo(packagePath, packageName, forcedType) {
+    const packageJsonPath = path_1.default.join(packagePath, 'package.json');
+    if (!fs.existsSync(packageJsonPath)) {
+        return null;
+    }
+    try {
+        const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+        // Determine package type
+        let packageType = 'lib';
+        if (forcedType) {
+            packageType = forcedType;
+        }
+        else if (packageJson.scripts && packageJson.scripts.start) {
+            packageType = 'app';
+        }
+        else if (packageJson.keywords && packageJson.keywords.includes('tool')) {
+            packageType = 'tool';
+        }
+        return {
+            name: packageJson.name || packageName,
+            version: packageJson.version || '0.0.0',
+            type: packageType,
+            path: packagePath,
+            dependencies: packageJson.dependencies || {},
+            devDependencies: packageJson.devDependencies || {},
+            peerDependencies: packageJson.peerDependencies || {},
+            scripts: packageJson.scripts || {},
+            maintainers: packageJson.maintainers || [],
+            description: packageJson.description,
+            license: packageJson.license,
+            repository: packageJson.repository || {},
+        };
+    }
+    catch (error) {
+        console.error(`Error parsing package.json for ${packageName}:`, error);
+        return null;
+    }
+}
+/**
+ * Analyzes dependencies and determines their status
+ */
+// function analyzeDependencies(
+//   dependencies: Record<string, string>,
+//   type: 'production' | 'development' = 'production'
+// ): DependencyInfo[] {
+//   return Object.entries(dependencies).map(([name, version]) => ({
+//     name,
+//     currentVersion: version,
+//     status: 'unknown', // Would be determined by npm registry check
+//     type,
+//   }));
+// }
+/**
+ * Calculates package health score based on various metrics
+ */
+function calculatePackageHealth(buildStatus, testCoverage, lintStatus, securityAudit) {
+    let score = 0;
+    // Build status (30 points)
+    switch (buildStatus) {
+        case 'success':
+            score += 30;
+            break;
+        case 'running':
+            score += 15;
+            break;
+        case 'failed':
+            score += 0;
+            break;
+        default:
+            score += 10;
+    }
+    // Test coverage (25 points)
+    score += Math.min(25, (testCoverage / 100) * 25);
+    // Lint status (25 points)
+    switch (lintStatus) {
+        case 'pass':
+            score += 25;
+            break;
+        case 'fail':
+            score += 0;
+            break;
+        default:
+            score += 10;
+    }
+    // Security audit (20 points)
+    switch (securityAudit) {
+        case 'pass':
+            score += 20;
+            break;
+        case 'fail':
+            score += 0;
+            break;
+        default:
+            score += 10;
+    }
+    return {
+        buildStatus,
+        testCoverage,
+        lintStatus,
+        securityAudit,
+        overallScore: Math.round(score),
+    };
+}
+/**
+ * Generates comprehensive monorepo statistics
+ */
+function generateMonorepoStats(packages) {
+    const stats = {
+        totalPackages: packages.length,
+        apps: packages.filter(p => p.type === 'app').length,
+        libraries: packages.filter(p => p.type === 'lib').length,
+        tools: packages.filter(p => p.type === 'tool').length,
+        healthyPackages: 0,
+        warningPackages: 0,
+        errorPackages: 0,
+        outdatedDependencies: 0,
+        totalDependencies: 0,
+    };
+    // Calculate dependency counts
+    packages.forEach(pkg => {
+        stats.totalDependencies += Object.keys(pkg.dependencies).length;
+        stats.totalDependencies += Object.keys(pkg.devDependencies).length;
+        stats.totalDependencies += Object.keys(pkg.peerDependencies ?? {}).length;
+    });
+    return stats;
+}
+/**
+ * Finds circular dependencies in the monorepo
+ */
+function findCircularDependencies(packages) {
+    const graph = new Map();
+    const visited = new Set();
+    const recursionStack = new Set();
+    const circularDeps = [];
+    // Build dependency graph
+    packages.forEach(pkg => {
+        graph.set(pkg.name, Object.keys(pkg.dependencies));
+    });
+    function dfs(node, path) {
+        if (recursionStack.has(node)) {
+            const cycleStart = path.indexOf(node);
+            circularDeps.push(path.slice(cycleStart));
+            return;
+        }
+        if (visited.has(node)) {
+            return;
+        }
+        visited.add(node);
+        recursionStack.add(node);
+        path.push(node);
+        const dependencies = graph.get(node) || [];
+        for (const dep of dependencies) {
+            if (graph.has(dep)) {
+                dfs(dep, [...path]);
+            }
+        }
+        recursionStack.delete(node);
+    }
+    for (const node of graph.keys()) {
+        if (!visited.has(node)) {
+            dfs(node, []);
+        }
+    }
+    return circularDeps;
+}
+/**
+ * Generates a dependency graph for visualization
+ */
+function generateDependencyGraph(packages) {
+    const nodes = packages.map(pkg => ({
+        // id: pkg.name,
+        label: pkg.name,
+        type: pkg.type,
+        version: pkg.version,
+        dependencies: Object.keys(pkg.dependencies).length,
+    }));
+    const edges = [];
+    packages.forEach(pkg => {
+        Object.keys(pkg.dependencies).forEach(depName => {
+            // Only include internal dependencies
+            if (packages.some(p => p.name === depName)) {
+                edges.push({
+                    from: pkg.name,
+                    to: depName,
+                    type: 'internal',
+                });
+            }
+        });
+    });
+    return { nodes, edges };
+}
+/**
+ * Checks if a package has outdated dependencies
+ */
+function checkOutdatedDependencies(packageInfo) {
+    const outdated = [];
+    // This would typically involve checking against npm registry
+    // For now, we'll simulate with some basic checks
+    Object.entries(packageInfo.dependencies).forEach(([name, version]) => {
+        if (version.startsWith('^') || version.startsWith('~')) {
+            // Could be outdated, would need registry check
+            outdated.push({
+                name,
+                version: version,
+                status: 'unknown',
+                type: 'dependency',
+            });
+        }
+    });
+    return outdated;
+}
+/**
+ * Formats version numbers for comparison
+ */
+// function parseVersion(version: string): number[] {
+//   return version
+//     .replace(/^[^0-9]*/, '')
+//     .split('.')
+//     .map(Number);
+// }
+/**
+ * Compares two version strings
+ */
+// function compareVersions(v1: string, v2: string): number {
+//   const parsed1 = parseVersion(v1);
+//   const parsed2 = parseVersion(v2);
+//   for (let i = 0; i < Math.max(parsed1.length, parsed2.length); i++) {
+//     const num1 = parsed1[i] || 0;
+//     const num2 = parsed2[i] || 0;
+//     if (num1 > num2) return 1;
+//     if (num1 < num2) return -1;
+//   }
+//   return 0;
+// }
+/**
+ * Gets package size information
+ */
+function getPackageSize(packagePath) {
+    try {
+        let totalSize = 0;
+        let fileCount = 0;
+        const calculateSize = (dirPath) => {
+            const items = fs.readdirSync(dirPath, { withFileTypes: true });
+            for (const item of items) {
+                const fullPath = path_1.default.join(dirPath, item.name);
+                if (item.isDirectory()) {
+                    // Skip node_modules and other build artifacts
+                    if (!['node_modules', 'dist', 'build', '.git'].includes(item.name)) {
+                        calculateSize(fullPath);
+                    }
+                }
+                else {
+                    try {
+                        const stats = fs.statSync(fullPath);
+                        totalSize += stats.size;
+                        fileCount++;
+                    }
+                    catch (error) {
+                        // Skip files we can't read
+                    }
+                }
+            }
+        };
+        calculateSize(packagePath);
+        return {
+            size: totalSize,
+            files: fileCount,
+        };
+    }
+    catch (error) {
+        return { size: 0, files: 0 };
+    }
+}

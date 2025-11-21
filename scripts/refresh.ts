@@ -8,7 +8,7 @@ import {
   scanner,
   quickScan,
   generateReports,
-} from '../packages/monorepo-scanner';
+} from '../packages/monorepo-scanner/src';
 import { ciStatusManager, getMonorepoCIStatus } from '../packages/ci-status';
 import {
   scanMonorepo,
