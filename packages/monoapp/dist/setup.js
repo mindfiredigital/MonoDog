@@ -35,34 +35,26 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
- * CLI Entry Point for the Monorepo Analysis Engine.
- * * This script is executed when a user runs the `monodog-cli` command
+ * CLI Entry Point for the Setting up workspace.
+ * * This script is executed when a user runs the setup command
  * in their project. It handles command-line arguments to determine
  * whether to:
- * 1. Start the API server for the dashboard.
- * 2. Run a one-off analysis command. (Future functionality)
+ * 1. Copy monodog to workspace.
  */
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
-const index_1 = require("./index"); // Assume index.ts exports this function
 const config_loader_1 = require("./config-loader");
-// const appConfig = loadConfig();
 // --- Argument Parsing ---
 // 1. Get arguments excluding the node executable and script name
 const args = process.argv.slice(2);
 // Default settings
-const DEFAULT_PORT = 8999;
-let rootPath = path.resolve(config_loader_1.appConfig.workspace.root_dir ?? process.cwd()); // Default to the current working directory
-let port = config_loader_1.appConfig.server.port ?? DEFAULT_PORT; //Default port
+let rootPath = path.resolve(config_loader_1.appConfig.workspace.root_dir ?? process.cwd()); // Default to the current working directory ?(inside node modules)
 const host = config_loader_1.appConfig.server.host ?? 'localhost'; //Default host
-let serve = false;
+console.log('rp1', rootPath);
 // Simple argument parsing loop
 for (let i = 0; i < args.length; i++) {
     const arg = args[i];
-    if (arg === '--serve') {
-        serve = true;
-    }
-    else if (arg === '--root') {
+    if (arg === '--root') {
         // Look at the next argument for the path
         if (i + 1 < args.length) {
             rootPath = path.resolve(args[i + 1]);
@@ -73,56 +65,14 @@ for (let i = 0; i < args.length; i++) {
             process.exit(1);
         }
     }
-    else if (arg === '--port') {
-        // Look at the next argument for the port number
-        if (i + 1 < args.length) {
-            const portValue = parseInt(args[i + 1], 10);
-            if (isNaN(portValue) || portValue <= 0 || portValue > 65535) {
-                console.error('Error: --port requires a valid port number (1-65535).');
-                process.exit(1);
-            }
-            port = portValue;
-            i++; // Skip the next argument
-        }
-        else {
-            console.error('Error: --port requires a number argument.');
-            process.exit(1);
-        }
-    }
-    else if (arg === '-h' || arg === '--help') {
-        console.log(`
-Monodog CLI - Monorepo Analysis Engine
-
-Usage:
-  monodog-cli [options]
-
-Options:
-  --serve            Start the Monorepo Dashboard API server (default: off).
-  --root <path>      Specify the root directory of the monorepo to analyze (default: current working directory).
-  --port <number>    Specify the port for the API server (default: 4000).
-  -h, --help         Show this help message.
-
-Example:
-  monodog-cli --serve --root /path/to/my/monorepo
-        `);
-        process.exit(0);
-    }
 }
+console.log('rp2', rootPath);
 // --- Execution Logic ---
-if (serve) {
-    console.log(`Starting Monodog API server...`);
-    console.log(`Analyzing monorepo at root: ${rootPath}`);
-    // Start the Express server and begin analysis
-    (0, index_1.startServer)(rootPath, port, host);
-    (0, index_1.serveDashboard)(path.join(rootPath, config_loader_1.appConfig.workspace.install_path), config_loader_1.appConfig.dashboard.port, config_loader_1.appConfig.dashboard.host);
-}
-else {
-    console.log(`\nInitializing Setup...`);
-    copyPackageToWorkspace(rootPath);
-    console.log("\n*** Run the server ***");
-    console.log("npm --workspace @monodog/monoapp run serve");
-    process.exit(0);
-}
+console.log(`\nInitializing Setup...`);
+copyPackageToWorkspace(rootPath);
+console.log("\n*** Run the server ***");
+console.log("npm --workspace @monodog/monoapp run serve");
+process.exit(0);
 /**
  * Copies an installed NPM package from node_modules into the local install_path workspace directory.
  */
@@ -134,23 +84,6 @@ function copyPackageToWorkspace(rootDir) {
         console.error("Error: Please provide the package name as an argument if you want to setup dashboard.");
         console.log("Usage: pnpm monodog-cli @monodog/dashboard --serve --root .");
     }
-    // --- FIX: Robust Source Path Resolution for pnpm/symlinks ---
-    // let sourcePath: string;
-    // try {
-    //     // Use resolvePath.resolve to find a known file in the package (e.g., its package.json)
-    //     // and backtrack to the package root. This correctly resolves symlinks (like those created by pnpm).
-    //     // Find the package.json location relative to the project root
-    //     // Using { paths: [rootDir] } ensures we search relative to the monorepo root.
-    //     const packageJsonPath = resolvePath.resolve(packageName + '/package.json', { paths: [rootDir] });
-    //     // The source path is the directory containing the package.json
-    //     sourcePath = path.dirname(packageJsonPath);
-    // } catch (e) {
-    //     // If require.resolve fails (package not found), handle the error.
-    //     console.error(`\n❌ Error resolving package path for ${packageName}.`);
-    //     console.error("The package likely wasn't installed correctly or is not accessible from the root context.");
-    //     process.exit(1);
-    // }
-    // const rootDir = process.cwd();
     const sourcePath = path.join(rootDir, 'node_modules', packageName);
     // Convert package name to a valid folder name (e.g., @scope/name -> scope-name)
     // This is optional but makes file paths cleaner.

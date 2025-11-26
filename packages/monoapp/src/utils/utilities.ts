@@ -74,6 +74,23 @@ function scanMonorepo(rootDir: string): PackageInfo[] {
     }
   }
 
+    // Scan packages directory
+  const examplesDir = path.join(rootDir, 'examples');
+  if (fs.existsSync(examplesDir)) {
+    const packageDirs = fs
+      .readdirSync(examplesDir, { withFileTypes: true })
+      .filter(dirent => dirent.isDirectory())
+      .map(dirent => dirent.name);
+
+    for (const packageName of packageDirs) {
+      const packagePath = path.join(examplesDir, packageName);
+      const packageInfo = parsePackageInfo(packagePath, packageName);
+      if (packageInfo) {
+        packages.push(packageInfo);
+      }
+    }
+  }
+
   // Scan apps directory
   const appsDir = path.join(rootDir, 'apps');
   if (fs.existsSync(appsDir)) {

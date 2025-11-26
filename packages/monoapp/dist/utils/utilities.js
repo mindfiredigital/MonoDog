@@ -67,6 +67,21 @@ function scanMonorepo(rootDir) {
             }
         }
     }
+    // Scan packages directory
+    const examplesDir = path_1.default.join(rootDir, 'examples');
+    if (fs.existsSync(examplesDir)) {
+        const packageDirs = fs
+            .readdirSync(examplesDir, { withFileTypes: true })
+            .filter(dirent => dirent.isDirectory())
+            .map(dirent => dirent.name);
+        for (const packageName of packageDirs) {
+            const packagePath = path_1.default.join(examplesDir, packageName);
+            const packageInfo = parsePackageInfo(packagePath, packageName);
+            if (packageInfo) {
+                packages.push(packageInfo);
+            }
+        }
+    }
     // Scan apps directory
     const appsDir = path_1.default.join(rootDir, 'apps');
     if (fs.existsSync(appsDir)) {
