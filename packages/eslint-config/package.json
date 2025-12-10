@@ -1,5 +1,5 @@
 {
-  "name": "@lakinmindfire/eslint-config",
+  "name": "@manojk/eslint-config",
   "version": "0.0.0",
   "description": "Shared ESLint configuration for the Monorepo Dashboard.",
   "main": "index.js",
@@ -10,8 +10,7 @@
   },
   "scripts": {
     "build": "echo \"Configuration package build success (no code compilation)\"",
-    "lint": "eslint .",
-    "test:coverage": "jest --coverage"
+    "lint": "eslint ."
   },
   "dependencies": {
     "eslint-config-next": "^14.0.0",

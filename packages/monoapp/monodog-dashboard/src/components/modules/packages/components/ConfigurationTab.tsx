@@ -171,10 +171,11 @@ export default function ConfigurationTab({
                     onClick={() =>
                       handleCopyToClipboard(command, 'script', scriptName)
                     }
-                    className={`text-sm flex items-center space-x-1 ${copiedScript === scriptName
-                      ? 'text-green-600'
-                      : 'text-gray-600 hover:text-gray-700'
-                      }`}
+                    className={`text-sm flex items-center space-x-1 ${
+                      copiedScript === scriptName
+                        ? 'text-green-600'
+                        : 'text-gray-600 hover:text-gray-700'
+                    }`}
                     title="Copy command to clipboard"
                   >
                     {copiedScript === scriptName ? (
@@ -189,7 +190,7 @@ export default function ConfigurationTab({
                       </>
                     )}
                   </button>
-                  <button className="text-blue-600 hover:text-blue-500 text-sm">
+                  <button className="hidden text-blue-600 hover:text-blue-500 text-sm">
                     Run
                   </button>
                 </div>
@@ -220,152 +221,93 @@ export default function ConfigurationTab({
           )}
         </div>
 
-        {
-          isEditing ? (
-            // Editable Textarea
-            <div className="space-y-4">
-              <div className="bg-gray-900 text-gray-100 p-4 rounded-lg">
-                <textarea
-                  value={editedConfig}
-                  onChange={handleConfigChange}
-                  className="w-full h-96 bg-gray-900 text-gray-100 text-sm font-mono resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
-                  spellCheck="false"
-                />
-              </div>
+        {isEditing ? (
+          // Editable Textarea
+          <div className="space-y-4">
+            <div className="bg-gray-900 text-gray-100 p-4 rounded-lg">
+              <textarea
+                value={editedConfig}
+                onChange={handleConfigChange}
+                className="w-full h-96 bg-gray-900 text-gray-100 text-sm font-mono resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+                spellCheck="false"
+              />
+            </div>
 
-              {/* Save Message */}
-              {saveMessage && (
-                <div
-                  className={`p-3 rounded-lg text-sm ${saveMessage.includes('successfully')
+            {/* Save Message */}
+            {saveMessage && (
+              <div
+                className={`p-3 rounded-lg text-sm ${
+                  saveMessage.includes('successfully')
                     ? 'bg-green-50 text-green-700 border border-green-200'
                     : 'bg-red-50 text-red-700 border border-red-200'
-                    }`}
-                >
-                  {saveMessage}
-                </div>
-              )}
-
-              {/* Action Buttons */}
-              <div className="flex space-x-3">
-                <button
-                  onClick={handleSaveClick}
-                  disabled={isSaving}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed text-sm flex items-center space-x-2"
-                >
-                  {isSaving ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      <span>Saving...</span>
-                    </>
-                  ) : (
-                    <span>Save Changes</span>
-                  )}
-                </button>
-                <button
-                  onClick={handleCancelClick}
-                  disabled={isSaving}
-                  className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-                >
-                  Cancel
-                </button>
+                }`}
+              >
+                {saveMessage}
               </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex space-x-3">
+              <button
+                onClick={handleSaveClick}
+                disabled={isSaving}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed text-sm flex items-center space-x-2"
+              >
+                {isSaving ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Saving...</span>
+                  </>
+                ) : (
+                  <span>Save Changes</span>
+                )}
+              </button>
+              <button
+                onClick={handleCancelClick}
+                disabled={isSaving}
+                className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+              >
+                Cancel
+              </button>
             </div>
-          ) : (
-            <>
-              <div className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto">
-                <pre className="text-sm">{generatePackageJson()}</pre>
-              </div>
+          </div>
+        ) : (
+          <>
+            <div className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto">
+              <pre className="text-sm">{editedConfig}</pre>
+            </div>
 
-              {isEditing ? (
-                // Editable Textarea
-                <div className="space-y-4">
-                  <div className="bg-gray-900 text-gray-100 p-4 rounded-lg">
-                    <textarea
-                      value={editedConfig}
-                      onChange={handleConfigChange}
-                      className="w-full h-96 bg-gray-900 text-gray-100 text-sm font-mono resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
-                      spellCheck="false"
-                    />
-                  </div>
-
-                  {/* Save Message */}
-                  {saveMessage && (
-                    <div
-                      className={`p-3 rounded-lg text-sm ${saveMessage.includes('successfully')
-                        ? 'bg-green-50 text-green-700 border border-green-200'
-                        : 'bg-red-50 text-red-700 border border-red-200'
-                        }`}
-                    >
-                      {saveMessage}
-                    </div>
-                  )}
-
-                  {/* Action Buttons */}
-                  <div className="flex space-x-3">
-                    <button
-                      onClick={handleSaveClick}
-                      disabled={isSaving}
-                      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed text-sm flex items-center space-x-2"
-                    >
-                      {isSaving ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          <span>Saving...</span>
-                        </>
-                      ) : (
-                        <span>Save Changes</span>
-                      )}
-                    </button>
-                    <button
-                      onClick={handleCancelClick}
-                      disabled={isSaving}
-                      className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                // Read-only Preview
-                <>
-                  <div className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto">
-                    <pre className="text-sm">{generatePackageJson()}</pre>
-                  </div>
-
-                  <div className="mt-4 flex space-x-3">
-                    <button
-                      onClick={handleEditClick}
-                      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm"
-                    >
-                      Edit Configuration
-                    </button>
-                    <button
-                      onClick={() =>
-                        handleCopyToClipboard(
-                          isEditing ? editedConfig : generatePackageJson(),
-                          'config'
-                        )
-                      }
-                      className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 text-sm flex items-center space-x-2"
-                    >
-                      {isConfigCopied ? (
-                        <>
-                          <ClipboardDocumentCheckIcon className="w-4 h-4 text-green-600" />
-                          <span>Copied!</span>
-                        </>
-                      ) : (
-                        <>
-                          <ClipboardIcon className="w-4 h-4" />
-                          <span>Copy</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </>
-              )}
-            </>
-          )
-        }
+            <div className="mt-4 flex space-x-3">
+              <button
+                onClick={handleEditClick}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm"
+              >
+                Edit Configuration
+              </button>
+              <button
+                onClick={() =>
+                  handleCopyToClipboard(
+                    isEditing ? editedConfig : generatePackageJson(),
+                    'config'
+                  )
+                }
+                className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 text-sm flex items-center space-x-2"
+              >
+                {isConfigCopied ? (
+                  <>
+                    <ClipboardDocumentCheckIcon className="w-4 h-4 text-green-600" />
+                    <span>Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <ClipboardIcon className="w-4 h-4" />
+                    <span>Copy</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

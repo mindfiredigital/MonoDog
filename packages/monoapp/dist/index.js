@@ -537,7 +537,11 @@ function startServer(rootPath, port, host) {
                         securityAudit: securityAudit,
                         overallScore: overallScore.overallScore,
                     };
-                    const packageStatus = health.overallScore >= 80 ? 'healthy' : (health.overallScore >= 60 && health.overallScore < 80 ? 'warning' : 'error');
+                    const packageStatus = health.overallScore >= 80
+                        ? 'healthy'
+                        : health.overallScore >= 60 && health.overallScore < 80
+                            ? 'warning'
+                            : 'error';
                     console.log(pkg.name, '-->', health, packageStatus);
                     // FIX: Use upsert to handle existing packages and proper Prisma syntax
                     await prisma.packageHealth.upsert({
@@ -578,15 +582,21 @@ function startServer(rootPath, port, host) {
                 catch (error) {
                     return {
                         packageName: pkg.name,
-                        health: null,
+                        health: {
+                            "buildStatus": "",
+                            "testCoverage": 0,
+                            "lintStatus": "",
+                            "securityAudit": "",
+                            "overallScore": 0
+                        },
                         isHealthy: false,
-                        error: 'Failed to fetch health metrics',
+                        error: 'Failed to fetch health metrics1',
                     };
                 }
                 PORT;
             }));
             res.json({
-                packages: healthMetrics,
+                packages: healthMetrics.filter(h => !h.error),
                 summary: {
                     total: packages.length,
                     healthy: healthMetrics.filter(h => h.isHealthy).length,
@@ -1178,7 +1188,9 @@ function startServer(rootPath, port, host) {
                 maintainers: updatedPackage.maintainers
                     ? JSON.parse(updatedPackage.maintainers)
                     : [],
-                scripts: updatedPackage.scripts ? JSON.parse(updatedPackage.scripts) : {},
+                scripts: updatedPackage.scripts
+                    ? JSON.parse(updatedPackage.scripts)
+                    : {},
                 repository: updatedPackage.repository
                     ? JSON.parse(updatedPackage.repository)
                     : {},
@@ -1227,7 +1239,8 @@ function startServer(rootPath, port, host) {
         });
     });
     const PORT = parseInt(port ? port.toString() : '4000');
-    app.listen(PORT, host, async () => {
+    app
+        .listen(PORT, host, async () => {
         const pcount = await prisma.package.count();
         console.log(`[Database] Total packages found: ${pcount}`);
         console.log(`🚀 Backend server running on http://${host}:${PORT}`);
@@ -1246,7 +1259,8 @@ function startServer(rootPath, port, host) {
         console.log(`   - GET  /api/search`);
         console.log(`   - GET  /api/activity`);
         console.log(`   - GET  /api/system`);
-    }).on('error', (err) => {
+    })
+        .on('error', err => {
         // Handle common errors like EADDRINUSE (port already in use)
         if (err.message.includes('EADDRINUSE')) {
             console.error(`Error: Port ${port} is already in use. Please specify a different port via configuration file.`);
@@ -1336,7 +1350,9 @@ function serveDashboard(rootPath, port, host) {
             res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
             res.header('Expires', '-1');
             res.header('Pragma', 'no-cache');
-            res.sendFile('index.html', { root: path_1.default.resolve(__dirname, '..', 'monodog-dashboard', 'dist') });
+            res.sendFile('index.html', {
+                root: path_1.default.resolve(__dirname, '..', 'monodog-dashboard', 'dist'),
+            });
         }
     });
     const staticPath = path_1.default.join(__dirname, '..', 'monodog-dashboard', 'dist');

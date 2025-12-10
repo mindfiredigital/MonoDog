@@ -1,6 +1,6 @@
 {
-  "name": "@lakinmindfire/tsconfig",
-  "version": "0.0.0",
+  "name": "@manojk/tsconfig",
+  "version": "0.0.2",
   "description": "Shared TypeScript configurations for the Monorepo Dashboard.",
   "main": "base.json",
   "license": "MIT",
@@ -8,9 +8,7 @@
     "access": "public"
   },
   "scripts": {
-    "build": "echo \"Configuration package build success (no code compilation)\"",
-    "lint": "eslint .",
-    "test:coverage": "jest --coverage"
+    "build": "echo \"Configuration package build success (no code compilation)\""
   },
   "files": [
     "base.json",

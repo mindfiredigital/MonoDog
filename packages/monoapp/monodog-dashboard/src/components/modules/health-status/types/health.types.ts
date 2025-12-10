@@ -11,7 +11,7 @@ export interface HealthMetric {
 
 export interface PackageHealth {
   name: string;
-  overallScore: number;
+  packageOverallScore: number;
   buildStatus: 'success' | 'failed' | 'building' | 'unknown';
   testCoverage: number;
   lintStatus: 'pass' | 'warn' | 'fail';

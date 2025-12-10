@@ -10,7 +10,7 @@
     "declaration": true,
     "sourceMap": true,
     "esModuleInterop": true,
-    "downlevelIteration": true,
+    "downlevelIteration": true
 
     // Since your package.json defines "main": "index.ts",
     // we set the 'root' to the package root and 'outDir' to 'dist'.

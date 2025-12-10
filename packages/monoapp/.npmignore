@@ -1,0 +1,5 @@
+/prisma/*.db
+/monodog-dashboard/*
+!/monodog-dashboard/dist
+*__tests__*
+jest.config.js

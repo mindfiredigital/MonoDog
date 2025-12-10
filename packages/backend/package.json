@@ -1,6 +1,6 @@
 {
   "name": "@monodog/backend",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "Backend API server for monodog monorepo dashboard",
   "license": "MIT",
   "bin": {
@@ -16,10 +16,11 @@
     "clean": "rm -rf dist node_modules/.cache",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-"db:url": "node dist/get-db-url.js",
-   "generate": "DATABASE_URL=$(npm run db:url --silent 2>/dev/null | tr -d '\\n') prisma generate",
+    "db:url": "node dist/get-db-url.js",
+    "generate": "DATABASE_URL=$(npm run db:url --silent 2>/dev/null | tr -d '\\n') prisma generate",
     "migrate": "DATABASE_URL=$(npm run db:url --silent 2>/dev/null | tr -d '\\n') prisma migrate dev",
-"serve": "DATABASE_URL=$(npm run db:url --silent 2>/dev/null | tr -d '\\n') node dist/cli.js --serve --root ../../"  },
+    "serve": "DATABASE_URL=$(npm run db:url --silent 2>/dev/null | tr -d '\\n') node dist/cli.js --serve --root ../../"
+  },
   "dependencies": {
     "@monodog/ci-status": "1.1.2",
     "@monodog/monorepo-scanner": "1.0.7",

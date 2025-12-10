@@ -9,12 +9,12 @@ It provides a **real-time, visual dashboard** for tracking the health, dependenc
 
 ## 🛠 Technology Stack
 
-| Component | Technology | Description |
-|------------|-------------|--------------|
-| **Framework** | React (Functional Components) | Core library for building the user interface. |
-| **Styling** | Tailwind CSS | Utility-first framework for responsive, modern, and aesthetic design. |
-| **Data Fetching** | Fetch API (Native JavaScript) | Handles communication with the backend Express API. |
-| **Icons** | Lucide React | Simple, clean vector icons for visualization. |
+| Component         | Technology                    | Description                                                           |
+| ----------------- | ----------------------------- | --------------------------------------------------------------------- |
+| **Framework**     | React (Functional Components) | Core library for building the user interface.                         |
+| **Styling**       | Tailwind CSS                  | Utility-first framework for responsive, modern, and aesthetic design. |
+| **Data Fetching** | Fetch API (Native JavaScript) | Handles communication with the backend Express API.                   |
+| **Icons**         | Lucide React                  | Simple, clean vector icons for visualization.                         |
 
 ---
 
@@ -34,11 +34,11 @@ The dashboard connects to the backend API using the following base URL:
 
 ```javascript
 const API_BASE_URL = 'http://localhost:8999/api';
-
 ```
+
 ## 🚀 Getting Started
 
-###  Installation
+### Installation
 
 Clone the repository and install the dependencies:
 

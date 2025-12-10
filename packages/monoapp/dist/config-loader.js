@@ -68,7 +68,7 @@ function loadConfig() {
         return config;
     }
     catch (error) {
-        console.error("ERROR: Failed to read or parse monodog-conf.json.");
+        console.error('ERROR: Failed to read or parse monodog-conf.json.');
         console.error(error);
         process.exit(1);
     }
@@ -79,21 +79,21 @@ function createConfigFileIfMissing(rootPath) {
     const configFilePath = path.resolve(rootPath, configFileName);
     // The default content for the configuration file
     const defaultContent = {
-        "workspace": {
-            "root_dir": "./", // Relative to where the config file is located
-            "install_path": "packages" // Where to install monodog packages
+        workspace: {
+            root_dir: './', // Relative to where the config file is located
+            install_path: 'packages', // Where to install monodog packages
         },
-        "database": {
-            "path": "file:./monodog.db" // SQLite database file path, relative to prisma schema location
+        database: {
+            path: 'file:./monodog.db', // SQLite database file path, relative to prisma schema location
         },
-        "dashboard": {
-            "host": "0.0.0.0",
-            "port": "3010"
+        dashboard: {
+            host: '0.0.0.0',
+            port: '3010',
         },
-        "server": {
-            "host": "0.0.0.0", // Default host for the API server
-            "port": 8999 // Default port for the API server
-        }
+        server: {
+            host: '0.0.0.0', // Default host for the API server
+            port: 8999, // Default port for the API server
+        },
     };
     const contentString = JSON.stringify(defaultContent, null, 2);
     // ---------------------

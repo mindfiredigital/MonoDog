@@ -19,7 +19,7 @@ async function getCommits(path) {
     const res = await fetch(API_BASE + `/commits/` + encodeURIComponent(path));
     if (!res.ok)
         throw new Error('Failed to fetch commits');
-    return await res.json();
+    return (await res.json());
 }
 async function storeCommits(packageName, commits) {
     console.log('💾 Storing commits for:' + packageName);

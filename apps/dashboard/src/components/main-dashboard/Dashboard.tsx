@@ -128,30 +128,29 @@ export default function Dashboard() {
   };
 
   // Handle refresh action
-    const handleRefresh = async () => {
+  const handleRefresh = async () => {
+    try {
+      setRefreshing(true);
+      setError(null);
+      setLoading(true);
       try {
-        setRefreshing(true);
-        setError(null);
-        setLoading(true);
-        try {
-          const data = await monorepoService.refreshPackages();
-          console.log('package data:', data);
+        const data = await monorepoService.refreshPackages();
+        console.log('package data:', data);
         setPackages(data);
-          setError(null);
-        } catch (err) {
-          setError('Failed to fetch package data');
-          console.error('Error fetching package data:', err);
-        } finally {
-          setLoading(false);
-        }
-
+        setError(null);
       } catch (err) {
-        setError('Failed to refresh package data');
-        console.error('Error refreshing package data:', err);
+        setError('Failed to fetch package data');
+        console.error('Error fetching package data:', err);
       } finally {
-        setRefreshing(false);
+        setLoading(false);
       }
-    };
+    } catch (err) {
+      setError('Failed to refresh package data');
+      console.error('Error refreshing package data:', err);
+    } finally {
+      setRefreshing(false);
+    }
+  };
   // Calculate derived data using utility functions
   const filteredPackages = filterPackages(
     packages ?? [],
@@ -163,7 +162,7 @@ export default function Dashboard() {
 
   return (
     <div className="p-6 space-y-6">
-            {/* Show refreshing overlay when refreshing with existing data */}
+      {/* Show refreshing overlay when refreshing with existing data */}
       {refreshing && packages && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg text-center">

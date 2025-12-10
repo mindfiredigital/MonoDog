@@ -1,6 +1,6 @@
 {
   // Extends the shared Node configuration for server/utility environments
-  "extends": "@lakinmindfire/tsconfig/node.json",
+  "extends": "@manojk/tsconfig/node.json",
 
   "compilerOptions": {
     // Output compilation results to the 'dist' directory
@@ -11,7 +11,7 @@
     "module": "CommonJS",
     "moduleResolution": "node",
     "verbatimModuleSyntax": false,
-    "downlevelIteration": true,
+    "downlevelIteration": true
   },
 
   // Include all TypeScript files in the 'src' folder

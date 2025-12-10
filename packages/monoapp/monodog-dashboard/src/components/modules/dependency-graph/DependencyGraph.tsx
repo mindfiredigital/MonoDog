@@ -27,7 +27,6 @@ import {
 // Re-export types for backward compatibility
 export type { PackageNode } from './types/dependency.types';
 
-
 export default function DependencyGraph() {
   // Fetch packages
   useEffect(() => {

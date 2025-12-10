@@ -1,6 +1,6 @@
 // Browser-compatible monorepo service
 // In a real production app, this would make API calls to a backend service
-  const apiUrl = window.ENV.API_URL ?? 'localhost:8999';
+const apiUrl = window.ENV.API_URL ?? 'localhost:8999';
 
 export interface Package {
   name: string;

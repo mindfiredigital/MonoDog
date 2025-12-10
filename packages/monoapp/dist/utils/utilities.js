@@ -36,6 +36,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.resolveWorkspaceGlobs = resolveWorkspaceGlobs;
+exports.getWorkspacesFromRoot = getWorkspacesFromRoot;
+exports.parsePackageInfo = parsePackageInfo;
 exports.scanMonorepo = scanMonorepo;
 exports.generateMonorepoStats = generateMonorepoStats;
 exports.findCircularDependencies = findCircularDependencies;
@@ -47,53 +50,78 @@ exports.calculatePackageHealth = calculatePackageHealth;
 const fs = __importStar(require("fs"));
 const path_1 = __importDefault(require("path"));
 /**
+ * Resolves simple workspace globs (like 'packages/*', 'apps/*') into actual package directory paths.
+ * Note: This implementation only handles the 'folder/*' pattern and is not a full glob resolver.
+ */
+function resolveWorkspaceGlobs(rootDir, globs) {
+    const resolvedPaths = [];
+    for (const glob of globs) {
+        if (glob.endsWith('/*')) {
+            const baseDirName = glob.slice(0, -2); // e.g., 'packages'
+            const baseDirPath = path_1.default.join(rootDir, baseDirName);
+            if (fs.existsSync(baseDirPath) && fs.statSync(baseDirPath).isDirectory()) {
+                const subDirs = fs.readdirSync(baseDirPath, { withFileTypes: true })
+                    .filter(dirent => dirent.isDirectory())
+                    .map(dirent => path_1.default.join(baseDirName, dirent.name)); // e.g., 'packages/my-utils'
+                resolvedPaths.push(...subDirs);
+            }
+        }
+        else {
+            // Handle non-glob paths (e.g., 'packages/my-package') if it's explicitly listed
+            const directPath = path_1.default.join(rootDir, glob);
+            if (fs.existsSync(directPath) && fs.statSync(directPath).isDirectory()) {
+                resolvedPaths.push(glob);
+            }
+        }
+    }
+    return resolvedPaths;
+}
+/**
+ * Reads the root package.json and extracts the 'workspaces' field (array of globs).
+ */
+function getWorkspacesFromRoot(rootDir) {
+    const packageJsonPath = path_1.default.join(rootDir, 'package.json');
+    if (!fs.existsSync(packageJsonPath)) {
+        console.warn(`\n⚠️ Warning: No package.json found at root directory: ${rootDir}`);
+        return undefined;
+    }
+    try {
+        const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
+        // Handle both standard array and object format (used by yarn/pnpm)
+        if (Array.isArray(packageJson.workspaces)) {
+            return packageJson.workspaces;
+        }
+        else if (packageJson.workspaces && Array.isArray(packageJson.workspaces.packages)) {
+            return packageJson.workspaces.packages;
+        }
+    }
+    catch (e) {
+        console.error(`\n❌ Error parsing package.json at ${packageJsonPath}. Skipping workspace detection.`);
+    }
+    return undefined;
+}
+/**
  * Scans the monorepo and returns information about all packages
  */
 function scanMonorepo(rootDir) {
     const packages = [];
-    console.log('rootDir', rootDir);
-    // Scan packages directory
-    const packagesDir = path_1.default.join(rootDir, 'packages');
-    if (fs.existsSync(packagesDir)) {
-        const packageDirs = fs
-            .readdirSync(packagesDir, { withFileTypes: true })
-            .filter(dirent => dirent.isDirectory())
-            .map(dirent => dirent.name);
-        for (const packageName of packageDirs) {
-            const packagePath = path_1.default.join(packagesDir, packageName);
-            const packageInfo = parsePackageInfo(packagePath, packageName);
+    console.log('rootDir:', rootDir);
+    // Attempt to detect workspaces from the root package.json
+    const detectedWorkspacesGlobs = getWorkspacesFromRoot(rootDir);
+    if (detectedWorkspacesGlobs) {
+        console.log(`\n✅ Detected Monorepo Workspaces Globs: ${detectedWorkspacesGlobs.join(', ')}`);
+        // 1. Resolve the globs into concrete package directory paths
+        const resolvedPackagePaths = resolveWorkspaceGlobs(rootDir, detectedWorkspacesGlobs);
+        console.log(`[DEBUG] Resolved package directories (Total ${resolvedPackagePaths.length}):`);
+        // 2. Integration of the requested loop structure for package scanning
+        for (const workspacePath of resolvedPackagePaths) {
+            const fullPackagePath = path_1.default.join(rootDir, workspacePath);
+            // The package name would be read from the package.json inside this path
+            const packageName = path_1.default.basename(fullPackagePath);
+            console.log(`- Scanning path: ${workspacePath} (Package: ${packageName})`);
+            const packageInfo = parsePackageInfo(fullPackagePath, packageName);
             if (packageInfo) {
                 packages.push(packageInfo);
-            }
-        }
-    }
-    // Scan apps directory
-    const appsDir = path_1.default.join(rootDir, 'apps');
-    if (fs.existsSync(appsDir)) {
-        const appDirs = fs
-            .readdirSync(appsDir, { withFileTypes: true })
-            .filter(dirent => dirent.isDirectory())
-            .map(dirent => dirent.name);
-        for (const appName of appDirs) {
-            const appPath = path_1.default.join(appsDir, appName);
-            const appInfo = parsePackageInfo(appPath, appName, 'app');
-            if (appInfo) {
-                packages.push(appInfo);
-            }
-        }
-    }
-    // Scan libs directory
-    const libsDir = path_1.default.join(rootDir, 'libs');
-    if (fs.existsSync(libsDir)) {
-        const libDirs = fs
-            .readdirSync(libsDir, { withFileTypes: true })
-            .filter(dirent => dirent.isDirectory())
-            .map(dirent => dirent.name);
-        for (const libName of libDirs) {
-            const libPath = path_1.default.join(libsDir, libName);
-            const libInfo = parsePackageInfo(libPath, libName, 'lib');
-            if (libInfo) {
-                packages.push(libInfo);
             }
         }
     }

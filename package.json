@@ -1,5 +1,5 @@
 {
-  "name": "@lakinmindfire/monodog",
+  "name": "@manojk/monodog",
   "version": "1.1.0",
   "description": "Self-hosted monorepo package manager dashboard",
   "private": true,
@@ -27,12 +27,7 @@
     "release": "semantic-release",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "publish-packages": "changeset publish",
-    "refresh": "tsx scripts/refresh.ts",
-    "db:generate": "prisma generate",
-    "db:push": "prisma db push",
-    "db:migrate": "prisma migrate dev",
-    "db:studio": "prisma studio"
+    "publish-packages": "changeset publish"
   },
   "dependencies": {
     "@prisma/client": "^5.7.0",
@@ -42,8 +37,8 @@
     "@changesets/cli": "^2.26.2",
     "@commitlint/cli": "^17.7.1",
     "@commitlint/config-conventional": "^17.7.0",
-    "@lakinmindfire/eslint-config": "workspace:*",
-    "@lakinmindfire/tsconfig": "workspace:*",
+    "@manojk/eslint-config": "workspace:*",
+    "@manojk/tsconfig": "workspace:*",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
     "@types/body-parser": "^1.19.6",

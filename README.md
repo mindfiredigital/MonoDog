@@ -10,7 +10,7 @@ The Monorepo Dashboard addresses the complexity of managing many interconnected 
 
 Install dependencies:
 
-    pnpm install
+    pnpm install --ignore-scripts
 
 Build Setup:
 

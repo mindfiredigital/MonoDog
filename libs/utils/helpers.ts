@@ -420,7 +420,7 @@ function getPackageSize(packagePath: string): {
           }
         }
       }
-    }
+    };
 
     calculateSize(packagePath);
 

@@ -41,7 +41,7 @@ export default function RecentCommitsTab({
                 </div>
               </div>
 
-              <div className="ml-4">
+              <div className="hidden ml-4">
                 <button className="text-blue-600 hover:text-blue-500 text-sm">
                   View Diff
                 </button>

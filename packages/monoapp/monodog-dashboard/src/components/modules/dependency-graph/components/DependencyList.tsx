@@ -36,7 +36,8 @@ export default function DependencyList({
           Package Dependencies
         </h3>
         <p className="text-sm text-gray-600 mt-1">
-          Click on a view details to explore its dependencies, commits, configuration and health
+          Click on a view details to explore its dependencies, commits,
+          configuration and health
         </p>
       </div>
 

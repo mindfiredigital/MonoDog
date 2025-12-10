@@ -220,7 +220,6 @@ export default function HealthStatus() {
       // // Refresh the health data after successful refresh
       // const data = await monorepoService.getHealthStatus();
       // setHealthData(data);
-
     } catch (err) {
       setError('Failed to refresh health data');
       console.error('Error refreshing health data:', err);
@@ -228,7 +227,6 @@ export default function HealthStatus() {
       setRefreshing(false);
     }
   };
-
 
   const retryFetchData = () => {
     setRefreshKey(prev => prev + 1);
@@ -342,16 +340,17 @@ export default function HealthStatus() {
   }
 
   const overallHealth = healthData ? healthData.summary?.averageScore : 0;
-  const healthyPackages = healthData ? healthData?.packages?.filter(
-    pkg => pkg.health.overallScore >= 80
-  ).length : 0;
-  const warningPackages = healthData ? healthData?.packages?.filter(
-    pkg => pkg.health.overallScore >= 60 && pkg.health.overallScore < 80
-  ).length : 0;
-  const errorPackages = healthData ? healthData?.packages?.filter(
-    pkg => pkg.health.overallScore < 60
-  ).length : 0;
-
+  const healthyPackages = healthData
+    ? healthData?.packages?.filter(pkg => pkg.health.overallScore >= 80).length
+    : 0;
+  const warningPackages = healthData
+    ? healthData?.packages?.filter(
+        pkg => pkg.health.overallScore >= 60 && pkg.health.overallScore < 80
+      ).length
+    : 0;
+  const errorPackages = healthData
+    ? healthData?.packages?.filter(pkg => pkg.health.overallScore < 60).length
+    : 0;
 
   const packagesHealth = [
     {
@@ -390,7 +389,7 @@ export default function HealthStatus() {
             : 'error',
       description: `${warningPackages + errorPackages || 0} packages need attention`,
     },
-  ]
+  ];
 
   return (
     <div className="">
@@ -427,7 +426,6 @@ export default function HealthStatus() {
         </div>
       )}
 
-
       {/* Overall Health Score */}
       <div className="my-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg p-6 text-white">
         <div className="flex items-center justify-between">
@@ -438,7 +436,9 @@ export default function HealthStatus() {
             </p>
           </div>
           <div className="text-right">
-            <div className="text-4xl font-bold">{overallHealth?.toFixed(2)}</div>
+            <div className="text-4xl font-bold">
+              {overallHealth?.toFixed(2)}
+            </div>
             <div className="text-blue-100">out of 100</div>
           </div>
         </div>
@@ -470,12 +470,13 @@ export default function HealthStatus() {
                 {metric.name}
               </h3>
               <div
-                className={`w-3 h-3 rounded-full ${metric.status === 'healthy'
-                  ? 'bg-green-500'
-                  : metric.status === 'warning'
-                    ? 'bg-yellow-500'
-                    : 'bg-red-500'
-                  }`}
+                className={`w-3 h-3 rounded-full ${
+                  metric.status === 'healthy'
+                    ? 'bg-green-500'
+                    : metric.status === 'warning'
+                      ? 'bg-yellow-500'
+                      : 'bg-red-500'
+                }`}
               />
             </div>
             <div className="flex items-end space-x-2">
@@ -560,12 +561,13 @@ export default function HealthStatus() {
                     <div className="flex items-center">
                       <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
                         <div
-                          className={`h-2 rounded-full ${pkg.health.overallScore >= 80
-                            ? 'bg-green-500'
-                            : pkg.health.overallScore >= 60
-                              ? 'bg-yellow-500'
-                              : 'bg-red-500'
-                            }`}
+                          className={`h-2 rounded-full ${
+                            pkg.health.overallScore >= 80
+                              ? 'bg-green-500'
+                              : pkg.health.overallScore >= 60
+                                ? 'bg-yellow-500'
+                                : 'bg-red-500'
+                          }`}
                           style={{ width: `${pkg.health.overallScore}%` }}
                         />
                       </div>
@@ -579,12 +581,13 @@ export default function HealthStatus() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div
-                        className={`w-3 h-3 rounded-full ${pkg.health.buildStatus === 'success'
-                          ? 'bg-green-500'
-                          : pkg.health.buildStatus === 'unknown'
-                            ? 'bg-yellow-500'
-                            : 'bg-red-500'
-                          }`}
+                        className={`w-3 h-3 rounded-full ${
+                          pkg.health.buildStatus === 'success'
+                            ? 'bg-green-500'
+                            : pkg.health.buildStatus === 'unknown'
+                              ? 'bg-yellow-500'
+                              : 'bg-red-500'
+                        }`}
                       />
                       <span
                         className={`ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(

@@ -52,58 +52,90 @@ export interface MonorepoStats {
 }
 
 /**
+ * Resolves simple workspace globs (like 'packages/*', 'apps/*') into actual package directory paths.
+ * Note: This implementation only handles the 'folder/*' pattern and is not a full glob resolver.
+ */
+export function resolveWorkspaceGlobs(rootDir: string, globs: string[]): string[] {
+    const resolvedPaths: string[] = [];
+
+    for (const glob of globs) {
+        if (glob.endsWith('/*')) {
+            const baseDirName = glob.slice(0, -2); // e.g., 'packages'
+            const baseDirPath = path.join(rootDir, baseDirName);
+
+            if (fs.existsSync(baseDirPath) && fs.statSync(baseDirPath).isDirectory()) {
+                const subDirs = fs.readdirSync(baseDirPath, { withFileTypes: true })
+                    .filter(dirent => dirent.isDirectory())
+                    .map(dirent => path.join(baseDirName, dirent.name)); // e.g., 'packages/my-utils'
+
+                resolvedPaths.push(...subDirs);
+            }
+        } else {
+            // Handle non-glob paths (e.g., 'packages/my-package') if it's explicitly listed
+            const directPath = path.join(rootDir, glob);
+            if (fs.existsSync(directPath) && fs.statSync(directPath).isDirectory()) {
+                 resolvedPaths.push(glob);
+            }
+        }
+    }
+    return resolvedPaths;
+}
+
+/**
+ * Reads the root package.json and extracts the 'workspaces' field (array of globs).
+ */
+export function getWorkspacesFromRoot(rootDir: string): string[] | undefined {
+    const packageJsonPath = path.join(rootDir, 'package.json');
+    if (!fs.existsSync(packageJsonPath)) {
+        console.warn(`\n⚠️ Warning: No package.json found at root directory: ${rootDir}`);
+        return undefined;
+    }
+
+    try {
+        const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
+
+        // Handle both standard array and object format (used by yarn/pnpm)
+        if (Array.isArray(packageJson.workspaces)) {
+            return packageJson.workspaces;
+        } else if (packageJson.workspaces && Array.isArray(packageJson.workspaces.packages)) {
+            return packageJson.workspaces.packages;
+        }
+    } catch (e) {
+        console.error(`\n❌ Error parsing package.json at ${packageJsonPath}. Skipping workspace detection.`);
+    }
+    return undefined;
+}
+
+/**
  * Scans the monorepo and returns information about all packages
  */
 function scanMonorepo(rootDir: string): PackageInfo[] {
   const packages: PackageInfo[] = [];
-  console.log('rootDir', rootDir);
-  // Scan packages directory
-  const packagesDir = path.join(rootDir, 'packages');
-  if (fs.existsSync(packagesDir)) {
-    const packageDirs = fs
-      .readdirSync(packagesDir, { withFileTypes: true })
-      .filter(dirent => dirent.isDirectory())
-      .map(dirent => dirent.name);
+  console.log('rootDir:', rootDir);
 
-    for (const packageName of packageDirs) {
-      const packagePath = path.join(packagesDir, packageName);
-      const packageInfo = parsePackageInfo(packagePath, packageName);
+  // Attempt to detect workspaces from the root package.json
+  const detectedWorkspacesGlobs = getWorkspacesFromRoot(rootDir);
+
+  if (detectedWorkspacesGlobs) {
+    console.log(`\n✅ Detected Monorepo Workspaces Globs: ${detectedWorkspacesGlobs.join(', ')}`);
+
+    // 1. Resolve the globs into concrete package directory paths
+    const resolvedPackagePaths = resolveWorkspaceGlobs(rootDir, detectedWorkspacesGlobs);
+
+    console.log(`[DEBUG] Resolved package directories (Total ${resolvedPackagePaths.length}):`);
+
+    // 2. Integration of the requested loop structure for package scanning
+
+    for (const workspacePath of resolvedPackagePaths) {
+      const fullPackagePath = path.join(rootDir, workspacePath);
+      // The package name would be read from the package.json inside this path
+      const packageName = path.basename(fullPackagePath);
+
+      console.log(`- Scanning path: ${workspacePath} (Package: ${packageName})`);
+
+      const packageInfo = parsePackageInfo(fullPackagePath, packageName);
       if (packageInfo) {
         packages.push(packageInfo);
-      }
-    }
-  }
-
-  // Scan apps directory
-  const appsDir = path.join(rootDir, 'apps');
-  if (fs.existsSync(appsDir)) {
-    const appDirs = fs
-      .readdirSync(appsDir, { withFileTypes: true })
-      .filter(dirent => dirent.isDirectory())
-      .map(dirent => dirent.name);
-
-    for (const appName of appDirs) {
-      const appPath = path.join(appsDir, appName);
-      const appInfo = parsePackageInfo(appPath, appName, 'app');
-      if (appInfo) {
-        packages.push(appInfo);
-      }
-    }
-  }
-
-  // Scan libs directory
-  const libsDir = path.join(rootDir, 'libs');
-  if (fs.existsSync(libsDir)) {
-    const libDirs = fs
-      .readdirSync(libsDir, { withFileTypes: true })
-      .filter(dirent => dirent.isDirectory())
-      .map(dirent => dirent.name);
-
-    for (const libName of libDirs) {
-      const libPath = path.join(libsDir, libName);
-      const libInfo = parsePackageInfo(libPath, libName, 'lib');
-      if (libInfo) {
-        packages.push(libInfo);
       }
     }
   }
@@ -112,7 +144,7 @@ function scanMonorepo(rootDir: string): PackageInfo[] {
 }
 
 /*** Parses package.json and determines package type */
-function parsePackageInfo(
+export function parsePackageInfo(
   packagePath: string,
   packageName: string,
   forcedType?: 'app' | 'lib' | 'tool'
@@ -420,7 +452,7 @@ function getPackageSize(packagePath: string): {
           }
         }
       }
-    }
+    };
 
     calculateSize(packagePath);
 

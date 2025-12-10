@@ -36,7 +36,7 @@ export default function Header({
         </button>
         <button
           onClick={onShowConfig}
-          className="btn-ghost flex items-center space-x-2"
+          className="hidden btn-ghost flex items-center space-x-2"
         >
           <CogIcon className="w-5 h-5" />
           <span>Configure</span>

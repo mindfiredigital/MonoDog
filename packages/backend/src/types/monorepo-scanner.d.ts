@@ -1,4 +1,4 @@
-// This declaration explicitly tells TypeScript about the specific functions 
+// This declaration explicitly tells TypeScript about the specific functions
 // exported by the '@monodog/monorepo-scanner' package, bypassing TS7016 errors.
 
 declare module '@monodog/monorepo-scanner' {
@@ -19,15 +19,14 @@ declare module '@monodog/monorepo-scanner' {
    */
   export class MonorepoScanner {
     // Constructor (when called with `new`)
-    constructor(options?: any); 
-    
-    /** * Resets any internal cache state for the scanner. 
+    constructor(options?: any);
+
+    /** * Resets any internal cache state for the scanner.
      */
     clearCache(): void;
-    
-    /** * Retrieves the processed results from the scan. 
+
+    /** * Retrieves the processed results from the scan.
      */
     exportResults(result: any, format: 'json' | 'csv' | 'html'): any;
-
   }
 }
