@@ -354,7 +354,7 @@ class MonorepoService {
     } catch (error) {
       console.error('Error fetching health data:', error);
       // Fallback to the existing mock implementation
-      return await this.getFallbackHealthStatus();
+      // return await this.getFallbackHealthStatus();
     }
   }
 

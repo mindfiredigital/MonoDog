@@ -44,7 +44,7 @@ Clone the repository and install the dependencies:
 
 ```bash
 # Clone the repository
-git clone https://github.com/lakinmindfire/MonoDog.git
+git clone https://github.com/mindfiredigital/MonoDog.git
 cd packages/monoapp/monodog-dashboard
 
 # Install dependencies

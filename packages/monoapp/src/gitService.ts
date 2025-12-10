@@ -164,18 +164,21 @@ export class GitService {
    */
   public async getAllCommits(pathFilter?: string): Promise<GitCommit[]> {
     try {
-      // First, validate we're in a git repo
-      await this.validateGitRepository();
 
       let pathArgument = '';
       if (pathFilter) {
         // Normalize the path and ensure it's relative to the repo root
         const normalizedPath = this.normalizePath(pathFilter);
-        pathArgument = ` -- ${normalizedPath}`;
+        if (normalizedPath) {
+          pathArgument = ` -C ${normalizedPath}`;
+        }
       }
 
+      // First, validate we're in a git repo
+      await this.validateGitRepository(pathArgument);
+
       // Use a simpler git log format
-      const command = `git log --pretty=format:"%H|%an|%ad|%s" --date=iso-strict${pathArgument}`;
+      const command = `git ${pathArgument} log --pretty=format:"%H|%an|%ad|%s" --date=iso-strict`;
 
       console.log(`🔧 Executing Git command in: ${this.repoPath}`);
       console.log(`📝 Git command: ${command}`);
@@ -259,9 +262,9 @@ export class GitService {
   /**
    * Validate that we're in a git repository
    */
-  private async validateGitRepository(): Promise<void> {
+  private async validateGitRepository(pathArgument: string): Promise<void> {
     try {
-      await execPromise('git rev-parse --is-inside-work-tree', {
+      await execPromise('git '+pathArgument+' rev-parse --is-inside-work-tree', {
         cwd: this.repoPath,
       });
       console.log('✅ Valid git repository');

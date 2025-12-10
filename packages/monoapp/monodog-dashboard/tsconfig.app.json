@@ -1,6 +1,6 @@
 {
   // This is the crucial change: Extend the shared React config
-  //   "extends": "@lakinmindfire/tsconfig/react.json",
+  //   "extends": "@mindfiredigital/tsconfig/react.json",
   "compilerOptions": {
     // Keep application-specific path aliases
     "baseUrl": ".",

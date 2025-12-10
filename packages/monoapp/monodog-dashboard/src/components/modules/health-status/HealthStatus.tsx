@@ -531,7 +531,7 @@ export default function HealthStatus() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Dependencies
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="hidden px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -676,7 +676,7 @@ export default function HealthStatus() {
                   </td>
 
                   {/* actions */}
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <td className="hidden px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
                       <button className="text-blue-600 hover:text-blue-900">
                         Details
@@ -691,7 +691,7 @@ export default function HealthStatus() {
       </div>
 
       {/* Health Recommendations */}
-      <div className="bg-white rounded-lg shadow border p-6">
+      <div className="hidden bg-white rounded-lg shadow border p-6">
         <h3 className="text-lg font-medium text-gray-900 mb-4">
           Health Recommendations
         </h3>

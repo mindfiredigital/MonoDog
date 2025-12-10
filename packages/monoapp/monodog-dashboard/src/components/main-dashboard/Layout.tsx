@@ -14,8 +14,8 @@ const navigation = [
   { name: 'Packages', href: '/packages', icon: CubeIcon },
   { name: 'Dependencies', href: '/dependencies', icon: ChartBarIcon },
   { name: 'Health Status', href: '/health', icon: HeartIcon },
-  { name: 'Publish Control', href: '/publish', icon: CloudArrowUpIcon },
-  { name: 'CI/CD', href: '/ci', icon: CpuChipIcon },
+  // { name: 'Publish Control', href: '/publish', icon: CloudArrowUpIcon },
+  // { name: 'CI/CD', href: '/ci', icon: CpuChipIcon },
   { name: 'Configuration', href: '/config', icon: Cog6ToothIcon },
 ];
 

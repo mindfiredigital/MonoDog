@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "http://github.com/lakinmindfire/MonoDog.git",
+    "url": "http://github.com/mindfiredigital/MonoDog.git",
     "directory": "apps/dashboard"
   },
   "dependencies": {

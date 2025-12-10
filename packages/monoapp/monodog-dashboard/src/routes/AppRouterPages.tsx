@@ -24,8 +24,8 @@ export default function AppRouterPages() {
       {/* Other Pages */}
       <Route path="/dependencies" element={<DependenciesPage />} />
       <Route path="/health" element={<HealthPage />} />
-      <Route path="/publish" element={<PublishPage />} />
-      <Route path="/ci" element={<CIPage />} />
+      {/* <Route path="/publish" element={<PublishPage />} />
+      <Route path="/ci" element={<CIPage />} /> */}
       <Route path="/config" element={<ConfigPage />} />
 
       {/* 404 Page */}

@@ -108,14 +108,6 @@ describe('monorepoService (unit)', () => {
       expect(result).toEqual(mockHealth);
     });
 
-    it('falls back to refresh and to fallback data on errors', async () => {
-      const fallback = { overallScore: 70, metrics: [], packageHealth: [] } as any;
-      const spy = jest.spyOn(monorepoService as any, 'getFallbackHealthStatus').mockResolvedValueOnce(fallback);
-      (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('fail'));
-      const result = await monorepoService.getHealthStatus();
-      expect(result).toEqual(fallback);
-      spy.mockRestore();
-    });
 
     it('refreshHealthStatus returns data or fallback', async () => {
       const mockHealth = { overallScore: 95, metrics: [], packageHealth: [] } as any;
