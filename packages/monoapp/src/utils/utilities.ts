@@ -115,10 +115,9 @@ function scanMonorepo(rootDir: string): PackageInfo[] {
   console.log('rootDir:', rootDir);
   const workspacesGlobs = appConfig.workspaces;
   // Use provided workspaces globs if given, otherwise attempt to detect from root package.json
-  const detectedWorkspacesGlobs = workspacesGlobs ?? getWorkspacesFromRoot(rootDir);
-
+  const detectedWorkspacesGlobs = workspacesGlobs.length > 0 ? workspacesGlobs : getWorkspacesFromRoot(rootDir);
   if (detectedWorkspacesGlobs && detectedWorkspacesGlobs.length > 0) {
-    if (workspacesGlobs) {
+    if (workspacesGlobs.length) {
       console.log(`\n✅ Using provided workspaces globs: ${detectedWorkspacesGlobs.join(', ')}`);
     } else {
       console.log(`\n✅ Detected Monorepo Workspaces Globs: ${detectedWorkspacesGlobs.join(', ')}`);
@@ -128,6 +127,7 @@ function scanMonorepo(rootDir: string): PackageInfo[] {
     const resolvedPackagePaths = resolveWorkspaceGlobs(rootDir, detectedWorkspacesGlobs);
 
     console.log(`[DEBUG] Resolved package directories (Total ${resolvedPackagePaths.length}):`);
+    console.warn(resolvedPackagePaths.length < workspacesGlobs.length ? 'Some workspaces globs provided are invalid.' : '');
 
     // 2. Integration of the requested loop structure for package scanning
     for (const workspacePath of resolvedPackagePaths) {

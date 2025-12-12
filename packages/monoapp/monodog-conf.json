@@ -1,6 +1,5 @@
 {
   "workspaces": [
-    "libs/*",
     "packages/*"
   ],
   "database": {
