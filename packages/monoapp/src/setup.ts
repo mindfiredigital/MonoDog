@@ -46,7 +46,7 @@ console.log(`\nInitializing Setup...`);
 
 copyPackageToWorkspace(rootPath);
 console.log('\n*** Run the server ***');
-console.log('cd mindfiredigital-monodog && npm run serve');
+console.log('cd monodog && npm run serve');
 process.exit(0);
 
 /**
@@ -65,9 +65,8 @@ function copyPackageToWorkspace(rootDir: string): void {
   }
   const sourcePath = path.join(rootDir, 'node_modules', packageName);
 
-  // Convert package name to a valid folder name (e.g., @scope/name -> scope-name)
-  // This is optional but makes file paths cleaner.
-  const folderName = packageName.replace('@', '').replace('/', '-');
+
+  const folderName = 'monodog';
   const destinationPath = path.join(
     rootDir,
     folderName

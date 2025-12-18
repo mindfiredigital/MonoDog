@@ -71,7 +71,7 @@ console.log('rp2', rootPath);
 console.log(`\nInitializing Setup...`);
 copyPackageToWorkspace(rootPath);
 console.log('\n*** Run the server ***');
-console.log('cd mindfiredigital-monodog && npm run serve');
+console.log('cd monodog && npm run serve');
 process.exit(0);
 /**
  * Copies an installed NPM package from node_modules into the local install_path directory.

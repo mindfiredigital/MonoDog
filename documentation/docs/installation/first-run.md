@@ -12,7 +12,7 @@ Once the installation and configuration are done, it's the moment to run Monodog
 Go to the monodog directory that was created after the installation.
 
 ```bash
-cd mindfiredigital-monodog
+cd monodog
 ```
 
 Run Monodog application:
@@ -111,7 +111,7 @@ This shows test coverage, lint status, and build heath for each package.
 **Check that the database was created:**
 
 ```bash
-ls -la mindfiredigital-monodog/prisma/monodog.db
+ls -la monodog/prisma/monodog.db
 ```
 
 You should see the SQLite database file.
@@ -173,7 +173,7 @@ node --version  # Should be >= 18
 lsof -i :8999  # Should return nothing
 
 # Go to the monodog directory
-cd mindfiredigital-monodog
+cd monodog
 
 # Check dependencies installed
 npm install --ignore-scripts
@@ -197,7 +197,7 @@ find packages -name "package.json" | wc -l
 
 ```bash
 # Remove and reinitialize database from monodog directory
-rm mindfiredigital-monodog/prisma/monodog.db
+rm monodog/prisma/monodog.db
 
 npm install --ignore-scripts
 

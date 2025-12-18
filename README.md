@@ -28,7 +28,7 @@ Install monodog in a monorepo workspace root:
 
 Run app using serve script:
 
-    cd ./mindfiredigital-monodog/ && npm run serve
+    cd ./monodog/ && npm run serve
 
 ## License
 

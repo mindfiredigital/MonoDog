@@ -147,7 +147,7 @@ cd /path/to/monorepo/
 pnpm install
 
 # Start Monodog
-cd ./mindfiredigital-monodog/ && npm run serve
+cd ./monodog/ && npm run serve
 
 # In another terminal, check packages
 curl http://localhost:8999/api/packages

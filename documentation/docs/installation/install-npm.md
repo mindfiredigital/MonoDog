@@ -49,7 +49,7 @@ Once installed, Monodog will automatically:
 After installation, you'll have:
 
 ```
-mindfiredigital-monodog/
+monodog/
 ├── dist/                    # Compiled JavaScript
 ├── monodog-dashboard/       # Frontend
 │   ├── dist                 # Compiled JavaScript
@@ -71,7 +71,7 @@ If you see an error about `monoapp-setup` not being found:
 
 ```bash
 # Go to the monodog directory
-cd mindfiredigital-monodog
+cd monodog
 
 # Check dependencies installed
 npm install --ignore-scripts

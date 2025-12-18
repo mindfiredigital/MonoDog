@@ -14,7 +14,7 @@ In your monorepo root directory, run:
 ```bash
 pnpm install --save-dev @mindfiredigital/monodog -w
 ```
-If the 'mindfiredigital-monodog' folder is not created in the ptoject root by the postinstall script, you can try this:
+If the 'monodog' folder is not created in the ptoject root by the postinstall script, you can try this:
 
 ```bash
 pnpm store prune
@@ -26,7 +26,7 @@ The unreferenced packages which are not used by any project will be removed by t
 Go to the monodog directory that was created after the installation.
 
 ```bash
-cd mindfiredigital-monodog
+cd monodog
 ```
 
 Run Monodog application:
