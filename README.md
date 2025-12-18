@@ -16,7 +16,7 @@ Build Setup:
 
     pnpm run build
 
-Run monoapp workspace using serve script:
+Run monodog workspace using serve script:
 
     npm --workspace @mindfiredigital/monodog run serve
 

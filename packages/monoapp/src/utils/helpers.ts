@@ -23,7 +23,7 @@ export interface Commit {
 }
 
 // Default settings
-const DEFAULT_PORT = 4000;
+const DEFAULT_PORT = 8999;
 const port = appConfig.server.port ?? DEFAULT_PORT; //Default port
 const host = appConfig.server.host ?? 'localhost'; //Default host
 

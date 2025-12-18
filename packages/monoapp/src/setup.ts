@@ -46,7 +46,7 @@ console.log(`\nInitializing Setup...`);
 
 copyPackageToWorkspace(rootPath);
 console.log('\n*** Run the server ***');
-console.log('npm --workspace @monodog/monoapp run serve');
+console.log('cd mindfiredigital-monodog && npm run serve');
 process.exit(0);
 
 /**

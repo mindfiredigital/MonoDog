@@ -34,13 +34,13 @@ You must have the following installed to run the service:
 
 ### Install Package in Monorepo
 
-Install monoapp in a monorepo workspace root:
+Install monodog in a monorepo workspace root:
 
-    pnpm install --save-dev @monodog/monoapp -w
+    pnpm install --save-dev @mindfiredigital/monodog -w
 
 Run app using serve script:
 
-    npm --workspace @monodog/monoapp run serve
+    npm --workspace @mindfiredigital/monodog run serve
 
 ### Key API Endpoints
 

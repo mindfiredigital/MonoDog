@@ -7,7 +7,7 @@ const config = {
   tagline: 'Monorepo Analytics and Health Dashboard API',
   favicon: 'img/favicon.ico',
 
-  url: 'https://manojkmfsi.github.io',
+  url: 'https://mindfiredigital.github.io',
   baseUrl: '/monodog',
 
   organizationName: 'mindfiredigital',

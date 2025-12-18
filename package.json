@@ -1,6 +1,6 @@
 {
-  "name": "@manojkmfsi/monodog",
-  "version": "1.1.0",
+  "name": "@mindfiredigital/monodog",
+  "version": "1.0.0",
   "description": "Self-hosted monorepo package manager dashboard",
   "private": true,
   "packageManager": "pnpm@8.10.0",
@@ -24,31 +24,27 @@
     "clean": "turbo run clean && rm -rf node_modules/.cache",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
-    "release": "semantic-release",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "publish-packages": "changeset publish"
+    "changeset:autogenerate": "node .github/changeset-autogenerate.mjs",
+    "release": "changeset publish"
   },
   "dependencies": {
     "@prisma/client": "^5.7.0",
     "dotenv": "^17.2.3"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.26.2",
+    "@changesets/changelog-github": "^0.5.1",
+    "@changesets/cli": "^2.29.7",
     "@commitlint/cli": "^17.7.1",
     "@commitlint/config-conventional": "^17.7.0",
-    "@manojk/eslint-config": "workspace:*",
-    "@manojk/tsconfig": "workspace:*",
-    "@semantic-release/changelog": "^6.0.3",
-    "@semantic-release/git": "^10.0.1",
     "@types/body-parser": "^1.19.6",
     "@types/node": "^20.5.0",
+    "@typescript-eslint/eslint-plugin": "^8.49.0",
     "eslint": "^8.50.0",
     "husky": "^8.0.3",
     "lint-staged": "^14.0.1",
     "prettier": "^3.0.3",
-    "semantic-release": "^21.1.1",
-    "semantic-release-monorepo": "^7.0.5",
     "tsx": "^4.6.0",
     "turbo": "^1.10.14",
     "typescript": "^5.2.2"

@@ -708,7 +708,6 @@ export function startServer(
               error: 'Failed to fetch health metrics1',
             };
           }
-          PORT;
         })
       );
       res.json({
@@ -1407,7 +1406,7 @@ export function startServer(
     });
   });
 
-  const PORT = parseInt(port ? port.toString() : '4000');
+  const PORT = parseInt(port ? port.toString() : '8999');
 
   app
     .listen(PORT, host, async () => {
@@ -1546,7 +1545,7 @@ export function serveDashboard(
   console.log('Serving static files from:', staticPath);
   app.use(express.static(staticPath));
   // Start the server
-  const PORT = parseInt(port ? port.toString() : '3999');
+  const PORT = parseInt(port ? port.toString() : '8999');
 
   app.listen(PORT, host, () => {
     console.log(`App listening on ${host}:${port}`);

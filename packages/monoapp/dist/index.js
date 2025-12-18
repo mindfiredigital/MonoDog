@@ -635,7 +635,6 @@ function startServer(rootPath, port, host) {
                         error: 'Failed to fetch health metrics1',
                     };
                 }
-                PORT;
             }));
             res.json({
                 packages: healthMetrics.filter(h => !h.error),
@@ -1242,7 +1241,7 @@ function startServer(rootPath, port, host) {
             timestamp: Date.now(),
         });
     });
-    const PORT = parseInt(port ? port.toString() : '4000');
+    const PORT = parseInt(port ? port.toString() : '8999');
     app
         .listen(PORT, host, async () => {
         const pcount = await prisma.package.count();
@@ -1363,7 +1362,7 @@ function serveDashboard(rootPath, port, host) {
     console.log('Serving static files from:', staticPath);
     app.use(express_1.default.static(staticPath));
     // Start the server
-    const PORT = parseInt(port ? port.toString() : '3999');
+    const PORT = parseInt(port ? port.toString() : '8999');
     app.listen(PORT, host, () => {
         console.log(`App listening on ${host}:${port}`);
         console.log('Press Ctrl+C to quit.');
