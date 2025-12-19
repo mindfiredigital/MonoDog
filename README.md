@@ -1,6 +1,7 @@
 # MonoDog
 
 Monodog delivers centralized visual management and monitoring capabilities for packages across monorepos using pnpm. Distributed as an easy-to-install npm package, it auto-generates a dedicated web user interface (UI) to provide comprehensive oversight of your package ecosystem.
+<img width="1593" height="807" alt="package-scan" src="https://github.com/user-attachments/assets/d7e86b80-9f6a-4608-9103-68e6d660cc36" />
 
 ## Why MonoDog
 
@@ -10,7 +11,7 @@ The Monorepo Dashboard addresses the complexity of managing many interconnected 
 
 Install dependencies:
 
-    pnpm install --ignore-scripts
+    pnpm install
 
 Build Setup:
 
@@ -24,7 +25,7 @@ Run monodog workspace using serve script:
 
 Install monodog in a monorepo workspace root:
 
-    pnpm install --save-dev @mindfiredigital/monodog -w
+    pnpm dlx @mindfiredigital/monodog
 
 Run app using serve script:
 

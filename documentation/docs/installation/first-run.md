@@ -21,7 +21,6 @@ Run Monodog application:
 npm run serve
 ```
 
-
 You should see output like:
 
 ```
@@ -172,11 +171,11 @@ node --version  # Should be >= 18
 # Check port is available
 lsof -i :8999  # Should return nothing
 
+# Check dependencies installed
+pnpm install
+
 # Go to the monodog directory
 cd monodog
-
-# Check dependencies installed
-npm install --ignore-scripts
 
 # Rebuild if needed
 npm run build
@@ -188,7 +187,7 @@ npm run build
 # Verify workspace config from monorepo root
 cat pnpm-workspace.yaml
 
-# Check packages for each workspace
+# Check packages for each workspace directory
 find packages -name "package.json" | wc -l
 
 ```
@@ -197,9 +196,8 @@ find packages -name "package.json" | wc -l
 
 ```bash
 # Remove and reinitialize database from monodog directory
-rm monodog/prisma/monodog.db
-
-npm install --ignore-scripts
+cd monodog
+rm prisma/monodog.db
 
 npm run migrate:reset
 
@@ -218,5 +216,4 @@ Since Monodog is operational now,
 
 Continue with:
 
-- [Dashboard Usage Guide](/usage/dashboard)
 - [API Reference](/api-reference/overview)

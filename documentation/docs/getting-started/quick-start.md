@@ -12,14 +12,9 @@ Monodog can be started working within your monorepo in less than 5 minutes.
 In your monorepo root directory, run:
 
 ```bash
-pnpm install --save-dev @mindfiredigital/monodog -w
+pnpm dlx  @mindfiredigital/monodog
 ```
-If the 'monodog' folder is not created in the ptoject root by the postinstall script, you can try this:
-
-```bash
-pnpm store prune
-```
-The unreferenced packages which are not used by any project will be removed by this command. So, now install again using the command above.
+the installation script will create a new directory on project root: `monodog`
 
 ## Step 2: Start the Server
 

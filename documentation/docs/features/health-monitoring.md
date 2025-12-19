@@ -55,7 +55,7 @@ Each package receives an overall health score (0-100) based on:
 
 <!-- - **30%** - Test Coverage -->
 - **35%** - Linting Status
-- **35%** - Security Status  
+- **35%** - Security Status
 - **30%** - Build Health
 
 ## Accessing Health Data
@@ -83,5 +83,4 @@ View health metrics in the dashboard with:
 
 ## Next Steps
 
-- [CI Integration](/features/ci-integration)
 - [API Reference - Health](/api-reference/health)

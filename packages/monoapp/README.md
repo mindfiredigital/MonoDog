@@ -5,6 +5,7 @@
 The dashboard will provide visual management and monitoring capabilities for packages in monorepos using pnpm, turbo. It will be distributed as an npm package installable in any monorepo to auto-generate a web UI for package oversight.
 
 This service is typically run locally or on a central server and power a dedicated frontend dashboard.
+<img width="1593" height="807" alt="package-scan" src="https://github.com/user-attachments/assets/d7e86b80-9f6a-4608-9103-68e6d660cc36" />
 
 ---
 
@@ -36,11 +37,12 @@ You must have the following installed to run the service:
 
 Install monodog in a monorepo workspace root:
 
-    pnpm install --save-dev @mindfiredigital/monodog -w
+    pnpm dlx @mindfiredigital/monodog
+
 
 Run app using serve script:
 
-    npm --workspace @mindfiredigital/monodog run serve
+    cd ./monodog/ && npm run serve
 
 ### Key API Endpoints
 

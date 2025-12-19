@@ -16,25 +16,10 @@ pnpm is the recommended package manager for Monodog installations.
 Install Monodog as a dev dependency in your workspace root:
 
 ```bash
-pnpm install --save-dev @mindfiredigital/monodog -w
+ pnpm dlx @mindfiredigital/monodog
 ```
 
-This makes Monodog available to all packages in your workspace.
-
-
-### Verify Installation
-
-Check that Monodog was installed correctly:
-
-```bash
-pnpm list @mindfiredigital/monodog
-```
-
-You should see output like:
-```
-devDependencies:
-@mindfiredigital/monodog 1.0.0
-```
+This will create a 'monodog' directory in project root and add monodog as a package in pnpm-workspace.yaml
 
 ## After Installation
 
@@ -63,39 +48,6 @@ monodog/
 └── tsconfig.json
 ```
 
-## Troubleshooting Installation
-
-### "monoapp-setup not found" Error
-
-If you see an error about `monoapp-setup` not being found:
-
-```bash
-# Go to the monodog directory
-cd monodog
-
-# Check dependencies installed
-npm install --ignore-scripts
-
-# Rebuild
-npm run build
-```
-
-### "Permission denied" Error
-
-On Linux/Mac, ensure execution permissions in monorepo root:
-
-```bash
-chmod +x node_modules/.bin/monoapp-setup
-```
-
-### npm ERR! about workspace packages
-
-Make sure you're using the `-w` or `-W` flag:
-
-```bash
-# pnpm
-pnpm install --save-dev @mindfiredigital/monodog -w
-```
 
 ## Next Steps
 
