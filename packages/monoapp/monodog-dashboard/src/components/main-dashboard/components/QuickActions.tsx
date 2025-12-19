@@ -42,7 +42,7 @@ export default function QuickActions() {
 
         <Link
           to="/ci"
-          className="p-4 border border-gray-200 rounded-lg hover:border-purple-300 hover:bg-purple-50 transition-colors"
+          className="hidden p-4 border border-gray-200 rounded-lg hover:border-purple-300 hover:bg-purple-50 transition-colors"
         >
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-purple-100 rounded-lg">

@@ -67,48 +67,50 @@ model DependencyInfo {
 }
 
 model Commit {
-  hash        String    @id
+  hash        String
   message     String
   author      String
   date        DateTime?
   type        String
   packageName String
   package     Package   @relation(fields: [packageName], references: [name], onDelete: Cascade)
+
+  @@unique([hash, packageName])
 }
 
 model HealthStatus {
-  id        Int     @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
   // Package reference (without formal relation)
   packageName String @unique
   // package     Package @relation(fields: [packageName], references: [name], onDelete: Cascade)
 
   // Health Metrics
-  overallScore   Float   // Overall health score (0-100)
-  buildStatus    String  // e.g., "passing", "failing", "unknown"
-  testCoverage   Float   // Test coverage percentage (0-100)
-  lintStatus     String  // e.g., "passing", "warning", "failing"
-  security       String  // e.g., "secure", "vulnerabilities", "unknown"
-  dependencies   String  // e.g., "up-to-date", "outdated", "vulnerable"
+  overallScore Float // Overall health score (0-100)
+  buildStatus  String // e.g., "passing", "failing", "unknown"
+  testCoverage Float // Test coverage percentage (0-100)
+  lintStatus   String // e.g., "passing", "warning", "failing"
+  security     String // e.g., "secure", "vulnerabilities", "unknown"
+  dependencies String // e.g., "up-to-date", "outdated", "vulnerable"
   // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@map("health_status") // Optional: to specify the table name
 }
+
 model PackageHealth {
-  id                   Int      @id @default(autoincrement())
-  packageName          String   @unique
-  packageOverallScore  Float
-  packageBuildStatus   String
-  packageTestCoverage  Float?
-  packageLintStatus    String
-  packageSecurity      String    // Changed from securityAudit to packageSecurity
-  packageDependencies  String    // Changed from dependencies to packageDependencies
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
-  package              Package   @relation(fields: [packageName], references: [name], onDelete: Cascade)
+  id                  Int      @id @default(autoincrement())
+  packageName         String   @unique
+  packageOverallScore Float
+  packageBuildStatus  String
+  packageTestCoverage Float?
+  packageLintStatus   String
+  packageSecurity     String // Changed from securityAudit to packageSecurity
+  packageDependencies String // Changed from dependencies to packageDependencies
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  package             Package  @relation(fields: [packageName], references: [name], onDelete: Cascade)
 
   @@map("package_health")
 }
-

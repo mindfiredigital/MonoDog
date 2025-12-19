@@ -81,7 +81,7 @@ export default function Layout({ children }: LayoutProps) {
             </div> */}
           </div>
           {/* User info */}
-          <div className="flex items-center gap-3">
+          <div className="hidden flex items-center gap-3">
             <div className="flex flex-col items-end text-sm">
               <span className="font-medium text-primary-700">John Doe</span>
               <span className="text-neutral-500">Admin</span>

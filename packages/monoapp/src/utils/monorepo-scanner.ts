@@ -234,7 +234,7 @@ export class MonorepoScanner {
             }
           }
           // If we find any coverage file but can't parse it, assume coverage exists
-          return 50; // Default coverage if files exist but can't parse
+          return 0; // Default coverage if files exist but can't parse
         }
       }
 

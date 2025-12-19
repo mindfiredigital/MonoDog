@@ -152,9 +152,9 @@ class GitService {
             }
             // First, validate we're in a git repo
             await this.validateGitRepository(pathArgument);
-            // Use a simpler git log format
-            const command = `git ${pathArgument} log --pretty=format:"%H|%an|%ad|%s" --date=iso-strict`;
             console.log(`🔧 Executing Git command in: ${this.repoPath}`);
+            // Use a simpler git log format
+            const command = `git log --pretty=format:"%H|%an|%ad|%s" --date=iso-strict ${pathArgument}`;
             console.log(`📝 Git command: ${command}`);
             const { stdout, stderr } = await execPromise(command, {
                 cwd: this.repoPath,

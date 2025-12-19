@@ -47,7 +47,7 @@ const PrismaClient = PrismaPkg.PrismaClient || PrismaPkg.default || PrismaPkg;
 const Prisma = PrismaPkg.Prisma || PrismaPkg.PrismaClient?.Prisma || PrismaPkg.default?.Prisma || PrismaPkg;
 const config_loader_1 = require("../config-loader");
 // Default settings
-const DEFAULT_PORT = 8999;
+const DEFAULT_PORT = 4000;
 const port = config_loader_1.appConfig.server.port ?? DEFAULT_PORT; //Default port
 const host = config_loader_1.appConfig.server.host ?? 'localhost'; //Default host
 const prisma = new PrismaClient();
@@ -65,7 +65,10 @@ async function storeCommits(packageName, commits) {
         try {
             await prisma.commit.upsert({
                 where: {
-                    hash: commit.hash,
+                    hash_packageName: {
+                        hash: commit.hash,
+                        packageName: packageName,
+                    }
                 },
                 update: {
                     message: commit.message,

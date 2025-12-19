@@ -562,7 +562,7 @@ function startServer(rootPath, port, host) {
                 try {
                     // Await each health check function since they return promises
                     const buildStatus = await (0, monorepo_scanner_1.funCheckBuildStatus)(pkg);
-                    const testCoverage = await (0, monorepo_scanner_1.funCheckTestCoverage)(pkg);
+                    const testCoverage = 0; //await funCheckTestCoverage(pkg); // skip test coverage for now
                     const lintStatus = await (0, monorepo_scanner_1.funCheckLintStatus)(pkg);
                     const securityAudit = await (0, monorepo_scanner_1.funCheckSecurityAudit)(pkg);
                     // Calculate overall health score
@@ -1241,7 +1241,7 @@ function startServer(rootPath, port, host) {
             timestamp: Date.now(),
         });
     });
-    const PORT = parseInt(port ? port.toString() : '8999');
+    const PORT = parseInt(port ? port.toString() : '4000');
     app
         .listen(PORT, host, async () => {
         const pcount = await prisma.package.count();
