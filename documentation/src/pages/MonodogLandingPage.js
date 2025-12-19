@@ -826,11 +826,11 @@ const MonodogLandingPage = () => {
                 with your existing Node.js monorepo setup. It improves your
                 developer experience without requiring you to migrate.
               </p>
-              <div className="tech-logos">
+              {/* <div className="tech-logos">
                 {technologies.map((tech, index) => (
                   <TechIcon key={index} name={tech.name} logoPath={tech.logo} />
                 ))}
-              </div>
+              </div> */}
             </div>
           </div>
         </section>
