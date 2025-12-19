@@ -2,7 +2,7 @@
 
 ## 🎯 Overview
 
-The dashboard will provide visual management and monitoring capabilities for packages in monorepos using pnpm, turbo, or Nx. It will be distributed as an npm package installable in any monorepo to auto-generate a web UI for package oversight.
+The dashboard will provide visual management and monitoring capabilities for packages in monorepos using pnpm, turbo. It will be distributed as an npm package installable in any monorepo to auto-generate a web UI for package oversight.
 
 This service is typically run locally or on a central server and power a dedicated frontend dashboard.
 
@@ -26,7 +26,7 @@ This service is typically run locally or on a central server and power a dedicat
 You must have the following installed to run the service:
 
 - **Node.js:** Version 18+ recommended
-- **Package Manager:** `pnpm` or `npm` (use the one your monorepo uses)
+- **Package Manager:** `pnpm`
 
 ---
 
@@ -46,10 +46,10 @@ Run app using serve script:
 
 | Method  | Route                       | Purpose                                                                                 | Persistence         |
 | ------- | --------------------------- | --------------------------------------------------------------------------------------- | ------------------- |
-| **GET** | `/api/packages`             | Retrieve all package metadata from the database.                                        | Cached / Persistent |
+| **GET** | `/api/packages`             | Retrieve all package metadata from the database.                                        | Persistent |
 | **GET** | `/api/packages/refresh`     | Trigger a full file scan of the monorepo and update/sync the database.                  | Triggers write      |
-| **GET** | `/api/packages/:name`       | Get detailed info, reports, and CI status for a package.                                | Cached / Persistent |
+| **GET** | `/api/packages/:name`       | Get detailed info, commits and health status for a package.                                | Persistent |
 | **GET** | `/api/health/packages`      | Fetch the latest health metrics (score, build status) for all packages.                 | Persistent          |
 | **GET** | `/api/health/refresh`       | Recalculate all package health metrics (tests, lint, security) and update the database. | Triggers write      |
-| **GET** | `/api/commits/:packagePath` | Fetch Git commit history for a specific package directory.                              | Generated runtime   |
+| **GET** | `/api/commits/:packagePath` | Fetch Git commit history for a specific package directory.                              | Persistent   |
 | **GET** | `/api/config/files`         | Scan the monorepo for essential configuration files (e.g., `tsconfig`, `.eslintrc`).    | Generated runtime   |
