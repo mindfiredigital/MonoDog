@@ -27,8 +27,9 @@ import {
   calculatePackageHealth,
 } from '@monodog/utils/helpers';
 import { storePackage } from './utils/helpers';
-import { PrismaClient } from '@prisma/client';
-// Import the validateConfig function from your utils
+// Fallback import to handle environments where PrismaClient isn't a named export
+import * as PrismaPkg from '@prisma/client';
+const PrismaClient = (PrismaPkg as any).PrismaClient || (PrismaPkg as any).default || PrismaPkg;// Import the validateConfig function from your utils
 // import { validateConfig } from '../../apps/dashboard/src/components/modules/config-inspector/utils/config.utils';
 import { GitService } from './gitService';
 
@@ -96,7 +97,7 @@ export function startServer(
         }
         dbPackages = await prisma.package.findMany();
       }
-      const transformedPackages = dbPackages.map(pkg => {
+      const transformedPackages = dbPackages.map((pkg: any) => {
         // We create a new object 'transformedPkg' based on the database record 'pkg'
         const transformedPkg = { ...pkg };
 
@@ -564,7 +565,7 @@ export function startServer(
       console.log('packageHealthData -->', packageHealthData.length);
 
       // Transform the data to match the expected frontend format
-      const packages = packageHealthData.map(pkg => {
+      const packages = packageHealthData.map((pkg: any) => {
         const health = {
           buildStatus: pkg.packageBuildStatus,
           testCoverage: pkg.packageTestCoverage,
@@ -582,11 +583,11 @@ export function startServer(
 
       // Calculate summary statistics
       const total = packages.length;
-      const healthy = packages.filter(pkg => pkg.isHealthy).length;
-      const unhealthy = packages.filter(pkg => !pkg.isHealthy).length;
+      const healthy = packages.filter((pkg: any) => pkg.isHealthy).length;
+      const unhealthy = packages.filter((pkg: any) => !pkg.isHealthy).length;
       const averageScore =
         packages.length > 0
-          ? packages.reduce((sum, pkg) => sum + pkg.health.overallScore, 0) /
+          ? packages.reduce((sum:any, pkg: any) => sum + pkg.health.overallScore, 0) /
             packages.length
           : 0;
 
@@ -616,7 +617,7 @@ export function startServer(
       const packages = scanMonorepo(rootDir);
       console.log('packages -->', packages.length);
       const healthMetrics = await Promise.all(
-        packages.map(async pkg => {
+        packages.map(async (pkg: any) => {
           try {
             // Await each health check function since they return promises
             const buildStatus = await funCheckBuildStatus(pkg);
@@ -732,7 +733,7 @@ export function startServer(
       if (query) {
         const searchTerm = (query as string).toLowerCase();
         filtered = filtered.filter(
-          pkg =>
+          (pkg: any) =>
             pkg.name.toLowerCase().includes(searchTerm) ||
             pkg.description?.toLowerCase().includes(searchTerm)
         );
@@ -740,7 +741,7 @@ export function startServer(
 
       // Filter by type
       if (type && type !== 'all') {
-        filtered = filtered.filter(pkg => pkg.type === type);
+        filtered = filtered.filter((pkg: any) => pkg.type === type);
       }
 
       // Filter by status (would need health data)
@@ -1569,7 +1570,7 @@ export function serveDashboard(
   console.log('Serving static files from:', staticPath);
   app.use(express.static(staticPath));
   // Start the server
-  const PORT = parseInt(port ? port.toString() : '3999');
+  const PORT = parseInt(port ? port.toString() : '8999');
 
   app.listen(PORT, host, () => {
     console.log(`App listening on ${host}:${port}`);

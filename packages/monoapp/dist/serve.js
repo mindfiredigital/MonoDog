@@ -41,36 +41,63 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const path = __importStar(require("path"));
 const index_1 = require("./index"); // Assume index.ts exports this function
 const config_loader_1 = require("./config-loader");
+const fs_1 = __importDefault(require("fs"));
 // --- Argument Parsing ---
 // 1. Get arguments excluding the node executable and script name
 const args = process.argv.slice(2);
 // Default settings
 const DEFAULT_PORT = 8999;
-let rootPath = path.resolve(process.cwd()); // Default to the current working directory
+const rootPath = findMonorepoRoot();
 const port = config_loader_1.appConfig.server.port ?? DEFAULT_PORT; //Default port
 const host = config_loader_1.appConfig.server.host ?? 'localhost'; //Default host
-// Simple argument parsing loop
-for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
-    if (arg === '--root') {
-        // Look at the next argument for the path
-        if (i + 1 < args.length) {
-            rootPath = path.resolve(args[i + 1]);
-            i++; // Skip the next argument since we've consumed it
-        }
-        else {
-            console.error('Error: --root requires a path argument.');
-            process.exit(1);
-        }
-    }
-}
 // --- Execution Logic ---
 console.log(`Starting Monodog API server...`);
 console.log(`Analyzing monorepo at root: ${rootPath}`);
 // Start the Express server and begin analysis
 (0, index_1.startServer)(rootPath, port, host);
-(0, index_1.serveDashboard)(path.join(rootPath, config_loader_1.appConfig.workspace.install_path), config_loader_1.appConfig.dashboard.port, config_loader_1.appConfig.dashboard.host);
+(0, index_1.serveDashboard)(path.join(rootPath), config_loader_1.appConfig.dashboard.port, config_loader_1.appConfig.dashboard.host);
+/**
+ * Find the monorepo root by looking for package.json with workspaces or pnpm-workspace.yaml
+ */
+function findMonorepoRoot() {
+    let currentDir = __dirname;
+    while (currentDir !== path.parse(currentDir).root) {
+        const packageJsonPath = path.join(currentDir, 'package.json');
+        const pnpmWorkspacePath = path.join(currentDir, 'pnpm-workspace.yaml');
+        // Check if this directory has package.json with workspaces or pnpm-workspace.yaml
+        if (fs_1.default.existsSync(packageJsonPath)) {
+            try {
+                const packageJson = JSON.parse(fs_1.default.readFileSync(packageJsonPath, 'utf8'));
+                // If it has workspaces or is the root monorepo package
+                if (packageJson.workspaces || fs_1.default.existsSync(pnpmWorkspacePath)) {
+                    console.log('✅ Found monorepo root:', currentDir);
+                    return currentDir;
+                }
+            }
+            catch (error) {
+                // Continue searching if package.json is invalid
+            }
+        }
+        // Check if we're at the git root
+        const gitPath = path.join(currentDir, '.git');
+        if (fs_1.default.existsSync(gitPath)) {
+            console.log('✅ Found git root (likely monorepo root):', currentDir);
+            return currentDir;
+        }
+        // Go up one directory
+        const parentDir = path.dirname(currentDir);
+        if (parentDir === currentDir)
+            break; // Prevent infinite loop
+        currentDir = parentDir;
+    }
+    // Fallback to process.cwd() if we can't find the root
+    console.log('⚠️ Could not find monorepo root, using process.cwd():', process.cwd());
+    return process.cwd();
+}

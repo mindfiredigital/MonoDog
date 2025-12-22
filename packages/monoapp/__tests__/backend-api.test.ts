@@ -6,6 +6,7 @@
 
 import path from 'path';
 import fs from 'fs';
+import * as utilities from '../src/utils/utilities';
 
 // Mock dependencies
 jest.mock('@prisma/client', () => ({
@@ -209,8 +210,7 @@ describe('Monoapp Backend API', () => {
 
   describe('Package API', () => {
     it('should fetch packages from database with transformation', async () => {
-      const { scanMonorepo } = require('../src/utils/utilities');
-      const mockScanned = scanMonorepo(process.cwd());
+      const mockScanned = utilities.scanMonorepo(process.cwd());
 
       expect(mockScanned).toHaveLength(2);
       expect(mockScanned[0]).toHaveProperty('name', '@monoapp/backend');
@@ -260,13 +260,12 @@ describe('Monoapp Backend API', () => {
 
   describe('Dependency Graph', () => {
     it('should generate dependency graph using utilities', () => {
-      const { generateDependencyGraph } = require('../src/utils/utilities');
       const mockPackages = [
         { name: '@monoapp/backend', dependencies: [] },
         { name: '@monoapp/dashboard', dependencies: ['@monoapp/backend'] },
       ];
 
-      const graph = generateDependencyGraph(mockPackages);
+      const graph = utilities.generateDependencyGraph(mockPackages as any);
 
       expect(graph).toHaveProperty('nodes');
       expect(graph).toHaveProperty('edges');
@@ -281,13 +280,12 @@ describe('Monoapp Backend API', () => {
     });
 
     it('should identify circular dependencies', () => {
-      const { findCircularDependencies } = require('../src/utils/utilities');
       const mockPackages = [
         { name: 'pkg-a', dependencies: ['pkg-b'] },
         { name: 'pkg-b', dependencies: ['pkg-a'] },
       ];
 
-      const circular = findCircularDependencies(mockPackages);
+      const circular = utilities.findCircularDependencies(mockPackages as any);
 
       expect(Array.isArray(circular)).toBe(true);
       expect(typeof circular).toBe('object');

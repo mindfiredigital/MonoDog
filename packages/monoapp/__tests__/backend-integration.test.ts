@@ -5,6 +5,7 @@
  */
 
 import path from 'path';
+// We rely on Jest to mock these modules; inside beforeEach we call `jest.requireMock` to get the mocked module objects
 
 // Mock all external dependencies
 jest.mock('@prisma/client', () => ({
@@ -37,8 +38,11 @@ describe('Monoapp Backend API Integration Tests', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
+    // Obtain mocked modules from Jest so we can configure return values
+    mockUtilities = jest.requireMock('../src/utils/utilities');
+    mockCIStatus = jest.requireMock('../src/utils/ci-status');
+
     // Setup utilities mock
-    mockUtilities = require('../src/utils/utilities');
     mockUtilities.scanMonorepo.mockReturnValue([
       {
         id: '1',
@@ -81,8 +85,7 @@ describe('Monoapp Backend API Integration Tests', () => {
     mockUtilities.findCircularDependencies.mockReturnValue([]);
     mockUtilities.calculatePackageHealth.mockReturnValue({ overallScore: 88 });
 
-    // Setup CI status mock
-    mockCIStatus = require('../src/utils/ci-status');
+    // Setup CI status mock (imported at top)
     mockCIStatus.ciStatusManager = {
       getPackageStatus: jest.fn().mockResolvedValue({
         package: '@monoapp/backend',

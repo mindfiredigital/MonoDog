@@ -27,7 +27,7 @@ This service is typically run locally or on a central server to power a dedicate
 You must have the following installed to run the service:
 
 - **Node.js:** Version 18+ recommended
-- **Package Manager:** `pnpm` or `npm` (use the one your monorepo uses)
+- **Package Manager:** `pnpm`
 - **Database:** A running instance of a database supported by Prisma (e.g., PostgreSQL, SQLite, MySQL)
 
 ---

@@ -2,10 +2,25 @@ import { PackageInfo, DependencyInfo } from './utilities';
 // import dotenv from 'dotenv';
 import path from 'path';
 // dotenv.config({ path: path.resolve(__dirname, '../.env') });
-import { PrismaClient, Prisma, Commit } from '@prisma/client';
+// Fallback import to handle environments where PrismaClient isn't a named export
+import * as PrismaPkg from '@prisma/client';
+const PrismaClient = (PrismaPkg as any).PrismaClient || (PrismaPkg as any).default || PrismaPkg;
+// Provide a fallback reference to the Prisma namespace so errors like
+// Prisma.PrismaClientKnownRequestError can be referenced safely.
+const Prisma = (PrismaPkg as any).Prisma || (PrismaPkg as any).PrismaClient?.Prisma || (PrismaPkg as any).default?.Prisma || PrismaPkg;
+
 import { appConfig } from '../config-loader';
 
 // const appConfig = loadConfig();
+
+// Commit type used by getCommits/storeCommits
+export interface Commit {
+  hash: string;
+  message?: string;
+  author?: string;
+  date?: string;
+  type?: string;
+}
 
 // Default settings
 const DEFAULT_PORT = 4000;
@@ -31,7 +46,10 @@ async function storeCommits(
     try {
       await prisma.commit.upsert({
         where: {
-          hash: commit.hash,
+          hash_packageName: {
+            hash: commit.hash,
+            packageName: packageName,
+          }
         },
         update: {
           message: commit.message,
@@ -49,9 +67,10 @@ async function storeCommits(
         },
       });
     } catch (e) {
+      const err = e as any;
       if (
-        e instanceof Prisma.PrismaClientKnownRequestError &&
-        e.code === 'P2002'
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2002'
       ) {
         // Handle unique constraint violation (e.g., commit already exists)
         console.warn(
@@ -59,7 +78,7 @@ async function storeCommits(
         );
       } else {
         // Handle any other unexpected errors
-        console.error(`Failed to store commit: ${commit.hash}`, e);
+        console.error(`Failed to store commit: ${commit.hash}`, err);
       }
     }
   }
@@ -195,11 +214,11 @@ async function storeDependencies(
           packageName: packageName,
         },
       });
-      console.log('💾 Dependencies stored in database:' + dep.name);
     } catch (e) {
+      const err = e as any;
       if (
-        e instanceof Prisma.PrismaClientKnownRequestError &&
-        e.code === 'P2002'
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2002'
       ) {
         // Handle unique constraint violation (e.g., depedency already exists)
         console.warn(
@@ -207,7 +226,7 @@ async function storeDependencies(
         );
       } else {
         // Handle any other unexpected errors
-        console.error(`Failed to store dependency: ${dep.name}`, e);
+        console.error(`Failed to store dependency: ${dep.name}`, err);
       }
     }
   }

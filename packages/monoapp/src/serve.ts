@@ -13,6 +13,7 @@ import * as path from 'path';
 import { startServer, serveDashboard } from './index'; // Assume index.ts exports this function
 
 import { appConfig } from './config-loader';
+import fs from 'fs';
 
 // --- Argument Parsing ---
 
@@ -21,25 +22,10 @@ const args = process.argv.slice(2);
 
 // Default settings
 const DEFAULT_PORT = 8999;
-let rootPath = path.resolve(process.cwd()); // Default to the current working directory
+const rootPath = findMonorepoRoot();
 const port = appConfig.server.port ?? DEFAULT_PORT; //Default port
 const host = appConfig.server.host ?? 'localhost'; //Default host
 
-// Simple argument parsing loop
-for (let i = 0; i < args.length; i++) {
-  const arg = args[i];
-
-  if (arg === '--root') {
-    // Look at the next argument for the path
-    if (i + 1 < args.length) {
-      rootPath = path.resolve(args[i + 1]);
-      i++; // Skip the next argument since we've consumed it
-    } else {
-      console.error('Error: --root requires a path argument.');
-      process.exit(1);
-    }
-  }
-}
 
 // --- Execution Logic ---
 
@@ -48,7 +34,54 @@ console.log(`Analyzing monorepo at root: ${rootPath}`);
 // Start the Express server and begin analysis
 startServer(rootPath, port, host);
 serveDashboard(
-  path.join(rootPath, appConfig.workspace.install_path),
+  path.join(rootPath),
   appConfig.dashboard.port,
   appConfig.dashboard.host
 );
+
+  /**
+   * Find the monorepo root by looking for package.json with workspaces or pnpm-workspace.yaml
+   */
+  function findMonorepoRoot(): string {
+    let currentDir = __dirname;
+
+    while (currentDir !== path.parse(currentDir).root) {
+      const packageJsonPath = path.join(currentDir, 'package.json');
+      const pnpmWorkspacePath = path.join(currentDir, 'pnpm-workspace.yaml');
+
+      // Check if this directory has package.json with workspaces or pnpm-workspace.yaml
+      if (fs.existsSync(packageJsonPath)) {
+        try {
+          const packageJson = JSON.parse(
+            fs.readFileSync(packageJsonPath, 'utf8')
+          );
+          // If it has workspaces or is the root monorepo package
+          if (packageJson.workspaces || fs.existsSync(pnpmWorkspacePath)) {
+            console.log('✅ Found monorepo root:', currentDir);
+            return currentDir;
+          }
+        } catch (error) {
+          // Continue searching if package.json is invalid
+        }
+      }
+
+      // Check if we're at the git root
+      const gitPath = path.join(currentDir, '.git');
+      if (fs.existsSync(gitPath)) {
+        console.log('✅ Found git root (likely monorepo root):', currentDir);
+        return currentDir;
+      }
+
+      // Go up one directory
+      const parentDir = path.dirname(currentDir);
+      if (parentDir === currentDir) break; // Prevent infinite loop
+      currentDir = parentDir;
+    }
+
+    // Fallback to process.cwd() if we can't find the root
+    console.log(
+      '⚠️ Could not find monorepo root, using process.cwd():',
+      process.cwd()
+    );
+    return process.cwd();
+  }

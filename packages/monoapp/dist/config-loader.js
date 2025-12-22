@@ -79,10 +79,7 @@ function createConfigFileIfMissing(rootPath) {
     const configFilePath = path.resolve(rootPath, configFileName);
     // The default content for the configuration file
     const defaultContent = {
-        workspace: {
-            root_dir: './', // Relative to where the config file is located
-            install_path: 'packages', // Where to install monodog packages
-        },
+        workspaces: [],
         database: {
             path: 'file:./monodog.db', // SQLite database file path, relative to prisma schema location
         },
@@ -117,25 +114,3 @@ function createConfigFileIfMissing(rootPath) {
 }
 const appConfig = loadConfig();
 exports.appConfig = appConfig;
-// --- Example Usage ---
-// In your main application file (e.g., packages/backend/src/index.ts):
-/*
-
-import { appConfig } from './config-loader';
-
-// Load configuration on startup
-// const appConfig = loadConfig();
-
-// Access the variables easily
-const dbHost = appConfig.database.host;
-const serverPort = appConfig.server.port;
-const workspaceRoot = appConfig.workspace.root_dir;
-
-console.log(`\nStarting server on port: ${serverPort}`);
-console.log(`Database connecting to host: ${dbHost}`);
-
-// Example server start logic
-// app.listen(serverPort, appConfig.server.host, () => {
-//   console.log(`Server running at http://${appConfig.server.host}:${serverPort}`);
-// });
-*/

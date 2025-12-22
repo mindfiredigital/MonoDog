@@ -1,8 +1,7 @@
 {
-  "workspace": {
-    "root_dir": "./",
-    "install_path": "packages"
-  },
+  "workspaces": [
+    "packages/*"
+  ],
   "database": {
     "path": "file:./monodog.db"
   },

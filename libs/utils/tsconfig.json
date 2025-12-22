@@ -1,7 +1,4 @@
 {
-  // Extends the shared Node configuration for server/utility environments
-  "extends": "@manojk/tsconfig/node.json",
-
   "compilerOptions": {
     // Output compilation results to the 'dist' directory
     "outDir": "dist",

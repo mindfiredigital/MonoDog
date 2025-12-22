@@ -1,4 +1,37 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -16,13 +49,15 @@ exports.scanner = new monorepo_scanner_1.MonorepoScanner();
 const ci_status_1 = require("./utils/ci-status");
 const utilities_1 = require("./utils/utilities");
 const helpers_1 = require("./utils/helpers");
-const client_1 = require("@prisma/client");
+// Fallback import to handle environments where PrismaClient isn't a named export
+const PrismaPkg = __importStar(require("@prisma/client"));
+const PrismaClient = PrismaPkg.PrismaClient || PrismaPkg.default || PrismaPkg;
 // Import the validateConfig function from your utils
 // import { validateConfig } from '../../apps/dashboard/src/components/modules/config-inspector/utils/config.utils';
 const gitService_1 = require("./gitService");
 const config_loader_1 = require("./config-loader");
 // const appConfig = loadConfig();
-const prisma = new client_1.PrismaClient();
+const prisma = new PrismaClient();
 // The main function exported and called by the CLI
 function startServer(rootPath, port, host) {
     const app = (0, express_1.default)();
@@ -54,7 +89,8 @@ function startServer(rootPath, port, host) {
             let dbPackages = await prisma.package.findMany();
             if (!dbPackages.length) {
                 try {
-                    const rootDir = path_1.default.resolve(rootPath);
+                    const rootDir = rootPath;
+                    console.log('rootDir -->', rootDir);
                     const packages = (0, utilities_1.scanMonorepo)(rootDir);
                     console.log('packages --> scan', packages.length);
                     for (const pkg of packages) {
@@ -66,7 +102,7 @@ function startServer(rootPath, port, host) {
                 }
                 dbPackages = await prisma.package.findMany();
             }
-            const transformedPackages = dbPackages.map(pkg => {
+            const transformedPackages = dbPackages.map((pkg) => {
                 // We create a new object 'transformedPkg' based on the database record 'pkg'
                 const transformedPkg = { ...pkg };
                 // 1. Maintainers (Your Logic)
@@ -102,7 +138,8 @@ function startServer(rootPath, port, host) {
     });
     app.get('/api/packages/refresh', async (_req, res) => {
         try {
-            const rootDir = path_1.default.resolve(rootPath);
+            await prisma.package.deleteMany();
+            const rootDir = rootPath;
             const packages = (0, utilities_1.scanMonorepo)(rootDir);
             console.log('packages -->', packages.length);
             for (const pkg of packages) {
@@ -475,7 +512,7 @@ function startServer(rootPath, port, host) {
             const packageHealthData = await prisma.packageHealth.findMany();
             console.log('packageHealthData -->', packageHealthData.length);
             // Transform the data to match the expected frontend format
-            const packages = packageHealthData.map(pkg => {
+            const packages = packageHealthData.map((pkg) => {
                 const health = {
                     buildStatus: pkg.packageBuildStatus,
                     testCoverage: pkg.packageTestCoverage,
@@ -491,8 +528,8 @@ function startServer(rootPath, port, host) {
             });
             // Calculate summary statistics
             const total = packages.length;
-            const healthy = packages.filter(pkg => pkg.isHealthy).length;
-            const unhealthy = packages.filter(pkg => !pkg.isHealthy).length;
+            const healthy = packages.filter((pkg) => pkg.isHealthy).length;
+            const unhealthy = packages.filter((pkg) => !pkg.isHealthy).length;
             const averageScore = packages.length > 0
                 ? packages.reduce((sum, pkg) => sum + pkg.health.overallScore, 0) /
                     packages.length
@@ -518,14 +555,14 @@ function startServer(rootPath, port, host) {
     });
     app.get('/api/health/refresh', async (_req, res) => {
         try {
-            const rootDir = path_1.default.resolve(rootPath);
+            const rootDir = rootPath;
             const packages = (0, utilities_1.scanMonorepo)(rootDir);
             console.log('packages -->', packages.length);
             const healthMetrics = await Promise.all(packages.map(async (pkg) => {
                 try {
                     // Await each health check function since they return promises
                     const buildStatus = await (0, monorepo_scanner_1.funCheckBuildStatus)(pkg);
-                    const testCoverage = await (0, monorepo_scanner_1.funCheckTestCoverage)(pkg);
+                    const testCoverage = 0; //await funCheckTestCoverage(pkg); // skip test coverage for now
                     const lintStatus = await (0, monorepo_scanner_1.funCheckLintStatus)(pkg);
                     const securityAudit = await (0, monorepo_scanner_1.funCheckSecurityAudit)(pkg);
                     // Calculate overall health score
@@ -556,12 +593,12 @@ function startServer(rootPath, port, host) {
                             packageSecurity: securityAudit,
                             packageDependencies: '',
                             updatedAt: new Date(),
-                            package: {
-                                update: {
-                                    where: { name: pkg.name },
-                                    data: { status: packageStatus },
-                                },
-                            },
+                            // package: {
+                            //   update: {
+                            //     where: { name: pkg.name },
+                            //     data: { status: packageStatus },
+                            //   },
+                            // },
                         },
                         create: {
                             packageName: pkg.name,
@@ -572,6 +609,11 @@ function startServer(rootPath, port, host) {
                             packageSecurity: securityAudit,
                             packageDependencies: '',
                         },
+                    });
+                    // update related package status as well
+                    await prisma.package.update({
+                        where: { name: pkg.name },
+                        data: { status: packageStatus },
                     });
                     return {
                         packageName: pkg.name,
@@ -593,7 +635,6 @@ function startServer(rootPath, port, host) {
                         error: 'Failed to fetch health metrics1',
                     };
                 }
-                PORT;
             }));
             res.json({
                 packages: healthMetrics.filter(h => !h.error),
@@ -710,7 +751,7 @@ function startServer(rootPath, port, host) {
     app.get('/api/config/files', async (_req, res) => {
         try {
             // Find the monorepo root instead of using process.cwd()
-            const rootDir = findMonorepoRoot();
+            const rootDir = rootPath;
             console.log('Monorepo root directory:', rootDir);
             console.log('Backend directory:', __dirname);
             const configFiles = await scanConfigFiles(rootDir);
@@ -742,44 +783,6 @@ function startServer(rootPath, port, host) {
             });
         }
     });
-    /**
-     * Find the monorepo root by looking for package.json with workspaces or pnpm-workspace.yaml
-     */
-    function findMonorepoRoot() {
-        let currentDir = __dirname;
-        while (currentDir !== path_1.default.parse(currentDir).root) {
-            const packageJsonPath = path_1.default.join(currentDir, 'package.json');
-            const pnpmWorkspacePath = path_1.default.join(currentDir, 'pnpm-workspace.yaml');
-            // Check if this directory has package.json with workspaces or pnpm-workspace.yaml
-            if (fs_1.default.existsSync(packageJsonPath)) {
-                try {
-                    const packageJson = JSON.parse(fs_1.default.readFileSync(packageJsonPath, 'utf8'));
-                    // If it has workspaces or is the root monorepo package
-                    if (packageJson.workspaces || fs_1.default.existsSync(pnpmWorkspacePath)) {
-                        console.log('✅ Found monorepo root:', currentDir);
-                        return currentDir;
-                    }
-                }
-                catch (error) {
-                    // Continue searching if package.json is invalid
-                }
-            }
-            // Check if we're at the git root
-            const gitPath = path_1.default.join(currentDir, '.git');
-            if (fs_1.default.existsSync(gitPath)) {
-                console.log('✅ Found git root (likely monorepo root):', currentDir);
-                return currentDir;
-            }
-            // Go up one directory
-            const parentDir = path_1.default.dirname(currentDir);
-            if (parentDir === currentDir)
-                break; // Prevent infinite loop
-            currentDir = parentDir;
-        }
-        // Fallback to process.cwd() if we can't find the root
-        console.log('⚠️ Could not find monorepo root, using process.cwd():', process.cwd());
-        return process.cwd();
-    }
     // Helper function to scan for configuration files
     async function scanConfigFiles(rootDir) {
         const configPatterns = [
@@ -1030,7 +1033,7 @@ function startServer(rootPath, port, host) {
                 });
             }
             // Use the monorepo root
-            const rootDir = findMonorepoRoot();
+            const rootDir = rootPath;
             const filePath = path_1.default.join(rootDir, id.startsWith('/') ? id.slice(1) : id);
             console.log('💾 Saving file:', filePath);
             console.log('📁 Root directory:', rootDir);
@@ -1359,7 +1362,7 @@ function serveDashboard(rootPath, port, host) {
     console.log('Serving static files from:', staticPath);
     app.use(express_1.default.static(staticPath));
     // Start the server
-    const PORT = parseInt(port ? port.toString() : '3999');
+    const PORT = parseInt(port ? port.toString() : '8999');
     app.listen(PORT, host, () => {
         console.log(`App listening on ${host}:${port}`);
         console.log('Press Ctrl+C to quit.');

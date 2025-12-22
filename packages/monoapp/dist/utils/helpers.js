@@ -1,4 +1,37 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getCommits = getCommits;
 exports.storePackage = storePackage;
@@ -6,14 +39,18 @@ exports.storeCommits = storeCommits;
 exports.getPackageDependenciesInfo = getPackageDependenciesInfo;
 exports.storeDependencies = storeDependencies;
 // dotenv.config({ path: path.resolve(__dirname, '../.env') });
-const client_1 = require("@prisma/client");
+// Fallback import to handle environments where PrismaClient isn't a named export
+const PrismaPkg = __importStar(require("@prisma/client"));
+const PrismaClient = PrismaPkg.PrismaClient || PrismaPkg.default || PrismaPkg;
+// Provide a fallback reference to the Prisma namespace so errors like
+// Prisma.PrismaClientKnownRequestError can be referenced safely.
+const Prisma = PrismaPkg.Prisma || PrismaPkg.PrismaClient?.Prisma || PrismaPkg.default?.Prisma || PrismaPkg;
 const config_loader_1 = require("../config-loader");
-// const appConfig = loadConfig();
 // Default settings
 const DEFAULT_PORT = 4000;
 const port = config_loader_1.appConfig.server.port ?? DEFAULT_PORT; //Default port
 const host = config_loader_1.appConfig.server.host ?? 'localhost'; //Default host
-const prisma = new client_1.PrismaClient();
+const prisma = new PrismaClient();
 const API_BASE = `http://${host}:${port}/api`;
 async function getCommits(path) {
     const res = await fetch(API_BASE + `/commits/` + encodeURIComponent(path));
@@ -28,7 +65,10 @@ async function storeCommits(packageName, commits) {
         try {
             await prisma.commit.upsert({
                 where: {
-                    hash: commit.hash,
+                    hash_packageName: {
+                        hash: commit.hash,
+                        packageName: packageName,
+                    }
                 },
                 update: {
                     message: commit.message,
@@ -47,14 +87,15 @@ async function storeCommits(packageName, commits) {
             });
         }
         catch (e) {
-            if (e instanceof client_1.Prisma.PrismaClientKnownRequestError &&
-                e.code === 'P2002') {
+            const err = e;
+            if (err instanceof Prisma.PrismaClientKnownRequestError &&
+                err.code === 'P2002') {
                 // Handle unique constraint violation (e.g., commit already exists)
                 console.warn(`Skipping commit: ${commit.hash} (Depenndency already exists)`);
             }
             else {
                 // Handle any other unexpected errors
-                console.error(`Failed to store commit: ${commit.hash}`, e);
+                console.error(`Failed to store commit: ${commit.hash}`, err);
             }
         }
     }
@@ -182,17 +223,17 @@ async function storeDependencies(packageName, dependencies) {
                     packageName: packageName,
                 },
             });
-            console.log('💾 Dependencies stored in database:' + dep.name);
         }
         catch (e) {
-            if (e instanceof client_1.Prisma.PrismaClientKnownRequestError &&
-                e.code === 'P2002') {
+            const err = e;
+            if (err instanceof Prisma.PrismaClientKnownRequestError &&
+                err.code === 'P2002') {
                 // Handle unique constraint violation (e.g., depedency already exists)
                 console.warn(`Skipping dependency: ${dep.name} (Depenndency already exists)`);
             }
             else {
                 // Handle any other unexpected errors
-                console.error(`Failed to store dependency: ${dep.name}`, e);
+                console.error(`Failed to store dependency: ${dep.name}`, err);
             }
         }
     }
