@@ -21,6 +21,7 @@ import {
   getStatusColor,
   getTypeIcon,
 } from './utils/dashboard.utils';
+import { LoadingState, ErrorState } from '../modules/packages/components';
 
 // Configuration interface for customization - imported from Configuration component
 
@@ -151,6 +152,17 @@ export default function Dashboard() {
       setRefreshing(false);
     }
   };
+
+ // Loading state
+  if (loading && !packages) {
+    return <LoadingState />;
+  }
+
+  // Error state
+  if (error) {
+    return <ErrorState error={error} onRetry={handleRefresh} />;
+  }
+
   // Calculate derived data using utility functions
   const filteredPackages = filterPackages(
     packages ?? [],
