@@ -33,17 +33,9 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getCommits = getCommits;
 exports.storePackage = storePackage;
-exports.storeCommits = storeCommits;
-exports.getPackageDependenciesInfo = getPackageDependenciesInfo;
-exports.storeDependencies = storeDependencies;
-// dotenv.config({ path: path.resolve(__dirname, '../.env') });
-// Fallback import to handle environments where PrismaClient isn't a named export
 const PrismaPkg = __importStar(require("@prisma/client"));
 const PrismaClient = PrismaPkg.PrismaClient || PrismaPkg.default || PrismaPkg;
-// Provide a fallback reference to the Prisma namespace so errors like
-// Prisma.PrismaClientKnownRequestError can be referenced safely.
 const Prisma = PrismaPkg.Prisma || PrismaPkg.PrismaClient?.Prisma || PrismaPkg.default?.Prisma || PrismaPkg;
 const config_loader_1 = require("../config-loader");
 // Default settings
@@ -122,17 +114,12 @@ async function storePackage(pkg) {
                 // Timestamps
                 createdAt: new Date(),
                 lastUpdated: new Date(),
-                // Key Metrics and Relationships
-                dependencies: JSON.stringify(pkg.dependencies), // The total number of direct dependencies (12 in your example)
+                dependencies: JSON.stringify(pkg.dependencies), // The total number of direct dependencies
                 // Manual Serialization Required: Stores a JSON array string of maintainers, e.g., '["team-frontend"]'
                 maintainers: pkg.maintainers.join(','),
-                // Manual Serialization Required: Stores a JSON array string of tags, e.g., '["core", "ui"]'
                 // Manual Serialization Required: Stores the scripts object as a JSON string
                 // Example: '{"dev": "vite", "build": "tsc && vite build"}'
                 scripts: JSON.stringify(pkg.scripts),
-                // Dependency Lists (Manual Serialization Required)
-                // Stores a JSON array string of dependencies.
-                // dependenciesList: JSON.stringify(pkg.dependenciesList),
                 devDependencies: JSON.stringify(pkg.devDependencies),
                 peerDependencies: JSON.stringify(pkg.peerDependencies),
                 name: pkg.name,

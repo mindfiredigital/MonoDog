@@ -126,7 +126,7 @@ jest.mock('../src/utils/utilities', () => ({
   })),
 }));
 
-jest.mock('../src/utils/helpers', () => ({
+jest.mock('../src/utils/db-utils', () => ({
   storePackage: jest.fn().mockResolvedValue({}),
 }));
 

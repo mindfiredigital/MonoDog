@@ -1,19 +1,10 @@
 import { PackageInfo, DependencyInfo } from './utilities';
-// import dotenv from 'dotenv';
-import path from 'path';
-// dotenv.config({ path: path.resolve(__dirname, '../.env') });
-// Fallback import to handle environments where PrismaClient isn't a named export
 import * as PrismaPkg from '@prisma/client';
 const PrismaClient = (PrismaPkg as any).PrismaClient || (PrismaPkg as any).default || PrismaPkg;
-// Provide a fallback reference to the Prisma namespace so errors like
-// Prisma.PrismaClientKnownRequestError can be referenced safely.
 const Prisma = (PrismaPkg as any).Prisma || (PrismaPkg as any).PrismaClient?.Prisma || (PrismaPkg as any).default?.Prisma || PrismaPkg;
 
 import { appConfig } from '../config-loader';
 
-// const appConfig = loadConfig();
-
-// Commit type used by getCommits/storeCommits
 export interface Commit {
   hash: string;
   message?: string;
@@ -106,19 +97,14 @@ async function storePackage(pkg: PackageInfo): Promise<void> {
         createdAt: new Date(),
         lastUpdated: new Date(),
 
-        // Key Metrics and Relationships
-        dependencies: JSON.stringify(pkg.dependencies), // The total number of direct dependencies (12 in your example)
+        dependencies: JSON.stringify(pkg.dependencies), // The total number of direct dependencies
         // Manual Serialization Required: Stores a JSON array string of maintainers, e.g., '["team-frontend"]'
         maintainers: pkg.maintainers.join(','),
-        // Manual Serialization Required: Stores a JSON array string of tags, e.g., '["core", "ui"]'
 
         // Manual Serialization Required: Stores the scripts object as a JSON string
         // Example: '{"dev": "vite", "build": "tsc && vite build"}'
         scripts: JSON.stringify(pkg.scripts),
 
-        // Dependency Lists (Manual Serialization Required)
-        // Stores a JSON array string of dependencies.
-        // dependenciesList: JSON.stringify(pkg.dependenciesList),
         devDependencies: JSON.stringify(pkg.devDependencies),
         peerDependencies: JSON.stringify(pkg.peerDependencies),
         name: pkg.name,
@@ -233,9 +219,10 @@ async function storeDependencies(
 }
 
 export {
-  getCommits,
-  storePackage,
-  storeCommits,
-  getPackageDependenciesInfo,
-  storeDependencies,
+  storePackage
+  // OPTIONAL: Export other functions if needed
+  // getCommits,
+  // storeCommits,
+  // getPackageDependenciesInfo,
+  // storeDependencies,
 };

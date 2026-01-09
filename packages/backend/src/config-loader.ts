@@ -40,7 +40,7 @@ export function loadConfig(): MonodogConfig {
   // 1. Determine the path to the config file
   // We assume the backend package is running from the monorepo root (cwd is root)
   // or that we can navigate up to the root from the current file's location.
-  const rootPath = path.resolve(process.cwd(), '..', '..'); // Adjust based on your workspace folder depth  from root if needed
+  const rootPath = path.resolve(process.cwd(), '.'); // Adjust based on your workspace folder depth  from root if needed
   const configPath = path.resolve(rootPath, 'monodog-conf.json');
   createConfigFileIfMissing(rootPath);
 

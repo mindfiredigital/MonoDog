@@ -36,6 +36,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.calculatePackageHealth = void 0;
 exports.resolveWorkspaceGlobs = resolveWorkspaceGlobs;
 exports.getWorkspacesFromRoot = getWorkspacesFromRoot;
 exports.parsePackageInfo = parsePackageInfo;
@@ -45,11 +46,12 @@ exports.findCircularDependencies = findCircularDependencies;
 exports.generateDependencyGraph = generateDependencyGraph;
 exports.checkOutdatedDependencies = checkOutdatedDependencies;
 exports.getPackageSize = getPackageSize;
-exports.calculatePackageHealth = calculatePackageHealth;
 // import { Package } from '@prisma/client';
 const fs = __importStar(require("fs"));
 const path_1 = __importDefault(require("path"));
 const config_loader_1 = require("../config-loader");
+const health_utils_1 = require("./health-utils");
+Object.defineProperty(exports, "calculatePackageHealth", { enumerable: true, get: function () { return health_utils_1.calculatePackageHealth; } });
 /**
  * Resolves simple workspace globs (like 'packages/*', 'apps/*') into actual package directory paths.
  * Note: This implementation only handles the 'folder/*' pattern and is not a full glob resolver.
@@ -178,71 +180,6 @@ function parsePackageInfo(packagePath, packageName, forcedType) {
     }
 }
 /**
- * Analyzes dependencies and determines their status
- */
-// function analyzeDependencies(
-//   dependencies: Record<string, string>,
-//   type: 'production' | 'development' = 'production'
-// ): DependencyInfo[] {
-//   return Object.entries(dependencies).map(([name, version]) => ({
-//     name,
-//     currentVersion: version,
-//     status: 'unknown', // Would be determined by npm registry check
-//     type,
-//   }));
-// }
-/**
- * Calculates package health score based on various metrics
- */
-function calculatePackageHealth(buildStatus, testCoverage, lintStatus, securityAudit) {
-    let score = 0;
-    // Build status (30 points)
-    switch (buildStatus) {
-        case 'success':
-            score += 30;
-            break;
-        case 'running':
-            score += 15;
-            break;
-        case 'failed':
-            score += 0;
-            break;
-        default:
-            score += 10;
-    }
-    // Test coverage (25 points)
-    score += Math.min(25, (testCoverage / 100) * 25);
-    // Lint status (25 points)
-    switch (lintStatus) {
-        case 'pass':
-            score += 25;
-            break;
-        case 'fail':
-            score += 0;
-            break;
-        default:
-            score += 10;
-    }
-    // Security audit (20 points)
-    switch (securityAudit) {
-        case 'pass':
-            score += 20;
-            break;
-        case 'fail':
-            score += 0;
-            break;
-        default:
-            score += 10;
-    }
-    return {
-        buildStatus,
-        testCoverage,
-        lintStatus,
-        securityAudit,
-        overallScore: Math.round(score),
-    };
-}
-/**
  * Generates comprehensive monorepo statistics
  */
 function generateMonorepoStats(packages) {
@@ -350,29 +287,6 @@ function checkOutdatedDependencies(packageInfo) {
     });
     return outdated;
 }
-/**
- * Formats version numbers for comparison
- */
-// function parseVersion(version: string): number[] {
-//   return version
-//     .replace(/^[^0-9]*/, '')
-//     .split('.')
-//     .map(Number);
-// }
-/**
- * Compares two version strings
- */
-// function compareVersions(v1: string, v2: string): number {
-//   const parsed1 = parseVersion(v1);
-//   const parsed2 = parseVersion(v2);
-//   for (let i = 0; i < Math.max(parsed1.length, parsed2.length); i++) {
-//     const num1 = parsed1[i] || 0;
-//     const num2 = parsed2[i] || 0;
-//     if (num1 > num2) return 1;
-//     if (num1 < num2) return -1;
-//   }
-//   return 0;
-// }
 /**
  * Gets package size information
  */

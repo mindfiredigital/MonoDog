@@ -2,6 +2,9 @@
 import * as fs from 'fs';
 import path from 'path';
 import { appConfig } from '../config-loader';
+import {calculatePackageHealth} from './health-utils';
+
+export {PackageHealth} from './health-utils';
 
 export interface PackageInfo {
   name: string;
@@ -19,25 +22,12 @@ export interface PackageInfo {
 }
 
 export interface DependencyInfo {
-  // name: string;
-  // currentVersion: string;
-  // latestVersion?: string;
-  // status: 'up-to-date' | 'outdated' | 'major-update' | 'unknown';
-  // type: 'production' | 'development';
   name: string;
   version: string;
   type: 'dependency' | 'devDependency' | 'peerDependency';
   latest?: string;
   status?: 'up-to-date' | 'outdated' | 'major-update' | 'unknown';
   outdated?: boolean;
-}
-
-export interface PackageHealth {
-  buildStatus: 'success' | 'failed' | 'running' | 'unknown';
-  testCoverage: number;
-  lintStatus: 'pass' | 'fail' | 'unknown';
-  securityAudit: 'pass' | 'fail' | 'unknown';
-  overallScore: number;
 }
 
 export interface MonorepoStats {
@@ -195,83 +185,6 @@ export function parsePackageInfo(
 }
 
 /**
- * Analyzes dependencies and determines their status
- */
-// function analyzeDependencies(
-//   dependencies: Record<string, string>,
-//   type: 'production' | 'development' = 'production'
-// ): DependencyInfo[] {
-//   return Object.entries(dependencies).map(([name, version]) => ({
-//     name,
-//     currentVersion: version,
-//     status: 'unknown', // Would be determined by npm registry check
-//     type,
-//   }));
-// }
-
-/**
- * Calculates package health score based on various metrics
- */
-function calculatePackageHealth(
-  buildStatus: PackageHealth['buildStatus'],
-  testCoverage: number,
-  lintStatus: PackageHealth['lintStatus'],
-  securityAudit: PackageHealth['securityAudit']
-): PackageHealth {
-  let score = 0;
-
-  // Build status (30 points)
-  switch (buildStatus) {
-    case 'success':
-      score += 30;
-      break;
-    case 'running':
-      score += 15;
-      break;
-    case 'failed':
-      score += 0;
-      break;
-    default:
-      score += 10;
-  }
-
-  // Test coverage (25 points)
-  score += Math.min(25, (testCoverage / 100) * 25);
-
-  // Lint status (25 points)
-  switch (lintStatus) {
-    case 'pass':
-      score += 25;
-      break;
-    case 'fail':
-      score += 0;
-      break;
-    default:
-      score += 10;
-  }
-
-  // Security audit (20 points)
-  switch (securityAudit) {
-    case 'pass':
-      score += 20;
-      break;
-    case 'fail':
-      score += 0;
-      break;
-    default:
-      score += 10;
-  }
-
-  return {
-    buildStatus,
-    testCoverage,
-    lintStatus,
-    securityAudit,
-    overallScore: Math.round(score),
-  };
-}
-
-/**
  * Generates comprehensive monorepo statistics
  */
 function generateMonorepoStats(packages: PackageInfo[]): MonorepoStats {
@@ -399,34 +312,6 @@ function checkOutdatedDependencies(packageInfo: PackageInfo): DependencyInfo[] {
 }
 
 /**
- * Formats version numbers for comparison
- */
-// function parseVersion(version: string): number[] {
-//   return version
-//     .replace(/^[^0-9]*/, '')
-//     .split('.')
-//     .map(Number);
-// }
-
-/**
- * Compares two version strings
- */
-// function compareVersions(v1: string, v2: string): number {
-//   const parsed1 = parseVersion(v1);
-//   const parsed2 = parseVersion(v2);
-
-//   for (let i = 0; i < Math.max(parsed1.length, parsed2.length); i++) {
-//     const num1 = parsed1[i] || 0;
-//     const num2 = parsed2[i] || 0;
-
-//     if (num1 > num2) return 1;
-//     if (num1 < num2) return -1;
-//   }
-
-//   return 0;
-// }
-
-/**
  * Gets package size information
  */
 function getPackageSize(packagePath: string): {
@@ -478,6 +363,5 @@ export {
   generateDependencyGraph,
   checkOutdatedDependencies,
   getPackageSize,
-  // analyzeDependencies,
-  calculatePackageHealth,
+  calculatePackageHealth
 };
