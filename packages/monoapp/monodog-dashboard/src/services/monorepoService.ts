@@ -1,6 +1,6 @@
 // Browser-compatible monorepo service
 // In a real production app, this would make API calls to a backend service
-const apiUrl = (window as any).ENV?.API_URL ?? 'localhost:8999';
+const apiUrl = (window as any).ENV?.API_URL ?? 'http://localhost:8999';
 
 export interface Package {
   name: string;
@@ -62,9 +62,8 @@ export interface ConfigFile {
   size: number;
   hasSecrets: boolean;
 }
-const host = '0.0.0.0';
-const port = '4004';
-const API_BASE = `http://${apiUrl}/api`;
+
+const API_BASE = `${apiUrl}/api`;
 class MonorepoService {
   // Simulated monorepo data based on typical monorepo structure
   private mockPackages: Package[] = [

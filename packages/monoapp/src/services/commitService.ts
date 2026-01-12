@@ -1,4 +1,4 @@
-import { GitService } from '../gitService';
+import { GitService } from './gitService';
 import path from 'path';
 import fs from 'fs';
 

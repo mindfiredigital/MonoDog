@@ -14,6 +14,7 @@ GET /api/config/files
 ```
 
 Returns all configuration files found in the monorepo (tsconfig, eslintrc, etc.).
+
 Response:
 ```json
 {
@@ -43,5 +44,34 @@ Response:
     },
     ...
   ]
+}
+```
+
+## Update Configuration File
+
+```bash
+PUT /api/config/files/ID
+```
+ID is the path of configuration file.
+
+Update content of the configuration file.
+
+Response:
+```json
+{
+  "success": true,
+  "file":
+    {
+      "id": "/packages/packageB/tsconfig.json",
+      "name": "tsconfig.json",
+      "path": "/packages/packageB/tsconfig.json",
+      "type": "json",
+      "content": "{\n  \"files\": [],\n  \"references\": [\n    { \"path\": \"./tsconfig.app.json\" },\n    { \"path\": \"./tsconfig.node.json\" }\n  ]\n}\n",
+      "size": 119,
+      "lastModified": "2020-12-05T08:59:38.762Z",
+      "hasSecrets": false,
+      "isEditable": true
+    },
+  "message": "File saved successfully"
 }
 ```

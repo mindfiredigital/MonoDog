@@ -87,7 +87,7 @@ export default function Layout({ children }: LayoutProps) {
               <span className="text-neutral-500">Admin</span>
             </div>
             <img
-              src="https://ui-avatars.com/api/?name=John+Doe&background=0D8ABC&color=fff"
+              src=""
               alt="User Avatar"
               className="h-8 w-8 rounded-full border border-neutral-200"
             />

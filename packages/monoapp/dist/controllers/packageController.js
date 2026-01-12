@@ -14,7 +14,7 @@ const getPackages = async (_req, res) => {
 };
 exports.getPackages = getPackages;
 const refreshPackages = async (_req, res) => {
-    console.log('Refreshing packages from source...');
+    console.log('Refreshing packages from source...' + _req.app.locals.rootPath);
     try {
         const packages = await (0, packageService_1.refreshPackagesService)(_req.app.locals.rootPath);
         res.json(packages);

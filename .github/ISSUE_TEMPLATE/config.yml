@@ -2,4 +2,4 @@ blank_issues_enabled: true
 contact_links:
   - name: MonoDog
     url: https://mindfiredigital.github.io/MonoDog/
-    about: MonoDog is a dashboard provides visual management and monitoring for packages in monorepos using pnpm, Turborepo, and Nx, with automated CI/CD integration, semantic versioning, and development workflow optimization.
+    about: MonoDog is a dashboard provides visual management and monitoring for packages in monorepos using pnpm with automated CI/CD integration, semantic versioning, and development workflow optimization.

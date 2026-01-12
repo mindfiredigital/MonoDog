@@ -6,7 +6,6 @@ const getConfigurationFiles = async (_req, res) => {
     try {
         const rootDir = _req.app.locals.rootPath;
         console.log('Monorepo root directory:', rootDir);
-        console.log('Backend directory:', __dirname);
         const configFiles = await (0, configService_1.getConfigurationFilesService)(rootDir);
         res.json(configFiles);
     }

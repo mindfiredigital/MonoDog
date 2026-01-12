@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getCommitsByPathService = void 0;
-const gitService_1 = require("../gitService");
+const gitService_1 = require("./gitService");
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const getCommitsByPathService = async (packagePath) => {

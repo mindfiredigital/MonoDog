@@ -28,7 +28,7 @@ jest.mock('../src/utils/monorepo-scanner');
 jest.mock('../src/utils/ci-status');
 jest.mock('../src/utils/utilities');
 jest.mock('../src/utils/db-utils');
-jest.mock('../src/gitService');
+jest.mock('../src/services/gitService');
 
 describe('Monoapp Backend API Integration Tests', () => {
   let mockUtilities: any;

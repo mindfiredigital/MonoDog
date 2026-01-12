@@ -46,12 +46,14 @@ exports.findCircularDependencies = findCircularDependencies;
 exports.generateDependencyGraph = generateDependencyGraph;
 exports.checkOutdatedDependencies = checkOutdatedDependencies;
 exports.getPackageSize = getPackageSize;
+exports.findMonorepoRoot = findMonorepoRoot;
 // import { Package } from '@prisma/client';
 const fs = __importStar(require("fs"));
 const path_1 = __importDefault(require("path"));
 const config_loader_1 = require("../config-loader");
 const health_utils_1 = require("./health-utils");
 Object.defineProperty(exports, "calculatePackageHealth", { enumerable: true, get: function () { return health_utils_1.calculatePackageHealth; } });
+const yaml = __importStar(require("js-yaml"));
 /**
  * Resolves simple workspace globs (like 'packages/*', 'apps/*') into actual package directory paths.
  * Note: This implementation only handles the 'folder/*' pattern and is not a full glob resolver.
@@ -80,27 +82,65 @@ function resolveWorkspaceGlobs(rootDir, globs) {
     return resolvedPaths;
 }
 /**
- * Reads the root package.json and extracts the 'workspaces' field (array of globs).
+ * Parses pnpm-workspace.yaml and extracts workspace globs
  */
-function getWorkspacesFromRoot(rootDir) {
-    const packageJsonPath = path_1.default.join(rootDir, 'package.json');
-    if (!fs.existsSync(packageJsonPath)) {
-        console.warn(`\n⚠️ Warning: No package.json found at root directory: ${rootDir}`);
+function getWorkspacesFromPnpmYaml(rootDir) {
+    const workspaceYamlPath = path_1.default.join(rootDir, 'pnpm-workspace.yaml');
+    if (!fs.existsSync(workspaceYamlPath)) {
         return undefined;
     }
     try {
-        const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
-        // Handle both standard array and object format (used by yarn/pnpm)
-        if (Array.isArray(packageJson.workspaces)) {
-            return packageJson.workspaces;
-        }
-        else if (packageJson.workspaces && Array.isArray(packageJson.workspaces.packages)) {
-            return packageJson.workspaces.packages;
+        const yamlContent = fs.readFileSync(workspaceYamlPath, 'utf-8');
+        const yamlData = yaml.load(yamlContent);
+        if (yamlData && yamlData.packages) {
+            // Filter out exclusion patterns (lines starting with '!')
+            const packages = Array.isArray(yamlData.packages)
+                ? yamlData.packages.filter((pkg) => typeof pkg === 'string' && !pkg.startsWith('!'))
+                : [];
+            if (packages.length > 0) {
+                return packages;
+            }
         }
     }
     catch (e) {
-        console.error(`\n❌ Error parsing package.json at ${packageJsonPath}. Skipping workspace detection.`);
+        console.error(`\n❌ Error parsing pnpm-workspace.yaml at ${workspaceYamlPath}:`, e);
     }
+    return undefined;
+}
+/**
+ * Reads workspace configuration from package.json or pnpm-workspace.yaml
+ * Priority: package.json (if exists) -> pnpm-workspace.yaml
+ */
+function getWorkspacesFromRoot(rootDir) {
+    const packageJsonPath = path_1.default.join(rootDir, 'package.json');
+    // Try package.json first
+    if (fs.existsSync(packageJsonPath)) {
+        try {
+            const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
+            // Handle both standard array and object format (used by yarn/pnpm)
+            if (Array.isArray(packageJson.workspaces)) {
+                console.log('✅ Workspace configuration found in package.json');
+                return packageJson.workspaces;
+            }
+            else if (packageJson.workspaces && Array.isArray(packageJson.workspaces.packages)) {
+                console.log('✅ Workspace configuration found in package.json');
+                return packageJson.workspaces.packages;
+            }
+        }
+        catch (e) {
+            console.error(`\n❌ Error parsing package.json at ${packageJsonPath}. Attempting to read pnpm-workspace.yaml...`);
+        }
+    }
+    else {
+        console.warn(`\n⚠️ Warning: No package.json found at root directory: ${rootDir}`);
+    }
+    // Fallback to pnpm-workspace.yaml
+    const pnpmWorkspaces = getWorkspacesFromPnpmYaml(rootDir);
+    if (pnpmWorkspaces && pnpmWorkspaces.length > 0) {
+        console.log('✅ Workspace configuration found in pnpm-workspace.yaml');
+        return pnpmWorkspaces;
+    }
+    console.warn('\n⚠️ No workspace configuration found in package.json or pnpm-workspace.yaml');
     return undefined;
 }
 /**
@@ -110,7 +150,7 @@ function scanMonorepo(rootDir) {
     const packages = [];
     console.log('rootDir:', rootDir);
     const workspacesGlobs = config_loader_1.appConfig.workspaces;
-    // Use provided workspaces globs if given, otherwise attempt to detect from root package.json
+    // Use provided workspaces globs if given, otherwise attempt to detect from root package.json or pnpm-workspace.yaml
     const detectedWorkspacesGlobs = workspacesGlobs.length > 0 ? workspacesGlobs : getWorkspacesFromRoot(rootDir);
     if (detectedWorkspacesGlobs && detectedWorkspacesGlobs.length > 0) {
         if (workspacesGlobs.length) {
@@ -325,4 +365,42 @@ function getPackageSize(packagePath) {
     catch (error) {
         return { size: 0, files: 0 };
     }
+}
+/**
+ * Find the monorepo root by looking for package.json with workspaces or pnpm-workspace.yaml
+ */
+function findMonorepoRoot() {
+    let currentDir = __dirname;
+    while (currentDir !== path_1.default.parse(currentDir).root) {
+        const packageJsonPath = path_1.default.join(currentDir, 'package.json');
+        const pnpmWorkspacePath = path_1.default.join(currentDir, 'pnpm-workspace.yaml');
+        // Check if this directory has package.json with workspaces or pnpm-workspace.yaml
+        if (fs.existsSync(packageJsonPath)) {
+            try {
+                const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+                // If it has workspaces or is the root monorepo package
+                if (packageJson.workspaces || fs.existsSync(pnpmWorkspacePath)) {
+                    console.log('✅ Found monorepo root:', currentDir);
+                    return currentDir;
+                }
+            }
+            catch (error) {
+                // Continue searching if package.json is invalid
+            }
+        }
+        // Check if we're at the git root
+        const gitPath = path_1.default.join(currentDir, '.git');
+        if (fs.existsSync(gitPath)) {
+            console.log('✅ Found git root (likely monorepo root):', currentDir);
+            return currentDir;
+        }
+        // Go up one directory
+        const parentDir = path_1.default.dirname(currentDir);
+        if (parentDir === currentDir)
+            break; // Prevent infinite loop
+        currentDir = parentDir;
+    }
+    // Fallback to process.cwd() if we can't find the root
+    console.log('⚠️ Could not find monorepo root, using process.cwd():', process.cwd());
+    return process.cwd();
 }
