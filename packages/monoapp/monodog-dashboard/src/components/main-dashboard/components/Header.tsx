@@ -23,7 +23,7 @@ export default function Header({
           onClick={onShowSetupGuide}
           className="hidden text-primary-600 hover:text-primary-700 text-sm font-medium mt-2"
         >
-          🚀 First time? Run the setup guide
+          First time? Run the setup guide
         </button>
       </div>
       <div className="flex space-x-3">

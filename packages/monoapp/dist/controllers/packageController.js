@@ -44,8 +44,8 @@ const updatePackageConfig = async (req, res) => {
                 error: 'Package name, configuration, and package path are required',
             });
         }
-        console.log('💾 Updating package configuration for:', packageName);
-        console.log('📁 Package path:', packagePath);
+        console.log('Updating package configuration for:', packageName);
+        console.log('Package path:', packagePath);
         const updatedPackage = await (0, configService_1.updatePackageConfigurationService)(packagePath, packageName, config);
         return res.json({
             success: true,

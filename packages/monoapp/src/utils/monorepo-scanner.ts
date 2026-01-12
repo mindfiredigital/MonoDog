@@ -63,7 +63,7 @@ export class MonorepoScanner {
         return cached;
       }
 
-      console.log('🔍 Starting monorepo scan...');
+      console.log('Starting monorepo scan...');
 
       // Scan all packages
       const packages = scanMonorepo(this.rootDir);
@@ -94,10 +94,10 @@ export class MonorepoScanner {
       // Cache the result
       this.setCache(cacheKey, result);
 
-      console.log(`✅ Scan completed in ${result.scanDuration}ms`);
+      console.log(`Scan completed in ${result.scanDuration}ms`);
       return result;
     } catch (error) {
-      console.error('❌ Error during scan:', error);
+      console.error('Error during scan:', error);
       throw error;
     }
   }

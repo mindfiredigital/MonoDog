@@ -31,7 +31,7 @@ You must have the following installed to run the service:
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Install Package in Monorepo
 

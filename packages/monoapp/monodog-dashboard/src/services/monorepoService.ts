@@ -648,7 +648,7 @@ class MonorepoService {
 
       return result;
     } catch (error) {
-      console.error('❌ Error updating package configuration:', error);
+      console.error('Error updating package configuration:', error);
       throw error;
     }
   }

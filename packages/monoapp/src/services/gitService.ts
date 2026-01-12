@@ -66,10 +66,10 @@ export class GitService {
       // First, validate we're in a git repo
       await this.validateGitRepository(pathArgument);
 
-      console.log(`🔧 Executing Git command in: ${this.repoPath}`);
+      console.log(`Executing Git command in: ${this.repoPath}`);
       // Use a simpler git log format
       const command = `git log --pretty=format:"%H|%an|%ad|%s" --date=iso-strict ${pathArgument}`;
-      console.log(`📝 Git command: ${command}`);
+      console.log(`Git command: ${command}`);
 
       const { stdout, stderr } = await execPromise(command, {
         cwd: this.repoPath,
@@ -104,14 +104,14 @@ export class GitService {
 
           commits.push(commit);
         } catch (parseError) {
-          console.error('❌ Failed to parse commit line:', line, parseError);
+          console.error('Failed to parse commit line:', line, parseError);
         }
       }
 
-      console.log(`✅ Successfully parsed ${commits.length} commits`);
+      console.log(`Successfully parsed ${commits.length} commits`);
       return commits;
     } catch (error) {
-      console.error('💥 Error in getAllCommits:', error);
+      console.error('Error in getAllCommits:', error);
       throw error;
     }
   }
@@ -155,7 +155,7 @@ export class GitService {
       await execPromise('git '+pathArgument+' rev-parse --is-inside-work-tree', {
         cwd: this.repoPath,
       });
-      console.log('✅ Valid git repository');
+      console.log('Valid git repository');
     } catch (error) {
       throw new Error(
         'Not a git repository (or any of the parent directories)'

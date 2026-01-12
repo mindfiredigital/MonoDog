@@ -55,7 +55,7 @@ export default function HealthAlerts({
       <div className="space-y-4">
         <h3 className="text-lg font-medium text-gray-900">Health Alerts</h3>
         <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
-          <div className="text-green-400 text-4xl mb-2">✅</div>
+          <div className="text-green-400 text-4xl mb-2"></div>
           <h4 className="text-green-800 font-medium mb-1">All Clear!</h4>
           <p className="text-green-700 text-sm">
             No health alerts at this time. Your monorepo is running smoothly.

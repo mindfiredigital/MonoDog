@@ -51,7 +51,7 @@ export default function CircularDependencies({
         </div>
 
         <div className="text-center py-8">
-          <div className="text-green-400 text-4xl mb-2">✅</div>
+          <div className="text-green-400 text-4xl mb-2"></div>
           <h4 className="text-green-800 font-medium mb-1">
             No Circular Dependencies!
           </h4>

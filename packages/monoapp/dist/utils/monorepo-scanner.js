@@ -34,7 +34,7 @@ class MonorepoScanner {
             if (cached) {
                 return cached;
             }
-            console.log('🔍 Starting monorepo scan...');
+            console.log('Starting monorepo scan...');
             // Scan all packages
             const packages = (0, utilities_1.scanMonorepo)(this.rootDir);
             console.log(`📦 Found ${packages.length} packages`);
@@ -57,11 +57,11 @@ class MonorepoScanner {
             };
             // Cache the result
             this.setCache(cacheKey, result);
-            console.log(`✅ Scan completed in ${result.scanDuration}ms`);
+            console.log(`Scan completed in ${result.scanDuration}ms`);
             return result;
         }
         catch (error) {
-            console.error('❌ Error during scan:', error);
+            console.error('Error during scan:', error);
             throw error;
         }
     }

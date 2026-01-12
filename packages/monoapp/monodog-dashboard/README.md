@@ -28,7 +28,7 @@ To run this application, ensure the following:
 
 ---
 
-## 🚨 API Connection Details
+## API Connection Details
 
 The dashboard connects to the backend API using the following base URL:
 
@@ -36,7 +36,7 @@ The dashboard connects to the backend API using the following base URL:
 const API_BASE_URL = 'http://localhost:8999/api';
 ```
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Installation
 

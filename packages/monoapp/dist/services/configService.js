@@ -150,12 +150,12 @@ async function scanConfigFiles(rootDir) {
             return filename.toLowerCase() === pattern.toLowerCase();
         });
     }
-    console.log(`🔍 Scanning for config files in: ${rootDir}`);
+    console.log(`Scanning for config files in: ${rootDir}`);
     // Start scanning from root
     scanDirectory(rootDir);
     // Sort files by path for consistent ordering
     configFiles.sort((a, b) => a.path.localeCompare(b.path));
-    console.log(`📁 Found ${configFiles.length} configuration files`);
+    console.log(`Found ${configFiles.length} configuration files`);
     // Log some sample files for debugging
     if (configFiles.length > 0) {
         console.log('Sample config files found:');
@@ -238,8 +238,8 @@ const getConfigurationFilesService = async (rootDir) => {
 exports.getConfigurationFilesService = getConfigurationFilesService;
 const updateConfigFileService = async (id, rootDir, content) => {
     const filePath = path_1.default.join(rootDir, id.startsWith('/') ? id.slice(1) : id);
-    console.log('💾 Saving file:', filePath);
-    console.log('📁 Root directory:', rootDir);
+    console.log('Saving file:', filePath);
+    console.log('Root directory:', rootDir);
     // Security check: ensure the file is within the project directory
     if (!filePath.startsWith(rootDir)) {
         throw new Error('Invalid file path');
@@ -342,7 +342,7 @@ const updatePackageConfigurationService = async (packagePath, packageName, confi
         updateData.devDependencies = JSON.stringify(newConfig.devDependencies);
     if (newConfig.peerDependencies)
         updateData.peerDependencies = JSON.stringify(newConfig.peerDependencies);
-    console.log('📝 Updating database with:', updateData);
+    console.log('Updating database with:', updateData);
     const updatedPackage = await prisma.package.update({
         where: { name: packageName },
         data: updateData,

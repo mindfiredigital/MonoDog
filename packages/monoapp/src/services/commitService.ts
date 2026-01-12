@@ -7,8 +7,8 @@ export const getCommitsByPathService = async (packagePath: string) => {
   // Decode the package path
   const decodedPath = decodeURIComponent(packagePath);
 
-  console.log('🔍 Fetching commits for path:', decodedPath);
-  console.log('📁 Current working directory:', process.cwd());
+  console.log('Fetching commits for path:', decodedPath);
+  console.log('Current working directory:', process.cwd());
 
   const gitService = new GitService();
 
@@ -19,19 +19,19 @@ export const getCommitsByPathService = async (packagePath: string) => {
   // If it's an absolute path, make it relative to project root
   if (path.isAbsolute(decodedPath)) {
     relativePath = path.relative(projectRoot, decodedPath);
-    console.log('🔄 Converted absolute path to relative:', relativePath);
+    console.log('Converted absolute path to relative:', relativePath);
   }
 
   // Check if the path exists
   try {
     await fs.promises.access(relativePath);
-    console.log('✅ Path exists:', relativePath);
+    console.log('Path exists:', relativePath);
   } catch (fsError) {
-    console.log('❌ Path does not exist:', relativePath);
+    console.log('Path does not exist:', relativePath);
     // Try the original path as well
     try {
       await fs.promises.access(decodedPath);
-      console.log('✅ Original path exists:', decodedPath);
+      console.log('Original path exists:', decodedPath);
       relativePath = decodedPath; // Use original path if it exists
     } catch (secondError) {
       throw new Error(`Path does not exist: ${decodedPath}`);

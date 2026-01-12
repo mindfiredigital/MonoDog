@@ -51,7 +51,7 @@ async function getCommits(path) {
     return (await res.json());
 }
 async function storeCommits(packageName, commits) {
-    console.log('💾 Storing commits for:' + packageName);
+    console.log('Storing commits for:' + packageName);
     // Create or update dependencies
     for (const commit of commits) {
         try {
@@ -142,7 +142,7 @@ async function storePackage(pkg) {
         }
     }
     catch (error) {
-        console.warn(`⚠️  Failed to store report for ${pkg.name}:`, error);
+        console.warn(` Failed to store report for ${pkg.name}:`, error);
     }
 }
 /**
@@ -183,7 +183,7 @@ function getPackageDependenciesInfo(pkg) {
  * Store dependencies in database
  */
 async function storeDependencies(packageName, dependencies) {
-    console.log('💾 Storing Dependencies for:' + packageName);
+    console.log('Storing Dependencies for:' + packageName);
     // Create or update dependencies
     for (const dep of dependencies) {
         try {
