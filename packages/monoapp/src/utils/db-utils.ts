@@ -1,17 +1,9 @@
-import { PackageInfo, DependencyInfo } from './utilities';
+import type { PackageInfo, DependencyInfo, Commit } from '../types';
 import * as PrismaPkg from '@prisma/client';
 const PrismaClient = (PrismaPkg as any).PrismaClient || (PrismaPkg as any).default || PrismaPkg;
 const Prisma = (PrismaPkg as any).Prisma || (PrismaPkg as any).PrismaClient?.Prisma || (PrismaPkg as any).default?.Prisma || PrismaPkg;
 
 import { appConfig } from '../config-loader';
-
-export interface Commit {
-  hash: string;
-  message?: string;
-  author?: string;
-  date?: string;
-  type?: string;
-}
 
 // Default settings
 const DEFAULT_PORT = 4000;

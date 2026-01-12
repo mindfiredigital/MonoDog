@@ -1,25 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-// Define a type/interface for your configuration structure
-interface MonodogConfig {
-  workspaces: [];
-  database: {
-    type: 'postgres' | 'mysql' | 'sqlite';
-    host: string;
-    port: number;
-    user: string;
-    path: string; // Used for SQLite path or general data storage path
-  };
-  dashboard: {
-    host: string;
-    port: number;
-  };
-  server: {
-    host: string;
-    port: number;
-  };
-}
+import type { MonodogConfig } from './types';
 
 // Global variable to hold the loaded config
 let config: MonodogConfig | null = null;

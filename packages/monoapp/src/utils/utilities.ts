@@ -5,43 +5,10 @@ import { appConfig } from '../config-loader';
 import {calculatePackageHealth} from './health-utils';
 import * as yaml from 'js-yaml';
 
-export {PackageHealth} from './health-utils';
+import type { PackageInfo, DependencyInfo, MonorepoStats } from '../types';
 
-export interface PackageInfo {
-  name: string;
-  version: string;
-  type: string; //'app' | 'lib' | 'tool';
-  path: string;
-  dependencies: Record<string, string>;
-  devDependencies: Record<string, string>;
-  peerDependencies: Record<string, string>;
-  scripts: Record<string, string>;
-  maintainers: string[];
-  description?: string;
-  license?: string;
-  repository?: Record<string, string>;
-}
-
-export interface DependencyInfo {
-  name: string;
-  version: string;
-  type: 'dependency' | 'devDependency' | 'peerDependency';
-  latest?: string;
-  status?: 'up-to-date' | 'outdated' | 'major-update' | 'unknown';
-  outdated?: boolean;
-}
-
-export interface MonorepoStats {
-  totalPackages: number;
-  apps: number;
-  libraries: number;
-  tools: number;
-  healthyPackages: number;
-  warningPackages: number;
-  errorPackages: number;
-  outdatedDependencies: number;
-  totalDependencies: number;
-}
+export type { PackageInfo, DependencyInfo, MonorepoStats } from '../types';
+export { type PackageHealth } from '../types';
 
 /**
  * Resolves simple workspace globs (like 'packages/*', 'apps/*') into actual package directory paths.

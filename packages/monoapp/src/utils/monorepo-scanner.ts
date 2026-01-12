@@ -2,11 +2,15 @@
 import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
-import {
+import type {
   PackageInfo,
   DependencyInfo,
   PackageHealth,
   MonorepoStats,
+  ScanResult,
+  PackageReport,
+} from '../types';
+import {
   scanMonorepo,
   calculatePackageHealth,
   generateMonorepoStats,
@@ -15,30 +19,6 @@ import {
   checkOutdatedDependencies,
   getPackageSize,
 } from './utilities';
-
-export interface ScanResult {
-  packages: PackageInfo[];
-  stats: MonorepoStats;
-  dependencyGraph: any;
-  circularDependencies: string[][];
-  outdatedPackages: string[];
-  scanTimestamp: Date;
-  scanDuration: number;
-}
-
-export interface PackageReport {
-  package: PackageInfo;
-  health: PackageHealth;
-  size: { size: number; files: number };
-  outdatedDeps: DependencyInfo[];
-  lastModified: Date;
-  gitInfo?: {
-    lastCommit: string;
-    lastCommitDate: Date;
-    author: string;
-    branch: string;
-  };
-}
 
 export class MonorepoScanner {
   private rootDir: string;

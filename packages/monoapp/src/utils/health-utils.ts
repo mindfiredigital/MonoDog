@@ -1,10 +1,4 @@
-export interface PackageHealth {
-  buildStatus: 'success' | 'failed' | 'running' | 'unknown';
-  testCoverage: number;
-  lintStatus: 'pass' | 'fail' | 'unknown';
-  securityAudit: 'pass' | 'fail' | 'unknown';
-  overallScore: number;
-}
+import type { PackageHealth } from '../types';
 
 /**
  * Calculates package health score based on various metrics
