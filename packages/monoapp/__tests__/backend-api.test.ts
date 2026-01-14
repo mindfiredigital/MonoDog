@@ -126,11 +126,7 @@ jest.mock('../src/utils/utilities', () => ({
   })),
 }));
 
-jest.mock('../src/utils/db-utils', () => ({
-  storePackage: jest.fn().mockResolvedValue({}),
-}));
-
-jest.mock('../src/services/gitService', () => ({
+jest.mock('../src/services/git-service', () => ({
   GitService: jest.fn().mockImplementation(() => ({
     getAllCommits: jest.fn().mockResolvedValue([
       { hash: 'abc123', author: 'Dev', message: 'Initial commit' },

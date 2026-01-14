@@ -5,14 +5,14 @@
 /**
  * Interface representing a single commit object with key metadata.
  */
-export interface GitCommit {
-  hash: string;
-  author: string;
-  packageName: string;
-  date: Date;
-  message: string;
-  type: string;
-}
+// export interface GitCommit {
+//   hash: string;
+//   author: string;
+//   packageName: string;
+//   date: Date;
+//   message: string;
+//   type: string;
+// }
 
 /**
  * List of standard Conventional Commit types for validation.

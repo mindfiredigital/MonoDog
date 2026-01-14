@@ -2,13 +2,10 @@ import { scanMonorepo } from '../utils/utilities';
 import { generateReports } from '../utils/monorepo-scanner';
 import { ciStatusManager } from '../utils/ci-status';
 import { storePackage } from '../utils/db-utils';
-
-import * as PrismaPkg from '@prisma/client';
-const PrismaClient = (PrismaPkg as any).PrismaClient || (PrismaPkg as any).default || PrismaPkg;
-const prisma = new PrismaClient();
+import { PackageRepository } from '../repositories';
 
 export const getPackagesService = async (rootPath: string) => {
-  let dbPackages = await prisma.package.findMany();
+  let dbPackages = await PackageRepository.findAll();
   if (!dbPackages.length) {
     try {
       const rootDir = rootPath;
@@ -21,7 +18,7 @@ export const getPackagesService = async (rootPath: string) => {
     } catch (error) {
       throw new Error('Error ' + error);
     }
-    dbPackages = await prisma.package.findMany();
+    dbPackages = await PackageRepository.findAll();
   }
   const transformedPackages = dbPackages.map((pkg: any) => {
     // We create a new object 'transformedPkg' based on the database record 'pkg'
@@ -55,7 +52,7 @@ export const getPackagesService = async (rootPath: string) => {
 }
 
 export const refreshPackagesService = async (rootPath: string) => {
-  await prisma.package.deleteMany();
+  await PackageRepository.deleteAll();
 
   const rootDir = rootPath;
   const packages = scanMonorepo(rootDir);
@@ -70,16 +67,7 @@ export const refreshPackagesService = async (rootPath: string) => {
 
 export const getPackageDetailService = async (name: string) => {
 
-  const pkg = await prisma.package.findUnique({
-    where: {
-      name: name,
-    },
-    include: {
-      dependenciesInfo: true,
-      commits: true,
-      packageHealth: true,
-    },
-  });
+  const pkg = await PackageRepository.findByNameWithRelations(name);
   if (!pkg) {
     return null;
   }

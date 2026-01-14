@@ -10,13 +10,14 @@ import {
 } from '../utils/monorepo-scanner';
 
 import { PackageHealthRepository, PackageRepository } from '../repositories';
+import type { TransformedPackageHealth, HealthResponse, PackageHealthModel } from '../types/database';
 
-export const getHealthSummaryService = async () => {
-  const packageHealthData = await PackageHealthRepository.findAll();
+export const getHealthSummaryService = async (): Promise<HealthResponse> => {
+  const packageHealthData = await PackageHealthRepository.findAll() as PackageHealthModel[];
   console.log('packageHealthData -->', packageHealthData.length);
 
   // Transform the data to match the expected frontend format
-  const packages = packageHealthData.map((pkg: any) => {
+  const packages = packageHealthData.map((pkg: PackageHealthModel) => {
     const health = {
       buildStatus: pkg.packageBuildStatus,
       testCoverage: pkg.packageTestCoverage,
@@ -34,11 +35,11 @@ export const getHealthSummaryService = async () => {
 
   // Calculate summary statistics
   const total = packages.length;
-  const healthy = packages.filter((pkg: any) => pkg.isHealthy).length;
-  const unhealthy = packages.filter((pkg: any) => !pkg.isHealthy).length;
+  const healthy = packages.filter((pkg: TransformedPackageHealth) => pkg.isHealthy).length;
+  const unhealthy = packages.filter((pkg: TransformedPackageHealth) => !pkg.isHealthy).length;
   const averageScore =
     packages.length > 0
-      ? packages.reduce((sum: any, pkg: any) => sum + pkg.health.overallScore, 0) /
+      ? packages.reduce((sum: number, pkg: TransformedPackageHealth) => sum + pkg.health.overallScore, 0) /
       packages.length
       : 0;
 

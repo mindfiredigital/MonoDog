@@ -3,7 +3,7 @@
  */
 
 export type { MonodogConfig } from './config';
-export type { GitCommit } from './git';
+// export type { GitCommit } from './git';
 export { VALID_COMMIT_TYPES } from './git';
 export type { PackageInfo, DependencyInfo, MonorepoStats } from './package';
 export type { PackageHealth } from './health';

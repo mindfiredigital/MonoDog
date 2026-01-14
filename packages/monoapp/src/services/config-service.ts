@@ -3,6 +3,24 @@ import path from 'path';
 
 import { PackageRepository } from '../repositories';
 
+/**
+ * Configuration file interface
+ */
+interface ConfigFile {
+  id: string;
+  name: string;
+  path: string;
+  type: string;
+  content: string;
+  size: number;
+  lastModified: string;
+  hasSecrets: boolean;
+}
+
+interface TransformedConfigFile extends ConfigFile {
+  isEditable: boolean;
+}
+
 // Helper function to scan for configuration files
 async function scanConfigFiles(rootDir: string): Promise<any[]> {
   const configPatterns = [
@@ -34,7 +52,7 @@ async function scanConfigFiles(rootDir: string): Promise<any[]> {
     'dockerfile*',
   ];
 
-  const configFiles: any[] = [];
+  const configFiles: ConfigFile[] = [];
   const scannedPaths = new Set();
 
   function scanDirectory(dir: string, depth = 0) {
@@ -323,7 +341,7 @@ export const updatePackageConfigurationService = async (packagePath: string, pac
   await fs.promises.writeFile(packageJsonPath, formattedConfig, 'utf8');
 
   // Update the package in the database - use correct field names based on your Prisma schema
-  const updateData: any = {
+  const updateData: Record<string, unknown> = {
     lastUpdated: new Date(),
   };
 
