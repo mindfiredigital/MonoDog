@@ -1,0 +1,21 @@
+model Package {
+  // Primary Key and Identity Field (using the package name as the unique ID): Example: '@monodog/dashboard'
+  name             String           @id @unique
+  version          String
+  type             String // e.g., 'app', 'package'
+  createdAt        DateTime         @default(now())
+  lastUpdated      DateTime         @default(now())
+  dependencies     String?
+  maintainers      String
+  path             String // The relative path in the file system, e.g., 'packages/monoapp'
+  description      String
+  license          String
+  repository       String?
+  scripts          String?
+  status           String           @default("")
+  devDependencies  String?
+  peerDependencies String?
+  dependenciesInfo DependencyInfo[]
+  commits          Commit[]
+  packageHealth    PackageHealth?
+}

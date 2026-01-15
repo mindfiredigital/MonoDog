@@ -3,14 +3,15 @@
  * Error handling middleware for Express
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.requestLogger = exports.notFoundHandler = exports.errorHandler = void 0;
+exports.notFoundHandler = exports.errorHandler = void 0;
+const logger_1 = require("./logger");
 /**
  * Global error handler middleware
  * Must be registered last in the middleware chain
  */
 const errorHandler = (err, req, res, _next) => {
     const status = err.status || err.statusCode || 500;
-    console.error('[ERROR]', {
+    logger_1.AppLogger.error('Request error occurred', {
         status,
         method: req.method,
         path: req.path,
@@ -35,9 +36,12 @@ const notFoundHandler = (_req, res) => {
 exports.notFoundHandler = notFoundHandler;
 /**
  * Request logging middleware
+ * Note: HTTP logging is handled by Morgan middleware in server-startup.ts
  */
-const requestLogger = (req, _res, next) => {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
-    next();
-};
-exports.requestLogger = requestLogger;
+// export const requestLogger = (
+//   _req: Request,
+//   _res: Response,
+//   next: NextFunction
+// ): void => {
+//   next();
+// };

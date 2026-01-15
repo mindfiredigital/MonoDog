@@ -2,7 +2,7 @@
  * Middleware exports
  */
 
-export { errorHandler, notFoundHandler, requestLogger } from './error-handler';
+export { errorHandler, notFoundHandler } from './error-handler';
 export type { CustomError } from './error-handler';
 
 export {
@@ -16,3 +16,5 @@ export {
 
 export { startServer } from './server-startup';
 export { serveDashboard } from './dashboard-startup';
+
+export { httpLogger, AppLogger } from './logger';

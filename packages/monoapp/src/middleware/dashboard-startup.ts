@@ -5,11 +5,11 @@
 import express from 'express';
 import path from 'path';
 import type { Express } from 'express';
+import { httpLogger, AppLogger } from './logger';
 
 import { appConfig } from '../config-loader';
 import {
   errorHandler,
-  requestLogger,
 } from './error-handler';
 import {
   createHelmetMiddleware,
@@ -64,7 +64,7 @@ function createDashboardApp(): Express {
   });
 
   // Request logging
-  app.use(requestLogger);
+  app.use(httpLogger);
 
   // SPA routing: serve index.html for non-static routes
   app.use((_req, _res, next) => {
@@ -81,7 +81,7 @@ function createDashboardApp(): Express {
         root: path.resolve(__dirname, '..', '..', 'monodog-dashboard', 'dist'),
       }, (err: Error | null) => {
         if (err) {
-          console.error('Error serving index.html:', (err as Error & { message?: string })?.message);
+          AppLogger.error('Error serving index.html:', err);
           _res.status(500).json({ error: 'Internal server error' });
         }
       });
@@ -90,7 +90,7 @@ function createDashboardApp(): Express {
 
   // Static files
   const staticPath = path.join(__dirname, '..', '..', 'monodog-dashboard', 'dist');
-  console.log('Serving static files from:', staticPath);
+  AppLogger.debug('Serving static files from:', { path: staticPath });
   app.use(express.static(staticPath, {
     maxAge: '1d',
     etag: false,
@@ -121,30 +121,28 @@ export function serveDashboard(rootPath: string): void {
 
     server.on('error', (err: NodeJS.ErrnoException) => {
       if (err.code === 'EADDRINUSE') {
-        console.error(`Error: Port ${validatedPort} is already in use.`);
+        AppLogger.error(`Port ${validatedPort} is already in use.`, err);
         process.exit(1);
       } else if (err.code === 'EACCES') {
-        console.error(
-          `Error: Permission denied to listen on port ${validatedPort}.`
-        );
+        AppLogger.error(`Permission denied to listen on port ${validatedPort}.`, err);
         process.exit(1);
       } else {
-        console.error('Server failed to start:', err.message);
+        AppLogger.error('Server failed to start:', err);
         process.exit(1);
       }
     });
 
     // Graceful shutdown
     process.on('SIGTERM', () => {
-      console.log('SIGTERM signal received: closing dashboard server');
+      AppLogger.info('SIGTERM signal received: closing dashboard server');
       server.close(() => {
-        console.log('Dashboard server closed');
+        AppLogger.info('Dashboard server closed');
         process.exit(0);
       });
     });
   } catch (error: unknown) {
     const err = error as Error & { message?: string };
-    console.error('Failed to start dashboard:', err?.message || String(error));
+    AppLogger.error('Failed to start dashboard:', err);
     process.exit(1);
   }
 }

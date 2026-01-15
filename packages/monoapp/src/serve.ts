@@ -12,10 +12,26 @@
 import { startServer, serveDashboard } from './index';
 import { findMonorepoRoot } from './utils/utilities';
 
-const rootPath = findMonorepoRoot();
+let logLevel = '';
+let nodeEnv = 'production';
 
-console.log(`Starting Monodog API server...`);
-console.log(`Analyzing monorepo at root: ${rootPath}`);
+const args = process.argv;
+
+if (args.includes('--dev')) {
+  nodeEnv = 'development';
+}
+
+// Priority: Check for debug first, then fall back to info
+if (args.includes('--debug')) {
+  logLevel = 'debug';
+} else if (args.includes('--info')) {
+  logLevel = 'info';
+}
+
+process.env.LOG_LEVEL = logLevel;
+process.env.NODE_ENV = nodeEnv
+
+const rootPath = findMonorepoRoot();
 
 // Start the Express server and dashboard
 

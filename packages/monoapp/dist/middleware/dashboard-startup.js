@@ -9,6 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.serveDashboard = serveDashboard;
 const express_1 = __importDefault(require("express"));
 const path_1 = __importDefault(require("path"));
+const logger_1 = require("./logger");
 const config_loader_1 = require("../config-loader");
 const error_handler_1 = require("./error-handler");
 const security_1 = require("./security");
@@ -46,7 +47,8 @@ function createDashboardApp() {
         res.send(`window.ENV = { API_URL: "${apiUrl}" };`);
     });
     // Request logging
-    app.use(error_handler_1.requestLogger);
+    app.use(logger_1.httpLogger);
+    // app.use(requestLogger);
     // SPA routing: serve index.html for non-static routes
     app.use((_req, _res, next) => {
         if (/(.ico|.js|.css|.jpg|.png|.map|.woff|.woff2|.ttf)$/i.test(_req.path)) {
@@ -60,7 +62,7 @@ function createDashboardApp() {
                 root: path_1.default.resolve(__dirname, '..', '..', 'monodog-dashboard', 'dist'),
             }, (err) => {
                 if (err) {
-                    console.error('Error serving index.html:', err?.message);
+                    logger_1.AppLogger.error('Error serving index.html:', err);
                     _res.status(500).json({ error: 'Internal server error' });
                 }
             });
@@ -68,7 +70,7 @@ function createDashboardApp() {
     });
     // Static files
     const staticPath = path_1.default.join(__dirname, '..', '..', 'monodog-dashboard', 'dist');
-    console.log('Serving static files from:', staticPath);
+    logger_1.AppLogger.debug('Serving static files from:', { path: staticPath });
     app.use(express_1.default.static(staticPath, {
         maxAge: '1d',
         etag: false,
@@ -88,35 +90,35 @@ function serveDashboard(rootPath) {
         const validatedPort = validatePort(port);
         const app = createDashboardApp();
         const server = app.listen(validatedPort, host, () => {
-            console.log(`Dashboard listening on http://${host}:${validatedPort}`);
-            console.log('Press Ctrl+C to quit.');
+            logger_1.AppLogger.info(`Dashboard listening on http://${host}:${validatedPort}`);
+            logger_1.AppLogger.info('Press Ctrl+C to quit.');
         });
         server.on('error', (err) => {
             if (err.code === 'EADDRINUSE') {
-                console.error(`Error: Port ${validatedPort} is already in use.`);
+                logger_1.AppLogger.error(`Port ${validatedPort} is already in use.`, err);
                 process.exit(1);
             }
             else if (err.code === 'EACCES') {
-                console.error(`Error: Permission denied to listen on port ${validatedPort}.`);
+                logger_1.AppLogger.error(`Permission denied to listen on port ${validatedPort}.`, err);
                 process.exit(1);
             }
             else {
-                console.error('Server failed to start:', err.message);
+                logger_1.AppLogger.error('Server failed to start:', err);
                 process.exit(1);
             }
         });
         // Graceful shutdown
         process.on('SIGTERM', () => {
-            console.log('SIGTERM signal received: closing dashboard server');
+            logger_1.AppLogger.info('SIGTERM signal received: closing dashboard server');
             server.close(() => {
-                console.log('Dashboard server closed');
+                logger_1.AppLogger.info('Dashboard server closed');
                 process.exit(0);
             });
         });
     }
     catch (error) {
         const err = error;
-        console.error('Failed to start dashboard:', err?.message || String(error));
+        logger_1.AppLogger.error('Failed to start dashboard:', err);
         process.exit(1);
     }
 }

@@ -34,7 +34,7 @@ function createHelmetMiddleware(apiUrl) {
  */
 function createApiCorsMiddleware(dashboardUrl) {
     const corsOptions = {
-        origin: process.env.CORS_ORIGIN || dashboardUrl,
+        origin: dashboardUrl,
         credentials: true,
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
         allowedHeaders: ['Content-Type', 'Authorization'],
@@ -65,7 +65,7 @@ function createTimeoutMiddleware() {
  */
 function buildApiUrl(host, port) {
     const apiHost = host === '0.0.0.0' ? 'localhost' : host;
-    return process.env.API_URL || `http://${apiHost}:${port}`;
+    return `http://${apiHost}:${port}`;
 }
 /**
  * Build dashboard URL based on config

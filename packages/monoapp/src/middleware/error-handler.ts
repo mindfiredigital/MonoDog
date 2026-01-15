@@ -3,6 +3,7 @@
  */
 
 import { Request, Response, NextFunction, ErrorRequestHandler } from 'express';
+import { AppLogger } from './logger';
 
 /**
  * Custom error interface extending Error
@@ -24,7 +25,7 @@ export const errorHandler: ErrorRequestHandler = (
 ): void => {
   const status = err.status || err.statusCode || 500;
 
-  console.error('[ERROR]', {
+  AppLogger.error('Request error occurred', {
     status,
     method: req.method,
     path: req.path,
@@ -46,18 +47,4 @@ export const notFoundHandler = (_req: Request, res: Response): void => {
     error: 'Endpoint not found',
     timestamp: Date.now(),
   });
-};
-
-/**
- * Request logging middleware
- */
-export const requestLogger = (
-  req: Request,
-  _res: Response,
-  next: NextFunction
-): void => {
-  console.log(
-    `[${new Date().toISOString()}] ${req.method} ${req.path}`
-  );
-  next();
 };

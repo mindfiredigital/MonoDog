@@ -9,6 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.startServer = startServer;
 const express_1 = __importDefault(require("express"));
 const body_parser_1 = require("body-parser");
+const logger_1 = require("./logger");
 const config_loader_1 = require("../config-loader");
 const error_handler_1 = require("./error-handler");
 const security_1 = require("./security");
@@ -45,8 +46,10 @@ function createApp(rootPath) {
     app.use((0, security_1.createApiCorsMiddleware)(dashboardUrl));
     // Body parser
     app.use((0, body_parser_1.json)({ limit: '1mb' }));
+    // HTTP request logging with Morgan
+    app.use(logger_1.httpLogger);
     // Request logging
-    app.use(error_handler_1.requestLogger);
+    // app.use(requestLogger);
     // Routes
     app.use('/api/packages', package_routes_1.default);
     app.use('/api/commits/', commit_routes_1.default);
@@ -68,44 +71,47 @@ function startServer(rootPath) {
         const validatedPort = validatePort(port);
         const app = createApp(rootPath);
         const server = app.listen(validatedPort, host, () => {
-            console.log(`Backend server running on http://${host}:${validatedPort}`);
-            console.log('API endpoints available:');
-            console.log('   - GET  /api/health');
-            console.log('   - GET  /api/packages/refresh');
-            console.log('   - GET  /api/packages');
-            console.log('   - GET  /api/packages/:name');
-            console.log('   - PUT  /api/packages/update-config');
-            console.log('   - GET  /api/commits/:packagePath');
-            console.log('   - GET  /api/health/packages');
-            console.log('   - PUT  /api/config/files/:id');
-            console.log('   - GET  /api/config/files');
+            logger_1.AppLogger.info(`Backend server running on http://${host}:${validatedPort}`);
+            logger_1.AppLogger.info('API endpoints available:', {
+                endpoints: [
+                    'GET  /api/health',
+                    'GET  /api/packages/refresh',
+                    'GET  /api/packages',
+                    'GET  /api/packages/:name',
+                    'PUT  /api/packages/update-config',
+                    'GET  /api/commits/:packagePath',
+                    'GET  /api/health/packages',
+                    'PUT  /api/config/files/:id',
+                    'GET  /api/config/files',
+                ],
+            });
         });
         server.on('error', (err) => {
             if (err.code === 'EADDRINUSE') {
-                console.error(`Error: Port ${validatedPort} is already in use. Please specify a different port.`);
+                logger_1.AppLogger.error(`Port ${validatedPort} is already in use. Please specify a different port.`, err);
                 process.exit(1);
             }
             else if (err.code === 'EACCES') {
-                console.error(`Error: Permission denied to listen on port ${validatedPort}. Use a port above 1024.`);
+                logger_1.AppLogger.error(`Permission denied to listen on port ${validatedPort}. Use a port above 1024.`, err);
                 process.exit(1);
             }
             else {
-                console.error('Server failed to start:', err.message);
+                logger_1.AppLogger.error('Server failed to start:', err);
                 process.exit(1);
             }
         });
         // Graceful shutdown
         process.on('SIGTERM', () => {
-            console.log('SIGTERM signal received: closing HTTP server');
+            logger_1.AppLogger.info('SIGTERM signal received: closing HTTP server');
             server.close(() => {
-                console.log('HTTP server closed');
+                logger_1.AppLogger.info('HTTP server closed');
                 process.exit(0);
             });
         });
     }
     catch (error) {
         const err = error;
-        console.error('Failed to start server:', err?.message || String(error));
+        logger_1.AppLogger.error('Failed to start server:', err);
         process.exit(1);
     }
 }
