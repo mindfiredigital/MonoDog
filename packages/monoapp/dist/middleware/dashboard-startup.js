@@ -13,16 +13,14 @@ const logger_1 = require("./logger");
 const config_loader_1 = require("../config-loader");
 const error_handler_1 = require("./error-handler");
 const security_1 = require("./security");
-// Security constants
-const PORT_MIN = 1024;
-const PORT_MAX = 65535;
+const constants_1 = require("../constants");
 /**
  * Validate port number
  */
 function validatePort(port) {
     const portNum = typeof port === 'string' ? parseInt(port, 10) : port;
-    if (isNaN(portNum) || portNum < PORT_MIN || portNum > PORT_MAX) {
-        throw new Error(`Port must be between ${PORT_MIN} and ${PORT_MAX}`);
+    if (isNaN(portNum) || portNum < constants_1.PORT_MIN || portNum > constants_1.PORT_MAX) {
+        throw new Error((0, constants_1.PORT_VALIDATION_ERROR_MESSAGE)(constants_1.PORT_MIN, constants_1.PORT_MAX));
     }
     return portNum;
 }
@@ -42,27 +40,26 @@ function createDashboardApp() {
     app.use((0, security_1.createDashboardCorsMiddleware)());
     // Environment config endpoint
     app.get('/env-config.js', (_req, res) => {
-        res.setHeader('Content-Type', 'application/javascript');
-        res.setHeader('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+        res.setHeader('Content-Type', constants_1.CONTENT_TYPE_JAVASCRIPT);
+        res.setHeader('Cache-Control', constants_1.CACHE_CONTROL_NO_CACHE);
         res.send(`window.ENV = { API_URL: "${apiUrl}" };`);
     });
     // Request logging
     app.use(logger_1.httpLogger);
-    // app.use(requestLogger);
     // SPA routing: serve index.html for non-static routes
     app.use((_req, _res, next) => {
-        if (/(.ico|.js|.css|.jpg|.png|.map|.woff|.woff2|.ttf)$/i.test(_req.path)) {
+        if (constants_1.STATIC_FILE_PATTERN.test(_req.path)) {
             next();
         }
         else {
-            _res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
-            _res.header('Expires', '-1');
-            _res.header('Pragma', 'no-cache');
+            _res.header('Cache-Control', constants_1.CACHE_CONTROL_NO_CACHE);
+            _res.header('Expires', constants_1.EXPIRES_HEADER);
+            _res.header('Pragma', constants_1.PRAGMA_HEADER);
             _res.sendFile('index.html', {
                 root: path_1.default.resolve(__dirname, '..', '..', 'monodog-dashboard', 'dist'),
             }, (err) => {
                 if (err) {
-                    logger_1.AppLogger.error('Error serving index.html:', err);
+                    logger_1.AppLogger.error(constants_1.ERROR_SERVING_INDEX_HTML, err);
                     _res.status(500).json({ error: 'Internal server error' });
                 }
             });
@@ -90,16 +87,16 @@ function serveDashboard(rootPath) {
         const validatedPort = validatePort(port);
         const app = createDashboardApp();
         const server = app.listen(validatedPort, host, () => {
-            logger_1.AppLogger.info(`Dashboard listening on http://${host}:${validatedPort}`);
-            logger_1.AppLogger.info('Press Ctrl+C to quit.');
+            console.log((0, constants_1.SUCCESS_DASHBOARD_START)(host, validatedPort));
+            console.log('Press Ctrl+C to quit.');
         });
         server.on('error', (err) => {
             if (err.code === 'EADDRINUSE') {
-                logger_1.AppLogger.error(`Port ${validatedPort} is already in use.`, err);
+                logger_1.AppLogger.error((0, constants_1.ERROR_PORT_IN_USE)(validatedPort), err);
                 process.exit(1);
             }
             else if (err.code === 'EACCES') {
-                logger_1.AppLogger.error(`Permission denied to listen on port ${validatedPort}.`, err);
+                logger_1.AppLogger.error((0, constants_1.ERROR_PERMISSION_DENIED)(validatedPort), err);
                 process.exit(1);
             }
             else {
@@ -109,9 +106,9 @@ function serveDashboard(rootPath) {
         });
         // Graceful shutdown
         process.on('SIGTERM', () => {
-            logger_1.AppLogger.info('SIGTERM signal received: closing dashboard server');
+            logger_1.AppLogger.info(constants_1.MESSAGE_DASHBOARD_GRACEFUL_SHUTDOWN);
             server.close(() => {
-                logger_1.AppLogger.info('Dashboard server closed');
+                logger_1.AppLogger.info(constants_1.MESSAGE_DASHBOARD_CLOSED);
                 process.exit(0);
             });
         });

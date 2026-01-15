@@ -14,6 +14,7 @@ exports.buildApiUrl = buildApiUrl;
 exports.buildDashboardUrl = buildDashboardUrl;
 const helmet_1 = __importDefault(require("helmet"));
 const cors_1 = __importDefault(require("cors"));
+const constants_1 = require("../constants");
 /**
  * Create Helmet security middleware with Content Security Policy
  */
@@ -36,8 +37,8 @@ function createApiCorsMiddleware(dashboardUrl) {
     const corsOptions = {
         origin: dashboardUrl,
         credentials: true,
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization'],
+        methods: [...constants_1.CORS_API_METHODS],
+        allowedHeaders: [...constants_1.CORS_ALLOWED_HEADERS],
     };
     return (0, cors_1.default)(corsOptions);
 }
@@ -55,8 +56,8 @@ function createDashboardCorsMiddleware() {
  */
 function createTimeoutMiddleware() {
     return (req, res, next) => {
-        req.setTimeout(30000);
-        res.setTimeout(30000);
+        req.setTimeout(constants_1.REQUEST_TIMEOUT);
+        res.setTimeout(constants_1.RESPONSE_TIMEOUT);
         next();
     };
 }
@@ -64,15 +65,15 @@ function createTimeoutMiddleware() {
  * Build API URL based on config
  */
 function buildApiUrl(host, port) {
-    const apiHost = host === '0.0.0.0' ? 'localhost' : host;
-    return `http://${apiHost}:${port}`;
+    const apiHost = host === constants_1.WILDCARD_ADDRESS ? constants_1.DEFAULT_LOCALHOST : host;
+    return `${constants_1.HTTP_PROTOCOL}${apiHost}:${port}`;
 }
 /**
  * Build dashboard URL based on config
  */
 function buildDashboardUrl(config) {
-    const dashboardHost = config.dashboard.host === '0.0.0.0'
-        ? 'localhost'
+    const dashboardHost = config.dashboard.host === constants_1.WILDCARD_ADDRESS
+        ? constants_1.DEFAULT_LOCALHOST
         : config.dashboard.host;
-    return `http://${dashboardHost}:${config.dashboard.port}`;
+    return `${constants_1.HTTP_PROTOCOL}${dashboardHost}:${config.dashboard.port}`;
 }

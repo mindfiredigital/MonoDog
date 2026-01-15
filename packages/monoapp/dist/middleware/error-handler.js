@@ -34,14 +34,3 @@ const notFoundHandler = (_req, res) => {
     });
 };
 exports.notFoundHandler = notFoundHandler;
-/**
- * Request logging middleware
- * Note: HTTP logging is handled by Morgan middleware in server-startup.ts
- */
-// export const requestLogger = (
-//   _req: Request,
-//   _res: Response,
-//   next: NextFunction
-// ): void => {
-//   next();
-// };

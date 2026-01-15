@@ -6,6 +6,15 @@ import { Request, Response, NextFunction } from 'express';
 import helmet from 'helmet';
 import cors, { CorsOptions } from 'cors';
 import type { MonodogConfig } from '../types/config';
+import {
+  REQUEST_TIMEOUT,
+  RESPONSE_TIMEOUT,
+  CORS_API_METHODS,
+  CORS_ALLOWED_HEADERS,
+  DEFAULT_LOCALHOST,
+  WILDCARD_ADDRESS,
+  HTTP_PROTOCOL,
+} from '../constants';
 
 /**
  * Create Helmet security middleware with Content Security Policy
@@ -30,8 +39,8 @@ export function createApiCorsMiddleware(dashboardUrl: string) {
   const corsOptions: CorsOptions = {
     origin: dashboardUrl,
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    methods: [...CORS_API_METHODS],
+    allowedHeaders: [...CORS_ALLOWED_HEADERS],
   };
 
   return cors(corsOptions);
@@ -53,8 +62,8 @@ export function createDashboardCorsMiddleware() {
  */
 export function createTimeoutMiddleware() {
   return (req: Request, res: Response, next: NextFunction): void => {
-    req.setTimeout(30000);
-    res.setTimeout(30000);
+    req.setTimeout(REQUEST_TIMEOUT);
+    res.setTimeout(RESPONSE_TIMEOUT);
     next();
   };
 }
@@ -66,16 +75,16 @@ export function buildApiUrl(
   host: string,
   port: number
 ): string {
-  const apiHost = host === '0.0.0.0' ? 'localhost' : host;
-  return  `http://${apiHost}:${port}`;
+  const apiHost = host === WILDCARD_ADDRESS ? DEFAULT_LOCALHOST : host;
+  return `${HTTP_PROTOCOL}${apiHost}:${port}`;
 }
 
 /**
  * Build dashboard URL based on config
  */
 export function buildDashboardUrl(config: MonodogConfig): string {
-  const dashboardHost = config.dashboard.host === '0.0.0.0'
-    ? 'localhost'
+  const dashboardHost = config.dashboard.host === WILDCARD_ADDRESS
+    ? DEFAULT_LOCALHOST
     : config.dashboard.host;
-  return `http://${dashboardHost}:${config.dashboard.port}`;
+  return `${HTTP_PROTOCOL}${dashboardHost}:${config.dashboard.port}`;
 }

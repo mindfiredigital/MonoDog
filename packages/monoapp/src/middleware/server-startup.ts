@@ -24,10 +24,17 @@ import packageRouter from '../routes/package-routes';
 import commitRouter from '../routes/commit-routes';
 import healthRouter from '../routes/health-routes';
 import configRouter from '../routes/config-routes';
-
-// Security constants
-const PORT_MIN = 1024;
-const PORT_MAX = 65535;
+import {
+  PORT_MIN,
+  PORT_MAX,
+  PORT_VALIDATION_ERROR_MESSAGE,
+  BODY_PARSER_LIMIT,
+  SUCCESS_SERVER_START,
+  ERROR_PORT_IN_USE,
+  ERROR_PERMISSION_DENIED,
+  MESSAGE_GRACEFUL_SHUTDOWN,
+  MESSAGE_SERVER_CLOSED,
+} from '../constants';
 
 /**
  * Validate port number
@@ -36,7 +43,7 @@ function validatePort(port: string | number): number {
   const portNum = typeof port === 'string' ? parseInt(port, 10) : port;
 
   if (isNaN(portNum) || portNum < PORT_MIN || portNum > PORT_MAX) {
-    throw new Error(`Port must be between ${PORT_MIN} and ${PORT_MAX}`);
+    throw new Error(PORT_VALIDATION_ERROR_MESSAGE(PORT_MIN, PORT_MAX));
   }
 
   return portNum;
@@ -62,7 +69,7 @@ function createApp(rootPath: string): Express {
   app.use(createApiCorsMiddleware(dashboardUrl));
 
   // Body parser
-  app.use(json({ limit: '1mb' }));
+  app.use(json({ limit: BODY_PARSER_LIMIT }));
 
   // HTTP request logging with Morgan
   app.use(httpLogger);
@@ -97,7 +104,7 @@ export function startServer(rootPath: string): void {
     const app = createApp(rootPath);
 
     const server = app.listen(validatedPort, host, () => {
-      console.log(`Backend server listening on http://${host}:${validatedPort}`);
+      console.log(SUCCESS_SERVER_START(host, validatedPort));
       AppLogger.info('API endpoints available:', {
         endpoints: [
           'GET  /api/health',
@@ -115,10 +122,10 @@ export function startServer(rootPath: string): void {
 
     server.on('error', (err: NodeJS.ErrnoException) => {
       if (err.code === 'EADDRINUSE') {
-        AppLogger.error(`Port ${validatedPort} is already in use. Please specify a different port.`, err);
+        AppLogger.error(ERROR_PORT_IN_USE(validatedPort), err);
         process.exit(1);
       } else if (err.code === 'EACCES') {
-        AppLogger.error(`Permission denied to listen on port ${validatedPort}. Use a port above 1024.`, err);
+        AppLogger.error(ERROR_PERMISSION_DENIED(validatedPort), err);
         process.exit(1);
       } else {
         AppLogger.error('Server failed to start:', err);
@@ -128,9 +135,9 @@ export function startServer(rootPath: string): void {
 
     // Graceful shutdown
     process.on('SIGTERM', () => {
-      AppLogger.info('SIGTERM signal received: closing HTTP server');
+      AppLogger.info(MESSAGE_GRACEFUL_SHUTDOWN);
       server.close(() => {
-        AppLogger.info('HTTP server closed');
+        AppLogger.info(MESSAGE_SERVER_CLOSED);
         process.exit(0);
       });
     });

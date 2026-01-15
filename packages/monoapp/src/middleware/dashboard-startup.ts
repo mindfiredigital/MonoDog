@@ -17,10 +17,23 @@ import {
   createTimeoutMiddleware,
   buildApiUrl,
 } from './security';
-
-// Security constants
-const PORT_MIN = 1024;
-const PORT_MAX = 65535;
+import {
+  PORT_MIN,
+  PORT_MAX,
+  PORT_VALIDATION_ERROR_MESSAGE,
+  CACHE_CONTROL_NO_CACHE,
+  EXPIRES_HEADER,
+  PRAGMA_HEADER,
+  STATIC_FILE_PATTERN,
+  CONTENT_TYPE_JAVASCRIPT,
+  ERROR_SERVING_INDEX_HTML,
+  MESSAGE_GRACEFUL_SHUTDOWN,
+  MESSAGE_DASHBOARD_GRACEFUL_SHUTDOWN,
+  MESSAGE_DASHBOARD_CLOSED,
+  SUCCESS_DASHBOARD_START,
+  ERROR_PORT_IN_USE,
+  ERROR_PERMISSION_DENIED,
+} from '../constants';
 
 /**
  * Validate port number
@@ -29,7 +42,7 @@ function validatePort(port: string | number): number {
   const portNum = typeof port === 'string' ? parseInt(port, 10) : port;
 
   if (isNaN(portNum) || portNum < PORT_MIN || portNum > PORT_MAX) {
-    throw new Error(`Port must be between ${PORT_MIN} and ${PORT_MAX}`);
+    throw new Error(PORT_VALIDATION_ERROR_MESSAGE(PORT_MIN, PORT_MAX));
   }
 
   return portNum;
@@ -55,8 +68,8 @@ function createDashboardApp(): Express {
 
   // Environment config endpoint
   app.get('/env-config.js', (_req, res) => {
-    res.setHeader('Content-Type', 'application/javascript');
-    res.setHeader('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+    res.setHeader('Content-Type', CONTENT_TYPE_JAVASCRIPT);
+    res.setHeader('Cache-Control', CACHE_CONTROL_NO_CACHE);
 
     res.send(
       `window.ENV = { API_URL: "${apiUrl}" };`
@@ -68,20 +81,20 @@ function createDashboardApp(): Express {
 
   // SPA routing: serve index.html for non-static routes
   app.use((_req, _res, next) => {
-    if (/(.ico|.js|.css|.jpg|.png|.map|.woff|.woff2|.ttf)$/i.test(_req.path)) {
+    if (STATIC_FILE_PATTERN.test(_req.path)) {
       next();
     } else {
       _res.header(
         'Cache-Control',
-        'private, no-cache, no-store, must-revalidate'
+        CACHE_CONTROL_NO_CACHE
       );
-      _res.header('Expires', '-1');
-      _res.header('Pragma', 'no-cache');
+      _res.header('Expires', EXPIRES_HEADER);
+      _res.header('Pragma', PRAGMA_HEADER);
       _res.sendFile('index.html', {
         root: path.resolve(__dirname, '..', '..', 'monodog-dashboard', 'dist'),
       }, (err: Error | null) => {
         if (err) {
-          AppLogger.error('Error serving index.html:', err);
+          AppLogger.error(ERROR_SERVING_INDEX_HTML, err);
           _res.status(500).json({ error: 'Internal server error' });
         }
       });
@@ -115,16 +128,16 @@ export function serveDashboard(rootPath: string): void {
     const app = createDashboardApp();
 
     const server = app.listen(validatedPort, host, () => {
-      console.log(`Dashboard listening on http://${host}:${validatedPort}`);
+      console.log(SUCCESS_DASHBOARD_START(host, validatedPort));
       console.log('Press Ctrl+C to quit.');
     });
 
     server.on('error', (err: NodeJS.ErrnoException) => {
       if (err.code === 'EADDRINUSE') {
-        AppLogger.error(`Port ${validatedPort} is already in use.`, err);
+        AppLogger.error(ERROR_PORT_IN_USE(validatedPort), err);
         process.exit(1);
       } else if (err.code === 'EACCES') {
-        AppLogger.error(`Permission denied to listen on port ${validatedPort}.`, err);
+        AppLogger.error(ERROR_PERMISSION_DENIED(validatedPort), err);
         process.exit(1);
       } else {
         AppLogger.error('Server failed to start:', err);
@@ -134,9 +147,9 @@ export function serveDashboard(rootPath: string): void {
 
     // Graceful shutdown
     process.on('SIGTERM', () => {
-      AppLogger.info('SIGTERM signal received: closing dashboard server');
+      AppLogger.info(MESSAGE_DASHBOARD_GRACEFUL_SHUTDOWN);
       server.close(() => {
-        AppLogger.info('Dashboard server closed');
+        AppLogger.info(MESSAGE_DASHBOARD_CLOSED);
         process.exit(0);
       });
     });

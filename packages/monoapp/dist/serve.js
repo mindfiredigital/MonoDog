@@ -11,24 +11,22 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const index_1 = require("./index");
 const utilities_1 = require("./utils/utilities");
-const rootPath = (0, utilities_1.findMonorepoRoot)();
-console.log(`Starting Monodog API server...`);
-console.log(`Analyzing monorepo at root: ${rootPath}`);
 let logLevel = '';
 let nodeEnv = 'production';
-// Start the Express server and dashboard
-process.argv.forEach(arg => {
-    if (arg.startsWith('--dev')) {
-        nodeEnv = 'development';
-    }
-    else if (arg === '--debug') {
-        logLevel = 'debug';
-    }
-    else if (arg === '--info') {
-        logLevel = 'info';
-    }
-});
+const args = process.argv;
+if (args.includes('--dev')) {
+    nodeEnv = 'development';
+}
+// Priority: Check for debug first, then fall back to info
+if (args.includes('--debug')) {
+    logLevel = 'debug';
+}
+else if (args.includes('--info')) {
+    logLevel = 'info';
+}
 process.env.LOG_LEVEL = logLevel;
 process.env.NODE_ENV = nodeEnv;
+const rootPath = (0, utilities_1.findMonorepoRoot)();
+// Start the Express server and dashboard
 (0, index_1.startServer)(rootPath);
 (0, index_1.serveDashboard)(rootPath);
