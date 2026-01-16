@@ -46,7 +46,7 @@ export const DEFAULT_LOCALHOST = 'localhost';
 /**
  * Wildcard address for listening on all interfaces
  */
-export const WILDCARD_ADDRESS = '0.0.0.0';
+export const WILDCARD_ADDRESS = 'localhost';
 
 /**
  * HTTP protocol prefix

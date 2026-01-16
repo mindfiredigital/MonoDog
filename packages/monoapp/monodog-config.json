@@ -5,11 +5,11 @@
     "path": "file:./monodog.db"
   },
   "dashboard": {
-    "host": "0.0.0.0",
+    "host": "localhost",
     "port": "3010"
   },
   "server": {
-    "host": "0.0.0.0",
+    "host": "localhost",
     "port": 8999
   }
 }

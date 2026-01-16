@@ -80,7 +80,7 @@ Monodog examines:
 Start a scan via API:
 
 ```bash
-curl -X GET http://localhost:8999/api/packages/refresh
+curl -X POST http://localhost:8999/api/packages/refresh
 ```
 
 ## Accessing Scan Results

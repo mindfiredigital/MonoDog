@@ -36,9 +36,9 @@ You should see output like:
 Starting Monodog API server...
 Analyzing monorepo at root:
 Serving static files from:
-App listening on 0.0.0.0:3010
+App listening on localhost:3010
 [Database] Total packages found: 15
-🚀 Backend server running on http://0.0.0.0:8999
+🚀 Backend server running on http://localhost:8999
 ```
 
 ## Step 3: Access the Dashboard

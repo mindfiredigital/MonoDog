@@ -40,7 +40,7 @@ exports.DEFAULT_LOCALHOST = 'localhost';
 /**
  * Wildcard address for listening on all interfaces
  */
-exports.WILDCARD_ADDRESS = '0.0.0.0';
+exports.WILDCARD_ADDRESS = 'localhost';
 /**
  * HTTP protocol prefix
  */
