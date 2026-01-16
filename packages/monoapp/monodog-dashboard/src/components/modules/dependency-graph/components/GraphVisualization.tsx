@@ -21,7 +21,6 @@ export default function GraphVisualization({
           Object.keys(pkg.dependencies).map(depName => {
             const dep = packages.find(d => d.name === depName);
             if (!dep) return null;
-            console.log('Rendering edge from', pkg.name, 'to', dep.name);
 
             const isHighlighted =
               hoveredPackage === pkg.name ||

@@ -173,7 +173,7 @@ export default function HealthStatus() {
       try {
         setLoading(true);
         const data = await monorepoService.getHealthStatus();
-        console.log('Health data from inside useEffect:', data);
+        // console.log('Health data from inside useEffect:', data);
         setHealthData(data);
         setError(null);
       } catch (err) {
@@ -186,7 +186,7 @@ export default function HealthStatus() {
 
     fetchHealthData();
   }, [refreshKey]);
-  console.log('Health data from outside of useEffect:', healthData);
+  // console.log('Health data from outside of useEffect:', healthData);
 
   const refreshData = async () => {
     try {
@@ -195,7 +195,7 @@ export default function HealthStatus() {
       setLoading(true);
       try {
         const data = await monorepoService.refreshHealthStatus();
-        console.log('Health data:', data);
+        // console.log('Health data:', data);
         setHealthData(data);
         setError(null);
       } catch (err) {

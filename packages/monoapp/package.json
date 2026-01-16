@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "description": "App for monodog monorepo",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mindfiredigital/MonoDog",
+    "directory": "package/"
+  },
   "bin": {
     "monodog": "dist/setup.js"
   },

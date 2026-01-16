@@ -136,7 +136,7 @@ export default function Dashboard() {
       setLoading(true);
       try {
         const data = await monorepoService.refreshPackages();
-        console.log('package data:', data);
+        // console.log('package data:', data);
         setPackages(data);
         setError(null);
       } catch (err) {

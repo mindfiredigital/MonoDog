@@ -56,7 +56,7 @@ export default function ConfigInspector() {
         setLoading(true);
         const data = await monorepoService.getConfigurationFiles();
 
-        console.log('Config data from inside useEffect:', data);
+        // console.log('Config data from inside useEffect:', data);
 
         // Transform the data to match our ConfigFile interface
         const transformedData: ConfigFile[] = data.map((file: any) => ({
@@ -92,7 +92,7 @@ export default function ConfigInspector() {
   const selectedConfigData = selectedConfig
     ? configFiles.find(config => config.id === selectedConfig) || null
     : null;
-  console.log('selectedConfigData:', selectedConfigData);
+  // console.log('selectedConfigData:', selectedConfigData);
 
   // Event handlers
   const handleRefresh = () => {
@@ -142,7 +142,7 @@ export default function ConfigInspector() {
         setSaving(true);
         setError(null);
 
-        console.log('Saving config:', selectedConfigData.name, editValue);
+        // console.log('Saving config:', selectedConfigData.name, editValue);
 
         // Call the backend API to save the file
         const updatedFile = await monorepoService.saveConfigurationFile(
@@ -172,7 +172,7 @@ export default function ConfigInspector() {
         setEditValue('');
 
         // Show success message (you can add a toast notification here)
-        console.log('Config file saved successfully');
+        // console.log('Config file saved successfully');
       } catch (err: any) {
         console.error('Error saving config file:', err);
         // Show error message to user

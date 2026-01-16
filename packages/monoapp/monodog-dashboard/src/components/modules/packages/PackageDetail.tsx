@@ -160,7 +160,7 @@ export default function PackageDetail() {
                     {packageData.description}
                   </p>
 
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">
+                  <h4 className="hidden text-sm font-medium text-gray-700 mb-2">
                     Maintainers
                   </h4>
                   <div className="space-y-1">

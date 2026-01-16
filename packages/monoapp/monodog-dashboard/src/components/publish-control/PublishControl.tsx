@@ -177,7 +177,7 @@ export default function PublishControl() {
 
   // Handle actions
   const handleNewRelease = () => {
-    console.log('Creating new release...');
+    // console.log('Creating new release...');
   };
 
   const handleRetry = () => {

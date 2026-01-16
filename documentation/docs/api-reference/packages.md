@@ -68,8 +68,6 @@ PACKAGE_NAME is the name of package
 Response:
 ```json
 {
-  "packages": [
-     {
       "name": "package-name",
       "version": "1.0.3",
       "type": "lib",
@@ -138,17 +136,7 @@ Response:
         "packageDependencies": "",
         "createdAt": "2020-12-05T14:16:54.484Z",
         "updatedAt": "2020-12-09T14:35:49.183Z"
-      },
-      "successRate": 50,
-      "averageDuration": 1050000,
-      "lastCommit": "abc1234",
-      "lastCommitDate": "2020-12-09T14:08:18.949Z",
-      "branch": "main",
-      "isHealthy": false,
-      "issues": []
-    },
-    ...
-  ],
+    }
 }
 ```
 

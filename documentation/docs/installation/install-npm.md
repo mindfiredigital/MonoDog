@@ -41,10 +41,11 @@ monodog/
 ├── src/                     # TypeScript source
 ├── node_modules/            # Dependencies
 ├── prisma/
-│   ├── schema.prisma        # Database schema
+│   ├── schema/              # Database schema and database
 │   ├── migrations/          # Database migrations
-│   └── monodog.db          # SQLite database
 ├── package.json
+├── tsconfig.json
+├── monodog-config.json
 └── tsconfig.json
 ```
 

@@ -5,7 +5,7 @@ const logger_1 = require("../middleware/logger");
 const repositories_1 = require("../repositories");
 const config_loader_1 = require("../config-loader");
 // Default settings
-const DEFAULT_PORT = 4000;
+const DEFAULT_PORT = 8999;
 const port = config_loader_1.appConfig.server.port ?? DEFAULT_PORT; //Default port
 const host = config_loader_1.appConfig.server.host ?? 'localhost'; //Default host
 const API_BASE = `http://${host}:${port}/api`;

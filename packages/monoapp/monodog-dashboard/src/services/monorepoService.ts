@@ -276,7 +276,7 @@ class MonorepoService {
       }
 
       const pkgData = await pkg.json();
-      console.log('data from refreshPackage:', pkgData);
+      // console.log('data from refreshPackage:', pkgData);
 
       return pkgData;
     } catch (error) {
@@ -315,13 +315,13 @@ class MonorepoService {
     metrics: HealthMetric[];
     packageHealth: Array<{ package: string; score: number; issues: string[] }>;
   }> {
-    console.log('getHealthStatus');
+    // console.log('getHealthStatus');
     try {
       // First attempt to get health data
       const healthRes = await fetch(`${API_BASE}/health/packages`);
-      console.log('Health data from getHealthStatus:', healthRes);
+      // console.log('Health data from getHealthStatus:', healthRes);
       if (!healthRes.ok) {
-        console.log('Health data not available, attempting refresh...');
+        // console.log('Health data not available, attempting refresh...');
 
         // If initial fetch fails, try to refresh the data
         const refreshRes = await fetch(`${API_BASE}/health/refresh`, {
@@ -346,17 +346,17 @@ class MonorepoService {
         }
 
         const healthData = await retryRes.json();
-        console.log('Health data after refresh:', healthData);
+        // console.log('Health data after refresh:', healthData);
         return healthData;
         // return this.transformHealthData(healthData);
       }
 
       const healthData = await healthRes.json();
-      console.log('Health data from getHealthStatus:', healthData);
+      // console.log('Health data from getHealthStatus:', healthData);
       // return this.transformHealthData(healthData);
       return healthData;
     } catch (error) {
-      console.error('Error fetching health data:', error);
+      // console.error('Error fetching health data:', error);
       // Fallback to the existing mock implementation
       // return await this.getFallbackHealthStatus();
     }
@@ -381,7 +381,7 @@ class MonorepoService {
       }
 
       const healthData = await healthRes.json();
-      console.log('Health data from refreshHealthStatus:', healthData);
+      // console.log('Health data from refreshHealthStatus:', healthData);
 
       // Transform the data to match your frontend expectations
       // return this.transformHealthData(healthData);
@@ -618,10 +618,10 @@ class MonorepoService {
     preservedFields?: boolean;
   }> {
     try {
-      console.log(
-        '📤 Updating package configuration via MonorepoService:',
-        packageName
-      );
+      // console.log(
+      //   '📤 Updating package configuration via MonorepoService:',
+      //   packageName
+      // );
 
       const response = await fetch(`${API_BASE}/packages/update-config`, {
         method: 'PUT',
@@ -635,7 +635,7 @@ class MonorepoService {
         }),
       });
 
-      console.log('📥 Response status:', response.status);
+      // console.log('📥 Response status:', response.status);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -654,7 +654,7 @@ class MonorepoService {
       }
 
       const result = await response.json();
-      console.log('📥 Success response:', result);
+      // console.log('📥 Success response:', result);
 
       return result;
     } catch (error) {
@@ -708,7 +708,7 @@ class MonorepoService {
 
   async getConfigurationFiles(): Promise<ConfigFile[]> {
     try {
-      console.log('Fetching configuration files from backend...');
+      // console.log('Fetching configuration files from backend...');
 
       // Call your real backend API
       const res = await fetch(`${API_BASE}/config/files`);
@@ -721,12 +721,12 @@ class MonorepoService {
 
       const response = await res.json();
 
-      console.log('Response from config files API:', response);
+      // console.log('Response from config files API:', response);
 
       if (response.success && response.files) {
-        console.log(
-          `Successfully fetched ${response.files.length} configuration files`
-        );
+        // console.log(
+        //   `Successfully fetched ${response.files.length} configuration files`
+        // );
         return response.files;
       } else {
         throw new Error('Invalid response format from config files API');
@@ -735,7 +735,7 @@ class MonorepoService {
       console.error('Error fetching configuration files from backend:', error);
 
       // Fallback to empty array if backend call fails
-      console.log('Returning empty config files list due to error...');
+      // console.log('Returning empty config files list due to error...');
       return [];
     }
   }
@@ -745,7 +745,7 @@ class MonorepoService {
     content: string
   ): Promise<ConfigFile> {
     try {
-      console.log('Saving configuration file:', fileId);
+      // console.log('Saving configuration file:', fileId);
 
       const res = await fetch(
         `${API_BASE}/config/files/${encodeURIComponent(fileId)}`,
@@ -769,7 +769,7 @@ class MonorepoService {
       const response = await res.json();
 
       if (response.success && response.file) {
-        console.log('File saved successfully:', fileId);
+        // console.log('File saved successfully:', fileId);
         return response.file;
       } else {
         throw new Error('Invalid response format from save file API');

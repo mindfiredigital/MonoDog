@@ -87,7 +87,6 @@ function resolveWorkspaceGlobs(rootDir, globs) {
  */
 function getWorkspacesFromPnpmYaml(rootDir) {
     const workspaceYamlPath = path_1.default.join(rootDir, 'pnpm-workspace.yaml');
-    console.log('Reading pnpm-workspace.yaml from: ' + workspaceYamlPath);
     if (!fs.existsSync(workspaceYamlPath)) {
         return undefined;
     }
@@ -115,7 +114,6 @@ function getWorkspacesFromPnpmYaml(rootDir) {
  */
 function getWorkspacesFromRoot(rootDir) {
     const packageJsonPath = path_1.default.join(rootDir, 'package.json');
-    console.log('Reading workspaces from root directory: ' + rootDir);
     // Try package.json first
     if (fs.existsSync(packageJsonPath)) {
         try {
