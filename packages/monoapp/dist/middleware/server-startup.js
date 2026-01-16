@@ -13,6 +13,7 @@ const logger_1 = require("./logger");
 const config_loader_1 = require("../config-loader");
 const error_handler_1 = require("./error-handler");
 const security_1 = require("./security");
+const swagger_middleware_1 = require("./swagger-middleware");
 const package_routes_1 = __importDefault(require("../routes/package-routes"));
 const commit_routes_1 = __importDefault(require("../routes/commit-routes"));
 const health_routes_1 = __importDefault(require("../routes/health-routes"));
@@ -46,6 +47,8 @@ function createApp(rootPath) {
     app.use((0, body_parser_1.json)({ limit: constants_1.BODY_PARSER_LIMIT }));
     // HTTP request logging with Morgan
     app.use(logger_1.httpLogger);
+    // Setup Swagger documentation
+    (0, swagger_middleware_1.setupSwaggerDocs)(app);
     // Routes
     app.use('/api/packages', package_routes_1.default);
     app.use('/api/commits/', commit_routes_1.default);

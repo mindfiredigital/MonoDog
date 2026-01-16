@@ -4,6 +4,8 @@ exports.healthRefreshService = exports.getHealthSummaryService = void 0;
 const utilities_1 = require("../utils/utilities");
 const monorepo_scanner_1 = require("../utils/monorepo-scanner");
 const repositories_1 = require("../repositories");
+// Track in-flight health refresh requests to prevent duplicates
+let inFlightHealthRefresh = null;
 const getHealthSummaryService = async () => {
     const packageHealthData = await repositories_1.PackageHealthRepository.findAll();
     console.log('packageHealthData -->', packageHealthData.length);
@@ -42,73 +44,91 @@ const getHealthSummaryService = async () => {
 };
 exports.getHealthSummaryService = getHealthSummaryService;
 const healthRefreshService = async (rootDir) => {
-    const packages = (0, utilities_1.scanMonorepo)(rootDir);
-    console.log('packages -->', packages.length);
-    const healthMetrics = await Promise.all(packages.map(async (pkg) => {
+    // If a health refresh is already in progress, return the in-flight promise
+    if (inFlightHealthRefresh) {
+        console.log('Health refresh already in progress, returning cached promise');
+        return inFlightHealthRefresh;
+    }
+    // Create and store the health refresh promise
+    inFlightHealthRefresh = (async () => {
         try {
-            // Await each health check function since they return promises
-            const buildStatus = await (0, monorepo_scanner_1.funCheckBuildStatus)(pkg);
-            const testCoverage = 0; //await funCheckTestCoverage(pkg); // skip test coverage for now
-            const lintStatus = await (0, monorepo_scanner_1.funCheckLintStatus)(pkg);
-            const securityAudit = await (0, monorepo_scanner_1.funCheckSecurityAudit)(pkg);
-            // Calculate overall health score
-            const overallScore = (0, utilities_1.calculatePackageHealth)(buildStatus, testCoverage, lintStatus, securityAudit);
-            const health = {
-                buildStatus: buildStatus,
-                testCoverage: testCoverage,
-                lintStatus: lintStatus,
-                securityAudit: securityAudit,
-                overallScore: overallScore.overallScore,
-            };
-            const packageStatus = health.overallScore >= 80
-                ? 'healthy'
-                : health.overallScore >= 60 && health.overallScore < 80
-                    ? 'warning'
-                    : 'error';
-            console.log(pkg.name, '-->', health, packageStatus);
-            await repositories_1.PackageHealthRepository.upsert({
-                packageName: pkg.name,
-                packageOverallScore: overallScore.overallScore,
-                packageBuildStatus: buildStatus,
-                packageTestCoverage: testCoverage,
-                packageLintStatus: lintStatus,
-                packageSecurity: securityAudit,
-                packageDependencies: '',
-            });
-            // update related package status as well
-            await repositories_1.PackageRepository.updateStatus(pkg.name, packageStatus);
-            return {
-                packageName: pkg.name,
-                health,
-                isHealthy: health.overallScore >= 80,
-            };
-        }
-        catch (error) {
-            return {
-                packageName: pkg.name,
-                health: {
-                    "buildStatus": "",
-                    "testCoverage": 0,
-                    "lintStatus": "",
-                    "securityAudit": "",
-                    "overallScore": 0
+            const packages = (0, utilities_1.scanMonorepo)(rootDir);
+            console.log('packages -->', packages.length);
+            const healthMetrics = await Promise.all(packages.map(async (pkg) => {
+                try {
+                    // Await each health check function since they return promises
+                    const buildStatus = await (0, monorepo_scanner_1.funCheckBuildStatus)(pkg);
+                    const testCoverage = 0; //await funCheckTestCoverage(pkg); // skip test coverage for now
+                    const lintStatus = await (0, monorepo_scanner_1.funCheckLintStatus)(pkg);
+                    const securityAudit = await (0, monorepo_scanner_1.funCheckSecurityAudit)(pkg);
+                    // Calculate overall health score
+                    const overallScore = (0, utilities_1.calculatePackageHealth)(buildStatus, testCoverage, lintStatus, securityAudit);
+                    const health = {
+                        buildStatus: buildStatus,
+                        testCoverage: testCoverage,
+                        lintStatus: lintStatus,
+                        securityAudit: securityAudit,
+                        overallScore: overallScore.overallScore,
+                    };
+                    const packageStatus = health.overallScore >= 80
+                        ? 'healthy'
+                        : health.overallScore >= 60 && health.overallScore < 80
+                            ? 'warning'
+                            : 'error';
+                    console.log(pkg.name, '-->', health, packageStatus);
+                    await repositories_1.PackageHealthRepository.upsert({
+                        packageName: pkg.name,
+                        packageOverallScore: overallScore.overallScore,
+                        packageBuildStatus: buildStatus,
+                        packageTestCoverage: testCoverage,
+                        packageLintStatus: lintStatus,
+                        packageSecurity: securityAudit,
+                        packageDependencies: '',
+                    });
+                    // update related package status as well
+                    await repositories_1.PackageRepository.updateStatus(pkg.name, packageStatus);
+                    return {
+                        packageName: pkg.name,
+                        health,
+                        isHealthy: health.overallScore >= 80,
+                    };
+                }
+                catch (error) {
+                    return {
+                        packageName: pkg.name,
+                        health: {
+                            "buildStatus": "",
+                            "testCoverage": 0,
+                            "lintStatus": "",
+                            "securityAudit": "",
+                            "overallScore": 0
+                        },
+                        isHealthy: false,
+                        error: 'Failed to fetch health metrics1',
+                    };
+                }
+            }));
+            const result = {
+                packages: healthMetrics.filter(h => !h.error),
+                summary: {
+                    total: packages.length,
+                    healthy: healthMetrics.filter(h => h.isHealthy).length,
+                    unhealthy: healthMetrics.filter(h => !h.isHealthy).length,
+                    averageScore: healthMetrics.filter(h => h.health).length > 0
+                        ? healthMetrics
+                            .filter(h => h.health)
+                            .reduce((sum, h) => sum + h.health.overallScore, 0) /
+                            healthMetrics.filter(h => h.health).length
+                        : 0,
                 },
-                isHealthy: false,
-                error: 'Failed to fetch health metrics1',
             };
+            return result;
         }
-    }));
-    return {
-        packages: healthMetrics.filter(h => !h.error),
-        summary: {
-            total: packages.length,
-            healthy: healthMetrics.filter(h => h.isHealthy).length,
-            unhealthy: healthMetrics.filter(h => !h.isHealthy).length,
-            averageScore: healthMetrics
-                .filter(h => h.health)
-                .reduce((sum, h) => sum + h.health.overallScore, 0) /
-                healthMetrics.filter(h => h.health).length,
-        },
-    };
+        finally {
+            // Clear the in-flight promise after completion
+            inFlightHealthRefresh = null;
+        }
+    })();
+    return inFlightHealthRefresh;
 };
 exports.healthRefreshService = healthRefreshService;

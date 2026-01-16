@@ -160,7 +160,33 @@ export const refreshPackagesService = async (rootPath: string) => {
     await storePackage(pkg);
   }
 
-  return packages;
+  // Return transformed packages like getPackagesService
+  const dbPackages = await PackageRepository.findAll();
+  const transformedPackages = dbPackages.map((pkg: PackageModel) => {
+    const transformedPkg = { ...pkg };
+
+    transformedPkg.maintainers = pkg.maintainers
+      ? JSON.parse(pkg.maintainers)
+      : [];
+
+    transformedPkg.scripts = pkg.scripts ? JSON.parse(pkg.scripts) : {};
+    transformedPkg.repository = pkg.repository
+      ? JSON.parse(pkg.repository)
+      : {};
+
+    transformedPkg.dependencies = pkg.dependencies
+      ? JSON.parse(pkg.dependencies)
+      : [];
+    transformedPkg.devDependencies = pkg.devDependencies
+      ? JSON.parse(pkg.devDependencies)
+      : [];
+    transformedPkg.peerDependencies = pkg.peerDependencies
+      ? JSON.parse(pkg.peerDependencies)
+      : [];
+    return transformedPkg;
+  });
+
+  return transformedPackages;
 }
 
 export const getPackageDetailService = async (name: string) => {

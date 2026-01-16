@@ -19,6 +19,7 @@ import {
   buildApiUrl,
   buildDashboardUrl,
 } from './security';
+import { setupSwaggerDocs } from './swagger-middleware';
 
 import packageRouter from '../routes/package-routes';
 import commitRouter from '../routes/commit-routes';
@@ -74,6 +75,9 @@ function createApp(rootPath: string): Express {
   // HTTP request logging with Morgan
   app.use(httpLogger);
 
+  // Setup Swagger documentation
+  setupSwaggerDocs(app);
+
   // Routes
   app.use('/api/packages', packageRouter);
   app.use('/api/commits/', commitRouter);
@@ -107,13 +111,13 @@ export function startServer(rootPath: string): void {
       console.log(SUCCESS_SERVER_START(host, validatedPort));
       AppLogger.info('API endpoints available:', {
         endpoints: [
-          'GET  /api/health',
-          'GET  /api/packages/refresh',
+          'POST /api/packages/refresh',
           'GET  /api/packages',
           'GET  /api/packages/:name',
           'PUT  /api/packages/update-config',
           'GET  /api/commits/:packagePath',
           'GET  /api/health/packages',
+          'POST /api/health/refresh',
           'PUT  /api/config/files/:id',
           'GET  /api/config/files',
         ],

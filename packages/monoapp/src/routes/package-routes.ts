@@ -5,7 +5,7 @@ const packageRouter = express.Router();
 
 packageRouter
   .route('/refresh')
-  .get(refreshPackages);
+  .post(refreshPackages);
 
 packageRouter
   .route('/update-config')

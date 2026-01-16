@@ -5,7 +5,7 @@ const healthRouter = express.Router();
 
 healthRouter
   .route('/refresh')
-  .get(refreshHealth);
+  .post(refreshHealth);
 
 healthRouter
   .route('/packages')

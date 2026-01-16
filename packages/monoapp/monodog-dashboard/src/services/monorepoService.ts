@@ -261,7 +261,12 @@ class MonorepoService {
 
   async refreshPackages(): Promise<Package[]> {
     try {
-      const pkg = await fetch(`${API_BASE}/packages/refresh`);
+      const pkg = await fetch(`${API_BASE}/packages/refresh`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
       if (!pkg.ok) {
         console.error(
@@ -364,7 +369,12 @@ class MonorepoService {
   }> {
     try {
       // Call your real backend API
-      const healthRes = await fetch(`${API_BASE}/health/refresh`);
+      const healthRes = await fetch(`${API_BASE}/health/refresh`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
       if (!healthRes.ok) {
         throw new Error('Failed to fetch health data');

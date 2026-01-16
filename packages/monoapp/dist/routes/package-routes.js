@@ -8,7 +8,7 @@ const package_controller_1 = require("../controllers/package-controller");
 const packageRouter = express_1.default.Router();
 packageRouter
     .route('/refresh')
-    .get(package_controller_1.refreshPackages);
+    .post(package_controller_1.refreshPackages);
 packageRouter
     .route('/update-config')
     .put(package_controller_1.updatePackageConfig);

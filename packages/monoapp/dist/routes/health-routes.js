@@ -8,7 +8,7 @@ const health_controller_1 = require("../controllers/health-controller");
 const healthRouter = express_1.default.Router();
 healthRouter
     .route('/refresh')
-    .get(health_controller_1.refreshHealth);
+    .post(health_controller_1.refreshHealth);
 healthRouter
     .route('/packages')
     .get(health_controller_1.getPackagesHealth);
