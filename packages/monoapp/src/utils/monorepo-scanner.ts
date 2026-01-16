@@ -2,6 +2,8 @@
 import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
+import { AppLogger } from '../middleware/logger';
+
 import type {
   PackageInfo,
   DependencyInfo,
@@ -43,11 +45,11 @@ export class MonorepoScanner {
         return cached;
       }
 
-      console.log('Starting monorepo scan...');
+      AppLogger.debug('Starting monorepo scan...');
 
       // Scan all packages
       const packages = scanMonorepo(this.rootDir);
-      console.log(`📦 Found ${packages.length} packages`);
+      AppLogger.debug(`Found ${packages.length} packages`);
 
       // Generate statistics
       const stats = generateMonorepoStats(packages);
@@ -74,10 +76,10 @@ export class MonorepoScanner {
       // Cache the result
       this.setCache(cacheKey, result);
 
-      console.log(`Scan completed in ${result.scanDuration}ms`);
+      AppLogger.debug(`Scan completed in ${result.scanDuration}ms`);
       return result;
     } catch (error) {
-      console.error('Error during scan:', error);
+      AppLogger.error('Error during scan', error as Error);
       throw error;
     }
   }
@@ -94,7 +96,7 @@ export class MonorepoScanner {
         const report = await this.generatePackageReport(pkg);
         reports.push(report);
       } catch (error) {
-        console.error(`Error generating report for ${pkg.name}:`, error);
+        AppLogger.error(`Error generating report for ${pkg.name}`, error as Error);
       }
     }
 
@@ -206,10 +208,7 @@ export class MonorepoScanner {
                 0
               );
             } catch (error) {
-              console.warn(
-                `Error parsing coverage file for ${pkg.name}:`,
-                error
-              );
+              AppLogger.warn(`Error parsing coverage file for ${pkg.name}`);
             }
           }
           // If we find any coverage file but can't parse it, assume coverage exists
@@ -232,7 +231,7 @@ export class MonorepoScanner {
 
       return 0;
     } catch (error) {
-      console.warn(`Error checking coverage for ${pkg.name}:`, error);
+      AppLogger.warn(`Error checking coverage for ${pkg.name}`);
       return 0;
     }
   }

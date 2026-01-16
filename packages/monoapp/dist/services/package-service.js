@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getPackageDetailService = exports.refreshPackagesService = exports.getPackagesService = void 0;
 const utilities_1 = require("../utils/utilities");
-const monorepo_scanner_1 = require("../utils/monorepo-scanner");
 const ci_status_1 = require("../utils/ci-status");
+const logger_1 = require("../middleware/logger");
 const repositories_1 = require("../repositories");
 const commit_service_1 = require("./commit-service");
 /**
@@ -73,7 +73,7 @@ async function storePackage(pkg) {
         }
     }
     catch (error) {
-        console.warn(` Failed to store report for ${pkg.name}:`, error);
+        logger_1.AppLogger.warn(`Failed to store report for ${pkg.name}`);
     }
 }
 const getPackagesService = async (rootPath) => {
@@ -81,9 +81,9 @@ const getPackagesService = async (rootPath) => {
     if (!dbPackages.length) {
         try {
             const rootDir = rootPath;
-            console.log('rootDir -->', rootDir);
+            logger_1.AppLogger.debug('rootDir: ' + rootDir);
             const packages = (0, utilities_1.scanMonorepo)(rootDir);
-            console.log('packages --> scan', packages.length);
+            logger_1.AppLogger.debug('packages scanned: ' + packages.length);
             for (const pkg of packages) {
                 await storePackage(pkg);
             }
@@ -124,7 +124,7 @@ const refreshPackagesService = async (rootPath) => {
     await repositories_1.PackageRepository.deleteAll();
     const rootDir = rootPath;
     const packages = (0, utilities_1.scanMonorepo)(rootDir);
-    console.log('packages -->', packages.length);
+    logger_1.AppLogger.debug('packages count: ' + packages.length);
     for (const pkg of packages) {
         await storePackage(pkg);
     }
@@ -173,11 +173,11 @@ const getPackageDetailService = async (name) => {
         ? JSON.parse(pkg.peerDependencies)
         : [];
     // Get additional package information
-    const reports = (await (0, monorepo_scanner_1.generateReports)());
-    const packageReport = reports?.find((r) => r.package?.name === name);
+    // const reports = (await generateReports()) as unknown as PackageReport[] | undefined;
+    // const packageReport = reports?.find((r: PackageReport) => r.package?.name === name);
     const result = {
         ...transformedPkg,
-        report: packageReport,
+        // report: packageReport,
         ciStatus: await ci_status_1.ciStatusManager.getPackageStatus(name),
     };
     return result;

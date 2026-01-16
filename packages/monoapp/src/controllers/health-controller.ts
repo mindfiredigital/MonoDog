@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { AppLogger } from '../middleware/logger';
 import { getHealthSummaryService, healthRefreshService } from '../services/health-service';
 
 export const getPackagesHealth = async (_req: Request, res: Response) => {
@@ -6,7 +7,7 @@ export const getPackagesHealth = async (_req: Request, res: Response) => {
     const health = await getHealthSummaryService();
     res.json(health);
   } catch (error) {
-    console.error('Error fetching health data from database:', error);
+    AppLogger.error('Error fetching health data from database:', error as Error);
     res
       .status(500)
       .json({ error: 'Failed to fetch health data from database' });

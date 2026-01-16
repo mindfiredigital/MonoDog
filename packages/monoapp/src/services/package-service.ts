@@ -1,6 +1,7 @@
 import { scanMonorepo } from '../utils/utilities';
 import { generateReports } from '../utils/monorepo-scanner';
 import { ciStatusManager } from '../utils/ci-status';
+import { AppLogger } from '../middleware/logger';
 import { PackageRepository, CommitRepository, DependencyRepository } from '../repositories';
 import type { PackageInfo, DependencyInfo, PackageReport } from '../types';
 import { getCommitsByPathService } from './commit-service';
@@ -98,7 +99,7 @@ async function storePackage(pkg: PackageInfo): Promise<void> {
       await DependencyRepository.storeMany(pkg.name, dependenciesInfo);
     }
   } catch (error) {
-    console.warn(` Failed to store report for ${pkg.name}:`, error);
+    AppLogger.warn(`Failed to store report for ${pkg.name}`);
   }
 }
 
@@ -107,9 +108,9 @@ export const getPackagesService = async (rootPath: string) => {
   if (!dbPackages.length) {
     try {
       const rootDir = rootPath;
-      console.log('rootDir -->', rootDir);
+      AppLogger.debug('rootDir: ' + rootDir);
       const packages = scanMonorepo(rootDir);
-      console.log('packages --> scan', packages.length);
+      AppLogger.debug('packages scanned: ' + packages.length);
       for (const pkg of packages) {
         await storePackage(pkg);
       }
@@ -155,7 +156,7 @@ export const refreshPackagesService = async (rootPath: string) => {
   const rootDir = rootPath;
   const packages = scanMonorepo(rootDir);
 
-  console.log('packages -->', packages.length);
+  AppLogger.debug('packages count: ' + packages.length);
   for (const pkg of packages) {
     await storePackage(pkg);
   }
@@ -213,12 +214,12 @@ export const getPackageDetailService = async (name: string) => {
     : [];
 
   // Get additional package information
-  const reports = (await generateReports()) as unknown as PackageReport[] | undefined;
-  const packageReport = reports?.find((r: PackageReport) => r.package?.name === name);
+  // const reports = (await generateReports()) as unknown as PackageReport[] | undefined;
+  // const packageReport = reports?.find((r: PackageReport) => r.package?.name === name);
 
   const result: PackageDetail = {
     ...transformedPkg,
-    report: packageReport,
+    // report: packageReport,
     ciStatus: await ciStatusManager.getPackageStatus(name),
   };
 

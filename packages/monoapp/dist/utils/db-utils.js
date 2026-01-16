@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.storePackage = storePackage;
+const logger_1 = require("../middleware/logger");
 const repositories_1 = require("../repositories");
 const config_loader_1 = require("../config-loader");
 // Default settings
@@ -81,6 +82,6 @@ async function storePackage(pkg) {
         }
     }
     catch (error) {
-        console.warn(` Failed to store report for ${pkg.name}:`, error);
+        logger_1.AppLogger.warn(`Failed to store report for ${pkg.name}`);
     }
 }

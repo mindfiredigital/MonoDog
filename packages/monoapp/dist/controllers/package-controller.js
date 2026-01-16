@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updatePackageConfig = exports.getPackageDetail = exports.refreshPackages = exports.getPackages = void 0;
+const logger_1 = require("../middleware/logger");
 const config_service_1 = require("../services/config-service");
 const package_service_1 = require("../services/package-service");
 const getPackages = async (_req, res) => {
@@ -14,7 +15,7 @@ const getPackages = async (_req, res) => {
 };
 exports.getPackages = getPackages;
 const refreshPackages = async (_req, res) => {
-    console.log('Refreshing packages from source...' + _req.app.locals.rootPath);
+    logger_1.AppLogger.info('Refreshing packages from source: ' + _req.app.locals.rootPath);
     try {
         const packages = await (0, package_service_1.refreshPackagesService)(_req.app.locals.rootPath);
         res.json(packages);
@@ -44,8 +45,8 @@ const updatePackageConfig = async (req, res) => {
                 error: 'Package name, configuration, and package path are required',
             });
         }
-        console.log('Updating package configuration for:', packageName);
-        console.log('Package path:', packagePath);
+        logger_1.AppLogger.info('Updating package configuration for: ' + packageName);
+        logger_1.AppLogger.debug('Package path: ' + packagePath);
         const updatedPackage = await (0, config_service_1.updatePackageConfigurationService)(packagePath, packageName, config);
         return res.json({
             success: true,

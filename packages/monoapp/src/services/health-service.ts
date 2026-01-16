@@ -9,6 +9,7 @@ import {
   funCheckSecurityAudit,
 } from '../utils/monorepo-scanner';
 
+import { AppLogger } from '../middleware/logger';
 import { PackageHealthRepository, PackageRepository } from '../repositories';
 import type { TransformedPackageHealth, HealthResponse, PackageHealthModel } from '../types/database';
 
@@ -17,7 +18,7 @@ let inFlightHealthRefresh: Promise<HealthResponse> | null = null;
 
 export const getHealthSummaryService = async (): Promise<HealthResponse> => {
   const packageHealthData = await PackageHealthRepository.findAll() as PackageHealthModel[];
-  console.log('packageHealthData -->', packageHealthData.length);
+  AppLogger.debug('packageHealthData count: ' + packageHealthData.length);
 
   // Transform the data to match the expected frontend format
   const packages = packageHealthData.map((pkg: PackageHealthModel) => {
@@ -60,7 +61,7 @@ export const getHealthSummaryService = async (): Promise<HealthResponse> => {
 export const healthRefreshService = async (rootDir: string) => {
   // If a health refresh is already in progress, return the in-flight promise
   if (inFlightHealthRefresh) {
-    console.log('Health refresh already in progress, returning cached promise');
+    AppLogger.info('Health refresh already in progress, returning cached promise');
     return inFlightHealthRefresh;
   }
 
@@ -68,7 +69,7 @@ export const healthRefreshService = async (rootDir: string) => {
   inFlightHealthRefresh = (async () => {
     try {
       const packages = scanMonorepo(rootDir);
-      console.log('packages -->', packages.length);
+      AppLogger.debug('packages count: ' + packages.length);
       const healthMetrics = await Promise.all(
         packages.map(async pkg => {
           try {
@@ -99,7 +100,7 @@ export const healthRefreshService = async (rootDir: string) => {
                   ? 'warning'
                   : 'error';
 
-            console.log(pkg.name, '-->', health, packageStatus);
+            AppLogger.debug(`${pkg.name}: ${packageStatus}`, health);
 
             await PackageHealthRepository.upsert({
               packageName: pkg.name,

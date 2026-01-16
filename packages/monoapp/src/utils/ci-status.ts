@@ -1,3 +1,4 @@
+import { AppLogger } from '../middleware/logger';
 import type { PackageInfo } from './utilities';
 import type {
   CIProvider,
@@ -130,7 +131,7 @@ export class CIStatusManager {
       this.setCache(cacheKey, status);
       return status;
     } catch (error) {
-      console.error(`Error fetching CI status for ${packageName}:`, error);
+      AppLogger.error(`Error fetching CI status for ${packageName}`, error as Error);
       return null;
     }
   }
@@ -468,7 +469,7 @@ export class CIStatusManager {
       // Mock implementation
       const buildId = `build-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-      console.log(
+      AppLogger.info(
         `Triggering build for ${packageName} on ${branch} via ${providerName}`
       );
 

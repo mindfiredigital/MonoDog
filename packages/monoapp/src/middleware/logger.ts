@@ -3,11 +3,18 @@
  */
 
 import morgan from 'morgan';
+import fs from 'fs';
+import path from 'path';
+
+const accessLogStream = fs.createWriteStream(path.join(__dirname, '../../','access.log'),{flags : 'a'});
 
 /**
- * HTTP request logger middleware using Morgan
+ * HTTP request logger middleware using Morgan, only log error responses
  */
-export const httpLogger = morgan('dev');
+export const httpLogger = morgan('combined', {
+  stream : accessLogStream,
+  // skip: function (req, res) { return res.statusCode < 400 }
+});
 
 /**
  * Application logger for non-HTTP events

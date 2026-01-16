@@ -1,4 +1,5 @@
 import { getPrismaClient, getPrismaErrors } from './prisma-client';
+import { AppLogger } from '../middleware/logger';
 import type { Commit } from '../types';
 
 const prisma = getPrismaClient();
@@ -71,9 +72,9 @@ export class CommitRepository {
         err instanceof Prisma.PrismaClientKnownRequestError &&
         err.code === 'P2002'
       ) {
-        console.warn(`Skipping commit: ${data.hash} (Commit already exists)`);
+        AppLogger.warn(`Skipping commit: ${data.hash} (Commit already exists)`);
       } else {
-        console.error(`Failed to store commit: ${data.hash}`, err);
+        AppLogger.error(`Failed to store commit: ${data.hash}`, err);
         throw err;
       }
     }
@@ -83,7 +84,7 @@ export class CommitRepository {
    * Store multiple commits
    */
   static async storeMany(packageName: string, commits: Commit[]) {
-    console.log('Storing commits for: ' + packageName);
+    AppLogger.debug('Storing commits for: ' + packageName);
     for (const commit of commits) {
       await this.upsert({
         hash: commit.hash,

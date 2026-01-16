@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { AppLogger } from './middleware/logger';
 
 import type { MonodogConfig } from './types';
 
@@ -24,7 +25,7 @@ function loadConfig(): MonodogConfig {
   createConfigFileIfMissing(rootPath);
 
   if (!fs.existsSync(configPath)) {
-    console.error(`ERROR1: Configuration file not found at ${configPath}`);
+    AppLogger.error(`Configuration file not found at ${configPath}`);
     process.exit(1);
   }
 
@@ -35,11 +36,9 @@ function loadConfig(): MonodogConfig {
 
     // Cache and return
     config = parsedConfig;
-    process.stderr.write('[Config] Loaded configuration from: ...\n');
     return config;
   } catch (error) {
-    console.error('ERROR: Failed to read or parse monodog-config.json.');
-    console.error(error);
+    AppLogger.error('Failed to read or parse monodog-config.json.', error as Error);
     process.exit(1);
   }
 }
@@ -68,17 +67,17 @@ function createConfigFileIfMissing(rootPath: string): void {
   const contentString = JSON.stringify(defaultContent, null, 2);
   // ---------------------
 
-  process.stderr.write(`\n[monodog] Checking for ${configFileName}...`);
+   AppLogger.info(`\n[monodog] Checking for ${configFileName}...`);
 
   if (fs.existsSync(configFilePath)) {
-    process.stderr.write(
-      `[monodog] ${configFileName} already exists at ${configFilePath}. Skipping creation.`
+     AppLogger.info(
+      `\n[monodog] ${configFileName} already exists at ${configFilePath}. Skipping creation.`
     );
   } else {
     try {
       // Write the default content to the file
       fs.writeFileSync(configFilePath, contentString, 'utf-8');
-      process.stderr.write(
+       AppLogger.info(
         `[monodog] Successfully generated default ${configFileName} in the workspace root.`
       );
       process.stderr.write(
@@ -86,9 +85,8 @@ function createConfigFileIfMissing(rootPath: string): void {
       );
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
-      console.error(
-        `[monodog Error] Failed to generate ${configFileName}:`,
-        message
+      AppLogger.error(
+        `Failed to generate ${configFileName}: ${message}`
       );
       process.exit(1);
     }

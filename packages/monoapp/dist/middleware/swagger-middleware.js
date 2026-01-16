@@ -10,6 +10,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.setupSwaggerDocs = setupSwaggerDocs;
 const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
 const swagger_jsdoc_1 = __importDefault(require("swagger-jsdoc"));
+const logger_1 = require("./logger");
 const swagger_config_1 = require("../config/swagger-config");
 /**
  * Setup Swagger documentation endpoint
@@ -46,9 +47,9 @@ function setupSwaggerDocs(app) {
         `,
             customCssUrl: 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css',
         }));
-        console.log('Swagger documentation available at /api-docs');
+        logger_1.AppLogger.info('Swagger documentation available at /api-docs');
     }
     catch (error) {
-        console.error('Failed to setup Swagger documentation:', error);
+        logger_1.AppLogger.error('Failed to setup Swagger documentation', error);
     }
 }

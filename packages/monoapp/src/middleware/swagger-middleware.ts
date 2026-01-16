@@ -6,6 +6,7 @@
 import swaggerUi from 'swagger-ui-express';
 import swaggerJsDoc from 'swagger-jsdoc';
 import type { Express, Request, Response } from 'express';
+import { AppLogger } from './logger';
 import { swaggerOptions } from '../config/swagger-config';
 
 /**
@@ -50,8 +51,8 @@ export function setupSwaggerDocs(app: Express): void {
       })
     );
 
-    console.log('Swagger documentation available at /api-docs');
+    AppLogger.info('Swagger documentation available at /api-docs');
   } catch (error) {
-    console.error('Failed to setup Swagger documentation:', error);
+    AppLogger.error('Failed to setup Swagger documentation', error as Error);
   }
 }

@@ -36,6 +36,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.appConfig = void 0;
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
+const logger_1 = require("./middleware/logger");
 // Global variable to hold the loaded config
 let config = null;
 /**
@@ -54,7 +55,7 @@ function loadConfig() {
     const configPath = path.resolve(rootPath, 'monodog-config.json');
     createConfigFileIfMissing(rootPath);
     if (!fs.existsSync(configPath)) {
-        console.error(`ERROR1: Configuration file not found at ${configPath}`);
+        logger_1.AppLogger.error(`Configuration file not found at ${configPath}`);
         process.exit(1);
     }
     try {
@@ -63,12 +64,10 @@ function loadConfig() {
         const parsedConfig = JSON.parse(fileContent);
         // Cache and return
         config = parsedConfig;
-        process.stderr.write('[Config] Loaded configuration from: ...\n');
         return config;
     }
     catch (error) {
-        console.error('ERROR: Failed to read or parse monodog-config.json.');
-        console.error(error);
+        logger_1.AppLogger.error('Failed to read or parse monodog-config.json.', error);
         process.exit(1);
     }
 }
@@ -83,30 +82,30 @@ function createConfigFileIfMissing(rootPath) {
             path: 'file:./monodog.db', // SQLite database file path, relative to prisma schema location
         },
         dashboard: {
-            host: '0.0.0.0',
+            host: 'localhost',
             port: '3010',
         },
         server: {
-            host: '0.0.0.0', // Default host for the API server
+            host: 'localhost', // Default host for the API server
             port: 8999, // Default port for the API server
         },
     };
     const contentString = JSON.stringify(defaultContent, null, 2);
     // ---------------------
-    process.stderr.write(`\n[monodog] Checking for ${configFileName}...`);
+    logger_1.AppLogger.info(`\n[monodog] Checking for ${configFileName}...`);
     if (fs.existsSync(configFilePath)) {
-        process.stderr.write(`[monodog] ${configFileName} already exists at ${configFilePath}. Skipping creation.`);
+        logger_1.AppLogger.info(`\n[monodog] ${configFileName} already exists at ${configFilePath}. Skipping creation.`);
     }
     else {
         try {
             // Write the default content to the file
             fs.writeFileSync(configFilePath, contentString, 'utf-8');
-            process.stderr.write(`[monodog] Successfully generated default ${configFileName} in the workspace root.`);
+            logger_1.AppLogger.info(`[monodog] Successfully generated default ${configFileName} in the workspace root.`);
             process.stderr.write('[monodog] Please review and update settings like "host" and "port".');
         }
         catch (err) {
             const message = err instanceof Error ? err.message : String(err);
-            console.error(`[monodog Error] Failed to generate ${configFileName}:`, message);
+            logger_1.AppLogger.error(`Failed to generate ${configFileName}: ${message}`);
             process.exit(1);
         }
     }

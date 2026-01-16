@@ -8,10 +8,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppLogger = exports.httpLogger = void 0;
 const morgan_1 = __importDefault(require("morgan"));
+const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
+const accessLogStream = fs_1.default.createWriteStream(path_1.default.join(__dirname, '../../', 'access.log'), { flags: 'a' });
 /**
- * HTTP request logger middleware using Morgan
+ * HTTP request logger middleware using Morgan, only log error responses
  */
-exports.httpLogger = (0, morgan_1.default)('dev');
+exports.httpLogger = (0, morgan_1.default)('combined', {
+    stream: accessLogStream,
+    // skip: function (req, res) { return res.statusCode < 400 }
+});
 /**
  * Application logger for non-HTTP events
  */

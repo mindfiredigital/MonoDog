@@ -13,6 +13,7 @@ exports.GitService = void 0;
 const child_process_1 = require("child_process");
 const util_1 = require("util");
 const path_1 = __importDefault(require("path"));
+const logger_1 = require("../middleware/logger");
 const types_1 = require("../types");
 // Promisify the standard 'exec' function for easy async/await usage
 const execPromise = (0, util_1.promisify)(child_process_1.exec);
@@ -35,19 +36,19 @@ class GitService {
             }
             // First, validate we're in a git repo
             await this.validateGitRepository(pathArgument);
-            console.log(`Executing Git command in: ${this.repoPath}`);
+            logger_1.AppLogger.debug(`Executing Git command in: ${this.repoPath}`);
             // Use a simpler git log format
             const command = `git log --pretty=format:"%H|%an|%ad|%s" --date=iso-strict ${pathArgument}`;
-            console.log(`Git command: ${command}`);
+            logger_1.AppLogger.debug(`Git command: ${command}`);
             const { stdout, stderr } = await execPromise(command, {
                 cwd: this.repoPath,
                 maxBuffer: 1024 * 5000,
             });
             if (stderr) {
-                console.warn('Git stderr:', stderr);
+                logger_1.AppLogger.warn('Git stderr: ' + stderr);
             }
             if (!stdout.trim()) {
-                console.log('📭 No commits found for path:', pathFilter);
+                logger_1.AppLogger.debug('No commits found for path: ' + pathFilter);
                 return [];
             }
             // Parse the output
@@ -67,14 +68,14 @@ class GitService {
                     commits.push(commit);
                 }
                 catch (parseError) {
-                    console.error('Failed to parse commit line:', line, parseError);
+                    logger_1.AppLogger.error('Failed to parse commit line: ' + line, parseError);
                 }
             }
-            console.log(`Successfully parsed ${commits.length} commits`);
+            logger_1.AppLogger.debug(`Successfully parsed ${commits.length} commits`);
             return commits;
         }
         catch (error) {
-            console.error('Error in getAllCommits:', error);
+            logger_1.AppLogger.error('Error in getAllCommits', error);
             throw error;
         }
     }
@@ -115,7 +116,7 @@ class GitService {
             await execPromise('git ' + pathArgument + ' rev-parse --is-inside-work-tree', {
                 cwd: this.repoPath,
             });
-            console.log('Valid git repository');
+            logger_1.AppLogger.debug('Valid git repository');
         }
         catch (error) {
             throw new Error('Not a git repository (or any of the parent directories)');

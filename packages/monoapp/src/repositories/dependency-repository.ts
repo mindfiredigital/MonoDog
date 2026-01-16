@@ -1,4 +1,5 @@
 import { getPrismaClient, getPrismaErrors } from './prisma-client';
+import { AppLogger } from '../middleware/logger';
 import type { DependencyInfo } from '../types';
 
 const prisma = getPrismaClient();
@@ -71,11 +72,11 @@ export class DependencyRepository {
         err instanceof Prisma.PrismaClientKnownRequestError &&
         err.code === 'P2002'
       ) {
-        console.warn(
+        AppLogger.warn(
           `Skipping dependency: ${data.name} (Dependency already exists)`
         );
       } else {
-        console.error(`Failed to store dependency: ${data.name}`, err);
+        AppLogger.error(`Failed to store dependency: ${data.name}`, err);
         throw err;
       }
     }
@@ -85,7 +86,7 @@ export class DependencyRepository {
    * Store multiple dependencies
    */
   static async storeMany(packageName: string, dependencies: DependencyInfo[]) {
-    console.log('Storing Dependencies for: ' + packageName);
+    AppLogger.debug('Storing Dependencies for: ' + packageName);
     for (const dep of dependencies) {
       await this.upsert({
         name: dep.name,

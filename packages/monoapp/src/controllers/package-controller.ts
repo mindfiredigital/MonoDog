@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { AppLogger } from '../middleware/logger';
 import { updatePackageConfigurationService } from '../services/config-service';
 import { getPackageDetailService, getPackagesService, refreshPackagesService } from '../services/package-service';
 
@@ -12,7 +13,7 @@ export const getPackages = async (_req: Request, res: Response) => {
 }
 
 export const refreshPackages = async (_req: Request, res: Response) => {
-  console.log('Refreshing packages from source...'+ _req.app.locals.rootPath);
+  AppLogger.info('Refreshing packages from source: ' + _req.app.locals.rootPath);
 
   try {
     const packages = await refreshPackagesService(_req.app.locals.rootPath);
@@ -43,8 +44,8 @@ export const updatePackageConfig = async (req: Request, res: Response) => {
       });
     }
 
-    console.log('Updating package configuration for:', packageName);
-    console.log('Package path:', packagePath);
+    AppLogger.info('Updating package configuration for: ' + packageName);
+    AppLogger.debug('Package path: ' + packagePath);
 
     const updatedPackage = await updatePackageConfigurationService(packagePath, packageName, config);
 

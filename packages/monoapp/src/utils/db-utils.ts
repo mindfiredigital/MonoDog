@@ -1,4 +1,5 @@
 import type { PackageInfo, DependencyInfo, Commit } from '../types';
+import { AppLogger } from '../middleware/logger';
 import { CommitRepository, DependencyRepository, PackageRepository } from '../repositories';
 import { appConfig } from '../config-loader';
 
@@ -84,7 +85,7 @@ async function storePackage(pkg: PackageInfo): Promise<void> {
       await DependencyRepository.storeMany(pkg.name, dependenciesInfo);
     }
   } catch (error) {
-    console.warn(` Failed to store report for ${pkg.name}:`, error);
+    AppLogger.warn(`Failed to store report for ${pkg.name}`);
   }
 }
 

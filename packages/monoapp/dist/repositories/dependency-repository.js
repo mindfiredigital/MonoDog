@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DependencyRepository = void 0;
 const prisma_client_1 = require("./prisma-client");
+const logger_1 = require("../middleware/logger");
 const prisma = (0, prisma_client_1.getPrismaClient)();
 const Prisma = (0, prisma_client_1.getPrismaErrors)();
 /**
@@ -61,10 +62,10 @@ class DependencyRepository {
             const err = e;
             if (err instanceof Prisma.PrismaClientKnownRequestError &&
                 err.code === 'P2002') {
-                console.warn(`Skipping dependency: ${data.name} (Dependency already exists)`);
+                logger_1.AppLogger.warn(`Skipping dependency: ${data.name} (Dependency already exists)`);
             }
             else {
-                console.error(`Failed to store dependency: ${data.name}`, err);
+                logger_1.AppLogger.error(`Failed to store dependency: ${data.name}`, err);
                 throw err;
             }
         }
@@ -73,7 +74,7 @@ class DependencyRepository {
      * Store multiple dependencies
      */
     static async storeMany(packageName, dependencies) {
-        console.log('Storing Dependencies for: ' + packageName);
+        logger_1.AppLogger.debug('Storing Dependencies for: ' + packageName);
         for (const dep of dependencies) {
             await this.upsert({
                 name: dep.name,

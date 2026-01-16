@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.updatePackageConfigurationService = exports.updateConfigFileService = exports.getConfigurationFilesService = void 0;
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
+const logger_1 = require("../middleware/logger");
 const repositories_1 = require("../repositories");
 // Helper function to scan for configuration files
 async function scanConfigFiles(rootDir) {
@@ -71,14 +72,14 @@ async function scanConfigFiles(rootDir) {
                             });
                         }
                         catch (error) {
-                            console.warn(`Could not read file: ${fullPath}`);
+                            logger_1.AppLogger.warn(`Could not read file: ${fullPath}`);
                         }
                     }
                 }
             }
         }
         catch (error) {
-            console.warn(`Could not scan directory: ${dir}`);
+            logger_1.AppLogger.warn(`Could not scan directory: ${dir}`);
         }
     }
     function shouldSkipDirectory(dirName, depth) {
@@ -115,20 +116,20 @@ async function scanConfigFiles(rootDir) {
             return filename.toLowerCase() === pattern.toLowerCase();
         });
     }
-    console.log(`Scanning for config files in: ${rootDir}`);
+    logger_1.AppLogger.info(`Scanning for config files in: ${rootDir}`);
     // Start scanning from root
     scanDirectory(rootDir);
     // Sort files by path for consistent ordering
     configFiles.sort((a, b) => a.path.localeCompare(b.path));
-    console.log(`Found ${configFiles.length} configuration files`);
+    logger_1.AppLogger.info(`Found ${configFiles.length} configuration files`);
     // Log some sample files for debugging
     if (configFiles.length > 0) {
-        console.log('Sample config files found:');
+        logger_1.AppLogger.info('Sample config files found');
         configFiles.slice(0, 5).forEach(file => {
-            console.log(`  - ${file.path} (${file.type})`);
+            logger_1.AppLogger.debug(`  - ${file.path} (${file.type})`);
         });
         if (configFiles.length > 5) {
-            console.log(`  ... and ${configFiles.length - 5} more`);
+            logger_1.AppLogger.debug(`  ... and ${configFiles.length - 5} more`);
         }
     }
     return configFiles;
@@ -203,8 +204,8 @@ const getConfigurationFilesService = async (rootDir) => {
 exports.getConfigurationFilesService = getConfigurationFilesService;
 const updateConfigFileService = async (id, rootDir, content) => {
     const filePath = path_1.default.join(rootDir, id.startsWith('/') ? id.slice(1) : id);
-    console.log('Saving file:', filePath);
-    console.log('Root directory:', rootDir);
+    logger_1.AppLogger.debug('Saving file: ' + filePath);
+    logger_1.AppLogger.debug('Root directory: ' + rootDir);
     // Security check: ensure the file is within the project directory
     if (!filePath.startsWith(rootDir)) {
         throw new Error('Invalid file path');
@@ -245,7 +246,7 @@ const updatePackageConfigurationService = async (packagePath, packageName, confi
         newConfig = JSON.parse(config);
     }
     catch (error) {
-        console.error('JSON parsing error:', error);
+        logger_1.AppLogger.error('JSON parsing error', error);
         throw new Error('Invalid JSON format: ' + (error instanceof Error ? error.message : 'Unknown error'));
     }
     const packageJsonPath = path_1.default.join(packagePath, 'package.json');
@@ -307,7 +308,7 @@ const updatePackageConfigurationService = async (packagePath, packageName, confi
         updateData.devDependencies = JSON.stringify(newConfig.devDependencies);
     if (newConfig.peerDependencies)
         updateData.peerDependencies = JSON.stringify(newConfig.peerDependencies);
-    console.log('Updating database with:', updateData);
+    logger_1.AppLogger.debug('Updating database with:', updateData);
     const updatedPackage = await repositories_1.PackageRepository.updateConfig(packageName, updateData);
     // Transform the response
     const transformedPackage = {

@@ -75,13 +75,13 @@ function startServer(rootPath) {
             console.log((0, constants_1.SUCCESS_SERVER_START)(host, validatedPort));
             logger_1.AppLogger.info('API endpoints available:', {
                 endpoints: [
-                    'GET  /api/health',
-                    'GET  /api/packages/refresh',
+                    'POST /api/packages/refresh',
                     'GET  /api/packages',
                     'GET  /api/packages/:name',
                     'PUT  /api/packages/update-config',
                     'GET  /api/commits/:packagePath',
                     'GET  /api/health/packages',
+                    'POST /api/health/refresh',
                     'PUT  /api/config/files/:id',
                     'GET  /api/config/files',
                 ],

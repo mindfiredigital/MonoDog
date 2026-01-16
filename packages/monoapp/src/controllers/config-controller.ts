@@ -1,15 +1,16 @@
 import { Request, Response } from 'express';
+import { AppLogger } from '../middleware/logger';
 import { getConfigurationFilesService, updateConfigFileService, updatePackageConfigurationService } from '../services/config-service';
 
 export const getConfigurationFiles = async (_req: Request, res: Response) => {
   try {
     const rootDir = _req.app.locals.rootPath;
-    console.log('Monorepo root directory:', rootDir);
+    AppLogger.debug('Monorepo root directory: ' + rootDir);
 
     const configFiles = await getConfigurationFilesService(rootDir);
     res.json(configFiles);
   } catch (error) {
-    console.error('Error fetching configuration files:', error);
+    AppLogger.error('Error fetching configuration files', error as Error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch configuration files',
@@ -32,7 +33,7 @@ export const updateConfigFile = async (_req: Request, res: Response) => {
     const result = await updateConfigFileService(id, rootDir, content);
     res.json(result);
   } catch (error) {
-    console.error('Error saving configuration file:', error);
+    AppLogger.error('Error saving configuration file', error as Error);
     res.status(500).json({
       success: false,
       error: 'Failed to save configuration file',

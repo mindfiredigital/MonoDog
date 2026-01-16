@@ -9,6 +9,7 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import path from 'path';
 
+import { AppLogger } from '../middleware/logger';
 import type { Commit } from '../types';
 import { VALID_COMMIT_TYPES } from '../types';
 
@@ -40,10 +41,10 @@ export class GitService {
       // First, validate we're in a git repo
       await this.validateGitRepository(pathArgument);
 
-      console.log(`Executing Git command in: ${this.repoPath}`);
+      AppLogger.debug(`Executing Git command in: ${this.repoPath}`);
       // Use a simpler git log format
       const command = `git log --pretty=format:"%H|%an|%ad|%s" --date=iso-strict ${pathArgument}`;
-      console.log(`Git command: ${command}`);
+      AppLogger.debug(`Git command: ${command}`);
 
       const { stdout, stderr } = await execPromise(command, {
         cwd: this.repoPath,
@@ -51,11 +52,11 @@ export class GitService {
       });
 
       if (stderr) {
-        console.warn('Git stderr:', stderr);
+        AppLogger.warn('Git stderr: ' + stderr);
       }
 
       if (!stdout.trim()) {
-        console.log('📭 No commits found for path:', pathFilter);
+        AppLogger.debug('No commits found for path: ' + pathFilter);
         return [];
       }
 
@@ -78,14 +79,14 @@ export class GitService {
 
           commits.push(commit);
         } catch (parseError) {
-          console.error('Failed to parse commit line:', line, parseError);
+          AppLogger.error('Failed to parse commit line: ' + line, parseError as Error);
         }
       }
 
-      console.log(`Successfully parsed ${commits.length} commits`);
+      AppLogger.debug(`Successfully parsed ${commits.length} commits`);
       return commits;
     } catch (error) {
-      console.error('Error in getAllCommits:', error);
+      AppLogger.error('Error in getAllCommits', error as Error);
       throw error;
     }
   }
@@ -129,7 +130,7 @@ export class GitService {
       await execPromise('git '+pathArgument+' rev-parse --is-inside-work-tree', {
         cwd: this.repoPath,
       });
-      console.log('Valid git repository');
+      AppLogger.debug('Valid git repository');
     } catch (error) {
       throw new Error(
         'Not a git repository (or any of the parent directories)'

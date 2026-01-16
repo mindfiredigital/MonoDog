@@ -3,12 +3,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.healthRefreshService = exports.getHealthSummaryService = void 0;
 const utilities_1 = require("../utils/utilities");
 const monorepo_scanner_1 = require("../utils/monorepo-scanner");
+const logger_1 = require("../middleware/logger");
 const repositories_1 = require("../repositories");
 // Track in-flight health refresh requests to prevent duplicates
 let inFlightHealthRefresh = null;
 const getHealthSummaryService = async () => {
     const packageHealthData = await repositories_1.PackageHealthRepository.findAll();
-    console.log('packageHealthData -->', packageHealthData.length);
+    logger_1.AppLogger.debug('packageHealthData count: ' + packageHealthData.length);
     // Transform the data to match the expected frontend format
     const packages = packageHealthData.map((pkg) => {
         const health = {
@@ -46,14 +47,14 @@ exports.getHealthSummaryService = getHealthSummaryService;
 const healthRefreshService = async (rootDir) => {
     // If a health refresh is already in progress, return the in-flight promise
     if (inFlightHealthRefresh) {
-        console.log('Health refresh already in progress, returning cached promise');
+        logger_1.AppLogger.info('Health refresh already in progress, returning cached promise');
         return inFlightHealthRefresh;
     }
     // Create and store the health refresh promise
     inFlightHealthRefresh = (async () => {
         try {
             const packages = (0, utilities_1.scanMonorepo)(rootDir);
-            console.log('packages -->', packages.length);
+            logger_1.AppLogger.debug('packages count: ' + packages.length);
             const healthMetrics = await Promise.all(packages.map(async (pkg) => {
                 try {
                     // Await each health check function since they return promises
@@ -75,7 +76,7 @@ const healthRefreshService = async (rootDir) => {
                         : health.overallScore >= 60 && health.overallScore < 80
                             ? 'warning'
                             : 'error';
-                    console.log(pkg.name, '-->', health, packageStatus);
+                    logger_1.AppLogger.debug(`${pkg.name}: ${packageStatus}`, health);
                     await repositories_1.PackageHealthRepository.upsert({
                         packageName: pkg.name,
                         packageOverallScore: overallScore.overallScore,

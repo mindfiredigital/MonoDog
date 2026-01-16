@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
+import { AppLogger } from '../middleware/logger';
 import { PackageRepository } from '../repositories';
 
 /**
@@ -91,13 +92,13 @@ async function scanConfigFiles(rootDir: string): Promise<any[]> {
                 hasSecrets: containsSecrets(content, item.name),
               });
             } catch (error) {
-              console.warn(`Could not read file: ${fullPath}`);
+              AppLogger.warn(`Could not read file: ${fullPath}`);
             }
           }
         }
       }
     } catch (error) {
-      console.warn(`Could not scan directory: ${dir}`);
+      AppLogger.warn(`Could not scan directory: ${dir}`);
     }
   }
 
@@ -139,7 +140,7 @@ async function scanConfigFiles(rootDir: string): Promise<any[]> {
     });
   }
 
-  console.log(`Scanning for config files in: ${rootDir}`);
+  AppLogger.info(`Scanning for config files in: ${rootDir}`);
 
   // Start scanning from root
   scanDirectory(rootDir);
@@ -147,16 +148,16 @@ async function scanConfigFiles(rootDir: string): Promise<any[]> {
   // Sort files by path for consistent ordering
   configFiles.sort((a, b) => a.path.localeCompare(b.path));
 
-  console.log(`Found ${configFiles.length} configuration files`);
+  AppLogger.info(`Found ${configFiles.length} configuration files`);
 
   // Log some sample files for debugging
   if (configFiles.length > 0) {
-    console.log('Sample config files found:');
+    AppLogger.info('Sample config files found');
     configFiles.slice(0, 5).forEach(file => {
-      console.log(`  - ${file.path} (${file.type})`);
+      AppLogger.debug(`  - ${file.path} (${file.type})`);
     });
     if (configFiles.length > 5) {
-      console.log(`  ... and ${configFiles.length - 5} more`);
+      AppLogger.debug(`  ... and ${configFiles.length - 5} more`);
     }
   }
 
@@ -244,8 +245,8 @@ export const updateConfigFileService = async (id: string, rootDir: string, conte
     id.startsWith('/') ? id.slice(1) : id
   );
 
-  console.log('Saving file:', filePath);
-  console.log('Root directory:', rootDir);
+  AppLogger.debug('Saving file: ' + filePath);
+  AppLogger.debug('Root directory: ' + rootDir);
 
   // Security check: ensure the file is within the project directory
   if (!filePath.startsWith(rootDir)) {
@@ -289,7 +290,7 @@ export const updatePackageConfigurationService = async (packagePath: string, pac
   try {
     newConfig = JSON.parse(config);
   } catch (error) {
-    console.error('JSON parsing error:', error);
+    AppLogger.error('JSON parsing error', error as Error);
     throw new Error('Invalid JSON format: ' + (error instanceof Error ? error.message : 'Unknown error'));
   }
 
@@ -362,7 +363,7 @@ export const updatePackageConfigurationService = async (packagePath: string, pac
   if (newConfig.peerDependencies)
     updateData.peerDependencies = JSON.stringify(newConfig.peerDependencies);
 
-  console.log('Updating database with:', updateData);
+  AppLogger.debug('Updating database with:', updateData);
 
   const updatedPackage = await PackageRepository.updateConfig(packageName, updateData);
 
