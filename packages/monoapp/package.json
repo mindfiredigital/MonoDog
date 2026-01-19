@@ -25,7 +25,7 @@
     "schema:format": "DATABASE_URL=$(npm run db:url --silent 2>/dev/null | tr -d '\\n') prisma format",
     "schema:validate": "DATABASE_URL=$(npm run db:url --silent 2>/dev/null | tr -d '\\n') prisma validate",
     "generate": "DATABASE_URL=$(npm run db:url --silent 2>/dev/null | tr -d '\\n') prisma generate",
-    "migrate": "DATABASE_URL=$(npm run db:url --silent 2>/dev/null | tr -d '\\n') prisma migrate dev",
+    "migrate": "DATABASE_URL=$(npm run db:url --silent 2>/dev/null | tr -d '\\n') prisma migrate deploy",
     "migrate:reset": "DATABASE_URL=$(npm run db:url --silent 2>/dev/null | tr -d '\\n') prisma migrate reset --force"
   },
   "dependencies": {
