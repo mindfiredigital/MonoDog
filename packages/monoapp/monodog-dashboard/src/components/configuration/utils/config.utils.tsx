@@ -3,13 +3,16 @@ import type {
   TabDefinition,
   ConfigurationTab,
 } from '../types/config.types';
+import { RocketLaunchIcon } from '@heroicons/react/24/solid';
+import { CubeIcon } from '@heroicons/react/24/solid';
+import { Cog6ToothIcon } from '@heroicons/react/24/outline';
 
 // Get tab definitions
 export const getTabDefinitions = (): TabDefinition[] => [
-  { id: 'general', label: 'General', icon: '⚙️' },
-  { id: 'features', label: 'Features', icon: '🚀' },
+  { id: 'general', label: 'General', icon: <Cog6ToothIcon className="w-6 h-6 text-primary-600" /> },
+  { id: 'features', label: 'Features', icon: <RocketLaunchIcon className="w-6 h-6 text-primary-600" /> },
   { id: 'branding', label: 'Branding', icon: '🎨' },
-  { id: 'monorepo', label: 'Monorepo', icon: '📦' },
+  { id: 'monorepo', label: 'Monorepo', icon: <CubeIcon className="w-6 h-6 text-primary-600" /> },
 ];
 
 // Get default configuration

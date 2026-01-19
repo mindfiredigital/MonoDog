@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { PlusIcon } from '@heroicons/react/24/outline';
-
+import { CubeIcon } from '@heroicons/react/24/outline';
 // Import sub-components
 import {
   LoadingState,
@@ -137,7 +137,7 @@ export default function PackagesOverview() {
       {/* Empty State */}
       {sortedPackages.length === 0 && !loading && (
         <div className="text-center py-12">
-          <div className="text-neutral-400 text-6xl mb-4">📦</div>
+          <div className="text-neutral-400 text-6xl mb-4 flex justify-center"><CubeIcon className="w-6 h-6 text-primary-600" /></div>
           <h3 className="text-heading text-lg mb-2">No packages found</h3>
           <p className="text-body mb-4">
             {filters.search ||

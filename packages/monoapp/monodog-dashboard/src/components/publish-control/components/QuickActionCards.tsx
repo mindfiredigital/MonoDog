@@ -1,5 +1,6 @@
 import { PlayIcon } from '@heroicons/react/24/outline';
 import { PublishStats } from '../types/publish.types';
+import { RocketLaunchIcon } from '@heroicons/react/24/outline';
 
 interface QuickActionCardsProps {
   stats: PublishStats;
@@ -41,7 +42,7 @@ export default function QuickActionCards({ stats }: QuickActionCardsProps) {
       <div className="bg-white p-6 rounded-lg shadow border">
         <div className="flex items-center">
           <div className="p-2 bg-purple-100 rounded-lg">
-            <span className="text-2xl">🚀</span>
+            <span className="text-2xl"><RocketLaunchIcon className="w-6 h-6 text-primary-600" /></span>
           </div>
           <div className="ml-4">
             <p className="text-sm font-medium text-gray-600">Published Today</p>

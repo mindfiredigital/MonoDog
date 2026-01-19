@@ -23,7 +23,7 @@ import {
   calculateLayout,
   mapAllDependents,
 } from './utils/dependency.utils';
-
+import { LinkIcon } from '@heroicons/react/24/outline';
 // Re-export types for backward compatibility
 export type { PackageNode } from './types/dependency.types';
 
@@ -207,9 +207,9 @@ export default function DependencyGraph() {
       </div>
 
       {/* Empty State */}
-      {packages.length === 0 && !loading && (
+      {/* {packages.length === 0 && !loading && (
         <div className="text-center py-12">
-          <div className="text-gray-400 text-6xl mb-4">🔗</div>
+          <div className="flex justify-center text-gray-400 text-6xl mb-4"><LinkIcon className="w-6 h-6 text-primary-600" /></div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">
             No dependencies found
           </h3>
@@ -217,7 +217,7 @@ export default function DependencyGraph() {
             No package dependencies available to display.
           </p>
         </div>
-      )}
+      )} */}
     </div>
   );
 }

@@ -4,6 +4,7 @@ import {
   getTypeColor,
   formatPackageName,
 } from '../utils/dependency.utils';
+import { LinkIcon } from '@heroicons/react/24/outline';
 
 export default function GraphVisualization({
   packages,
@@ -164,7 +165,7 @@ export default function GraphVisualization({
       {packages.length === 0 && (
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center">
-            <div className="text-gray-400 text-6xl mb-4">🔗</div>
+            <div className="flex justify-center text-gray-400 text-6xl mb-4"><LinkIcon className="w-6 h-6 text-primary-600" /></div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">
               No dependencies found
             </h3>

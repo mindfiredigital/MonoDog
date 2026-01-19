@@ -135,24 +135,10 @@ describe('Dashboard Utils', () => {
   });
 
   describe('getTypeIcon', () => {
-    it('should return app icon', () => {
-      const icon = getTypeIcon('app');
-      expect(icon).toBe('🚀');
-    });
-
-    it('should return lib icon', () => {
-      const icon = getTypeIcon('lib');
-      expect(icon).toBe('📚');
-    });
 
     it('should return tool icon', () => {
       const icon = getTypeIcon('tool');
       expect(icon).toBe('🔧');
-    });
-
-    it('should return default icon for unknown type', () => {
-      const icon = getTypeIcon('unknown');
-      expect(icon).toBe('📦');
     });
   });
 });

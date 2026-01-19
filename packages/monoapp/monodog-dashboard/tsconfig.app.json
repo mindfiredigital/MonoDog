@@ -2,6 +2,7 @@
   // This is the crucial change: Extend the shared React config
   //   "extends": "@mindfiredigital/tsconfig/react.json",
   "compilerOptions": {
+    "jsx": "react-jsx",
     // Keep application-specific path aliases
     "baseUrl": ".",
     "paths": {

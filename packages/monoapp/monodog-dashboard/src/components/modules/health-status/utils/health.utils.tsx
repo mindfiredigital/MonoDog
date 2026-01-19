@@ -4,7 +4,7 @@ import {
   HealthAlert,
   HealthTrend,
 } from '../types/health.types';
-
+import { CubeIcon } from '@heroicons/react/24/outline';
 // Get status color classes
 export const getStatusColor = (status: string): string => {
   switch (status) {
@@ -202,7 +202,7 @@ export const getMetricIcon = (metricName: string): string => {
   if (name.includes('test') || name.includes('coverage')) return '🧪';
   if (name.includes('lint')) return '✨';
   if (name.includes('security')) return '🔒';
-  if (name.includes('dependency') || name.includes('dependencies')) return '📦';
+  if (name.includes('dependency') || name.includes('dependencies')) return <CubeIcon className="w-6 h-6 text-primary-600" />;
   if (name.includes('performance')) return '⚡';
   return '📊';
 };

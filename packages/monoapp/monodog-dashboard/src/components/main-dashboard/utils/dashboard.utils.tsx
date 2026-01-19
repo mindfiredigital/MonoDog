@@ -1,4 +1,7 @@
 import { Package, PackageStats } from '../types/dashboard.types';
+import { RocketLaunchIcon } from '@heroicons/react/24/outline';
+import { BuildingLibraryIcon } from '@heroicons/react/24/outline';
+import { CubeIcon } from '@heroicons/react/24/outline';
 
 // Calculate package statistics
 export const calculatePackageStats = (packages: Package[]): PackageStats => {
@@ -55,15 +58,15 @@ export const getStatusColor = (type: string): string => {
 };
 
 // Get icon for package type
-export const getTypeIcon = (type: string): string => {
+export const getTypeIcon = (type: string): React.ReactNode => {
   switch (type) {
     case 'app':
-      return '🚀';
+      return <RocketLaunchIcon className="w-6 h-6 text-primary-600" />;
     case 'lib':
-      return '📚';
+      return <BuildingLibraryIcon className="w-6 h-6 text-primary-600" />;
     case 'tool':
       return '🔧';
     default:
-      return '📦';
+      return <CubeIcon className="w-6 h-6 text-primary-600" />;
   }
 };

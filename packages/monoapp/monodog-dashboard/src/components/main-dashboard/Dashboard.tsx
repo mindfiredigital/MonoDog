@@ -195,11 +195,11 @@ export default function Dashboard() {
       <StatsCards stats={stats} />
 
       {/* Package Type Distribution */}
-      <PackageDistribution
+      {/* <PackageDistribution
         packages={packages ?? []}
         packageTypes={packageTypes}
         getTypeIcon={getTypeIcon}
-      />
+      /> */}
 
       {/* Quick Actions */}
       <QuickActions />

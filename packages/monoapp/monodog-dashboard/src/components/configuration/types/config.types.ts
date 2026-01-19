@@ -38,7 +38,7 @@ export type ConfigurationTab = 'general' | 'features' | 'branding' | 'monorepo';
 export interface TabDefinition {
   id: ConfigurationTab;
   label: string;
-  icon: string;
+  icon: string|React.ReactNode;
 }
 
 export interface ConfigurationTabsProps {

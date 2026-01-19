@@ -4,6 +4,9 @@ import type {
   ValidationResult,
 } from '../types/config.types';
 import yaml from 'js-yaml';
+import { FolderIcon } from '@heroicons/react/24/outline';
+import { Cog6ToothIcon } from '@heroicons/react/24/outline';
+import { DocumentIcon } from '@heroicons/react/24/outline';
 
 // Get status color classes
 export const getStatusColor = (status: string): string => {
@@ -679,18 +682,18 @@ export const getConfigIcon = (filename: string): string => {
   const language = detectLanguage(filename);
   switch (language) {
     case 'json':
-      return '📄';
+      return <DocumentIcon className="w-6 h-6 text-primary-600" />;
     case 'yaml':
-      return '📋';
+      return <DocumentIcon className="w-6 h-6 text-primary-600" />;
     case 'javascript':
     case 'typescript':
-      return '⚙️';
+      return <Cog6ToothIcon className="w-6 h-6 text-primary-600" />;
     case 'env':
       return '🔐';
     case 'markdown':
       return '📝';
     default:
-      return '📁';
+      return <FolderIcon className="w-6 h-6 text-primary-600" />;
   }
 };
 

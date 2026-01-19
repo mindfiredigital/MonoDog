@@ -5,7 +5,9 @@ import {
   BuildStats,
   CIFilters,
 } from '../types/ci.types';
-
+import { RocketLaunchIcon } from '@heroicons/react/24/outline';
+import { CubeIcon } from '@heroicons/react/24/outline';
+import { Cog6ToothIcon } from '@heroicons/react/24/outline';
 // Get status color classes
 export const getStatusColor = (status: string): string => {
   switch (status) {
@@ -184,15 +186,15 @@ export const getBuildProgress = (build: Build): number => {
 };
 
 // Get stage icon
-export const getStageIcon = (stageName: string): string => {
+export const getStageIcon = (stageName: string): React.ReactNode => {
   const name = stageName.toLowerCase();
   if (name.includes('build') || name.includes('compile')) return '🔨';
   if (name.includes('test')) return '🧪';
   if (name.includes('lint') || name.includes('format')) return '✨';
-  if (name.includes('deploy') || name.includes('publish')) return '🚀';
+  if (name.includes('deploy') || name.includes('publish')) return <RocketLaunchIcon className="w-6 h-6 text-primary-600" />;
   if (name.includes('security') || name.includes('audit')) return '🔒';
-  if (name.includes('install') || name.includes('dependencies')) return '📦';
-  return '⚙️';
+  if (name.includes('install') || name.includes('dependencies')) return <CubeIcon className="w-6 h-6 text-primary-600" />;
+  return <Cog6ToothIcon className="w-6 h-6 text-primary-600" />;
 };
 
 // Sort builds by different criteria
