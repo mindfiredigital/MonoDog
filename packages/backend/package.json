@@ -2,6 +2,7 @@
   "name": "@monodog/backend",
   "version": "1.5.8",
   "description": "Backend API server for monodog monorepo dashboard",
+  "private": true,
   "license": "MIT",
   "bin": {
     "monodog-cli": "dist/cli.js"

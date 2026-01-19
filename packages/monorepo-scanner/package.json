@@ -4,6 +4,7 @@
   "description": "Monorepo scanner for analyzing packages, dependencies, and health",
   "main": "dist/index.js",
   "license": "MIT",
+  "private": true,
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "start": "tsx src/index.ts",

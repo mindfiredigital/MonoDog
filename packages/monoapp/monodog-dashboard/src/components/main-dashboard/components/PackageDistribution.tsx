@@ -1,4 +1,4 @@
-import { Package } from '../Dashboard';
+import { Package } from '../types/dashboard.types';
 
 interface PackageDistributionProps {
   packages: Package[];

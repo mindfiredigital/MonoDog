@@ -1,20 +1,16 @@
 {
-  "name": "@monodog/dash",
+  "name": "dash",
   "version": "1.1.2",
   "description": "React dashboard for monodog monorepo management",
   "license": "MIT",
   "type": "module",
+  "private": true,
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "clean": "rm -rf dist node_modules/.vite"
-  },
-  "repository": {
-    "type": "git",
-    "url": "http://github.com/mindfiredigital/MonoDog.git",
-    "directory": "apps/dashboard"
   },
   "dependencies": {
     "@heroicons/react": "^2.0.18",

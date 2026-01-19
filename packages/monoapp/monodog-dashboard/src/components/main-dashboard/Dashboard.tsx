@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Configuration, { DashboardConfig } from '../configuration/Configuration';
 import SetupGuide from '../setup-guide/SetupGuide';
 

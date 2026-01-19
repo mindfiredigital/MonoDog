@@ -17,6 +17,7 @@ export interface Package {
   scripts?: Record<string, string>;
   peerDependencies?: string[];
   devDependencies?: string[];
+  dependents: string[];
 }
 
 export interface DependencyInfo {

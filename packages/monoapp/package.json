@@ -3,10 +3,15 @@
   "version": "1.0.0",
   "description": "App for monodog monorepo",
   "license": "MIT",
+  "author": "Mindfiredigital",
   "repository": {
     "type": "git",
     "url": "https://github.com/mindfiredigital/MonoDog",
     "directory": "package/"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
   },
   "bin": {
     "monodog": "dist/setup.js"
@@ -28,6 +33,25 @@
     "migrate": "DATABASE_URL=$(npm run db:url --silent 2>/dev/null | tr -d '\\n') prisma migrate deploy",
     "migrate:reset": "DATABASE_URL=$(npm run db:url --silent 2>/dev/null | tr -d '\\n') prisma migrate reset --force"
   },
+  "keywords": [
+    "monodog",
+    "monorepo",
+    "monorepo-analytics",
+    "pnpm",
+    "workspaces",
+    "typescript",
+    "react",
+    "node-js",
+    "security",
+    "monorepo-scanner",
+    "vulnerability-scanner",
+    "package-dashboard",
+    "dependency-health",
+    "package-health-monitor",
+    "devops",
+    "repository-health",
+    "package-audit"
+  ],
   "dependencies": {
     "@prisma/client": "^5.22.0",
     "body-parser": "^1.20.4",

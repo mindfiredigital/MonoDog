@@ -3,6 +3,7 @@ import {
   ArrowRightIcon,
 } from '@heroicons/react/24/outline';
 import { CircularDependenciesProps } from '../types/dependency.types';
+import { Fragment } from 'react';
 
 export default function CircularDependencies({
   cycles,
@@ -108,7 +109,7 @@ export default function CircularDependencies({
             <div className="bg-white bg-opacity-50 rounded-lg p-3">
               <div className="flex items-center flex-wrap gap-2">
                 {cycle.cycle.map((packageId, idx) => (
-                  <React.Fragment key={`${packageId}-${idx}`}>
+                  <Fragment key={`${packageId}-${idx}`}>
                     <button
                       onClick={() => onPackageSelect(packageId)}
                       className="px-3 py-1 bg-white rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors border shadow-sm"
@@ -118,7 +119,7 @@ export default function CircularDependencies({
                     {idx < cycle.cycle.length - 1 && (
                       <ArrowRightIcon className="w-4 h-4 text-gray-400" />
                     )}
-                  </React.Fragment>
+                  </Fragment>
                 ))}
                 {/* Arrow back to start */}
                 {cycle.cycle.length > 1 && (

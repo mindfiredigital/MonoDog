@@ -2,7 +2,7 @@
 
 ## Overview
 
-The dashboard will provide visual management and monitoring capabilities for packages in monorepos using pnpm, turbo. It will be distributed as an npm package installable in any monorepo to auto-generate a web UI for package oversight.
+The dashboard will provide visual management and monitoring capabilities for packages in monorepos using pnpm and turbo. It will be distributed as an npm package installable in any monorepo to auto-generate a web UI for package oversight.
 
 This service is typically run locally or on a central server and power a dedicated frontend dashboard.
 <img width="1593" height="807" alt="package-scan" src="https://github.com/user-attachments/assets/d7e86b80-9f6a-4608-9103-68e6d660cc36" />

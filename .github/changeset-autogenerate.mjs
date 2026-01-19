@@ -21,7 +21,7 @@ let packageScope = null;
 let changeType = null;
 let description = null;
 
-    // 1. Check for Major Change using the "!" subject indicator
+// Check for Major Change using the "!" subject indicator
 if (commitPatterns.major.test(commitMessage)) {
   const scope = commitMessage.match(commitPatterns.major)?.[2];
   if (validScopes.includes(scope)) {
@@ -63,9 +63,9 @@ if (packageScope) {
 
   // Write to a changeset file
   fs.writeFileSync(`.changeset/auto-${Date.now()}.md`, changesetContent);
-  console.log(`✅ Changeset file created for package: ${packageName}`);
+  console.log(`Changeset file created for package: ${packageName}`);
 } else {
   console.log(
-    '⚠️ No valid package scope found in commit message. Valid scopes are: monodog'
+    'No valid package scope found in commit message. Valid scopes are: monodog'
   );
 }
