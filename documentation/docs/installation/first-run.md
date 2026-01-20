@@ -18,7 +18,7 @@ cd monodog
 Run Monodog application:
 
 ```bash
-npm run serve
+pnpm serve
 ```
 
 You should see output like:
