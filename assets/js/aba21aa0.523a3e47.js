@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunk_monodog_docs=self.webpackChunk_monodog_docs||[]).push([[742],{7093:function(o){o.exports=JSON.parse('{"name":"docusaurus-plugin-content-docs","id":"default"}')}}]);
