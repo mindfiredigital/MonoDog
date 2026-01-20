@@ -1,0 +1,14 @@
+model HealthStatus {
+  id           Int      @id @default(autoincrement())
+  packageName  String   @unique
+  overallScore Float // Overall health score (0-100)
+  buildStatus  String // e.g., "passing", "failing", "unknown"
+  testCoverage Float // Test coverage percentage (0-100)
+  lintStatus   String // e.g., "passing", "warning", "failing"
+  security     String // e.g., "secure", "vulnerabilities", "unknown"
+  dependencies String // e.g., "up-to-date", "outdated", "vulnerable"
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("health_status")
+}

@@ -1,4 +1,3 @@
-import React from 'react';
 import { SettingsComponentProps } from '../types/config.types';
 
 export default function BrandingSettings({

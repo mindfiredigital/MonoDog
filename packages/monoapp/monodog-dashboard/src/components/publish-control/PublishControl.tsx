@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { monorepoService } from '../../services/monorepoService';
 
 // Import sub-components
@@ -177,7 +177,7 @@ export default function PublishControl() {
 
   // Handle actions
   const handleNewRelease = () => {
-    console.log('Creating new release...');
+    // console.log('Creating new release...');
   };
 
   const handleRetry = () => {

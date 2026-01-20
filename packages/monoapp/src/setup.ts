@@ -4,22 +4,22 @@ import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
 
-console.log('\n🚀 Initializing Monodog...\n');
+console.log('\nInitializing Monodog...\n');
 
 const cwd = process.cwd();
 const destinationPath = path.join(cwd, 'monodog');
 const packageRoot = path.resolve(__dirname, '..');
 
 if (fs.existsSync(destinationPath)) {
-  console.log('⚠️ monodog already exists.');
+  console.log('monodog already exists.');
   process.exit(0);
 }
 if (fs.existsSync(path.join(cwd, 'pnpm-workspace.yaml'))) {
-  console.log('ℹ️ Workspace detected, installing monodog as standalone app.');
+  console.log('Workspace detected, installing monodog as standalone app.');
 }
 
 // 1. Copy package
-console.log('📁 Copying Monodog...');
+console.log('Copying Monodog...');
 fs.cpSync(packageRoot, destinationPath, {
   recursive: true,
   dereference: true,
@@ -59,7 +59,7 @@ execSync('pnpm install', { stdio: 'inherit' });
 execSync('pnpm --filter monodog-app  migrate:reset', { stdio: 'inherit' });
 
 console.log(`
-✅ Monodog ready!
+Monodog ready!
 
 Next:
   cd monodog

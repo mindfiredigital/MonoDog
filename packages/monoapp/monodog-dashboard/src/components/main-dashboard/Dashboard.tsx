@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Configuration, { DashboardConfig } from '../configuration/Configuration';
 import SetupGuide from '../setup-guide/SetupGuide';
 
@@ -136,7 +136,7 @@ export default function Dashboard() {
       setLoading(true);
       try {
         const data = await monorepoService.refreshPackages();
-        console.log('package data:', data);
+        // console.log('package data:', data);
         setPackages(data);
         setError(null);
       } catch (err) {
@@ -195,11 +195,11 @@ export default function Dashboard() {
       <StatsCards stats={stats} />
 
       {/* Package Type Distribution */}
-      <PackageDistribution
+      {/* <PackageDistribution
         packages={packages ?? []}
         packageTypes={packageTypes}
         getTypeIcon={getTypeIcon}
-      />
+      /> */}
 
       {/* Quick Actions */}
       <QuickActions />

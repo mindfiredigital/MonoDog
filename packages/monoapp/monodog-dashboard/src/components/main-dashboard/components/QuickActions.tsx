@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ChartBarIcon } from '@heroicons/react/24/outline';
+import { HeartIcon } from '@heroicons/react/24/outline';
 
 export default function QuickActions() {
   return (
@@ -14,7 +15,7 @@ export default function QuickActions() {
         >
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-blue-100 rounded-lg">
-              <ChartBarIcon className="w-6 h-6 text-blue-600" />
+              <ChartBarIcon className="w-6 h-6 text-primary-600" />
             </div>
             <div>
               <h4 className="font-medium text-gray-900">Dependency Graph</h4>
@@ -31,7 +32,7 @@ export default function QuickActions() {
         >
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-green-100 rounded-lg">
-              <span className="text-2xl">🏥</span>
+              <HeartIcon className="w-6 h-6 text-primary-600" />
             </div>
             <div>
               <h4 className="font-medium text-gray-900">Health Check</h4>

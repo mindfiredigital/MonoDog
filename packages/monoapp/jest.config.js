@@ -2,22 +2,21 @@ module.exports = {
   projects: [
     {
       displayName: 'backend',
-      preset: 'ts-jest',
       testEnvironment: 'node',
       roots: ['<rootDir>/src', '<rootDir>'],
-      testMatch: ['<rootDir>/__tests__/**/*.test.ts', '<rootDir>/__tests__/**/*.integration.test.ts'],
+      testMatch: ['<rootDir>/__tests__/**/*.test.ts'],
       moduleFileExtensions: ['ts', 'js', 'json', 'node'],
-      transform: {
-        '^.+\\.tsx?$': ['ts-jest', {
+      globals: {
+        'ts-jest': {
           tsconfig: {
             esModuleInterop: true,
             allowSyntheticDefaultImports: true,
             isolatedModules: true,
           },
-          diagnostics: {
-            ignoreCodes: ['TS151002'],
-          },
-        }],
+        },
+      },
+      transform: {
+        '^.+\\.tsx?$': 'ts-jest',
       },
       collectCoverageFrom: [
         'src/**/*.ts',
@@ -27,17 +26,16 @@ module.exports = {
     },
     {
       displayName: 'dashboard',
-      preset: 'ts-jest',
       testEnvironment: 'jsdom',
       roots: ['<rootDir>/monodog-dashboard/src', '<rootDir>/monodog-dashboard'],
-      testMatch: ['<rootDir>/monodog-dashboard/__tests__/**/*.test.ts', '<rootDir>/monodog-dashboard/__tests__/**/*.test.tsx', '<rootDir>/monodog-dashboard/__tests__/**/*.integration.test.ts'],
+      testMatch: ['<rootDir>/monodog-dashboard/__tests__/**/*.test.ts', '<rootDir>/monodog-dashboard/__tests__/**/*.test.tsx'],
       moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
       extensionsToTreatAsEsm: ['.ts', '.tsx'],
       moduleNameMapper: {
         '^(\\.{1,2}/.*)\\.js$': '$1',
       },
-      transform: {
-        '^.+\\.tsx?$': ['ts-jest', {
+      globals: {
+        'ts-jest': {
           useESM: true,
           tsconfig: {
             esModuleInterop: true,
@@ -46,10 +44,10 @@ module.exports = {
             module: 'esnext',
             jsx: 'react-jsx',
           },
-          diagnostics: {
-            ignoreCodes: ['TS151002'],
-          },
-        }],
+        },
+      },
+      transform: {
+        '^.+\\.tsx?$': 'ts-jest',
       },
       collectCoverageFrom: [
         'monodog-dashboard/src/**/*.ts',

@@ -7,6 +7,7 @@ import {
   getConfigIcon,
   getUniqueTypes,
 } from '../utils/config.utils';
+import { FolderIcon } from '@heroicons/react/24/solid';
 
 export default function ConfigSidebar({
   configs,
@@ -77,7 +78,7 @@ export default function ConfigSidebar({
       <div className="flex-1 overflow-y-auto">
         {configs.length === 0 ? (
           <div className="p-4 text-center text-gray-500">
-            <div className="text-4xl mb-2">📁</div>
+            <div className="text-4xl mb-2"><FolderIcon className="w-6 h-6 text-primary-600" /></div>
             <p className="text-sm">No configuration files found</p>
           </div>
         ) : (

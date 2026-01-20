@@ -15,6 +15,7 @@ exports.funCheckSecurityAudit = funCheckSecurityAudit;
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const child_process_1 = require("child_process");
+const logger_1 = require("../middleware/logger");
 const utilities_1 = require("./utilities");
 class MonorepoScanner {
     constructor(rootDir = process.cwd()) {
@@ -34,10 +35,10 @@ class MonorepoScanner {
             if (cached) {
                 return cached;
             }
-            console.log('🔍 Starting monorepo scan...');
+            logger_1.AppLogger.debug('Starting monorepo scan...');
             // Scan all packages
             const packages = (0, utilities_1.scanMonorepo)(this.rootDir);
-            console.log(`📦 Found ${packages.length} packages`);
+            logger_1.AppLogger.debug(`Found ${packages.length} packages`);
             // Generate statistics
             const stats = (0, utilities_1.generateMonorepoStats)(packages);
             // Generate dependency graph
@@ -57,11 +58,11 @@ class MonorepoScanner {
             };
             // Cache the result
             this.setCache(cacheKey, result);
-            console.log(`✅ Scan completed in ${result.scanDuration}ms`);
+            logger_1.AppLogger.debug(`Scan completed in ${result.scanDuration}ms`);
             return result;
         }
         catch (error) {
-            console.error('❌ Error during scan:', error);
+            logger_1.AppLogger.error('Error during scan', error);
             throw error;
         }
     }
@@ -77,7 +78,7 @@ class MonorepoScanner {
                 reports.push(report);
             }
             catch (error) {
-                console.error(`Error generating report for ${pkg.name}:`, error);
+                logger_1.AppLogger.error(`Error generating report for ${pkg.name}`, error);
             }
         }
         return reports;
@@ -169,7 +170,7 @@ class MonorepoScanner {
                                 0);
                         }
                         catch (error) {
-                            console.warn(`Error parsing coverage file for ${pkg.name}:`, error);
+                            logger_1.AppLogger.warn(`Error parsing coverage file for ${pkg.name}`);
                         }
                     }
                     // If we find any coverage file but can't parse it, assume coverage exists
@@ -189,7 +190,7 @@ class MonorepoScanner {
             return 0;
         }
         catch (error) {
-            console.warn(`Error checking coverage for ${pkg.name}:`, error);
+            logger_1.AppLogger.warn(`Error checking coverage for ${pkg.name}`);
             return 0;
         }
     }

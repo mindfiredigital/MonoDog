@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ArrowUpIcon, ArrowDownIcon } from '@heroicons/react/24/outline';
+import { CubeIcon } from '@heroicons/react/24/outline';
 import { DependencyListProps } from '../types/dependency.types';
 import {
   getStatusColor,
@@ -167,7 +168,7 @@ export default function DependencyList({
 
       {packages.length === 0 && (
         <div className="text-center py-12">
-          <div className="text-gray-400 text-4xl mb-2">📦</div>
+          <div className="text-gray-400 text-4xl mb-2 flex justify-center"><CubeIcon className="w-6 h-6 text-primary-600" /></div>
           <p className="text-gray-500">No packages found</p>
         </div>
       )}

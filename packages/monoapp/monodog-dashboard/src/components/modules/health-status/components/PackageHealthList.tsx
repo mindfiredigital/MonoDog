@@ -6,6 +6,7 @@ import {
   BeakerIcon,
   ShieldCheckIcon,
 } from '@heroicons/react/24/outline';
+import { CubeIcon } from '@heroicons/react/24/solid';
 import { PackageHealthListProps } from '../types/health.types';
 import {
   getStatusColor,
@@ -95,7 +96,7 @@ export default function PackageHealthList({
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <div className="text-2xl mr-3">📦</div>
+                      <div className="text-2xl mr-3"><CubeIcon className="w-6 h-6 text-primary-600" /></div>
                       <div>
                         <div className="text-sm font-medium text-gray-900">
                           {pkg.name}
@@ -185,7 +186,7 @@ export default function PackageHealthList({
 
       {packages.length === 0 && (
         <div className="text-center py-8">
-          <div className="text-gray-400 text-4xl mb-2">📦</div>
+          <div className="text-gray-400 text-4xl mb-2"><CubeIcon className="w-6 h-6 text-primary-600" /></div>
           <p className="text-gray-500">No package health data available</p>
         </div>
       )}

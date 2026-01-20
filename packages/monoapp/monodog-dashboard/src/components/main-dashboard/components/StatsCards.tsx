@@ -1,4 +1,7 @@
 import { CubeIcon } from '@heroicons/react/24/outline';
+import { RocketLaunchIcon } from '@heroicons/react/24/outline';
+import { BuildingLibraryIcon } from '@heroicons/react/24/outline';
+import { LinkIcon } from '@heroicons/react/24/outline';
 
 interface PackageStats {
   total: number;
@@ -16,9 +19,9 @@ interface StatsCardsProps {
 export default function StatsCards({ stats }: StatsCardsProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <div className="card p-6">
+      <div className="card p-6 bg-gray-100">
         <div className="flex items-center">
-          <div className="p-2 bg-primary-100 rounded-lg">
+          <div className="p-2 rounded-lg">
             <CubeIcon className="w-6 h-6 text-primary-600" />
           </div>
           <div className="ml-4">
@@ -28,10 +31,10 @@ export default function StatsCards({ stats }: StatsCardsProps) {
         </div>
       </div>
 
-      <div className="card p-6">
+      <div className="card p-6 bg-green-100">
         <div className="flex items-center">
           <div className="p-2 bg-secondary-100 rounded-lg">
-            <span className="text-2xl">🚀</span>
+              <RocketLaunchIcon className="w-6 h-6 text-primary-600" />
           </div>
           <div className="ml-4">
             <p className="text-caption font-medium">Applications</p>
@@ -40,10 +43,10 @@ export default function StatsCards({ stats }: StatsCardsProps) {
         </div>
       </div>
 
-      <div className="card p-6">
+      <div className="card p-6 bg-yellow-100">
         <div className="flex items-center">
           <div className="p-2 bg-accent-100 rounded-lg">
-            <span className="text-2xl">📚</span>
+              <BuildingLibraryIcon className="w-6 h-6 text-primary-600" />
           </div>
           <div className="ml-4">
             <p className="text-caption font-medium">Libraries</p>
@@ -52,10 +55,10 @@ export default function StatsCards({ stats }: StatsCardsProps) {
         </div>
       </div>
 
-      <div className="card p-6">
+      <div className="card p-6 bg-blue-100">
         <div className="flex items-center">
-          <div className="p-2 bg-info-100 rounded-lg">
-            <span className="text-2xl">🔗</span>
+          <div className="p-2 rounded-lg">
+              <LinkIcon className="w-6 h-6 text-primary-600" />
           </div>
           <div className="ml-4">
             <p className="text-caption font-medium">Dependencies</p>

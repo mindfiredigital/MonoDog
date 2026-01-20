@@ -1,0 +1,11 @@
+model Commit {
+  hash        String
+  message     String
+  author      String
+  date        DateTime?
+  type        String
+  packageName String
+  package     Package   @relation(fields: [packageName], references: [name], onDelete: Cascade)
+
+  @@unique([hash, packageName])
+}

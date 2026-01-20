@@ -1,15 +1,15 @@
 # Monodog: Monorepo Analytics and Health API
 
-## 🎯 Overview
+## Overview
 
-The dashboard will provide visual management and monitoring capabilities for packages in monorepos using pnpm, turbo. It will be distributed as an npm package installable in any monorepo to auto-generate a web UI for package oversight.
+The dashboard will provide visual management and monitoring capabilities for packages in monorepos using pnpm and turbo. It will be distributed as an npm package installable in any monorepo to auto-generate a web UI for package oversight.
 
 This service is typically run locally or on a central server and power a dedicated frontend dashboard.
 <img width="1593" height="807" alt="package-scan" src="https://github.com/user-attachments/assets/d7e86b80-9f6a-4608-9103-68e6d660cc36" />
 
 ---
 
-## 🛠 Technology Stack
+## Technology Stack
 
 | Component     | Technology           | Description                                                                               |
 | ------------- | -------------------- | ----------------------------------------------------------------------------------------- |
@@ -22,7 +22,7 @@ This service is typically run locally or on a central server and power a dedicat
 
 ---
 
-## ⚙️ Prerequisites
+## Prerequisites
 
 You must have the following installed to run the service:
 
@@ -31,7 +31,7 @@ You must have the following installed to run the service:
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Install Package in Monorepo
 
@@ -49,9 +49,12 @@ Run app using serve script:
 | Method  | Route                       | Purpose                                                                                 | Persistence         |
 | ------- | --------------------------- | --------------------------------------------------------------------------------------- | ------------------- |
 | **GET** | `/api/packages`             | Retrieve all package metadata from the database.                                        | Persistent |
-| **GET** | `/api/packages/refresh`     | Trigger a full file scan of the monorepo and update/sync the database.                  | Triggers write      |
+| **POST** | `/api/packages/refresh`     | Trigger a full file scan of the monorepo and update/sync the database.                  | Triggers write      |
 | **GET** | `/api/packages/:name`       | Get detailed info, commits and health status for a package.                                | Persistent |
+| **PUT** | `/api/packages/update-config`| Update configuration for a package.                                                       | Triggers write |
 | **GET** | `/api/health/packages`      | Fetch the latest health metrics (score, build status) for all packages.                 | Persistent          |
-| **GET** | `/api/health/refresh`       | Recalculate all package health metrics (tests, lint, security) and update the database. | Triggers write      |
+| **POST** | `/api/health/refresh`       | Recalculate all package health metrics (build, lint, security) and update the database. | Triggers write      |
 | **GET** | `/api/commits/:packagePath` | Fetch Git commit history for a specific package directory.                              | Persistent   |
 | **GET** | `/api/config/files`         | Scan the monorepo for essential configuration files (e.g., `tsconfig`, `.eslintrc`).    | Generated runtime   |
+| **PUT** | `/api/config/files/:id`      | Update a configuration files (e.g., `tsconfig`, `.eslintrc`).                          | Generated runtime   |
+

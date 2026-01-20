@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-
+import { RocketLaunchIcon } from '@heroicons/react/24/outline';
 // Import sub-components
 import {
   LoadingState,
@@ -248,7 +248,7 @@ export default function CIIntegration() {
       {/* No Data State */}
       {builds.length === 0 && !loading && (
         <div className="text-center py-12">
-          <div className="text-gray-400 text-6xl mb-4">🚀</div>
+          <div className="text-gray-400 text-6xl mb-4"><RocketLaunchIcon className="w-6 h-6 text-primary-600" /></div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">
             No CI/CD data available
           </h3>

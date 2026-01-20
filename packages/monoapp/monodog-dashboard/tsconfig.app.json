@@ -1,7 +1,6 @@
 {
-  // This is the crucial change: Extend the shared React config
-  //   "extends": "@mindfiredigital/tsconfig/react.json",
   "compilerOptions": {
+    "jsx": "react-jsx",
     // Keep application-specific path aliases
     "baseUrl": ".",
     "paths": {
@@ -12,6 +11,4 @@
   },
   "include": ["src"],
   "exclude": ["node_modules", "__tests__", "dist"]
-  // All other compiler options (target, strict, jsx, module, etc.)
-  // are now inherited from @monorepo-dashboard/tsconfig/react.json!
 }

@@ -9,8 +9,6 @@ Once Monodog is installed, configure it for your monorepo setup.
 
 ## Supported Workspace Types
 
-Monodog supports all major monorepo tools:
-
 ### pnpm Workspaces (Recommended)
 
 If using pnpm workspaces, Monodog will auto-detect:
@@ -125,7 +123,7 @@ In order to install node packages in non-default locations, you will then need t
 ```
 ### Configure Workspaces Scanning
 
-In order to scan only limited workspaces, you will then need to configure the `monodog-conf.json` file accordingly:
+In order to scan only limited workspaces, you will then need to configure the `monodog-config.json` file accordingly:
 ```json
 {
   "workspaces": [

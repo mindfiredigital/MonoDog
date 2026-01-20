@@ -111,7 +111,7 @@ export default function PackageDetailHeader({
             </div>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="hidden flex items-center space-x-2">
             <UserIcon className="h-4 w-4 text-gray-400" />
             <div>
               <div className="text-xs text-gray-500">Maintainers</div>

@@ -3,6 +3,7 @@ import {
   ArrowPathIcon,
   ExclamationTriangleIcon,
   ChartBarIcon,
+  LinkIcon,
 } from '@heroicons/react/24/outline';
 import { GraphStatsProps } from '../types/dependency.types';
 
@@ -10,10 +11,10 @@ export default function GraphStats({ stats, packages }: GraphStatsProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
       {/* Total Packages */}
-      <div className="bg-white p-4 rounded-lg shadow border">
+      <div className="bg-gray-100 p-4 rounded-lg shadow border">
         <div className="flex items-center">
-          <div className="p-2 bg-blue-100 rounded-lg">
-            <CubeIcon className="w-6 h-6 text-blue-600" />
+          <div className="p-2 rounded-lg">
+            <CubeIcon className="w-6 h-6 text-primary-600" />
           </div>
           <div className="ml-4">
             <p className="text-sm font-medium text-gray-600">Total Packages</p>
@@ -25,10 +26,10 @@ export default function GraphStats({ stats, packages }: GraphStatsProps) {
       </div>
 
       {/* Total Dependencies */}
-      <div className="bg-white p-4 rounded-lg shadow border">
+      <div className="bg-blue-100 p-4 rounded-lg shadow border">
         <div className="flex items-center">
-          <div className="p-2 bg-green-100 rounded-lg">
-            <ArrowPathIcon className="w-6 h-6 text-green-600" />
+          <div className="p-2 rounded-lg">
+            <LinkIcon className="w-6 h-6 text-primary-600" />
           </div>
           <div className="ml-4">
             <p className="text-sm font-medium text-gray-600">Dependencies</p>
@@ -40,7 +41,11 @@ export default function GraphStats({ stats, packages }: GraphStatsProps) {
       </div>
 
       {/* Circular Dependencies */}
-      <div className="bg-white p-4 rounded-lg shadow border">
+      <div className={`${
+                stats.circularDependencies > 0
+                  ? 'bg-red-100'
+                  : 'bg-green-100'
+              } p-4 rounded-lg shadow border`} >
         <div className="flex items-center">
           <div
             className={`p-2 rounded-lg ${
@@ -51,7 +56,7 @@ export default function GraphStats({ stats, packages }: GraphStatsProps) {
               className={`w-6 h-6 ${
                 stats.circularDependencies > 0
                   ? 'text-red-600'
-                  : 'text-green-600'
+                  : 'text-primary-600'
               }`}
             />
           </div>
@@ -61,7 +66,7 @@ export default function GraphStats({ stats, packages }: GraphStatsProps) {
               className={`text-2xl font-semibold ${
                 stats.circularDependencies > 0
                   ? 'text-red-600'
-                  : 'text-green-600'
+                  : 'text-gray-600'
               }`}
             >
               {stats.circularDependencies}
@@ -71,10 +76,10 @@ export default function GraphStats({ stats, packages }: GraphStatsProps) {
       </div>
 
       {/* Max Depth */}
-      <div className="bg-white p-4 rounded-lg shadow border">
+      <div className="bg-purple-100 p-4 rounded-lg shadow border">
         <div className="flex items-center">
           <div className="p-2 bg-purple-100 rounded-lg">
-            <ChartBarIcon className="w-6 h-6 text-purple-600" />
+            <ChartBarIcon className="w-6 h-6 text-primary-600" />
           </div>
           <div className="ml-4">
             <p className="text-sm font-medium text-gray-600">Max Depth</p>
@@ -91,7 +96,7 @@ export default function GraphStats({ stats, packages }: GraphStatsProps) {
           Dependency Analysis
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="text-center">
+          <div className="text-center bg-gray-100 p-2">
             <div className="text-2xl font-bold text-blue-600">
               {stats.leafPackages}
             </div>
@@ -99,7 +104,7 @@ export default function GraphStats({ stats, packages }: GraphStatsProps) {
             <div className="text-xs text-gray-500">No dependencies</div>
           </div>
 
-          <div className="text-center">
+          <div className="text-center bg-gray-100 p-2">
             <div className="text-2xl font-bold text-green-600">
               {stats.rootPackages}
             </div>
@@ -107,7 +112,7 @@ export default function GraphStats({ stats, packages }: GraphStatsProps) {
             <div className="text-xs text-gray-500">No dependents</div>
           </div>
 
-          <div className="text-center">
+          <div className="text-center bg-gray-100 p-2">
             <div className="text-2xl font-bold text-purple-600">
               {stats.avgDependencies}
             </div>
@@ -115,7 +120,7 @@ export default function GraphStats({ stats, packages }: GraphStatsProps) {
             <div className="text-xs text-gray-500">Per package</div>
           </div>
 
-          <div className="text-center">
+          <div className="text-center bg-gray-100 p-2">
             <div className="text-2xl font-bold text-orange-600">
               {packages.filter(p => p.status === 'healthy').length}
             </div>

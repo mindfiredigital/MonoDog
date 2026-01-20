@@ -2,13 +2,18 @@
 import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
-import {
+import { AppLogger } from '../middleware/logger';
+
+import type {
   PackageInfo,
   DependencyInfo,
   PackageHealth,
   MonorepoStats,
+  ScanResult,
+  PackageReport,
+} from '../types';
+import {
   scanMonorepo,
-  // analyzeDependencies,
   calculatePackageHealth,
   generateMonorepoStats,
   findCircularDependencies,
@@ -16,30 +21,6 @@ import {
   checkOutdatedDependencies,
   getPackageSize,
 } from './utilities';
-
-export interface ScanResult {
-  packages: PackageInfo[];
-  stats: MonorepoStats;
-  dependencyGraph: any;
-  circularDependencies: string[][];
-  outdatedPackages: string[];
-  scanTimestamp: Date;
-  scanDuration: number;
-}
-
-export interface PackageReport {
-  package: PackageInfo;
-  health: PackageHealth;
-  size: { size: number; files: number };
-  outdatedDeps: DependencyInfo[];
-  lastModified: Date;
-  gitInfo?: {
-    lastCommit: string;
-    lastCommitDate: Date;
-    author: string;
-    branch: string;
-  };
-}
 
 export class MonorepoScanner {
   private rootDir: string;
@@ -64,11 +45,11 @@ export class MonorepoScanner {
         return cached;
       }
 
-      console.log('🔍 Starting monorepo scan...');
+      AppLogger.debug('Starting monorepo scan...');
 
       // Scan all packages
       const packages = scanMonorepo(this.rootDir);
-      console.log(`📦 Found ${packages.length} packages`);
+      AppLogger.debug(`Found ${packages.length} packages`);
 
       // Generate statistics
       const stats = generateMonorepoStats(packages);
@@ -95,10 +76,10 @@ export class MonorepoScanner {
       // Cache the result
       this.setCache(cacheKey, result);
 
-      console.log(`✅ Scan completed in ${result.scanDuration}ms`);
+      AppLogger.debug(`Scan completed in ${result.scanDuration}ms`);
       return result;
     } catch (error) {
-      console.error('❌ Error during scan:', error);
+      AppLogger.error('Error during scan', error as Error);
       throw error;
     }
   }
@@ -115,7 +96,7 @@ export class MonorepoScanner {
         const report = await this.generatePackageReport(pkg);
         reports.push(report);
       } catch (error) {
-        console.error(`Error generating report for ${pkg.name}:`, error);
+        AppLogger.error(`Error generating report for ${pkg.name}`, error as Error);
       }
     }
 
@@ -227,10 +208,7 @@ export class MonorepoScanner {
                 0
               );
             } catch (error) {
-              console.warn(
-                `Error parsing coverage file for ${pkg.name}:`,
-                error
-              );
+              AppLogger.warn(`Error parsing coverage file for ${pkg.name}`);
             }
           }
           // If we find any coverage file but can't parse it, assume coverage exists
@@ -253,7 +231,7 @@ export class MonorepoScanner {
 
       return 0;
     } catch (error) {
-      console.warn(`Error checking coverage for ${pkg.name}:`, error);
+      AppLogger.warn(`Error checking coverage for ${pkg.name}`);
       return 0;
     }
   }

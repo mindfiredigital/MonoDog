@@ -24,13 +24,13 @@ npm run serve
 You should see output like:
 
 ```
-[monodog] Checking for monodog-conf.json
+[monodog] Checking for monodog-config.json
 Starting Monodog API server...
 Analyzing monorepo at root:
 Serving static files from:
-App listening on 0.0.0.0:3010
+App listening on localhost:3010
 [Database] Total packages found: 15
-🚀 Backend server running on http://0.0.0.0:8999
+Backend server running on http://localhost:8999
 ```
 
 ## Access the dashboard
@@ -129,7 +129,7 @@ This might take a few minutes depending on your monorepo size.
 
 ### Run on Custom Port
 
-To run app on custom port update monodog-conf.json
+To run app on custom port update monodog-config.json
 
 ````json
   "server": {

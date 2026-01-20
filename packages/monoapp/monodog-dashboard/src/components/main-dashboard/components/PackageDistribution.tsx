@@ -1,4 +1,4 @@
-import { Package } from '../Dashboard';
+import { Package } from '../types/dashboard.types';
 
 interface PackageDistributionProps {
   packages: Package[];
@@ -19,8 +19,8 @@ export default function PackageDistribution({
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {packageTypes.map(type => (
           <div key={type} className="text-center p-4 bg-gray-50 rounded-lg">
-            <div className="text-3xl mb-2">{getTypeIcon(type)}</div>
-            <div className="text-sm font-medium text-gray-600 capitalize">
+            <div className="text-3xl mb-2 flex justify-center">{getTypeIcon(type)}</div>
+            <div className="text-sm font-medium text-gray-600 capitalize flex justify-center">
               {type}
             </div>
             <div className="text-2xl font-bold text-gray-900">

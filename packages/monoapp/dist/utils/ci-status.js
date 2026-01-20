@@ -4,6 +4,7 @@ exports.ciStatusManager = exports.CIStatusManager = void 0;
 exports.getPackageCIStatus = getPackageCIStatus;
 exports.getMonorepoCIStatus = getMonorepoCIStatus;
 exports.triggerPackageBuild = triggerPackageBuild;
+const logger_1 = require("../middleware/logger");
 class CIStatusManager {
     constructor() {
         this.providers = new Map();
@@ -103,7 +104,7 @@ class CIStatusManager {
             return status;
         }
         catch (error) {
-            console.error(`Error fetching CI status for ${packageName}:`, error);
+            logger_1.AppLogger.error(`Error fetching CI status for ${packageName}`, error);
             return null;
         }
     }
@@ -397,7 +398,7 @@ class CIStatusManager {
         try {
             // Mock implementation
             const buildId = `build-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-            console.log(`Triggering build for ${packageName} on ${branch} via ${providerName}`);
+            logger_1.AppLogger.info(`Triggering build for ${packageName} on ${branch} via ${providerName}`);
             return {
                 success: true,
                 buildId,

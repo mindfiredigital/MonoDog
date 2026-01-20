@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Package } from '../Dashboard';
+import { Package } from '../types/dashboard.types';
 
 interface PackageTableProps {
   packages: Package[];

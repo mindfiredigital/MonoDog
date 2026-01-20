@@ -2,55 +2,14 @@
 import * as fs from 'fs';
 import path from 'path';
 import { appConfig } from '../config-loader';
+import { AppLogger } from '../middleware/logger';
+import {calculatePackageHealth} from './health-utils';
+import * as yaml from 'js-yaml';
 
-export interface PackageInfo {
-  name: string;
-  version: string;
-  type: string; //'app' | 'lib' | 'tool';
-  path: string;
-  dependencies: Record<string, string>;
-  devDependencies: Record<string, string>;
-  peerDependencies: Record<string, string>;
-  scripts: Record<string, string>;
-  maintainers: string[];
-  description?: string;
-  license?: string;
-  repository?: Record<string, string>;
-}
+import type { PackageInfo, DependencyInfo, MonorepoStats } from '../types';
 
-export interface DependencyInfo {
-  // name: string;
-  // currentVersion: string;
-  // latestVersion?: string;
-  // status: 'up-to-date' | 'outdated' | 'major-update' | 'unknown';
-  // type: 'production' | 'development';
-  name: string;
-  version: string;
-  type: 'dependency' | 'devDependency' | 'peerDependency';
-  latest?: string;
-  status?: 'up-to-date' | 'outdated' | 'major-update' | 'unknown';
-  outdated?: boolean;
-}
-
-export interface PackageHealth {
-  buildStatus: 'success' | 'failed' | 'running' | 'unknown';
-  testCoverage: number;
-  lintStatus: 'pass' | 'fail' | 'unknown';
-  securityAudit: 'pass' | 'fail' | 'unknown';
-  overallScore: number;
-}
-
-export interface MonorepoStats {
-  totalPackages: number;
-  apps: number;
-  libraries: number;
-  tools: number;
-  healthyPackages: number;
-  warningPackages: number;
-  errorPackages: number;
-  outdatedDependencies: number;
-  totalDependencies: number;
-}
+export type { PackageInfo, DependencyInfo, MonorepoStats } from '../types';
+export { type PackageHealth } from '../types';
 
 /**
  * Resolves simple workspace globs (like 'packages/*', 'apps/*') into actual package directory paths.
@@ -83,27 +42,69 @@ export function resolveWorkspaceGlobs(rootDir: string, globs: string[]): string[
 }
 
 /**
- * Reads the root package.json and extracts the 'workspaces' field (array of globs).
+ * Parses pnpm-workspace.yaml and extracts workspace globs
  */
-export function getWorkspacesFromRoot(rootDir: string): string[] | undefined {
-    const packageJsonPath = path.join(rootDir, 'package.json');
-    if (!fs.existsSync(packageJsonPath)) {
-        console.warn(`\n⚠️ Warning: No package.json found at root directory: ${rootDir}`);
+function getWorkspacesFromPnpmYaml(rootDir: string): string[] | undefined {
+    const workspaceYamlPath = path.join(rootDir, 'pnpm-workspace.yaml');
+    if (!fs.existsSync(workspaceYamlPath)) {
         return undefined;
     }
 
     try {
-        const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
+        const yamlContent = fs.readFileSync(workspaceYamlPath, 'utf-8');
+        const yamlData = yaml.load(yamlContent) as { packages?: (string | string[]) };
 
-        // Handle both standard array and object format (used by yarn/pnpm)
-        if (Array.isArray(packageJson.workspaces)) {
-            return packageJson.workspaces;
-        } else if (packageJson.workspaces && Array.isArray(packageJson.workspaces.packages)) {
-            return packageJson.workspaces.packages;
+        if (yamlData && yamlData.packages) {
+            // Filter out exclusion patterns (lines starting with '!')
+            const packages = Array.isArray(yamlData.packages)
+                ? yamlData.packages.filter((pkg) => typeof pkg === 'string' && !pkg.startsWith('!'))
+                : [];
+
+            if (packages.length > 0) {
+                return packages;
+            }
         }
     } catch (e) {
-        console.error(`\n❌ Error parsing package.json at ${packageJsonPath}. Skipping workspace detection.`);
+        AppLogger.error(`Error parsing pnpm-workspace.yaml at ${workspaceYamlPath}:`, e as Error);
     }
+    return undefined;
+}
+
+/**
+ * Reads workspace configuration from package.json or pnpm-workspace.yaml
+ * Priority: package.json (if exists) -> pnpm-workspace.yaml
+ */
+export function getWorkspacesFromRoot(rootDir: string): string[] | undefined {
+    const packageJsonPath = path.join(rootDir, 'package.json');
+
+    // Try package.json first
+    if (fs.existsSync(packageJsonPath)) {
+        try {
+            const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
+
+            // Handle both standard array and object format (used by yarn/pnpm)
+            if (Array.isArray(packageJson.workspaces)) {
+                AppLogger.info('Workspace configuration found in package.json');
+                return packageJson.workspaces;
+            } else if (packageJson.workspaces && Array.isArray(packageJson.workspaces.packages)) {
+                AppLogger.info('Workspace configuration found in package.json');
+                return packageJson.workspaces.packages;
+            }
+        } catch (e) {
+            AppLogger.error(`Error parsing package.json at ${packageJsonPath}. Attempting to read pnpm-workspace.yaml...`, e as Error);
+        }
+    } else {
+        AppLogger.warn(`No package.json found at root directory: ${rootDir}`);
+    }
+
+    // Fallback to pnpm-workspace.yaml
+    const pnpmWorkspaces = getWorkspacesFromPnpmYaml(rootDir);
+    if (pnpmWorkspaces && pnpmWorkspaces.length > 0) {
+        AppLogger.info('Workspace configuration found in pnpm-workspace.yaml');
+        return pnpmWorkspaces;
+    }
+
+    AppLogger.warn('No workspace configuration found in package.json or pnpm-workspace.yaml');
     return undefined;
 }
 
@@ -112,22 +113,24 @@ export function getWorkspacesFromRoot(rootDir: string): string[] | undefined {
  */
 function scanMonorepo(rootDir: string): PackageInfo[] {
   const packages: PackageInfo[] = [];
-  console.log('rootDir:', rootDir);
+  AppLogger.debug('rootDir: ' + rootDir);
   const workspacesGlobs = appConfig.workspaces;
-  // Use provided workspaces globs if given, otherwise attempt to detect from root package.json
+  // Use provided workspaces globs if given, otherwise attempt to detect from root package.json or pnpm-workspace.yaml
   const detectedWorkspacesGlobs = workspacesGlobs.length > 0 ? workspacesGlobs : getWorkspacesFromRoot(rootDir);
   if (detectedWorkspacesGlobs && detectedWorkspacesGlobs.length > 0) {
     if (workspacesGlobs.length) {
-      console.log(`\n✅ Using provided workspaces globs: ${detectedWorkspacesGlobs.join(', ')}`);
+      AppLogger.info(`Using provided workspaces globs: ${detectedWorkspacesGlobs.join(', ')}`);
     } else {
-      console.log(`\n✅ Detected Monorepo Workspaces Globs: ${detectedWorkspacesGlobs.join(', ')}`);
+      AppLogger.info(`Detected Monorepo Workspaces Globs: ${detectedWorkspacesGlobs.join(', ')}`);
     }
 
     // 1. Resolve the globs into concrete package directory paths
     const resolvedPackagePaths = resolveWorkspaceGlobs(rootDir, detectedWorkspacesGlobs);
 
-    console.log(`[DEBUG] Resolved package directories (Total ${resolvedPackagePaths.length}):`);
-    console.warn(resolvedPackagePaths.length < workspacesGlobs.length ? 'Some workspaces globs provided are invalid.' : '');
+    AppLogger.debug(`Resolved package directories (Total ${resolvedPackagePaths.length})`);
+    if (resolvedPackagePaths.length < workspacesGlobs.length) {
+      AppLogger.warn('Some workspaces globs provided are invalid.');
+    }
 
     // 2. Integration of the requested loop structure for package scanning
     for (const workspacePath of resolvedPackagePaths) {
@@ -135,7 +138,7 @@ function scanMonorepo(rootDir: string): PackageInfo[] {
       // The package name would be read from the package.json inside this path
       const packageName = path.basename(fullPackagePath);
 
-      console.log(`- Scanning path: ${workspacePath} (Package: ${packageName})`);
+      AppLogger.debug(`- Scanning path: ${workspacePath} (Package: ${packageName})`);
 
       const packageInfo = parsePackageInfo(fullPackagePath, packageName);
       if (packageInfo) {
@@ -143,7 +146,7 @@ function scanMonorepo(rootDir: string): PackageInfo[] {
       }
     }
   } else {
-    console.warn('\n⚠️ No workspace globs provided or detected. Returning empty package list.');
+    AppLogger.warn('No workspace globs provided or detected. Returning empty package list.');
   }
 
   return packages;
@@ -189,86 +192,9 @@ export function parsePackageInfo(
       repository: packageJson.repository || {},
     };
   } catch (error) {
-    console.error(`Error parsing package.json for ${packageName}:`, error);
+    AppLogger.error(`Error parsing package.json for ${packageName}`, error as Error);
     return null;
   }
-}
-
-/**
- * Analyzes dependencies and determines their status
- */
-// function analyzeDependencies(
-//   dependencies: Record<string, string>,
-//   type: 'production' | 'development' = 'production'
-// ): DependencyInfo[] {
-//   return Object.entries(dependencies).map(([name, version]) => ({
-//     name,
-//     currentVersion: version,
-//     status: 'unknown', // Would be determined by npm registry check
-//     type,
-//   }));
-// }
-
-/**
- * Calculates package health score based on various metrics
- */
-function calculatePackageHealth(
-  buildStatus: PackageHealth['buildStatus'],
-  testCoverage: number,
-  lintStatus: PackageHealth['lintStatus'],
-  securityAudit: PackageHealth['securityAudit']
-): PackageHealth {
-  let score = 0;
-
-  // Build status (30 points)
-  switch (buildStatus) {
-    case 'success':
-      score += 30;
-      break;
-    case 'running':
-      score += 15;
-      break;
-    case 'failed':
-      score += 0;
-      break;
-    default:
-      score += 10;
-  }
-
-  // Test coverage (25 points)
-  score += Math.min(25, (testCoverage / 100) * 25);
-
-  // Lint status (25 points)
-  switch (lintStatus) {
-    case 'pass':
-      score += 25;
-      break;
-    case 'fail':
-      score += 0;
-      break;
-    default:
-      score += 10;
-  }
-
-  // Security audit (20 points)
-  switch (securityAudit) {
-    case 'pass':
-      score += 20;
-      break;
-    case 'fail':
-      score += 0;
-      break;
-    default:
-      score += 10;
-  }
-
-  return {
-    buildStatus,
-    testCoverage,
-    lintStatus,
-    securityAudit,
-    overallScore: Math.round(score),
-  };
 }
 
 /**
@@ -399,34 +325,6 @@ function checkOutdatedDependencies(packageInfo: PackageInfo): DependencyInfo[] {
 }
 
 /**
- * Formats version numbers for comparison
- */
-// function parseVersion(version: string): number[] {
-//   return version
-//     .replace(/^[^0-9]*/, '')
-//     .split('.')
-//     .map(Number);
-// }
-
-/**
- * Compares two version strings
- */
-// function compareVersions(v1: string, v2: string): number {
-//   const parsed1 = parseVersion(v1);
-//   const parsed2 = parseVersion(v2);
-
-//   for (let i = 0; i < Math.max(parsed1.length, parsed2.length); i++) {
-//     const num1 = parsed1[i] || 0;
-//     const num2 = parsed2[i] || 0;
-
-//     if (num1 > num2) return 1;
-//     if (num1 < num2) return -1;
-//   }
-
-//   return 0;
-// }
-
-/**
  * Gets package size information
  */
 function getPackageSize(packagePath: string): {
@@ -471,6 +369,52 @@ function getPackageSize(packagePath: string): {
   }
 }
 
+/**
+ * Find the monorepo root by looking for package.json with workspaces or pnpm-workspace.yaml
+ */
+function findMonorepoRoot(): string {
+  let currentDir = __dirname;
+
+  while (currentDir !== path.parse(currentDir).root) {
+    const packageJsonPath = path.join(currentDir, 'package.json');
+    const pnpmWorkspacePath = path.join(currentDir, 'pnpm-workspace.yaml');
+
+    // Check if this directory has package.json with workspaces or pnpm-workspace.yaml
+    if (fs.existsSync(packageJsonPath)) {
+      try {
+        const packageJson = JSON.parse(
+          fs.readFileSync(packageJsonPath, 'utf8')
+        );
+        // If it has workspaces or is the root monorepo package
+        if (packageJson.workspaces || fs.existsSync(pnpmWorkspacePath)) {
+          AppLogger.debug('Found monorepo root: ' + currentDir);
+          return currentDir;
+        }
+      } catch (error) {
+        // Continue searching if package.json is invalid
+      }
+    }
+
+    // Check if we're at the git root
+    const gitPath = path.join(currentDir, '.git');
+    if (fs.existsSync(gitPath)) {
+      AppLogger.debug('Found git root (likely monorepo root): ' + currentDir);
+      return currentDir;
+    }
+
+    // Go up one directory
+    const parentDir = path.dirname(currentDir);
+    if (parentDir === currentDir) break; // Prevent infinite loop
+    currentDir = parentDir;
+  }
+
+  // Fallback to process.cwd() if we can't find the root
+  AppLogger.warn(
+    'Could not find monorepo root, using process.cwd(): ' + process.cwd()
+  );
+  return process.cwd();
+}
+
 export {
   scanMonorepo,
   generateMonorepoStats,
@@ -478,6 +422,6 @@ export {
   generateDependencyGraph,
   checkOutdatedDependencies,
   getPackageSize,
-  // analyzeDependencies,
   calculatePackageHealth,
+  findMonorepoRoot,
 };

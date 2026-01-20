@@ -7,13 +7,16 @@ export interface PackageNode {
   version: string;
   type: 'app' | 'lib' | 'tool' | 'service';
   status: 'healthy' | 'warning' | 'error' | 'building';
-  description: string;
   lastUpdated: string;
   dependencies: string[];
-  tags: string[];
   maintainers: string[];
-  devDependencies: string[];
-  peerDependencies: string[];
+  tags: string[];
+  description: string;
+  path: string;
+  private?: boolean;
+  scripts?: Record<string, string>;
+  peerDependencies?: string[];
+  devDependencies?: string[];
   dependents: string[];
 }
 

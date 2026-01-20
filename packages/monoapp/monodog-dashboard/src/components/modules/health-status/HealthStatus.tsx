@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
@@ -9,6 +9,7 @@ import {
   ShieldCheckIcon,
   BeakerIcon,
 } from '@heroicons/react/24/outline';
+import { CubeIcon } from '@heroicons/react/24/outline';
 import { monorepoService } from '../../../services/monorepoService';
 
 // interface HealthMetric {
@@ -173,7 +174,7 @@ export default function HealthStatus() {
       try {
         setLoading(true);
         const data = await monorepoService.getHealthStatus();
-        console.log('Health data from inside useEffect:', data);
+        // console.log('Health data from inside useEffect:', data);
         setHealthData(data);
         setError(null);
       } catch (err) {
@@ -186,7 +187,7 @@ export default function HealthStatus() {
 
     fetchHealthData();
   }, [refreshKey]);
-  console.log('Health data from outside of useEffect:', healthData);
+  // console.log('Health data from outside of useEffect:', healthData);
 
   const refreshData = async () => {
     try {
@@ -195,7 +196,7 @@ export default function HealthStatus() {
       setLoading(true);
       try {
         const data = await monorepoService.refreshHealthStatus();
-        console.log('Health data:', data);
+        // console.log('Health data:', data);
         setHealthData(data);
         setError(null);
       } catch (err) {
@@ -543,7 +544,7 @@ export default function HealthStatus() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="h-8 w-8 rounded-lg bg-gray-100 flex items-center justify-center">
-                        <div className="text-sm">📦</div>
+                        <div className="text-sm"><CubeIcon className="w-6 h-6 text-primary-600" /></div>
                       </div>
                       <div className="ml-3">
                         <div className="text-sm font-medium text-gray-900">

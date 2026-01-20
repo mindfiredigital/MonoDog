@@ -12,7 +12,7 @@ Monodog can be started working within your monorepo in less than 5 minutes.
 In your monorepo root directory, run:
 
 ```bash
-pnpm dlx  @mindfiredigital/monodog
+pnpm dlx @mindfiredigital/monodog
 ```
 the installation script will create a new directory on project root: `monodog`
 
@@ -32,13 +32,13 @@ npm run serve
 
 You should see output like:
 ```
-[monodog] Checking for monodog-conf.json
+[monodog] Checking for monodog-config.json
 Starting Monodog API server...
 Analyzing monorepo at root:
 Serving static files from:
-App listening on 0.0.0.0:3010
+App listening on localhost:3010
 [Database] Total packages found: 15
-🚀 Backend server running on http://0.0.0.0:8999
+🚀 Backend server running on http://localhost:8999
 ```
 
 ## Step 3: Access the Dashboard
@@ -96,13 +96,13 @@ If Monodog is installed, you can explore:
 
 ### Port 3010 Already in Use
 
-If port 3010 is already in use, specify a different port in monodog-conf.json:
+If port 3010 is already in use, specify a different port in monodog-config.json:
 ```
   "dashboard": {
     "port": 3011
   }
 ```
-If port 8999 is already in use, specify a different port in monodog-conf.json:
+If port 8999 is already in use, specify a different port in monodog-config.json:
 ```
   "server": {
     "port": 8990

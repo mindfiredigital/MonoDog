@@ -22,7 +22,7 @@ Package scanning is the core of Monodog. It:
 
 ### 1. Workspace Detection
 
-Monodog first identifies your monorepo type by looking for `package.json` with `"workspaces"` for npm workspaces.
+Monodog first identifies your packages by looking for `"workspaces"` in `package.json` or else `"packages"` in `pnpm-workspaces.yaml`.
 
 ### 2. Package Discovery
 
@@ -80,7 +80,7 @@ Monodog examines:
 Start a scan via API:
 
 ```bash
-curl -X GET http://localhost:8999/api/packages/refresh
+curl -X POST http://localhost:8999/api/packages/refresh
 ```
 
 ## Accessing Scan Results
@@ -107,7 +107,7 @@ Check your workspace configuration and included paths:
 
 ```bash
 # Verify config
-cat pnpm-workspace.yaml 
+cat pnpm-workspace.yaml
 ```
 
 ### Missing Dependencies

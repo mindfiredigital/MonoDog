@@ -8,11 +8,17 @@ export interface Package {
   version: string;
   type: 'app' | 'lib' | 'tool' | 'service';
   status: 'healthy' | 'warning' | 'error' | 'building';
-  description: string;
   lastUpdated: string;
   dependencies: string[];
-  tags: string[];
   maintainers: string[];
+  tags: string[];
+  description: string;
+  path: string;
+  private?: boolean;
+  scripts?: Record<string, string>;
+  peerDependencies?: string[];
+  devDependencies?: string[];
+  dependents: string[];
   packageHealth: PackageHealth;
 }
 
@@ -52,6 +58,7 @@ export interface PackageDetail {
   testCoverage: number;
   lintStatus: 'pass' | 'fail' | 'warning';
   dependenciesInfo: DependencyInfo[];
+  path: string;
 }
 
 export interface PackageStats {
