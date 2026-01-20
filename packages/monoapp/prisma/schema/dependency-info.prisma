@@ -1,0 +1,12 @@
+model DependencyInfo {
+  name        String
+  packageName String
+  version     String
+  type        String  @default("")
+  status      String  @default("")
+  latest      String?
+  outdated    Boolean @default(false)
+  package     Package @relation(fields: [packageName], references: [name], onDelete: Cascade)
+
+  @@unique([name, packageName]) // Composite unique constraint
+}

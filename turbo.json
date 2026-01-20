@@ -17,7 +17,6 @@
       "env": ["NODE_ENV", "PORT"]
     },
     "lint": {
-      "dependsOn": ["^topo"],
       "outputs": []
     },
     "lint:fix": {

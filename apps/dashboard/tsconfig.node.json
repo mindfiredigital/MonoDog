@@ -1,9 +1,0 @@
-{
-  "extends": "@lakinmindfire/tsconfig/node.json",
-
-  "compilerOptions": {
-    "outDir": "dist-node"
-  },
-  "include": ["vite.config.ts"],
-  "exclude": ["src", "node_modules"]
-}

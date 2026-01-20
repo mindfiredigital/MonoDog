@@ -1,0 +1,24 @@
+{
+  // Extends the shared Node configuration for utility/service packages
+  //   "extends": "@monorepo-dashboard/tsconfig/node.json",
+
+  "compilerOptions": {
+    // Output compilation results to the 'dist' directory
+    "outDir": "./dist",
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.ci-status.tsbuildinfo",
+    // "rootDir": "./",
+    "declaration": true,
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "downlevelIteration": true
+
+    // Since your package.json defines "main": "index.ts",
+    // we set the 'root' to the package root and 'outDir' to 'dist'.
+  },
+
+  // Include the main entry point and any other source files
+  "include": ["index.ts", "src/**/*"],
+
+  // Exclude node_modules and the output directory
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+}
