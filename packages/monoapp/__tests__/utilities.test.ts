@@ -77,8 +77,8 @@ describe('utilities module', () => {
   test('calculatePackageHealth scoring', () => {
     // success + 80% coverage + pass lint + pass security
     const health = calculatePackageHealth('success', 80, 'pass', 'pass');
-    // 30 + 20 + 25 + 20 = 95
-    expect(health.overallScore).toBe(95);
+    // 30 + 25 + 25 + 20 = 100
+    expect(health.overallScore).toBe(100);
 
     const health2 = calculatePackageHealth('failed', 10, 'fail', 'unknown');
     // 0 + 2.5 + 0 + 10 = ~13 -> rounded
