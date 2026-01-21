@@ -265,17 +265,59 @@ export class MonorepoScanner {
     pkg: PackageInfo
   ): Promise<PackageHealth['securityAudit']> {
     try {
-      // Run npm audit
-      const result = execSync('npm audit --json', {
-        cwd: pkg.path,
-        stdio: 'pipe',
-        timeout: 15000,
-      });
 
-      const audit = JSON.parse(result.toString());
-      return audit.metadata.vulnerabilities.total === 0 ? 'pass' : 'fail';
+      const audit = await this.runPnpmAudit(pkg.path)
+
+      // Extract paths from audit report
+      if (audit && audit.advisories) {
+        for (const key in audit.advisories) {
+          const advisory = audit.advisories[key];
+          for (const k in advisory.findings) {
+            if (advisory.findings[k].paths && Array.isArray(advisory.findings[k].paths)) {
+              for (const pathStr of advisory.findings[k].paths) {
+                // Extract the first segment of the path (the top-level package)
+                const topPkg = pathStr.split(">")[0].trim();
+                const normalizedShort = path.normalize(topPkg);
+                const normalizedFull = path.normalize(pkg.path);
+
+                if (normalizedFull.endsWith(normalizedShort)) {
+                  // Break early if we found a match
+                  return 'fail';
+                }
+              }
+            }
+          }
+        }
+      }
+
+      return 'pass';
     } catch (error) {
       return 'unknown';
+    }
+  }
+
+  /**
+  * Executes 'pnpm audit' safely.
+  */
+  async runPnpmAudit(packagePath: string): Promise<any> {
+    try {
+      const stdout = execSync('pnpm audit --json', {
+        cwd: packagePath,
+        stdio: ['pipe', 'pipe', 'pipe'], // Ensure pipes are set to capture output
+        timeout: 15000,
+        encoding: 'utf8',
+      });
+
+    return JSON.parse(stdout);
+    } catch (error: any) {
+      if (error.stdout) {
+        try {
+          return JSON.parse(error.stdout.toString());
+        } catch (parseError) {
+          throw new Error(`Failed to parse audit JSON: ${parseError}`);
+        }
+      }
+      throw new Error(`pnpm audit failed: ${error.message}`);
     }
   }
 
