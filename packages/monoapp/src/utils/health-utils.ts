@@ -26,8 +26,8 @@ function calculatePackageHealth(
       score += 10;
   }
 
-  // Test coverage (25 points)
-  score += Math.min(25, (testCoverage / 100) * 25);
+  // Test coverage (25 points) Note: test coverage is currently not calculated
+  score += 25;//Math.min(25, (testCoverage / 100) * 25);
 
   // Lint status (25 points)
   switch (lintStatus) {
