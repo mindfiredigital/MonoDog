@@ -21,7 +21,7 @@ import {
   detectLanguage,
   maskSecrets,
 } from './utils/config.utils';
-import { FolderIcon } from '@heroicons/react/24/outline';
+import { FolderIcon } from '../../../icons/heroicons';
 // Import service
 import { monorepoService } from '../../../services/monorepoService';
 
@@ -288,7 +288,7 @@ export default function ConfigInspector() {
       {/* Empty State */}
       {filteredConfigs.length === 0 && !loading && (
         <div className="text-center py-12">
-          <div className="text-gray-400 text-6xl mb-4"><FolderIcon className="w-6 h-6 text-primary-600" /></div>
+          <div className="flex justify-center text-gray-400 text-6xl mb-4"><FolderIcon className="w-6 h-6 text-primary-600" /></div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">
             No configuration files found
           </h3>

@@ -7,7 +7,7 @@ import {
   ArrowPathIcon,
   DocumentDuplicateIcon,
   DocumentCheckIcon,
-} from '@heroicons/react/24/outline';
+} from '../../../../icons/heroicons';
 import { type ConfigToolbarProps } from '../types/config.types';
 import { useState } from 'react';
 

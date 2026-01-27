@@ -2,9 +2,9 @@ import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
   XCircleIcon,
-} from '@heroicons/react/24/outline';
+} from '../../../../icons/heroicons';
 import { PackageStats as StatsType } from '../types/packages.types';
-import { CubeIcon } from '@heroicons/react/24/outline';
+import { CubeIcon } from '../../../../icons/heroicons';
 interface PackageStatsProps {
   stats: StatsType;
 }

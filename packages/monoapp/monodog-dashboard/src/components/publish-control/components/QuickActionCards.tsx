@@ -1,6 +1,5 @@
-import { PlayIcon } from '@heroicons/react/24/outline';
+import { PlayIcon, RocketLaunchIcon } from '../../../icons/heroicons';
 import { PublishStats } from '../types/publish.types';
-import { RocketLaunchIcon } from '@heroicons/react/24/outline';
 
 interface QuickActionCardsProps {
   stats: PublishStats;

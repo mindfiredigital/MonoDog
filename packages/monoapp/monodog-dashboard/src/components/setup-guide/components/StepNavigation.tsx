@@ -1,4 +1,4 @@
-import { CheckIcon } from '@heroicons/react/24/outline';
+import { CheckIcon } from '../../../icons/heroicons';
 import { StepNavigationProps } from '../types/setup.types';
 
 export default function StepNavigation({

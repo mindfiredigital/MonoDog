@@ -3,9 +3,7 @@ import type {
   TabDefinition,
   ConfigurationTab,
 } from '../types/config.types';
-import { RocketLaunchIcon } from '@heroicons/react/24/solid';
-import { CubeIcon } from '@heroicons/react/24/solid';
-import { Cog6ToothIcon } from '@heroicons/react/24/outline';
+import { RocketLaunchIcon, CubeIcon, Cog6ToothIcon } from '../../../icons/heroicons';
 
 // Get tab definitions
 export const getTabDefinitions = (): TabDefinition[] => [

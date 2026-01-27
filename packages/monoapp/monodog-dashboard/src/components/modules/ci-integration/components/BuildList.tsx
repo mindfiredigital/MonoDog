@@ -4,7 +4,7 @@ import {
   ClockIcon,
   StopIcon,
   FunnelIcon,
-} from '@heroicons/react/24/outline';
+} from '../../../../icons/heroicons';
 import { BuildListProps } from '../types/ci.types';
 import {
   getStatusColor,

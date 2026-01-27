@@ -1,7 +1,5 @@
 import { Package, PackageStats } from '../types/dashboard.types';
-import { RocketLaunchIcon } from '@heroicons/react/24/outline';
-import { BuildingLibraryIcon } from '@heroicons/react/24/outline';
-import { CubeIcon } from '@heroicons/react/24/outline';
+import { RocketLaunchIcon, BuildingLibraryIcon, CubeIcon } from '../../../icons/heroicons';
 
 // Calculate package statistics
 export const calculatePackageStats = (packages: Package[]): PackageStats => {

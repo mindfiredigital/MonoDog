@@ -1,7 +1,7 @@
 import {
   ExclamationTriangleIcon,
   ArrowRightIcon,
-} from '@heroicons/react/24/outline';
+} from '../../../../icons/heroicons';
 import { CircularDependenciesProps } from '../types/dependency.types';
 import { Fragment } from 'react';
 

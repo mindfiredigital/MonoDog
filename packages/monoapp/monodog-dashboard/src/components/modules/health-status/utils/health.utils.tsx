@@ -4,7 +4,7 @@ import {
   HealthAlert,
   HealthTrend,
 } from '../types/health.types';
-import { CubeIcon } from '@heroicons/react/24/outline';
+import { CubeIcon } from '../../../../icons/heroicons';
 // Get status color classes
 export const getStatusColor = (status: string): string => {
   switch (status) {

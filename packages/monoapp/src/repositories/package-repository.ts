@@ -109,15 +109,6 @@ export class PackageRepository {
       lastUpdated: new Date(),
     };
 
-    if (updateData.version) data.version = updateData.version;
-    if (updateData.description !== undefined) data.description = updateData.description || '';
-    if (updateData.license !== undefined) data.license = updateData.license || '';
-    if (updateData.scripts) data.scripts = JSON.stringify(updateData.scripts);
-    if (updateData.repository) data.repository = JSON.stringify(updateData.repository);
-    if (updateData.dependencies) data.dependencies = JSON.stringify(updateData.dependencies);
-    if (updateData.devDependencies) data.devDependencies = JSON.stringify(updateData.devDependencies);
-    if (updateData.peerDependencies) data.peerDependencies = JSON.stringify(updateData.peerDependencies);
-
     return await prisma.package.update({
       where: { name },
       data,

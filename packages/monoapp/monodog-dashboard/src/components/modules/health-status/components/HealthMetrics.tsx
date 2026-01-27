@@ -2,7 +2,7 @@ import {
   ArrowTrendingUpIcon,
   ArrowTrendingDownIcon,
   MinusIcon,
-} from '@heroicons/react/24/outline';
+} from '../../../../icons/heroicons';
 import { HealthMetricsProps } from '../types/health.types';
 import {
   getStatusColor,
