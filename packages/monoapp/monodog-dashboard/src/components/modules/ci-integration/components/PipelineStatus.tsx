@@ -5,7 +5,7 @@ import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
   XCircleIcon,
-} from '@heroicons/react/24/outline';
+} from '../../../../icons/heroicons';
 import { PipelineStatusProps } from '../types/ci.types';
 import {
   getStatusColor,

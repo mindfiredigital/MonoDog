@@ -1,4 +1,4 @@
-import { MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, FunnelIcon } from '../../../../icons/heroicons';
 import { PackageFilters } from '../types/packages.types';
 
 interface SearchAndFilterProps {

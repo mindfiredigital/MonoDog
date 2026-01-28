@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowUpIcon, ArrowDownIcon } from '@heroicons/react/24/outline';
+import { ArrowUpIcon, ArrowDownIcon } from '../../../../icons/heroicons';
 import { Package, PackageSorting } from '../types/packages.types';
 import {
   getStatusColor,

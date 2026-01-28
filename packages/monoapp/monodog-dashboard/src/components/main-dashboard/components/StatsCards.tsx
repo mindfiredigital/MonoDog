@@ -1,7 +1,9 @@
-import { CubeIcon } from '@heroicons/react/24/outline';
-import { RocketLaunchIcon } from '@heroicons/react/24/outline';
-import { BuildingLibraryIcon } from '@heroicons/react/24/outline';
-import { LinkIcon } from '@heroicons/react/24/outline';
+import {
+  CubeIcon,
+  RocketLaunchIcon,
+  BuildingLibraryIcon,
+  LinkIcon,
+} from '../../../icons/heroicons';
 
 interface PackageStats {
   total: number;

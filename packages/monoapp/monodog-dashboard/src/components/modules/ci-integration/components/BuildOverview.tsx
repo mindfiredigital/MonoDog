@@ -4,7 +4,7 @@ import {
   ClockIcon,
   ArrowPathIcon,
   ChartBarIcon,
-} from '@heroicons/react/24/outline';
+} from '../../../../icons/heroicons';
 import { BuildOverviewProps } from '../types/ci.types';
 import { formatDuration } from '../utils/ci.utils';
 

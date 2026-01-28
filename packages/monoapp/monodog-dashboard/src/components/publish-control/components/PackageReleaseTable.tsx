@@ -1,4 +1,4 @@
-import { TagIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { TagIcon, ClockIcon } from '../../../icons/heroicons';
 import { Package } from '../types/publish.types';
 import { getStatusColor, getPublishTypeColor } from '../utils/publish.utils';
 

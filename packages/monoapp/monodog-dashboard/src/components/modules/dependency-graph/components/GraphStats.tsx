@@ -4,7 +4,7 @@ import {
   ExclamationTriangleIcon,
   ChartBarIcon,
   LinkIcon,
-} from '@heroicons/react/24/outline';
+} from '../../../../icons/heroicons';
 import { GraphStatsProps } from '../types/dependency.types';
 
 export default function GraphStats({ stats, packages }: GraphStatsProps) {

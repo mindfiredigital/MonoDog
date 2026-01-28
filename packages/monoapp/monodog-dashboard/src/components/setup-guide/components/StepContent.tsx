@@ -1,4 +1,4 @@
-import { InformationCircleIcon } from '@heroicons/react/24/outline';
+import { InformationCircleIcon } from '../../../icons/heroicons';
 import { StepContentProps } from '../types/setup.types';
 
 export default function StepContent({

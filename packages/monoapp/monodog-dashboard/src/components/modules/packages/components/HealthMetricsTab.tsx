@@ -2,7 +2,7 @@ import {
   CheckCircleIcon,
   XCircleIcon,
   ExclamationTriangleIcon,
-} from '@heroicons/react/24/outline';
+} from '../../../../icons/heroicons';
 import { PackageDetail } from '../types/packages.types';
 
 interface HealthMetricsTabProps {

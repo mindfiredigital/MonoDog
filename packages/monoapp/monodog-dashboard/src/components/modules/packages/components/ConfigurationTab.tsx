@@ -2,7 +2,7 @@ import {
   DocumentTextIcon,
   ClipboardIcon,
   ClipboardDocumentCheckIcon,
-} from '@heroicons/react/24/outline';
+} from '../../../../icons/heroicons';
 import { type PackageDetail } from '../types/packages.types';
 import { useState } from 'react';
 import { monorepoService } from '../../../../services/monorepoService';
