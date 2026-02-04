@@ -23,7 +23,7 @@ import {
   calculateLayout,
   mapAllDependents,
 } from './utils/dependency.utils';
-import { LinkIcon } from '@heroicons/react/24/outline';
+import { LinkIcon } from '../../../icons/heroicons';
 // Re-export types for backward compatibility
 export type { PackageNode } from './types/dependency.types';
 

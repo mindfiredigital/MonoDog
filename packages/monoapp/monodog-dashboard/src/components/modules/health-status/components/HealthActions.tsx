@@ -3,7 +3,7 @@ import {
   BeakerIcon,
   ShieldCheckIcon,
   ArrowUpIcon,
-} from '@heroicons/react/24/outline';
+} from '../../../../icons/heroicons';
 import { HealthActionsProps } from '../types/health.types';
 
 export default function HealthActions({

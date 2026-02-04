@@ -1,4 +1,4 @@
-import { ArrowPathIcon, CogIcon } from '@heroicons/react/24/outline';
+import { ArrowPathIcon, CogIcon } from '../../../icons/heroicons';
 import { DashboardConfig } from '../../configuration/Configuration';
 
 interface HeaderProps {

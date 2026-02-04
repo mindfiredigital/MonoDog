@@ -8,8 +8,8 @@ import {
   ChartBarIcon,
   ShieldCheckIcon,
   BeakerIcon,
-} from '@heroicons/react/24/outline';
-import { CubeIcon } from '@heroicons/react/24/outline';
+} from '../../../icons/heroicons';
+import { CubeIcon } from '../../../icons/heroicons';
 import { monorepoService } from '../../../services/monorepoService';
 
 // interface HealthMetric {

@@ -1,4 +1,4 @@
-import { MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, FunnelIcon } from '../../../../icons/heroicons';
 import { type ConfigSidebarProps } from '../types/config.types';
 import {
   getTypeColor,
@@ -7,7 +7,7 @@ import {
   getConfigIcon,
   getUniqueTypes,
 } from '../utils/config.utils';
-import { FolderIcon } from '@heroicons/react/24/solid';
+import { FolderIcon } from '../../../../icons/heroicons';
 
 export default function ConfigSidebar({
   configs,

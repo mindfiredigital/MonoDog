@@ -1,4 +1,4 @@
-import { ArrowUpIcon } from '@heroicons/react/24/outline';
+import { ArrowUpIcon } from '../../../../icons/heroicons';
 import { PackageDetail } from '../types/packages.types';
 import { getDependencyStatusColor } from '../utils/packages.utils';
 

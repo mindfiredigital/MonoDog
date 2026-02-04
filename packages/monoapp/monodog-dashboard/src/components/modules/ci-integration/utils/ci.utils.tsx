@@ -5,9 +5,9 @@ import {
   BuildStats,
   CIFilters,
 } from '../types/ci.types';
-import { RocketLaunchIcon } from '@heroicons/react/24/outline';
-import { CubeIcon } from '@heroicons/react/24/outline';
-import { Cog6ToothIcon } from '@heroicons/react/24/outline';
+import { RocketLaunchIcon } from '../../../../icons/heroicons';
+import { CubeIcon } from '../../../../icons/heroicons';
+import { Cog6ToothIcon } from '../../../../icons/heroicons';
 // Get status color classes
 export const getStatusColor = (status: string): string => {
   switch (status) {

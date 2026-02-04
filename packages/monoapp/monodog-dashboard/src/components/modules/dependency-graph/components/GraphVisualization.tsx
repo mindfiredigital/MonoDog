@@ -4,7 +4,7 @@ import {
   getTypeColor,
   formatPackageName,
 } from '../utils/dependency.utils';
-import { LinkIcon } from '@heroicons/react/24/outline';
+import { LinkIcon } from '../../../../icons/heroicons';
 
 export default function GraphVisualization({
   packages,

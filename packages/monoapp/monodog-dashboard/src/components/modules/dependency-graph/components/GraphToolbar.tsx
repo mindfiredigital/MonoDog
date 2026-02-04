@@ -4,7 +4,7 @@ import {
   InformationCircleIcon,
   MagnifyingGlassMinusIcon,
   MagnifyingGlassPlusIcon,
-} from '@heroicons/react/24/outline';
+} from '../../../../icons/heroicons';
 import { GraphToolbarProps } from '../types/dependency.types';
 
 export default function GraphToolbar({

@@ -5,7 +5,7 @@ import {
   CheckCircleIcon,
   XCircleIcon,
   ClockIcon,
-} from '@heroicons/react/24/outline';
+} from '../../../../icons/heroicons';
 import { BuildDetailsProps } from '../types/ci.types';
 import {
   getStatusColor,

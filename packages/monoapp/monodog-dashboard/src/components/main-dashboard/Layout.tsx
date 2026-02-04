@@ -7,7 +7,7 @@ import {
   CloudArrowUpIcon,
   CpuChipIcon,
   Cog6ToothIcon,
-} from '@heroicons/react/24/outline';
+} from '../../icons/heroicons';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: HomeIcon },
