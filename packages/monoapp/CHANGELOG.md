@@ -1,5 +1,11 @@
 # @mindfiredigital/monodog
 
+## 1.1.3
+
+### Patch Changes
+
+- Merge pull request #27 from mindfiredigital/changeset-release/main
+
 ## 1.1.2
 
 ### Patch Changes
