@@ -40,7 +40,6 @@ const config = {
   ],
 
   themeConfig: {
-    // image: 'img/monoapp-social-card.jpg',
     navbar: {
       title: 'MonoDog',
       logo: {
@@ -50,7 +49,7 @@ const config = {
       items: [
         {
           type: 'docSidebar',
-          sidebarId: 'tutorialSidebar',
+          sidebarId: 'docsSidebar',
           position: 'left',
           label: 'Docs',
         },

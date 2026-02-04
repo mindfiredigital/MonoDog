@@ -4,7 +4,7 @@ import {
   ClockIcon,
   HeartIcon,
   Cog6ToothIcon,
-} from '@heroicons/react/24/outline';
+} from '../../../../icons/heroicons';
 import { PackageDetailTabsProps } from '../types/packages.types';
 
 export default function PackageDetailTabs({

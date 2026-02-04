@@ -4,9 +4,9 @@ import type {
   ValidationResult,
 } from '../types/config.types';
 import yaml from 'js-yaml';
-import { FolderIcon } from '@heroicons/react/24/outline';
-import { Cog6ToothIcon } from '@heroicons/react/24/outline';
-import { DocumentIcon } from '@heroicons/react/24/outline';
+import { FolderIcon } from '../../../../icons/heroicons';
+import { Cog6ToothIcon } from '../../../../icons/heroicons';
+import { DocumentIcon } from '../../../../icons/heroicons';
 
 // Get status color classes
 export const getStatusColor = (status: string): string => {

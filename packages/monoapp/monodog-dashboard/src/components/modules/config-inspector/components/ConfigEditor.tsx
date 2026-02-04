@@ -1,6 +1,6 @@
 import { ConfigEditorProps } from '../types/config.types';
 import { maskSecrets, detectLanguage } from '../utils/config.utils';
-import { DocumentIcon } from '@heroicons/react/24/outline';
+import { DocumentIcon } from '../../../../icons/heroicons';
 
 export default function ConfigEditor({
   config,

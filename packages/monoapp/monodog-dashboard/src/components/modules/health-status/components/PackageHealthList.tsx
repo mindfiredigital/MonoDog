@@ -5,8 +5,8 @@ import {
   ClockIcon,
   BeakerIcon,
   ShieldCheckIcon,
-} from '@heroicons/react/24/outline';
-import { CubeIcon } from '@heroicons/react/24/solid';
+} from '../../../../icons/heroicons';
+import { CubeIcon } from '../../../../icons/heroicons';
 import { PackageHealthListProps } from '../types/health.types';
 import {
   getStatusColor,

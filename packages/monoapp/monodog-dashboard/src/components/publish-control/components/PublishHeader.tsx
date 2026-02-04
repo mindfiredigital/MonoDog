@@ -1,4 +1,4 @@
-import { CloudArrowUpIcon } from '@heroicons/react/24/outline';
+import { CloudArrowUpIcon } from '../../../icons/heroicons';
 
 interface PublishHeaderProps {
   packageCount: number;

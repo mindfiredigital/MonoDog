@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { RocketLaunchIcon } from '@heroicons/react/24/outline';
+import { RocketLaunchIcon } from '../../../icons/heroicons';
 // Import sub-components
 import {
   LoadingState,

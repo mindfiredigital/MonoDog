@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ChartBarIcon } from '@heroicons/react/24/outline';
-import { HeartIcon } from '@heroicons/react/24/outline';
+import { ChartBarIcon, HeartIcon } from '../../../icons/heroicons';
 
 export default function QuickActions() {
   return (

@@ -1,4 +1,4 @@
-import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { EyeIcon, EyeSlashIcon } from '../../../../icons/heroicons';
 import { ConfigPreviewProps } from '../types/config.types';
 import { maskSecrets, formatJson } from '../utils/config.utils';
 

@@ -3,7 +3,7 @@ import {
   XCircleIcon,
   InformationCircleIcon,
   XMarkIcon,
-} from '@heroicons/react/24/outline';
+} from '../../../../icons/heroicons';
 import { HealthAlertsProps } from '../types/health.types';
 import { formatTimeAgo } from '../utils/health.utils';
 

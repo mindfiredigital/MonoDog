@@ -1,4 +1,4 @@
-import { DocumentTextIcon, TagIcon } from '@heroicons/react/24/outline';
+import { DocumentTextIcon, TagIcon } from '../../../icons/heroicons';
 
 interface ChangelogEntry {
   id: string;
