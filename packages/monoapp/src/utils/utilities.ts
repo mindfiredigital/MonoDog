@@ -415,6 +415,61 @@ function findMonorepoRoot(): string {
   return process.cwd();
 }
 
+/**
+ * Extracts GitHub repository owner and repo name from git remote URL
+ * Supports both SSH (git@github.com:owner/repo.git) and HTTPS (https://github.com/owner/repo.git) formats
+ */
+export async function getRepositoryInfoFromGit(
+  repoPath: string = process.cwd()
+): Promise<{ owner: string; repo: string } | null> {
+  try {
+    const { exec } = await import('child_process');
+    const { promisify } = await import('util');
+    const execPromise = promisify(exec);
+
+    // Get the git remote URL
+    const { stdout } = await execPromise('git remote get-url origin', {
+      cwd: repoPath,
+      timeout: 5000,
+    });
+
+    const remoteUrl = stdout.trim();
+    if (!remoteUrl) {
+      AppLogger.warn('No git remote found');
+      return null;
+    }
+
+    // Parse different URL formats
+    let owner = '';
+    let repo = '';
+
+    // SSH format: git@github.com:owner/repo.git
+    const sshMatch = remoteUrl.match(/git@github\.com:([^/]+)\/(.+?)(\.git)?$/);
+    if (sshMatch) {
+      owner = sshMatch[1];
+      repo = sshMatch[2].replace(/\.git$/, '');
+    } else {
+      // HTTPS format: https://github.com/owner/repo.git or https://github.com/owner/repo
+      const httpsMatch = remoteUrl.match(/github\.com[:/]([^/]+)\/(.+?)(\.git)?$/);
+      if (httpsMatch) {
+        owner = httpsMatch[1];
+        repo = httpsMatch[2].replace(/\.git$/, '');
+      }
+    }
+
+    if (!owner || !repo) {
+      AppLogger.warn(`Could not parse repository info from git remote: ${remoteUrl}`);
+      return null;
+    }
+
+    AppLogger.debug(`Extracted repository info: owner=${owner}, repo=${repo}`);
+    return { owner, repo };
+  } catch (error) {
+    AppLogger.error(`Failed to get repository info from git: ${error}`);
+    return null;
+  }
+}
+
 export {
   scanMonorepo,
   generateMonorepoStats,

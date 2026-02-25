@@ -54,6 +54,10 @@ export {
   StopIcon,
   ToothIcon,
   Squares2X2Icon,
+  ChevronDownIcon,
+  ChevronRightIcon,
+  ExclamationCircleIcon,
+  LogoutIcon,
   type IconProps,
   type IconVariant,
 } from './index';

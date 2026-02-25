@@ -25,6 +25,8 @@ import packageRouter from '../routes/package-routes';
 import commitRouter from '../routes/commit-routes';
 import healthRouter from '../routes/health-routes';
 import configRouter from '../routes/config-routes';
+import authRouter from '../routes/auth-routes';
+import permissionRouter from '../routes/permission-routes';
 import {
   PORT_MIN,
   PORT_MAX,
@@ -36,6 +38,10 @@ import {
   MESSAGE_GRACEFUL_SHUTDOWN,
   MESSAGE_SERVER_CLOSED,
 } from '../constants';
+import {
+  initializeAuthentication,
+} from './auth-middleware';
+import { startCacheCleanup } from '../services/permission-service';
 
 /**
  * Validate port number
@@ -78,7 +84,18 @@ function createApp(rootPath: string): Express {
   // Setup Swagger documentation
   setupSwaggerDocs(app);
 
+  // Initialize authentication system
+  initializeAuthentication();
+
+  // Start permission cache cleanup
+  startCacheCleanup();
+
+  // Create a router for pipeline routes
+  const router = express.Router();
+
   // Routes
+  app.use('/api/auth', authRouter);
+  app.use('/api/permissions', permissionRouter);
   app.use('/api/packages', packageRouter);
   app.use('/api/commits/', commitRouter);
   app.use('/api/health/', healthRouter);
@@ -111,13 +128,28 @@ export function startServer(rootPath: string): void {
       console.log(SUCCESS_SERVER_START(host, validatedPort));
       AppLogger.info('API endpoints available:', {
         endpoints: [
+          // Auth endpoints
+          'GET  /api/auth/login',
+          'GET  /api/auth/callback',
+          'GET  /api/auth/me',
+          'POST /api/auth/validate',
+          'POST /api/auth/logout',
+          'POST /api/auth/refresh',
+          // Permission endpoints
+          'GET  /api/permissions/:owner/:repo',
+          'POST /api/permissions/:owner/:repo/can-action',
+          'POST /api/permissions/:owner/:repo/invalidate',
+          // Package endpoints
           'POST /api/packages/refresh',
           'GET  /api/packages',
           'GET  /api/packages/:name',
           'PUT  /api/packages/update-config',
+          // Commit endpoints
           'GET  /api/commits/:packagePath',
+          // Health endpoints
           'GET  /api/health/packages',
           'POST /api/health/refresh',
+          // Config endpoints
           'PUT  /api/config/files/:id',
           'GET  /api/config/files',
         ],

@@ -18,7 +18,11 @@ const package_routes_1 = __importDefault(require("../routes/package-routes"));
 const commit_routes_1 = __importDefault(require("../routes/commit-routes"));
 const health_routes_1 = __importDefault(require("../routes/health-routes"));
 const config_routes_1 = __importDefault(require("../routes/config-routes"));
+const auth_routes_1 = __importDefault(require("../routes/auth-routes"));
+const permission_routes_1 = __importDefault(require("../routes/permission-routes"));
 const constants_1 = require("../constants");
+const auth_middleware_1 = require("./auth-middleware");
+const permission_service_1 = require("../services/permission-service");
 /**
  * Validate port number
  */
@@ -49,7 +53,15 @@ function createApp(rootPath) {
     app.use(logger_1.httpLogger);
     // Setup Swagger documentation
     (0, swagger_middleware_1.setupSwaggerDocs)(app);
+    // Initialize authentication system
+    (0, auth_middleware_1.initializeAuthentication)();
+    // Start permission cache cleanup
+    (0, permission_service_1.startCacheCleanup)();
+    // Create a router for pipeline routes
+    const router = express_1.default.Router();
     // Routes
+    app.use('/api/auth', auth_routes_1.default);
+    app.use('/api/permissions', permission_routes_1.default);
     app.use('/api/packages', package_routes_1.default);
     app.use('/api/commits/', commit_routes_1.default);
     app.use('/api/health/', health_routes_1.default);
@@ -75,13 +87,28 @@ function startServer(rootPath) {
             console.log((0, constants_1.SUCCESS_SERVER_START)(host, validatedPort));
             logger_1.AppLogger.info('API endpoints available:', {
                 endpoints: [
+                    // Auth endpoints
+                    'GET  /api/auth/login',
+                    'GET  /api/auth/callback',
+                    'GET  /api/auth/me',
+                    'POST /api/auth/validate',
+                    'POST /api/auth/logout',
+                    'POST /api/auth/refresh',
+                    // Permission endpoints
+                    'GET  /api/permissions/:owner/:repo',
+                    'POST /api/permissions/:owner/:repo/can-action',
+                    'POST /api/permissions/:owner/:repo/invalidate',
+                    // Package endpoints
                     'POST /api/packages/refresh',
                     'GET  /api/packages',
                     'GET  /api/packages/:name',
                     'PUT  /api/packages/update-config',
+                    // Commit endpoints
                     'GET  /api/commits/:packagePath',
+                    // Health endpoints
                     'GET  /api/health/packages',
                     'POST /api/health/refresh',
+                    // Config endpoints
                     'PUT  /api/config/files/:id',
                     'GET  /api/config/files',
                 ],

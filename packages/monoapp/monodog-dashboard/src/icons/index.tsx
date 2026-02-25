@@ -722,6 +722,48 @@ export const XCircleIcon: React.FC<IconProps> = ({
   );
 };
 
+// Exclamation Circle Icon
+export const ExclamationCircleIcon: React.FC<IconProps> = ({
+  className = defaultClassName,
+  width = 24,
+  height = 24,
+  strokeWidth = 1.5,
+  variant = 'outline',
+}) => {
+  if (variant === 'solid') {
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        className={className}
+        width={width}
+        height={height}
+      >
+        <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75Zm0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" clipRule="evenodd" />
+      </svg>
+    );
+  }
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={strokeWidth}
+      stroke="currentColor"
+      className={className}
+      width={width}
+      height={height}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
+      />
+    </svg>
+  );
+};
+
 // Chart Bar Icon
 export const ChartBarIcon: React.FC<IconProps> = ({
   className = defaultClassName,
@@ -1619,3 +1661,68 @@ export const ToothIcon: React.FC<IconProps> = ({
     />
   </svg>
 );
+
+export const ChevronDownIcon: React.FC<IconProps> = ({
+  className = defaultClassName,
+  width = 24,
+  height = 24,
+  strokeWidth = 1.5,
+}) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    strokeWidth={strokeWidth}
+    stroke="currentColor"
+    className={className}
+    width={width}
+    height={height}
+  >
+  <path       strokeLinecap="round"
+      strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+  </svg>
+);
+
+export const ChevronRightIcon: React.FC<IconProps> = ({
+  className = defaultClassName,
+  width = 24,
+  height = 24,
+  strokeWidth = 1.5,
+}) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    strokeWidth={strokeWidth}
+    stroke="currentColor"
+    className={className}
+    width={width}
+    height={height}
+  >
+  <path       strokeLinecap="round"
+      strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+
+  </svg>
+);
+
+export const LogoutIcon: React.FC<IconProps> = ({
+  className = defaultClassName,
+  width = 24,
+  height = 24,
+  strokeWidth = 1.5,
+}) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    strokeWidth={strokeWidth}
+    stroke="currentColor"
+    className={className}
+    width={width}
+    height={height}
+  >
+  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
+  </svg>
+);
+
+
