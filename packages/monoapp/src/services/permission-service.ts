@@ -246,3 +246,86 @@ export function canPerformAction(
   const allowedPermissions = actionPermissionMap[requiredAction] || [];
   return allowedPermissions.includes(permission);
 }
+
+/**
+ * Permission Check Response DTO
+ */
+export interface PermissionCheckDTO {
+  permission: RepositoryPermission;
+  role: MonoDogPermissionRole;
+  canAdmin: boolean;
+  canMaintain: boolean;
+  canWrite: boolean;
+  canRead: boolean;
+  denied: boolean;
+}
+
+/**
+ * Action Check Response DTO
+ */
+export interface ActionCheckDTO {
+  action: string;
+  can: boolean;
+  permission: RepositoryPermission;
+  role: MonoDogPermissionRole;
+}
+
+/**
+ * Get user's permission for a specific repository with response formatting
+ */
+export async function checkRepositoryPermission(
+  accessToken: string,
+  userId: number,
+  username: string,
+  owner: string,
+  repo: string,
+  forceRefresh: boolean = false
+): Promise<PermissionCheckDTO> {
+  const cachedPermission = await getUserRepositoryPermission(
+    accessToken,
+    userId,
+    username,
+    owner,
+    repo,
+    forceRefresh
+  );
+
+  return {
+    permission: cachedPermission.permission,
+    role: cachedPermission.role,
+    canAdmin: cachedPermission.permission === 'admin',
+    canMaintain: canPerformAction(cachedPermission.permission, 'maintain'),
+    canWrite: canPerformAction(cachedPermission.permission, 'write'),
+    canRead: canPerformAction(cachedPermission.permission, 'read'),
+    denied: cachedPermission.permission === 'none',
+  };
+}
+
+/**
+ * Check if user can perform a specific action with response formatting
+ */
+export async function checkUserAction(
+  accessToken: string,
+  userId: number,
+  username: string,
+  owner: string,
+  repo: string,
+  action: 'read' | 'write' | 'maintain' | 'admin'
+): Promise<ActionCheckDTO> {
+  const cachedPermission = await getUserRepositoryPermission(
+    accessToken,
+    userId,
+    username,
+    owner,
+    repo
+  );
+
+  const can = canPerformAction(cachedPermission.permission, action);
+
+  return {
+    action,
+    can,
+    permission: cachedPermission.permission,
+    role: cachedPermission.role,
+  };
+}
