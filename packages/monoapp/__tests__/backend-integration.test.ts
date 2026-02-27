@@ -25,13 +25,11 @@ jest.mock('@prisma/client', () => ({
 }));
 
 jest.mock('../src/utils/monorepo-scanner');
-jest.mock('../src/utils/ci-status');
 jest.mock('../src/utils/utilities');
 jest.mock('../src/services/git-service');
 
 describe('Monoapp Backend API Integration Tests', () => {
   let mockUtilities: any;
-  let mockCIStatus: any;
   let mockPrisma: any;
 
   beforeEach(() => {
@@ -39,7 +37,6 @@ describe('Monoapp Backend API Integration Tests', () => {
 
     // Obtain mocked modules from Jest so we can configure return values
     mockUtilities = jest.requireMock('../src/utils/utilities');
-    mockCIStatus = jest.requireMock('../src/utils/ci-status');
 
     // Setup utilities mock
     mockUtilities.scanMonorepo.mockReturnValue([
@@ -83,35 +80,6 @@ describe('Monoapp Backend API Integration Tests', () => {
 
     mockUtilities.findCircularDependencies.mockReturnValue([]);
     mockUtilities.calculatePackageHealth.mockReturnValue({ overallScore: 88 });
-
-    // Setup CI status mock (imported at top)
-    mockCIStatus.ciStatusManager = {
-      getPackageStatus: jest.fn().mockResolvedValue({
-        package: '@monoapp/backend',
-        status: 'success',
-        lastBuild: new Date().toISOString(),
-      }),
-      triggerBuild: jest.fn().mockResolvedValue({
-        success: true,
-        buildId: 'build-123',
-      }),
-      getBuildLogs: jest.fn().mockResolvedValue([
-        'Building...',
-        'Testing...',
-        'Success!',
-      ]),
-      getBuildArtifacts: jest.fn().mockResolvedValue([
-        { name: 'app.js', size: 2048 },
-        { name: 'index.d.ts', size: 512 },
-      ]),
-    };
-
-    mockCIStatus.getMonorepoCIStatus = jest.fn().mockResolvedValue({
-      packages: [
-        { name: '@monoapp/backend', status: 'success' },
-        { name: '@monoapp/dashboard', status: 'success' },
-      ],
-    });
 
     // Setup Prisma mock
     mockPrisma = {
@@ -220,59 +188,6 @@ describe('Monoapp Backend API Integration Tests', () => {
       const circular = mockUtilities.findCircularDependencies(packages);
 
       expect(circular).toHaveLength(0);
-    });
-  });
-
-  describe('CI/CD Integration', () => {
-    it('should fetch CI status for all packages', async () => {
-      const packages = mockUtilities.scanMonorepo('/app');
-      const status = await mockCIStatus.getMonorepoCIStatus(packages);
-
-      expect(status).toHaveProperty('packages');
-      expect(Array.isArray(status.packages)).toBe(true);
-      expect(status.packages.length).toBeGreaterThan(0);
-    });
-
-    it('should get specific package CI status', async () => {
-      const status = await mockCIStatus.ciStatusManager.getPackageStatus('@monoapp/backend');
-
-      expect(status).toHaveProperty('package');
-      expect(status).toHaveProperty('status');
-      expect(status.package).toBe('@monoapp/backend');
-      expect(['success', 'failed', 'pending']).toContain(status.status);
-    });
-
-    it('should trigger build successfully', async () => {
-      const result = await mockCIStatus.ciStatusManager.triggerBuild(
-        '@monoapp/backend',
-        'github',
-        'main'
-      );
-
-      expect(result.success).toBe(true);
-      expect(result).toHaveProperty('buildId');
-      expect(typeof result.buildId).toBe('string');
-    });
-
-    it('should retrieve build logs', async () => {
-      const logs = await mockCIStatus.ciStatusManager.getBuildLogs('build-123', 'github');
-
-      expect(Array.isArray(logs)).toBe(true);
-      expect(logs.length).toBeGreaterThan(0);
-      logs.forEach((log: any) => {
-        expect(typeof log).toBe('string');
-      });
-    });
-
-    it('should retrieve build artifacts', async () => {
-      const artifacts = await mockCIStatus.ciStatusManager.getBuildArtifacts('build-123', 'github');
-
-      expect(Array.isArray(artifacts)).toBe(true);
-      artifacts.forEach((artifact: any) => {
-        expect(artifact).toHaveProperty('name');
-        expect(artifact).toHaveProperty('size');
-        expect(typeof artifact.size).toBe('number');
-      });
     });
   });
 

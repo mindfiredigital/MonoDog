@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { PlusIcon } from '../../../icons/heroicons';
 import { CubeIcon } from '../../../icons/heroicons';
+import { DASHBOARD_ERROR_MESSAGES } from '../../../constants/messages';
 // Import sub-components
 import {
   LoadingState,
@@ -56,7 +57,7 @@ export default function PackagesOverview() {
         setPackages(data);
         setError(null);
       } catch (err) {
-        setError('Failed to fetch packages');
+        setError(DASHBOARD_ERROR_MESSAGES.FAILED_TO_FETCH_PACKAGES);
         console.error('Error fetching packages:', err);
       } finally {
         setLoading(false);

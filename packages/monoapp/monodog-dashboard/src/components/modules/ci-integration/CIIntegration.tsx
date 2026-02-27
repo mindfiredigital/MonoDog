@@ -15,8 +15,9 @@ import {
 import { Build, Pipeline, CIFilters } from './types/ci.types';
 import { calculateBuildStats, filterBuilds } from './utils/ci.utils';
 
-// Import service
+// Import service and constants
 import { monorepoService } from '../../../services/monorepoService';
+import { DASHBOARD_ERROR_MESSAGES } from '../../../constants/messages';
 
 // Re-export types for backward compatibility
 export type { Build, Pipeline, CIFilters } from './types/ci.types';
@@ -83,15 +84,15 @@ export default function CIIntegration() {
         const data = await monorepoService.getBuildStatus();
 
         // Transform the data to match our Build interface
-        const transformedData: Build[] = data.map((build: any) => ({
-          id: build.id || Math.random().toString(36).substr(2, 9),
-          packageName: build.package || build.packageName || 'unknown',
-          branch: build.branch || 'main',
-          commit: build.commit || 'unknown',
-          status: build.status || 'pending',
-          startTime: build.startTime || new Date().toISOString(),
-          endTime: build.endTime,
-          duration: build.duration,
+        const transformedData: Build[] = data.map((build: Record<string, unknown>) => ({
+          id: (build.id as string) || Math.random().toString(36).substr(2, 9),
+          packageName: (build.package as string) || (build.packageName as string) || 'unknown',
+          branch: (build.branch as string) || 'main',
+          commit: (build.commit as string) || 'unknown',
+          status: (build.status as string) || 'pending',
+          startTime: (build.startTime as string) || new Date().toISOString(),
+          endTime: build.endTime as string | undefined,
+          duration: build.duration as number | undefined,
           stages: build.stages || [],
           triggeredBy: build.triggeredBy || 'system',
           artifacts: build.artifacts || [],
@@ -100,7 +101,7 @@ export default function CIIntegration() {
         setBuilds(transformedData);
         setError(null);
       } catch (err) {
-        setError('Failed to fetch build data');
+        setError(DASHBOARD_ERROR_MESSAGES.FAILED_TO_FETCH_PACKAGES);
         console.error('Error fetching build data:', err);
       } finally {
         setLoading(false);

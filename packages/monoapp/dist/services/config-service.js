@@ -8,6 +8,7 @@ const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const logger_1 = require("../middleware/logger");
 const repositories_1 = require("../repositories");
+const error_messages_1 = require("../constants/error-messages");
 // Helper function to scan for configuration files
 async function scanConfigFiles(rootDir) {
     const configPatterns = [
@@ -208,14 +209,14 @@ const updateConfigFileService = async (id, rootDir, content) => {
     logger_1.AppLogger.debug('Root directory: ' + rootDir);
     // Security check: ensure the file is within the project directory
     if (!filePath.startsWith(rootDir)) {
-        throw new Error('Invalid file path');
+        throw new Error(error_messages_1.FILE_OPERATION_ERRORS.INVALID_FILE_PATH);
     }
     // Check if file exists and is writable
     try {
         await fs_1.default.promises.access(filePath, fs_1.default.constants.W_OK);
     }
     catch (error) {
-        throw new Error('File is not writable or does not exist ' + filePath);
+        throw new Error(error_messages_1.FILE_OPERATION_ERRORS.FILE_NOT_WRITABLE(filePath));
     }
     // Write the new content
     await fs_1.default.promises.writeFile(filePath, content, 'utf8');
@@ -247,16 +248,16 @@ const updatePackageConfigurationService = async (packagePath, packageName, confi
     }
     catch (error) {
         logger_1.AppLogger.error('JSON parsing error', error);
-        throw new Error('Invalid JSON format: ' + (error instanceof Error ? error.message : 'Unknown error'));
+        throw new Error(error_messages_1.VALIDATION_ERRORS.INVALID_JSON_FORMAT(error instanceof Error ? error.message : 'Unknown error'));
     }
     const packageJsonPath = path_1.default.join(packagePath, 'package.json');
     // Security check: ensure the path is valid
     if (!fs_1.default.existsSync(packagePath)) {
-        throw new Error('Package directory not found: ' + packagePath);
+        throw new Error(error_messages_1.FILE_OPERATION_ERRORS.PACKAGE_DIRECTORY_NOT_FOUND(packagePath));
     }
     // Check if package.json exists
     if (!fs_1.default.existsSync(packageJsonPath)) {
-        throw new Error('package.json not found in directory: ' + packageJsonPath);
+        throw new Error(error_messages_1.FILE_OPERATION_ERRORS.PACKAGE_JSON_NOT_FOUND(packageJsonPath));
     }
     // Read the existing package.json to preserve all fields
     const existingContent = await fs_1.default.promises.readFile(packageJsonPath, 'utf8');
@@ -265,7 +266,7 @@ const updatePackageConfigurationService = async (packagePath, packageName, confi
         existingConfig = JSON.parse(existingContent);
     }
     catch (error) {
-        throw new Error('Failed to parse existing package.json: ' + (error instanceof Error ? error.message : 'Invalid JSON'));
+        throw new Error(error_messages_1.VALIDATION_ERRORS.INVALID_PACKAGE_JSON(error instanceof Error ? error.message : 'Invalid JSON'));
     }
     // Merge the new configuration with existing configuration
     const mergedConfig = {

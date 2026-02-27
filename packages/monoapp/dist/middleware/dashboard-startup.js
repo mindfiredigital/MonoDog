@@ -13,6 +13,8 @@ const logger_1 = require("./logger");
 const config_loader_1 = require("../config-loader");
 const error_handler_1 = require("./error-handler");
 const security_1 = require("./security");
+const error_messages_1 = require("../constants/error-messages");
+const http_1 = require("../constants/http");
 const constants_1 = require("../constants");
 /**
  * Validate port number
@@ -60,7 +62,7 @@ function createDashboardApp() {
             }, (err) => {
                 if (err) {
                     logger_1.AppLogger.error(constants_1.ERROR_SERVING_INDEX_HTML, err);
-                    _res.status(500).json({ error: 'Internal server error' });
+                    _res.status(http_1.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({ error: error_messages_1.OPERATION_ERRORS.FAILED_TO_FETCH_PACKAGES });
                 }
             });
         }

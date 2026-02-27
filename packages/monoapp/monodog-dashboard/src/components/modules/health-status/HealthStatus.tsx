@@ -11,6 +11,7 @@ import {
 } from '../../../icons/heroicons';
 import { CubeIcon } from '../../../icons/heroicons';
 import { monorepoService } from '../../../services/monorepoService';
+import { DASHBOARD_ERROR_MESSAGES } from '../../../constants/messages';
 
 // interface HealthMetric {
 //   name: string;
@@ -178,7 +179,7 @@ export default function HealthStatus() {
         setHealthData(data);
         setError(null);
       } catch (err) {
-        setError('Failed to fetch health data');
+        setError(DASHBOARD_ERROR_MESSAGES.UNKNOWN_ERROR);
         console.error('Error fetching health data:', err);
       } finally {
         setLoading(false);
@@ -200,7 +201,7 @@ export default function HealthStatus() {
         setHealthData(data);
         setError(null);
       } catch (err) {
-        setError('Failed to fetch health data');
+        setError(DASHBOARD_ERROR_MESSAGES.UNKNOWN_ERROR);
         console.error('Error fetching health data:', err);
       } finally {
         setLoading(false);
@@ -222,7 +223,7 @@ export default function HealthStatus() {
       // const data = await monorepoService.getHealthStatus();
       // setHealthData(data);
     } catch (err) {
-      setError('Failed to refresh health data');
+      setError(DASHBOARD_ERROR_MESSAGES.UNKNOWN_ERROR);
       console.error('Error refreshing health data:', err);
     } finally {
       setRefreshing(false);

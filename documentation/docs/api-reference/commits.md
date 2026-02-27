@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 5
 title: Commits Endpoint
 ---
 
@@ -10,7 +10,7 @@ Access git commit history via REST API.
 ## Get Package Commits
 
 ```bash
-GET /api/commits/PACKAGE_PATH 
+GET /api/commits/PACKAGE_PATH
 ```
 PACKAGE_PATH is the encoded path relative to workspace root (..%2F..%2Fpackages%2Fpackage-name)
 

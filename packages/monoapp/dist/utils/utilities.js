@@ -40,6 +40,7 @@ exports.calculatePackageHealth = void 0;
 exports.resolveWorkspaceGlobs = resolveWorkspaceGlobs;
 exports.getWorkspacesFromRoot = getWorkspacesFromRoot;
 exports.parsePackageInfo = parsePackageInfo;
+exports.getRepositoryInfoFromGit = getRepositoryInfoFromGit;
 exports.scanMonorepo = scanMonorepo;
 exports.generateMonorepoStats = generateMonorepoStats;
 exports.findCircularDependencies = findCircularDependencies;
@@ -289,11 +290,8 @@ function findCircularDependencies(packages) {
  */
 function generateDependencyGraph(packages) {
     const nodes = packages.map(pkg => ({
-        // id: pkg.name,
+        id: pkg.name,
         label: pkg.name,
-        type: pkg.type,
-        version: pkg.version,
-        dependencies: Object.keys(pkg.dependencies).length,
     }));
     const edges = [];
     packages.forEach(pkg => {
@@ -301,8 +299,8 @@ function generateDependencyGraph(packages) {
             // Only include internal dependencies
             if (packages.some(p => p.name === depName)) {
                 edges.push({
-                    from: pkg.name,
-                    to: depName,
+                    source: pkg.name,
+                    target: depName,
                     type: 'internal',
                 });
             }
@@ -406,4 +404,52 @@ function findMonorepoRoot() {
     // Fallback to process.cwd() if we can't find the root
     logger_1.AppLogger.warn('Could not find monorepo root, using process.cwd(): ' + process.cwd());
     return process.cwd();
+}
+/**
+ * Extracts GitHub repository owner and repo name from git remote URL
+ * Supports both SSH (git@github.com:owner/repo.git) and HTTPS (https://github.com/owner/repo.git) formats
+ */
+async function getRepositoryInfoFromGit(repoPath = process.cwd()) {
+    try {
+        const { exec } = await import('child_process');
+        const { promisify } = await import('util');
+        const execPromise = promisify(exec);
+        // Get the git remote URL
+        const { stdout } = await execPromise('git remote get-url origin', {
+            cwd: repoPath,
+            timeout: 5000,
+        });
+        const remoteUrl = stdout.trim();
+        if (!remoteUrl) {
+            logger_1.AppLogger.warn('No git remote found');
+            return null;
+        }
+        // Parse different URL formats
+        let owner = '';
+        let repo = '';
+        // SSH format: git@github.com:owner/repo.git
+        const sshMatch = remoteUrl.match(/git@github\.com:([^/]+)\/(.+?)(\.git)?$/);
+        if (sshMatch) {
+            owner = sshMatch[1];
+            repo = sshMatch[2].replace(/\.git$/, '');
+        }
+        else {
+            // HTTPS format: https://github.com/owner/repo.git or https://github.com/owner/repo
+            const httpsMatch = remoteUrl.match(/github\.com[:/]([^/]+)\/(.+?)(\.git)?$/);
+            if (httpsMatch) {
+                owner = httpsMatch[1];
+                repo = httpsMatch[2].replace(/\.git$/, '');
+            }
+        }
+        if (!owner || !repo) {
+            logger_1.AppLogger.warn(`Could not parse repository info from git remote: ${remoteUrl}`);
+            return null;
+        }
+        logger_1.AppLogger.debug(`Extracted repository info: owner=${owner}, repo=${repo}`);
+        return { owner, repo };
+    }
+    catch (error) {
+        logger_1.AppLogger.error(`Failed to get repository info from git: ${error}`);
+        return null;
+    }
 }

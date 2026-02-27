@@ -57,4 +57,10 @@ Run app using serve script:
 | **GET** | `/api/commits/:packagePath` | Fetch Git commit history for a specific package directory.                              | Persistent   |
 | **GET** | `/api/config/files`         | Scan the monorepo for essential configuration files (e.g., `tsconfig`, `.eslintrc`).    | Generated runtime   |
 | **PUT** | `/api/config/files/:id`      | Update a configuration files (e.g., `tsconfig`, `.eslintrc`).                          | Generated runtime   |
+| **GET** | `/auth/login`               | Initiate GitHub OAuth 2.0 authentication flow. Redirects to GitHub for authorization.  | Session creation    |
+| **GET** | `/auth/callback`            | Handle OAuth callback from GitHub with authorization code and validate state parameter. | Session persistence |
+| **GET** | `/auth/me`                  | Retrieve authenticated user profile.                         | Persistent          |
+| **GET** | `/auth/validate`            | Validate current session token status.                       | Persistent          |
+| **GET** | `/auth/logout`              | Invalidate session and clear authentication token.                                      | Session termination |
+| **POST** | `/auth/refresh`            | Extend session token validity period.                        | Session update      |
 
