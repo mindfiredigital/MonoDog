@@ -11,6 +11,8 @@ export interface PermissionGuardProps {
   children: React.ReactNode;
   requiredPermission?: string;
   fallback?: React.ReactNode;
+  owner: string;
+  repo: string;
 }
 
 export interface HealthData {
