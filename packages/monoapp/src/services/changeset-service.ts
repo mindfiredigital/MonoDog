@@ -13,7 +13,7 @@ import { getPackagesService } from './package-service';
 import { getWorkflowRuns } from './github-actions-service';
 import { CHANGESET_MESSAGES } from '../constants/api-messages';
 import type { VersionBump, Package, VersionBumpItem, PublishPlan } from '../types/changeset';
-
+import { VALIDATION_ERRORS } from '../constants/error-messages';
 const execPromise = promisify(exec);
 
 /**
@@ -119,7 +119,7 @@ export async function validateChangeset(
 
   // Validate summary
   if (!summary || summary.length < 10) {
-    errors.push('Summary must be at least 10 characters');
+    errors.push(VALIDATION_ERRORS.SUMMARY_TOO_SHORT);
   }
 
   return {
@@ -194,7 +194,6 @@ export async function generateChangeset(
  * Check if working tree is clean
  */
 export async function isWorkingTreeClean(rootPath: string): Promise<boolean> {
-  return true; // For testing purposes, we assume it's always clean. Replace with actual git status check in production.
   try {
     const { stdout } = await execPromise('git status --porcelain', {
       cwd: rootPath,

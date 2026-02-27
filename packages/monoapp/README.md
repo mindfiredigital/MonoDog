@@ -62,4 +62,10 @@ Run app using serve script:
 | **GET** | `/auth/validate`            | Validate current session token status.                       | Persistent          |
 | **GET** | `/auth/logout`              | Invalidate session and clear authentication token.                                      | Session termination |
 | **POST** | `/auth/refresh`            | Extend session token validity period.                        | Session update      |
+| **GET** | `/api/publish/packages`     | Retrieve all packages available for publishing.                                         | Persistent          |
+| **GET** | `/api/publish/changesets`   | Fetch existing unpublished changesets.                                                  | Persistent          |
+| **POST** | `/api/publish/changesets`   | Create a new changeset for selected packages.                                          | Triggers write      |
+| **POST** | `/api/publish/preview`      | Preview the publish plan with version bumps and validation checks.                     | Generated runtime   |
+| **GET** | `/api/publish/status`       | Check if the repository is ready for publishing.                                       | Persistent          |
+| **POST** | `/api/publish/trigger`      | Trigger the GitHub Actions release/publish workflow.                                   | Triggers write |
 

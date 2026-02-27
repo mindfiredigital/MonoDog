@@ -39,6 +39,14 @@ http://localhost:8999/api
 - `GET /config/files` - Get configuration files
 - `PUT /config/files/{ID}` - Get configuration files
 
+### Publish/Release
+- `GET /publish/packages` - Get all packages available for publishing
+- `GET /publish/changesets` - Get existing unpublished changesets
+- `POST /publish/changesets` - Create a new changeset
+- `POST /publish/preview` - Preview the publish plan
+- `GET /publish/status` - Check publish readiness
+- `POST /publish/trigger` - Trigger the publishing workflow
+
 ## Next Steps
 
 - [Authentication Endpoint](/api-reference/authentication)
@@ -46,3 +54,4 @@ http://localhost:8999/api
 - [Health Endpoint](/api-reference/health)
 - [Commits Endpoint](/api-reference/commits)
 - [Config Endpoint](/api-reference/config)
+- [Publish/Release Endpoint](/api-reference/publish)

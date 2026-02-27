@@ -39,6 +39,7 @@ import {
   ERROR_PERMISSION_DENIED,
   MESSAGE_GRACEFUL_SHUTDOWN,
   MESSAGE_SERVER_CLOSED,
+  ENDPOINTS
 } from '../constants';
 import {
   initializeAuthentication,
@@ -131,55 +132,8 @@ export function startServer(rootPath: string): void {
 
     const server = app.listen(validatedPort, host, () => {
       console.log(SUCCESS_SERVER_START(host, validatedPort));
-      AppLogger.info('API endpoints available:', {
-        endpoints: [
-          // Auth endpoints
-          'GET  /api/auth/login',
-          'GET  /api/auth/callback',
-          'GET  /api/auth/me',
-          'POST /api/auth/validate',
-          'POST /api/auth/logout',
-          'POST /api/auth/refresh',
-          // Permission endpoints
-          'GET  /api/permissions/:owner/:repo',
-          'POST /api/permissions/:owner/:repo/can-action',
-          'POST /api/permissions/:owner/:repo/invalidate',
-          // Package endpoints
-          'POST /api/packages/refresh',
-          'GET  /api/packages',
-          'GET  /api/packages/:name',
-          'PUT  /api/packages/update-config',
-          // Commit endpoints
-          'GET  /api/commits/:packagePath',
-          // Health endpoints
-          'GET  /api/health/packages',
-          'POST /api/health/refresh',
-          // Config endpoints
-          'PUT  /api/config/files/:id',
-          'GET  /api/config/files',
-          // Publish endpoints
-          'GET  /api/publish/packages',
-          'GET  /api/publish/changesets',
-          'GET  /api/publish/status',
-          'POST /api/publish/preview',
-          'POST /api/publish/changesets',
-          'POST /api/publish/trigger',
-          // Pipeline endpoints
-          'GET  /api/pipelines',
-          'GET  /api/pipelines/:pipelineId',
-          'GET  /api/pipelines/package/:owner/:repo/:packageName',
-          'PUT  /api/pipelines/:pipelineId/status',
-          'GET  /api/workflows/:owner/:repo',
-          'GET  /api/workflows/:owner/:repo/runs',
-          'GET  /api/runs/:runId/jobs',
-          'GET  /api/jobs/:jobId/logs',
-          'POST /api/workflows/:workflowId/trigger',
-          'POST /api/workflows/:workflowId/dispatch',
-          'GET  /api/audit-logs',
-          'GET  /api/metrics',
-          'GET  /api/rate-limit',
-        ],
-      });
+      console.log(SUCCESS_SERVER_START(host, validatedPort));
+      AppLogger.info('API endpoints available:', { ENDPOINTS });
     });
 
     server.on('error', (err: NodeJS.ErrnoException) => {
