@@ -35,3 +35,6 @@ export const DASHBOARD_ERROR_MESSAGES = {
   FAILED_TO_TRIGGER_PUBLISH: 'Failed to trigger publish',
   FAILED_TO_SAVE_CONFIG: 'Failed to save configuration',
 } as const;
+
+export const CHANGESET_SUMMARY = "Describe the changes in this release (e.g., 'Add new API endpoints for user management')"
+export const SUMMARY_LIMIT = 'Summary must be at least 10 characters';

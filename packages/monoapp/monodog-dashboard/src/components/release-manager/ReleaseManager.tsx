@@ -265,7 +265,7 @@ export default function ReleaseManager() {
       {/* Step Content */}
       {currentStep === 'select' && !canCreateChangeset && (
         <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-red-700 font-medium">🚫 Access Denied</p>
+          <p className="text-red-700 font-medium">Access Denied</p>
           <p className="text-red-600 text-sm mt-1">
             You do not have write permission to create changesets. Contact your repository administrator.
           </p>
@@ -293,14 +293,14 @@ export default function ReleaseManager() {
           packages={selectedPackages}
           existingChangesets={existingChangesets}
           onConfirm={handlePreviewConfirmed}
-          onBack={() => setCurrentStep('select')}
+          onBack={() => setCurrentStep('bump')}
           loading={loading}
         />
       )}
 
       {currentStep === 'validate' && !canPublish && (
         <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-red-700 font-medium">🚫 Access Denied</p>
+          <p className="text-red-700 font-medium">Access Denied</p>
           <p className="text-red-600 text-sm mt-1">
             You do not have maintain permission to publish changesets. Contact your repository administrator.
           </p>

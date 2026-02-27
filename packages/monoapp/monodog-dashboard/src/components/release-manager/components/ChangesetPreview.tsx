@@ -6,7 +6,7 @@
 import React, { useState } from 'react';
 import { SelectedPackage } from '../ReleaseManager';
 import { ArrowLongRightIcon } from '../../../icons';
-
+import { CHANGESET_SUMMARY, SUMMARY_LIMIT } from '../../../constants/messages'
 interface ChangesetPreviewProps {
   packages: SelectedPackage[];
   existingChangesets: any[];
@@ -31,7 +31,7 @@ export default function ChangesetPreview({
       newErrors.push('Please enter a changelog summary');
     }
     if (summary.trim().length < 10) {
-      newErrors.push('Summary must be at least 10 characters');
+      newErrors.push(SUMMARY_LIMIT);
     }
     setErrors(newErrors);
     return newErrors.length === 0;
@@ -59,8 +59,8 @@ export default function ChangesetPreview({
         </label>
         <textarea
           value={summary}
-          onChange={e => setSummary(e.target.value)}
-          placeholder="Describe the changes in this release (e.g., 'Add new API endpoints for user management')"
+          onChange={e => {setSummary(e.target.value); validateSummary();}}
+          placeholder={CHANGESET_SUMMARY}
           rows={4}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent font-mono text-sm"
         />

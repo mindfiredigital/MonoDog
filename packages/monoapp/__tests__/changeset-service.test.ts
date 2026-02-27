@@ -13,6 +13,7 @@ import {
 import * as packageService from '../src/services/package-service';
 import * as gitHubActionsService from '../src/services/github-actions-service';
 import { AppLogger } from '../src/middleware/logger';
+import * as fs from 'fs/promises';
 
 jest.mock('fs/promises');
 jest.mock('../src/services/package-service');
@@ -62,8 +63,7 @@ describe('Changeset Service - Simplified', () => {
   });
 
   test('getExistingChangesets - returns changesets', async () => {
-    const fs = require('fs/promises');
-    fs.readdir.mockResolvedValue(['changeset-1.md', 'changeset-2.md', 'README.md']);
+    (fs.readdir as jest.Mock).mockResolvedValue(['changeset-1.md', 'changeset-2.md', 'README.md']);
 
     const result = await getExistingChangesets('/repo');
 
@@ -71,9 +71,8 @@ describe('Changeset Service - Simplified', () => {
   });
 
   test('generateChangeset - creates changeset file', async () => {
-    const fs = require('fs/promises');
-    fs.mkdir.mockResolvedValue(undefined);
-    fs.writeFile.mockResolvedValue(undefined);
+    (fs.mkdir as jest.Mock).mockResolvedValue(undefined);
+    (fs.writeFile as jest.Mock).mockResolvedValue(undefined);
 
     const result = await generateChangeset(
       '/repo',

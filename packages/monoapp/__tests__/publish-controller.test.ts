@@ -4,13 +4,17 @@
  */
 
 import { Request, Response } from 'express';
-import { previewPublish, createChangeset, triggerPublish } from '../src/controllers/publish-controller';
+import {
+  previewPublish,
+  createChangeset,
+  triggerPublish
+} from '../src/controllers/publish-controller';
 import * as changesetService from '../src/services/changeset-service';
 import * as gitHubActionsService from '../src/services/github-actions-service';
 import { getRepositoryInfoFromGit } from '../src/utils/utilities';
-import { AppLogger } from '../src/middleware/logger';
 
 jest.mock('../src/services/changeset-service');
+jest.mock('../src/services/pipeline-service');
 jest.mock('../src/services/github-actions-service');
 jest.mock('../src/middleware/logger', () => ({
   AppLogger: { info: jest.fn(), warn: jest.fn(), error: jest.fn() },
