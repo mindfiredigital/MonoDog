@@ -50,7 +50,15 @@
     "package-health-monitor",
     "devops",
     "repository-health",
-    "package-audit"
+    "package-audit",
+    "CI/CD",
+    "pipeline",
+    "release-manager",
+    "workflow-runs",
+    "monitor-pipeline",
+    "github-actions",
+    "changesets",
+    "version-control"
   ],
   "dependencies": {
     "@prisma/client": "^5.22.0",

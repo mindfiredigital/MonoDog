@@ -17,8 +17,7 @@ This service is typically run locally or on a central server and power a dedicat
 | **Framework** | Express.js, React    | Express Handles all API routing and middleware and React for building the user interface. |
 | **Styling**   | Tailwind CSS         | Utility-first framework for responsive, modern, and aesthetic design.                     |
 | **ORM**       | Prisma               | Database layer for managing package and health status records.                            |
-| **Scanning**  | monorepo-scanner     | Core logic for file system scanning and package metadata extraction.                      |
-| **VCS**       | GitService           | Used to fetch and analyze commit history per package path.                                |
+|**VCS**       | Github           |  Handles secure auth, automates Changeset PRs, and monitors CI/CD status.                           |
 
 ---
 
