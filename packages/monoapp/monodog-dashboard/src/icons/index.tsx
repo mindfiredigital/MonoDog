@@ -1,12 +1,4 @@
-export type IconVariant = 'outline' | 'solid';
-
-export interface IconProps {
-  className?: string;
-  width?: number | string;
-  height?: number | string;
-  strokeWidth?: number;
-  variant?: IconVariant;
-}
+import type { IconVariant, IconProps } from '../types/icons.types';
 
 const defaultClassName = 'w-6 h-6';
 
@@ -1724,5 +1716,8 @@ export const LogoutIcon: React.FC<IconProps> = ({
   <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
   </svg>
 );
+
+// Export types
+export type { IconVariant, IconProps };
 
 

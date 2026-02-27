@@ -10,9 +10,11 @@ exports.invalidatePermissionCache = invalidatePermissionCache;
 exports.invalidateUserCache = invalidateUserCache;
 exports.clearAllCache = clearAllCache;
 exports.getCacheStats = getCacheStats;
-exports.canPerformAction = canPerformAction;
+exports.checkRepositoryPermission = checkRepositoryPermission;
+exports.checkUserAction = checkUserAction;
 const github_oauth_service_1 = require("./github-oauth-service");
 const logger_1 = require("../middleware/logger");
+const features_1 = require("../constants/features");
 // Cache storage: key = `${userId}:${owner}/${repo}`
 const permissionCache = new Map();
 // Configuration
@@ -160,15 +162,30 @@ function getCacheStats() {
     };
 }
 /**
- * Check if user can perform an action based on permission
+ * Get user's permission for a specific repository with response formatting
  */
-function canPerformAction(permission, requiredAction) {
-    const actionPermissionMap = {
-        read: ['read', 'write', 'maintain', 'admin'],
-        write: ['write', 'maintain', 'admin'],
-        maintain: ['maintain', 'admin'],
-        admin: ['admin'],
+async function checkRepositoryPermission(accessToken, userId, username, owner, repo, forceRefresh = false) {
+    const cachedPermission = await getUserRepositoryPermission(accessToken, userId, username, owner, repo, forceRefresh);
+    return {
+        permission: cachedPermission.permission,
+        role: cachedPermission.role,
+        canAdmin: cachedPermission.permission === 'admin',
+        canMaintain: (0, features_1.canPerformAction)(cachedPermission.permission, 'maintain'),
+        canWrite: (0, features_1.canPerformAction)(cachedPermission.permission, 'write'),
+        canRead: (0, features_1.canPerformAction)(cachedPermission.permission, 'read'),
+        denied: cachedPermission.permission === 'none',
     };
-    const allowedPermissions = actionPermissionMap[requiredAction] || [];
-    return allowedPermissions.includes(permission);
+}
+/**
+ * Check if user can perform a specific action with response formatting
+ */
+async function checkUserAction(accessToken, userId, username, owner, repo, action) {
+    const cachedPermission = await getUserRepositoryPermission(accessToken, userId, username, owner, repo);
+    const can = (0, features_1.canPerformAction)(cachedPermission.permission, action);
+    return {
+        action,
+        can,
+        permission: cachedPermission.permission,
+        role: cachedPermission.role,
+    };
 }

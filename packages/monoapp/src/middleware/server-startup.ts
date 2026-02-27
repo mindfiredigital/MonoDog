@@ -27,6 +27,7 @@ import healthRouter from '../routes/health-routes';
 import configRouter from '../routes/config-routes';
 import authRouter from '../routes/auth-routes';
 import permissionRouter from '../routes/permission-routes';
+
 import {
   PORT_MIN,
   PORT_MAX,
@@ -100,6 +101,7 @@ function createApp(rootPath: string): Express {
   app.use('/api/commits/', commitRouter);
   app.use('/api/health/', healthRouter);
   app.use('/api/config/', configRouter);
+  app.use('/api', router); // Pipeline routes
 
   // 404 handler
   app.use('*', notFoundHandler);
@@ -152,6 +154,27 @@ export function startServer(rootPath: string): void {
           // Config endpoints
           'PUT  /api/config/files/:id',
           'GET  /api/config/files',
+          // Publish endpoints
+          'GET  /api/publish/packages',
+          'GET  /api/publish/changesets',
+          'GET  /api/publish/status',
+          'POST /api/publish/preview',
+          'POST /api/publish/changesets',
+          'POST /api/publish/trigger',
+          // Pipeline endpoints
+          'GET  /api/pipelines',
+          'GET  /api/pipelines/:pipelineId',
+          'GET  /api/pipelines/package/:owner/:repo/:packageName',
+          'PUT  /api/pipelines/:pipelineId/status',
+          'GET  /api/workflows/:owner/:repo',
+          'GET  /api/workflows/:owner/:repo/runs',
+          'GET  /api/runs/:runId/jobs',
+          'GET  /api/jobs/:jobId/logs',
+          'POST /api/workflows/:workflowId/trigger',
+          'POST /api/workflows/:workflowId/dispatch',
+          'GET  /api/audit-logs',
+          'GET  /api/metrics',
+          'GET  /api/rate-limit',
         ],
       });
     });

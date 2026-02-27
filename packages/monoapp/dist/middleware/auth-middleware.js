@@ -16,6 +16,8 @@ exports.clearExpiredSessions = clearExpiredSessions;
 exports.getSessionStats = getSessionStats;
 exports.initializeAuthentication = initializeAuthentication;
 const logger_1 = require("./logger");
+const error_messages_1 = require("../constants/error-messages");
+const http_1 = require("../constants/http");
 // Store sessions in memory (should be replaced with proper session store in production)
 const sessionStore = new Map();
 const sessionTimeout = 24 * 60 * 60 * 1000; // 24 hours
@@ -75,18 +77,18 @@ function authenticationMiddleware(req, res, next) {
         req.cookies?.['auth-token'];
     if (!token) {
         logger_1.AppLogger.warn(`Unauthorized request to ${req.path}: no auth token`);
-        res.status(401).json({
-            error: 'Unauthorized',
-            message: 'Authentication token required',
+        res.status(http_1.HTTP_STATUS_UNAUTHORIZED).json({
+            error: error_messages_1.AUTH_ERRORS.UNAUTHORIZED,
+            message: error_messages_1.AUTH_ERRORS.TOKEN_REQUIRED,
         });
         return;
     }
     const session = getSession(token);
     if (!session) {
         logger_1.AppLogger.warn(`Unauthorized request to ${req.path}: invalid session`);
-        res.status(401).json({
-            error: 'Unauthorized',
-            message: 'Invalid or expired session',
+        res.status(http_1.HTTP_STATUS_UNAUTHORIZED).json({
+            error: error_messages_1.AUTH_ERRORS.UNAUTHORIZED,
+            message: error_messages_1.AUTH_ERRORS.INVALID_OR_EXPIRED_SESSION,
         });
         return;
     }
@@ -125,17 +127,17 @@ function repositoryPermissionMiddleware(requiredPermission) {
         const authReq = req;
         const session = authReq.session;
         if (!session) {
-            res.status(401).json({
-                error: 'Unauthorized',
-                message: 'Session not found',
+            res.status(http_1.HTTP_STATUS_UNAUTHORIZED).json({
+                error: error_messages_1.AUTH_ERRORS.UNAUTHORIZED,
+                message: error_messages_1.AUTH_ERRORS.SESSION_NOT_FOUND,
             });
             return;
         }
         const permission = authReq.permission;
         if (!permission) {
-            res.status(403).json({
-                error: 'Forbidden',
-                message: 'Permission not resolved for repository',
+            res.status(http_1.HTTP_STATUS_FORBIDDEN).json({
+                error: error_messages_1.PERMISSION_ERRORS.FORBIDDEN,
+                message: error_messages_1.PERMISSION_ERRORS.PERMISSION_NOT_RESOLVED,
             });
             return;
         }
@@ -152,9 +154,9 @@ function repositoryPermissionMiddleware(requiredPermission) {
         const requiredLevel = permissionHierarchy[requiredPermission] || 0;
         if (userLevel < requiredLevel) {
             logger_1.AppLogger.warn(`User ${session.user.login} lacks permission for action requiring ${requiredPermission} (has ${userPermissionString})`);
-            res.status(403).json({
-                error: 'Forbidden',
-                message: `This action requires ${requiredPermission} permission`,
+            res.status(http_1.HTTP_STATUS_FORBIDDEN).json({
+                error: error_messages_1.PERMISSION_ERRORS.FORBIDDEN,
+                message: error_messages_1.PERMISSION_ERRORS.INSUFFICIENT_PERMISSION(requiredPermission),
             });
             return;
         }

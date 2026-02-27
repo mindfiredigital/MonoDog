@@ -1,11 +1,8 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../services/auth-context';
-
-export interface ProtectedRouteProps {
-  children: React.ReactNode;
-}
-
+import type { ProtectedRouteProps } from '../types/component.types';
+import LoadingState from '../components/LoadingState';
 /**
  * Protected Route Component
  * Redirects unauthenticated users to login page
@@ -14,12 +11,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
-    return (
-      <div className="loading-container">
-        <div className="spinner"></div>
-        <p>Loading...</p>
-      </div>
-    );
+    return <LoadingState />;
   }
 
   if (!isAuthenticated) {

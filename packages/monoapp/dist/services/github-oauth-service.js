@@ -17,8 +17,27 @@ exports.validateToken = validateToken;
 exports.generateAuthorizationUrl = generateAuthorizationUrl;
 const https_1 = __importDefault(require("https"));
 const logger_1 = require("../middleware/logger");
-const GITHUB_API_BASE = 'https://api.github.com';
+const features_1 = require("../constants/features");
+const GITHUB_API_BASE = 'api.github.com';
 const GITHUB_OAUTH_BASE = 'https://github.com';
+const requestOptions = (method, path, accessToken, payload, hostname) => {
+    const body = payload ?? null;
+    return {
+        hostname: hostname ?? GITHUB_API_BASE,
+        path,
+        method: 'GET',
+        headers: {
+            ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+            'User-Agent': 'MonoDog',
+            Accept: 'application/vnd.github+json',
+            // Conditional Body Headers
+            ...(body && {
+                'Content-Type': 'application/json',
+                'Content-Length': String(Buffer.byteLength(body)),
+            }),
+        },
+    };
+};
 /**
  * Make an HTTPS request to GitHub API
  */
@@ -68,18 +87,8 @@ async function exchangeCodeForToken(code, clientId, clientSecret, redirectUri) {
         code,
         redirect_uri: redirectUri,
     });
-    const options = {
-        hostname: 'github.com',
-        path: '/login/oauth/access_token',
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Content-Length': String(Buffer.byteLength(payload)),
-            Accept: 'application/json',
-        },
-    };
     try {
-        const response = await makeGitHubRequest(options, payload);
+        const response = await makeGitHubRequest(requestOptions('POST', features_1.GITHUB_OAUTH.OAUTH_TOKEN_ENDPOINT, undefined, payload, 'github.com'), payload);
         if (response.error) {
             throw new Error(`OAuth exchange failed: ${response.error}`);
         }
@@ -95,18 +104,8 @@ async function exchangeCodeForToken(code, clientId, clientSecret, redirectUri) {
  * Get authenticated user information
  */
 async function getAuthenticatedUser(accessToken) {
-    const options = {
-        hostname: 'api.github.com',
-        path: '/user',
-        method: 'GET',
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'User-Agent': 'MonoDog',
-            Accept: 'application/vnd.github+json',
-        },
-    };
     try {
-        const user = await makeGitHubRequest(options);
+        const user = await makeGitHubRequest(requestOptions('GET', features_1.GITHUB_OAUTH.USER_ENDPOINT, accessToken));
         logger_1.AppLogger.debug(`Retrieved user info: ${user.login}`);
         return user;
     }
@@ -119,18 +118,8 @@ async function getAuthenticatedUser(accessToken) {
  * Get user's email from GitHub (with proper scopes)
  */
 async function getUserEmail(accessToken) {
-    const options = {
-        hostname: 'api.github.com',
-        path: '/user/emails',
-        method: 'GET',
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'User-Agent': 'MonoDog',
-            Accept: 'application/vnd.github+json',
-        },
-    };
     try {
-        const emails = await makeGitHubRequest(options);
+        const emails = await makeGitHubRequest(requestOptions('GET', features_1.GITHUB_OAUTH.USER_EMAIL_ENDPOINT, accessToken));
         const primaryEmail = emails.find((e) => e.primary && e.verified);
         return primaryEmail?.email || null;
     }
@@ -144,18 +133,8 @@ async function getUserEmail(accessToken) {
  * Returns the user's permission level in the target repository
  */
 async function getRepositoryPermission(accessToken, owner, repo, username) {
-    const options = {
-        hostname: 'api.github.com',
-        path: `/repos/${owner}/${repo}/collaborators/${username}/permission`,
-        method: 'GET',
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'User-Agent': 'MonoDog',
-            Accept: 'application/vnd.github+json',
-        },
-    };
     try {
-        const response = await makeGitHubRequest(options);
+        const response = await makeGitHubRequest(requestOptions('GET', features_1.GITHUB_OAUTH.REPOSITORY_PERMISSION_ENDPOINT(owner, repo, username), accessToken));
         logger_1.AppLogger.debug(`Retrieved permission for ${username} in ${owner}/${repo}: ${response.permission}`);
         return response;
     }

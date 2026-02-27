@@ -1,34 +1,10 @@
 import { scanMonorepo } from '../utils/utilities';
-import { generateReports } from '../utils/monorepo-scanner';
-import { ciStatusManager } from '../utils/ci-status';
 import { AppLogger } from '../middleware/logger';
 import { PackageRepository, CommitRepository, DependencyRepository } from '../repositories';
 import type { PackageInfo, DependencyInfo, PackageReport } from '../types';
+import type { TransformedPackage, PackageDetail } from '../types/package-service';
 import { getCommitsByPathService } from './commit-service';
 import type { PackageModel } from '../types/database';
-
-interface TransformedPackage {
-  name: string;
-  version?: string;
-  type?: string;
-  path?: string;
-  description?: string;
-  license?: string;
-  repository: Record<string, unknown>;
-  scripts: Record<string, unknown>;
-  dependencies: Record<string, unknown>;
-  devDependencies: Record<string, unknown>;
-  peerDependencies: Record<string, unknown>;
-  maintainers: string[];
-  status?: string;
-  createdAt?: Date;
-  lastUpdated?: Date;
-}
-
-interface PackageDetail extends TransformedPackage {
-  report?: PackageReport;
-  ciStatus?: Record<string, unknown>;
-}
 
 /**
  * Get package dependencies
@@ -213,14 +189,8 @@ export const getPackageDetailService = async (name: string) => {
     ? JSON.parse(pkg.peerDependencies)
     : [];
 
-  // Get additional package information
-  // const reports = (await generateReports()) as unknown as PackageReport[] | undefined;
-  // const packageReport = reports?.find((r: PackageReport) => r.package?.name === name);
-
   const result: PackageDetail = {
     ...transformedPkg,
-    // report: packageReport,
-    ciStatus: await ciStatusManager.getPackageStatus(name),
   };
 
   return result;

@@ -8,12 +8,16 @@ import type {
   RepositoryPermission,
   MonoDogPermissionRole,
 } from '../types/auth';
+import type {
+  PermissionCheckDTO,
+  ActionCheckDTO,
+} from '../types/permission-dto';
 import {
   getRepositoryPermission,
   mapPermissionToRole,
 } from './github-oauth-service';
 import { AppLogger } from '../middleware/logger';
-
+import { canPerformAction } from '../constants/features';
 // Cache storage: key = `${userId}:${owner}/${repo}`
 const permissionCache = new Map<string, CachedPermission>();
 
@@ -227,47 +231,6 @@ export function getCacheStats(): {
     capacity: MAX_CACHE_SIZE,
     utilizationPercent: (permissionCache.size / MAX_CACHE_SIZE) * 100,
   };
-}
-
-/**
- * Check if user can perform an action based on permission
- */
-export function canPerformAction(
-  permission: RepositoryPermission,
-  requiredAction: 'read' | 'write' | 'maintain' | 'admin'
-): boolean {
-  const actionPermissionMap: Record<string, RepositoryPermission[]> = {
-    read: ['read', 'write', 'maintain', 'admin'],
-    write: ['write', 'maintain', 'admin'],
-    maintain: ['maintain', 'admin'],
-    admin: ['admin'],
-  };
-
-  const allowedPermissions = actionPermissionMap[requiredAction] || [];
-  return allowedPermissions.includes(permission);
-}
-
-/**
- * Permission Check Response DTO
- */
-export interface PermissionCheckDTO {
-  permission: RepositoryPermission;
-  role: MonoDogPermissionRole;
-  canAdmin: boolean;
-  canMaintain: boolean;
-  canWrite: boolean;
-  canRead: boolean;
-  denied: boolean;
-}
-
-/**
- * Action Check Response DTO
- */
-export interface ActionCheckDTO {
-  action: string;
-  can: boolean;
-  permission: RepositoryPermission;
-  role: MonoDogPermissionRole;
 }
 
 /**

@@ -18,11 +18,18 @@ import { getUserRepositoryPermission } from './permission-service';
 import { AppLogger } from '../middleware/logger';
 import { getRepositoryInfoFromGit } from '../utils/utilities';
 import type { AuthSession, GitHubUser } from '../types/auth';
+import type {
+  LoginUrlResponse,
+  OAuthCallbackResponse,
+  SessionResponse,
+  ValidationResponse,
+} from '../types/auth-service-dto';
 import type { Request } from 'express';
+import { STATE_EXPIRY } from '../constants/features';
+import { AUTH_ERRORS } from '../constants/error-messages';
 
 // State store for CSRF protection
 const stateStore = new Map<string, { createdAt: number; redirectUrl?: string }>();
-const STATE_EXPIRY = 10 * 60 * 1000; // 10 minutes
 
 /**
  * Generate random state for CSRF protection
@@ -67,54 +74,13 @@ function clearState(state: string): void {
 }
 
 /**
- * Login Response DTO
- */
-export interface LoginUrlResponse {
-  authUrl: string;
-  state: string;
-}
-
-/**
- * OAuth Callback Response DTO
- */
-export interface OAuthCallbackResponse {
-  sessionToken: string;
-  redirectUrl: string;
-  user: Partial<GitHubUser> & { id: number; login: string; avatar_url: string };
-  permission: {
-    level: string;
-    role: string;
-    owner: string;
-    repo: string;
-  } | null;
-}
-
-/**
- * Session Response DTO
- */
-export interface SessionResponse {
-  user: GitHubUser;
-  scopes: string[];
-  expiresAt: number;
-  permission: any | null;
-}
-
-/**
- * Validation Response DTO
- */
-export interface ValidationResponse {
-  valid: boolean;
-  expiresAt: number;
-}
-
-/**
  * Initiate login by generating authorization URL
  * @param redirectUrl - Where to redirect after login
  * @returns Login URL response with state
  */
 export function initiateLogin(redirectUrl: string = '/'): LoginUrlResponse {
   if (!process.env.GITHUB_CLIENT_ID) {
-    throw new Error('GitHub client ID not configured');
+    throw new Error(AUTH_ERRORS.LOGIN_INITIATION_FAILED);
   }
 
   const state = generateState();
@@ -149,16 +115,16 @@ export async function handleOAuthCallback(
 ): Promise<OAuthCallbackResponse> {
   // Validate code and state
   if (!code || !state) {
-    throw new Error('OAuth code and state are required');
+    throw new Error(AUTH_ERRORS.MISSING_CODE_OR_STATE);
   }
 
   // Validate state for CSRF protection
   if (!validateState(state)) {
-    throw new Error('Invalid or expired state - CSRF validation failed');
+    throw new Error(AUTH_ERRORS.INVALID_OR_EXPIRED_SESSION);
   }
 
   if (!process.env.GITHUB_CLIENT_SECRET) {
-    throw new Error('GitHub client secret not configured');
+    throw new Error(AUTH_ERRORS.LOGIN_INITIATION_FAILED);
   }
 
   // Exchange code for access token
@@ -249,14 +215,24 @@ export function getCurrentSession(req: Request): SessionResponse {
   const session = getSessionFromRequest(req);
 
   if (!session) {
-    throw new Error('No active session');
+    throw new Error(AUTH_ERRORS.SESSION_NOT_FOUND);
   }
+
+  // Transform CachedPermission to SessionResponse permission shape
+  const permission = session.permission
+    ? {
+        level: session.permission.role || 'Denied',
+        role: session.permission.role || 'Denied',
+        owner: session.permission.owner,
+        repo: session.permission.repo,
+      }
+    : null;
 
   return {
     user: session.user,
     scopes: session.scopes,
     expiresAt: session.expiresAt,
-    permission: session.permission || null,
+    permission,
   };
 }
 
@@ -269,7 +245,7 @@ export async function validateCurrentSession(req: Request): Promise<ValidationRe
   const session = getSessionFromRequest(req);
 
   if (!session) {
-    throw new Error('No active session');
+    throw new Error(AUTH_ERRORS.SESSION_NOT_FOUND);
   }
 
   // Validate token with GitHub
@@ -285,7 +261,7 @@ export async function validateCurrentSession(req: Request): Promise<ValidationRe
       invalidateSession(token);
     }
 
-    throw new Error('Session token is no longer valid');
+    throw new Error(AUTH_ERRORS.INVALID_OR_EXPIRED_SESSION);
   }
 
   return {
@@ -319,14 +295,14 @@ export async function refreshUserSession(
   const session = getSessionFromRequest(req);
 
   if (!session) {
-    throw new Error('No active session');
+    throw new Error(AUTH_ERRORS.SESSION_NOT_FOUND);
   }
 
   // Validate token is still valid
   const isValid = await validateToken(session.accessToken);
 
   if (!isValid) {
-    throw new Error('Token is no longer valid with GitHub');
+    throw new Error(AUTH_ERRORS.INVALID_OR_EXPIRED_SESSION);
   }
 
   // Create new session with updated expiry

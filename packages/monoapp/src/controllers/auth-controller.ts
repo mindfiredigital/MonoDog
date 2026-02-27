@@ -14,6 +14,13 @@ import {
 } from '../services/auth-service';
 import { getSessionFromRequest } from '../middleware/auth-middleware';
 import { AppLogger } from '../middleware/logger';
+import {
+  AUTH_MESSAGES,
+  AUTH_ERRORS,
+  HTTP_STATUS_BAD_REQUEST,
+  HTTP_STATUS_INTERNAL_SERVER_ERROR,
+  HTTP_STATUS_UNAUTHORIZED,
+} from '../constants';
 
 /**
  * Start OAuth login flow
@@ -27,14 +34,14 @@ export const login = (req: Request, res: Response) => {
     res.json({
       success: true,
       authUrl: result.authUrl,
-      message: 'Redirect to this URL to authenticate with GitHub',
+      message: AUTH_MESSAGES.LOGIN_INITIATED,
     });
   } catch (error) {
     AppLogger.error(`Login initiation failed: ${error}`);
-    res.status(500).json({
+    res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
       success: false,
-      error: 'Login failed',
-      message: error instanceof Error ? error.message : 'Failed to initiate GitHub OAuth flow',
+      error: AUTH_ERRORS.LOGIN_FAILED,
+      message: error instanceof Error ? error.message : AUTH_ERRORS.LOGIN_INITIATION_FAILED,
     });
   }
 };
@@ -50,7 +57,7 @@ export const callback = async (req: Request, res: Response) => {
     // Handle OAuth errors from GitHub
     if (error) {
       AppLogger.warn(`OAuth error: ${error} - ${error_description}`);
-      res.status(400).json({
+      res.status(HTTP_STATUS_BAD_REQUEST).json({
         success: false,
         error: error as string,
         message: error_description as string,
@@ -60,10 +67,10 @@ export const callback = async (req: Request, res: Response) => {
 
     if (!code || !state) {
       AppLogger.warn('OAuth callback missing code or state');
-      res.status(400).json({
+      res.status(HTTP_STATUS_BAD_REQUEST).json({
         success: false,
-        error: 'Missing parameters',
-        message: 'OAuth code and state are required',
+        error: AUTH_ERRORS.MISSING_PARAMETERS,
+        message: AUTH_ERRORS.MISSING_CODE_OR_STATE,
       });
       return;
     }
@@ -72,23 +79,23 @@ export const callback = async (req: Request, res: Response) => {
 
     res.json({
       success: true,
-      message: 'Authentication successful',
+      message: AUTH_MESSAGES.AUTHENTICATION_SUCCESSFUL,
       ...result,
     });
   } catch (error) {
     AppLogger.error(`OAuth callback failed: ${error}`);
-    const message = error instanceof Error ? error.message : 'Failed to complete GitHub OAuth flow';
+    const message = error instanceof Error ? error.message : AUTH_ERRORS.GITHUB_OAUTH_FAILED;
 
     if (message.includes('CSRF')) {
-      res.status(400).json({
+      res.status(HTTP_STATUS_BAD_REQUEST).json({
         success: false,
-        error: 'Invalid state',
+        error: AUTH_ERRORS.INVALID_STATE,
         message,
       });
     } else {
-      res.status(500).json({
+      res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
         success: false,
-        error: 'Authentication failed',
+        error: AUTH_ERRORS.LOGIN_FAILED,
         message,
       });
     }
@@ -109,10 +116,10 @@ export const me = (req: Request, res: Response) => {
     });
   } catch (error) {
     AppLogger.error(`Failed to get user session: ${error}`);
-    res.status(401).json({
+    res.status(HTTP_STATUS_UNAUTHORIZED).json({
       success: false,
-      error: 'Unauthorized',
-      message: error instanceof Error ? error.message : 'Failed to retrieve user information',
+      error: AUTH_ERRORS.TOKEN_REQUIRED,
+      message: error instanceof Error ? error.message : AUTH_ERRORS.SESSION_NOT_FOUND,
     });
   }
 };
@@ -128,24 +135,24 @@ export const validate = async (req: Request, res: Response) => {
     res.json({
       success: true,
       ...result,
-      message: 'Session is valid',
+      message: AUTH_MESSAGES.SESSION_VALID,
     });
   } catch (error) {
     AppLogger.error(`Session validation failed: ${error}`);
 
     if (error instanceof Error && error.message.includes('no longer valid')) {
-      res.status(401).json({
+      res.status(HTTP_STATUS_UNAUTHORIZED).json({
         success: false,
         valid: false,
-        error: 'Unauthorized',
+        error: AUTH_ERRORS.INVALID_OR_EXPIRED_SESSION,
         message: error.message,
       });
     } else {
-      res.status(500).json({
+      res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
         success: false,
         valid: false,
-        error: 'Validation failed',
-        message: error instanceof Error ? error.message : 'Failed to validate session',
+        error: AUTH_ERRORS.SESSION_NOT_FOUND,
+        message: error instanceof Error ? error.message : AUTH_ERRORS.SESSION_NOT_FOUND,
       });
     }
   }
@@ -161,14 +168,14 @@ export const logout = (req: Request, res: Response) => {
 
     res.json({
       success: true,
-      message: 'Logout successful',
+      message: AUTH_MESSAGES.LOGOUT_SUCCESSFUL,
     });
   } catch (error) {
     AppLogger.error(`Logout failed: ${error}`);
-    res.status(500).json({
+    res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
       success: false,
-      error: 'Logout failed',
-      message: error instanceof Error ? error.message : 'Failed to logout',
+      error: AUTH_ERRORS.LOGIN_FAILED,
+      message: error instanceof Error ? error.message : AUTH_ERRORS.LOGIN_FAILED,
     });
   }
 };
@@ -183,23 +190,23 @@ export const refresh = async (req: Request, res: Response) => {
 
     res.json({
       success: true,
-      message: 'Session refreshed successfully',
+      message: AUTH_MESSAGES.SESSION_REFRESHED,
       ...result,
     });
   } catch (error) {
     AppLogger.error(`Session refresh failed: ${error}`);
 
     if (error instanceof Error && error.message.includes('no longer valid')) {
-      res.status(401).json({
+      res.status(HTTP_STATUS_UNAUTHORIZED).json({
         success: false,
-        error: 'Unauthorized',
+        error: AUTH_ERRORS.INVALID_OR_EXPIRED_SESSION,
         message: error.message,
       });
     } else {
-      res.status(500).json({
+      res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
         success: false,
-        error: 'Refresh failed',
-        message: error instanceof Error ? error.message : 'Failed to refresh session',
+        error: AUTH_ERRORS.SESSION_NOT_FOUND,
+        message: error instanceof Error ? error.message : AUTH_ERRORS.SESSION_NOT_FOUND,
       });
     }
   }

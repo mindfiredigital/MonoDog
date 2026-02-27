@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { DASHBOARD_ERROR_MESSAGES } from '../../../constants/messages';
 
 // Import sub-components
 import {
@@ -75,7 +76,7 @@ export default function ConfigInspector() {
         setConfigFiles(transformedData);
         setError(null);
       } catch (err) {
-        setError('Failed to fetch configuration files');
+        setError(DASHBOARD_ERROR_MESSAGES.FAILED_TO_FETCH_PACKAGES);
         console.error('Error fetching config files:', err);
       } finally {
         setLoading(false);
@@ -176,7 +177,7 @@ export default function ConfigInspector() {
       } catch (err: any) {
         console.error('Error saving config file:', err);
         // Show error message to user
-        setError(`Failed to save configuration: ${err.message}`);
+        setError(`${DASHBOARD_ERROR_MESSAGES.FAILED_TO_SAVE_CONFIG}: ${err.message}`);
 
         // You could add a toast notification here:
         // toast.error(`Failed to save configuration: ${err.message}`);

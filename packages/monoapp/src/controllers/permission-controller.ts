@@ -11,6 +11,8 @@ import {
   invalidatePermissionCache,
 } from '../services/permission-service';
 import { AppLogger } from '../middleware/logger';
+import { AUTH_ERRORS, VALIDATION_ERRORS, OPERATION_ERRORS } from '../constants/error-messages';
+import { HTTP_STATUS_UNAUTHORIZED, HTTP_STATUS_BAD_REQUEST, HTTP_STATUS_INTERNAL_SERVER_ERROR } from '../constants/http';
 
 /**
  * Get user's permission for a specific repository
@@ -24,10 +26,10 @@ export const getRepositoryPermission = async (
     const session = getSessionFromRequest(req);
 
     if (!session) {
-      res.status(401).json({
+      res.status(HTTP_STATUS_UNAUTHORIZED).json({
         success: false,
-        error: 'Unauthorized',
-        message: 'No active session',
+        error: AUTH_ERRORS.UNAUTHORIZED,
+        message: AUTH_ERRORS.SESSION_NOT_FOUND,
       });
       return;
     }
@@ -36,10 +38,10 @@ export const getRepositoryPermission = async (
     const forceRefresh = req.query.refresh === 'true';
 
     if (!owner || !repo) {
-      res.status(400).json({
+      res.status(HTTP_STATUS_BAD_REQUEST).json({
         success: false,
-        error: 'Bad request',
-        message: 'Owner and repo parameters are required',
+        error: VALIDATION_ERRORS.INVALID_REQUEST,
+        message: VALIDATION_ERRORS.INVALID_REQUEST,
       });
       return;
     }
@@ -66,10 +68,10 @@ export const getRepositoryPermission = async (
     });
   } catch (error) {
     AppLogger.error(`Failed to check permission: ${error}`);
-    res.status(500).json({
+    res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
       success: false,
-      error: 'Internal server error',
-      message: 'Failed to check repository permission',
+      error: OPERATION_ERRORS.FAILED_TO_FETCH_PACKAGES,
+      message: OPERATION_ERRORS.FAILED_TO_FETCH_PACKAGES,
     });
   }
 };
@@ -83,10 +85,10 @@ export const checkActionPermission = async (req: Request, res: Response) => {
     const session = getSessionFromRequest(req);
 
     if (!session) {
-      res.status(401).json({
+      res.status(HTTP_STATUS_UNAUTHORIZED).json({
         success: false,
-        error: 'Unauthorized',
-        message: 'No active session',
+        error: AUTH_ERRORS.UNAUTHORIZED,
+        message: AUTH_ERRORS.SESSION_NOT_FOUND,
       });
       return;
     }
@@ -95,19 +97,19 @@ export const checkActionPermission = async (req: Request, res: Response) => {
     const { action } = req.body;
 
     if (!owner || !repo) {
-      res.status(400).json({
+      res.status(HTTP_STATUS_BAD_REQUEST).json({
         success: false,
-        error: 'Bad request',
-        message: 'Owner and repo parameters are required',
+        error: VALIDATION_ERRORS.INVALID_REQUEST,
+        message: VALIDATION_ERRORS.INVALID_REQUEST,
       });
       return;
     }
 
     if (!action || !['read', 'write', 'maintain', 'admin'].includes(action)) {
-      res.status(400).json({
+      res.status(HTTP_STATUS_BAD_REQUEST).json({
         success: false,
-        error: 'Bad request',
-        message: 'Valid action is required (read, write, maintain, or admin)',
+        error: VALIDATION_ERRORS.INVALID_REQUEST,
+        message: VALIDATION_ERRORS.INVALID_REQUEST,
       });
       return;
     }
@@ -134,10 +136,10 @@ export const checkActionPermission = async (req: Request, res: Response) => {
     });
   } catch (error) {
     AppLogger.error(`Failed to check action permission: ${error}`);
-    res.status(500).json({
+    res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
       success: false,
-      error: 'Internal server error',
-      message: 'Failed to check action permission',
+      error: OPERATION_ERRORS.FAILED_TO_FETCH_PACKAGES,
+      message: OPERATION_ERRORS.FAILED_TO_FETCH_PACKAGES,
     });
   }
 };
@@ -151,10 +153,10 @@ export const invalidateCache = (req: Request, res: Response) => {
     const session = getSessionFromRequest(req);
 
     if (!session) {
-      res.status(401).json({
+      res.status(HTTP_STATUS_UNAUTHORIZED).json({
         success: false,
-        error: 'Unauthorized',
-        message: 'No active session',
+        error: AUTH_ERRORS.UNAUTHORIZED,
+        message: AUTH_ERRORS.SESSION_NOT_FOUND,
       });
       return;
     }
@@ -162,10 +164,10 @@ export const invalidateCache = (req: Request, res: Response) => {
     const { owner, repo } = req.params;
 
     if (!owner || !repo) {
-      res.status(400).json({
+      res.status(HTTP_STATUS_BAD_REQUEST).json({
         success: false,
-        error: 'Bad request',
-        message: 'Owner and repo parameters are required',
+        error: VALIDATION_ERRORS.INVALID_REQUEST,
+        message: VALIDATION_ERRORS.INVALID_REQUEST,
       });
       return;
     }
@@ -185,10 +187,10 @@ export const invalidateCache = (req: Request, res: Response) => {
     });
   } catch (error) {
     AppLogger.error(`Failed to invalidate cache: ${error}`);
-    res.status(500).json({
+    res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
       success: false,
-      error: 'Internal server error',
-      message: 'Failed to invalidate permission cache',
+      error: OPERATION_ERRORS.FAILED_TO_FETCH_PACKAGES,
+      message: OPERATION_ERRORS.FAILED_TO_FETCH_PACKAGES,
     });
   }
 };

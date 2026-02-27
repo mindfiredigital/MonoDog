@@ -2,13 +2,7 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../services/auth-context';
 import { usePermission } from '../services/permission-context';
-
-export interface PermissionGuardProps {
-  children: React.ReactNode;
-  owner: string;
-  repo: string;
-  requiredPermission?: 'read' | 'write' | 'maintain' | 'admin';
-}
+import type { PermissionGuardProps } from '../types/component.types';
 
 /**
  * Permission Guard Component

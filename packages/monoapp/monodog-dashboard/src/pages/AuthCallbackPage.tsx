@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import apiClient from '../services/api';
+import { DASHBOARD_ERROR_MESSAGES, DASHBOARD_AUTH_MESSAGES } from '../constants/messages';
+import { DASHBOARD_API_ENDPOINTS } from '../constants/api-config';
 
 export function AuthCallbackPage() {
   const navigate = useNavigate();
@@ -28,22 +31,18 @@ export function AuthCallbackPage() {
         }
 
         // Get the session token from the OAuth callback
-        const apiUrl = (window as any).ENV?.API_URL ?? 'http://localhost:8999';
-        const API_BASE = `${apiUrl}/api`;
+        const response = await apiClient.get(DASHBOARD_API_ENDPOINTS.AUTH.CALLBACK + `?code=${code}&state=${state}`);
 
-        const response = await fetch(`${API_BASE}/auth/callback?code=${code}&state=${state}`);
-
-        if (!response.ok) {
-          const data = await response.json();
-          setError(data.message || 'Authentication failed');
+        if (!response.success) {
+          setError(response.error?.message || 'Authentication failed');
           setIsProcessing(false);
           return;
         }
 
-        const data = await response.json();
+        const data = response.data;
 
         if (!data.success || !data.sessionToken) {
-          setError('Failed to complete authentication');
+          setError(DASHBOARD_ERROR_MESSAGES.AUTHENTICATION_ERROR);
           setIsProcessing(false);
           return;
         }
@@ -57,13 +56,13 @@ export function AuthCallbackPage() {
             const redirectUrl = data.redirectUrl || '/';
             navigate(redirectUrl);
           } else {
-            setError('Failed to store session');
+            setError(DASHBOARD_ERROR_MESSAGES.AUTHENTICATION_ERROR);
           }
         } else {
-          setError('Auth context not available');
+          setError(DASHBOARD_ERROR_MESSAGES.AUTHENTICATION_ERROR);
         }
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Unknown error occurred';
+        const message = err instanceof Error ? err.message : DASHBOARD_ERROR_MESSAGES.UNKNOWN_ERROR;
         setError(message);
       } finally {
         setIsProcessing(false);
@@ -85,7 +84,7 @@ export function AuthCallbackPage() {
           </>
         ) : error ? (
           <>
-            <div className="text-5xl mb-5">⚠️</div>
+            <div className="text-5xl mb-5">Warning!</div>
             <h2 className="text-2xl font-bold text-gray-900 mb-3">Authentication Failed</h2>
             <p className="text-gray-700 text-sm leading-relaxed mb-5">{error}</p>
             <button

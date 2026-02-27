@@ -54,15 +54,6 @@ export const WILDCARD_ADDRESS = 'localhost';
 export const HTTP_PROTOCOL = 'http://';
 
 /**
- * CSP directives for Helmet
- */
-export const CSP_DIRECTIVES = {
-  defaultSrc: ["'self'"],
-  scriptSrc: ["'self'"],
-  imgSrc: ["'self'", 'data:', 'https:'],
-} as const;
-
-/**
  * Static file extensions pattern
  */
 export const STATIC_FILE_PATTERN = /(.ico|.js|.css|.jpg|.png|.map|.woff|.woff2|.ttf)$/i;

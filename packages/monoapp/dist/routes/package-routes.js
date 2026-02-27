@@ -12,6 +12,10 @@ packageRouter
 packageRouter
     .route('/update-config')
     .put(package_controller_1.updatePackageConfig);
+// Alias for /update-config to support both endpoint names
+// packageRouter
+//   .route('/update')
+//   .put(updatePackageConfig);
 packageRouter
     .route('/:name')
     .get(package_controller_1.getPackageDetail);

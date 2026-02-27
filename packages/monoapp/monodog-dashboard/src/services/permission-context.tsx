@@ -9,58 +9,19 @@ import React, {
   useCallback,
   ReactNode,
 } from 'react';
-
-export type RepositoryPermission =
-  | 'admin'
-  | 'maintain'
-  | 'write'
-  | 'read'
-  | 'none';
-
-export type MonoDogPermissionRole =
-  | 'Admin'
-  | 'Maintainer'
-  | 'Collaborator'
-  | 'Denied';
-
-export interface PermissionCheckResponse {
-  permission: RepositoryPermission;
-  role: MonoDogPermissionRole;
-  canAdmin: boolean;
-  canMaintain: boolean;
-  canWrite: boolean;
-  canRead: boolean;
-  denied: boolean;
-}
-
-export interface PermissionContextType {
-  permissions: Map<string, PermissionCheckResponse>;
-  isLoading: boolean;
-  error: string | null;
-  checkPermission: (
-    sessionToken: string,
-    owner: string,
-    repo: string
-  ) => Promise<PermissionCheckResponse | null>;
-  canPerformAction: (
-    sessionToken: string,
-    owner: string,
-    repo: string,
-    action: 'read' | 'write' | 'maintain' | 'admin'
-  ) => Promise<boolean>;
-  invalidatePermission: (owner: string, repo: string) => void;
-  invalidateAll: () => void;
-}
+import { DASHBOARD_ERROR_MESSAGES } from '../constants/messages';
+import apiClient from './api';
+import type {
+  RepositoryPermission,
+  MonoDogPermissionRole,
+  PermissionCheckResponse,
+  PermissionContextType,
+  PermissionProviderProps,
+} from '../types/permission-context.types';
 
 const PermissionContext = createContext<PermissionContextType | undefined>(
   undefined
 );
-const apiUrl = (window as any).ENV?.API_URL ?? 'http://localhost:8999';
-const API_BASE = `${apiUrl}/api`;
-
-export interface PermissionProviderProps {
-  children: ReactNode;
-}
 
 export function PermissionProvider({ children }: PermissionProviderProps) {
   const [permissions, setPermissions] = useState<
@@ -96,21 +57,16 @@ export function PermissionProvider({ children }: PermissionProviderProps) {
           return permissions.get(cacheKey) || null;
         }
 
-        const response = await fetch(`${API_BASE}/permissions/${owner}/${repo}`, {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${sessionToken}`,
-          },
-        });
+        const response = await apiClient.get(`/permissions/${owner}/${repo}`);
 
-        if (!response.ok) {
-          if (response.status === 401) {
-            throw new Error('Unauthorized');
+        if (!response.success) {
+          if (response.error.status === 401) {
+            throw new Error(DASHBOARD_ERROR_MESSAGES.AUTHENTICATION_ERROR);
           }
-          throw new Error('Failed to check permission');
+          throw new Error(DASHBOARD_ERROR_MESSAGES.FAILED_TO_CHECK_PERMISSION);
         }
 
-        const data = await response.json();
+        const data = response.data as any;
 
         const permission: PermissionCheckResponse = {
           permission: data.permission,
@@ -155,23 +111,16 @@ export function PermissionProvider({ children }: PermissionProviderProps) {
         setIsLoading(true);
         setError(null);
 
-        const response = await fetch(
-          `${API_BASE}/permissions/${owner}/${repo}/can-action`,
-          {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${sessionToken}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ action }),
-          }
+        const response = await apiClient.post(
+          `/permissions/${owner}/${repo}/can-action`,
+          { action }
         );
 
-        if (!response.ok) {
-          throw new Error('Failed to check action permission');
+        if (!response.success) {
+          throw new Error(DASHBOARD_ERROR_MESSAGES.FAILED_TO_CHECK_ACTION_PERMISSION);
         }
 
-        const data = await response.json();
+        const data = response.data as any;
         return data.can === true;
       } catch (err) {
         console.error('Action permission check error:', err);
@@ -231,5 +180,14 @@ export function usePermission(): PermissionContextType {
   }
   return context;
 }
+
+// Re-export types for backward compatibility
+export type {
+  RepositoryPermission,
+  MonoDogPermissionRole,
+  PermissionCheckResponse,
+  PermissionContextType,
+  PermissionProviderProps,
+} from '../types/permission-context.types';
 
 export default PermissionContext;

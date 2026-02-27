@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { monorepoService } from '../../services/monorepoService';
+import { DASHBOARD_ERROR_MESSAGES } from '../../constants/messages';
 
 // Import sub-components
 import {
@@ -129,7 +130,7 @@ export default function PublishControl() {
         setPackages(publishPackages);
         setError(null);
       } catch (err) {
-        setError('Failed to fetch package data');
+        setError(DASHBOARD_ERROR_MESSAGES.FAILED_TO_FETCH_PACKAGES);
         console.error('Error fetching packages:', err);
         // Fallback to mock data
         setPackages(mockPackages);

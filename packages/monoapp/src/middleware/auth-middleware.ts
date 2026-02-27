@@ -6,6 +6,8 @@
 import { Request, Response, NextFunction } from 'express';
 import type { AuthSession, AuthenticatedRequest } from '../types/auth';
 import { AppLogger } from './logger';
+import { AUTH_ERRORS, PERMISSION_ERRORS } from '../constants/error-messages';
+import { HTTP_STATUS_UNAUTHORIZED, HTTP_STATUS_FORBIDDEN } from '../constants/http';
 
 // Store sessions in memory (should be replaced with proper session store in production)
 const sessionStore = new Map<string, AuthSession>();
@@ -82,9 +84,9 @@ export function authenticationMiddleware(
 
   if (!token) {
     AppLogger.warn(`Unauthorized request to ${req.path}: no auth token`);
-    res.status(401).json({
-      error: 'Unauthorized',
-      message: 'Authentication token required',
+    res.status(HTTP_STATUS_UNAUTHORIZED).json({
+      error: AUTH_ERRORS.UNAUTHORIZED,
+      message: AUTH_ERRORS.TOKEN_REQUIRED,
     });
     return;
   }
@@ -93,9 +95,9 @@ export function authenticationMiddleware(
 
   if (!session) {
     AppLogger.warn(`Unauthorized request to ${req.path}: invalid session`);
-    res.status(401).json({
-      error: 'Unauthorized',
-      message: 'Invalid or expired session',
+    res.status(HTTP_STATUS_UNAUTHORIZED).json({
+      error: AUTH_ERRORS.UNAUTHORIZED,
+      message: AUTH_ERRORS.INVALID_OR_EXPIRED_SESSION,
     });
     return;
   }
@@ -138,9 +140,9 @@ export function repositoryPermissionMiddleware(requiredPermission: string) {
     const session = authReq.session as AuthSession | undefined;
 
     if (!session) {
-      res.status(401).json({
-        error: 'Unauthorized',
-        message: 'Session not found',
+      res.status(HTTP_STATUS_UNAUTHORIZED).json({
+        error: AUTH_ERRORS.UNAUTHORIZED,
+        message: AUTH_ERRORS.SESSION_NOT_FOUND,
       });
       return;
     }
@@ -148,9 +150,9 @@ export function repositoryPermissionMiddleware(requiredPermission: string) {
     const permission = authReq.permission;
 
     if (!permission) {
-      res.status(403).json({
-        error: 'Forbidden',
-        message: 'Permission not resolved for repository',
+      res.status(HTTP_STATUS_FORBIDDEN).json({
+        error: PERMISSION_ERRORS.FORBIDDEN,
+        message: PERMISSION_ERRORS.PERMISSION_NOT_RESOLVED,
       });
       return;
     }
@@ -172,9 +174,9 @@ export function repositoryPermissionMiddleware(requiredPermission: string) {
       AppLogger.warn(
         `User ${session.user.login} lacks permission for action requiring ${requiredPermission} (has ${userPermissionString})`
       );
-      res.status(403).json({
-        error: 'Forbidden',
-        message: `This action requires ${requiredPermission} permission`,
+      res.status(HTTP_STATUS_FORBIDDEN).json({
+        error: PERMISSION_ERRORS.FORBIDDEN,
+        message: PERMISSION_ERRORS.INSUFFICIENT_PERMISSION(requiredPermission),
       });
       return;
     }

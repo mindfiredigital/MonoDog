@@ -290,11 +290,8 @@ function findCircularDependencies(packages) {
  */
 function generateDependencyGraph(packages) {
     const nodes = packages.map(pkg => ({
-        // id: pkg.name,
+        id: pkg.name,
         label: pkg.name,
-        type: pkg.type,
-        version: pkg.version,
-        dependencies: Object.keys(pkg.dependencies).length,
     }));
     const edges = [];
     packages.forEach(pkg => {
@@ -302,8 +299,8 @@ function generateDependencyGraph(packages) {
             // Only include internal dependencies
             if (packages.some(p => p.name === depName)) {
                 edges.push({
-                    from: pkg.name,
-                    to: depName,
+                    source: pkg.name,
+                    target: depName,
                     type: 'internal',
                 });
             }

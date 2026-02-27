@@ -1,9 +1,10 @@
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { Package } from '../types/dashboard.types';
 
 interface PackageTableProps {
   packages: Package[];
-  getTypeIcon: (type: string) => string;
+  getTypeIcon: (type: string) => React.ReactNode;
   getStatusColor: (type: string) => string;
 }
 

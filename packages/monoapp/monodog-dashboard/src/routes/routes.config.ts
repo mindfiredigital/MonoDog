@@ -1,13 +1,5 @@
 // Route configuration for the dashboard application
-export interface RouteConfig {
-  path: string;
-  name: string;
-  component: string;
-  title: string;
-  description?: string;
-  protected?: boolean;
-  exact?: boolean;
-}
+import type { RouteConfig } from '../types/routes.types';
 
 export const routes: RouteConfig[] = [
   {
@@ -47,36 +39,36 @@ export const routes: RouteConfig[] = [
     title: 'Health Status',
     description: 'Monorepo health monitoring',
   },
-  // {
-  //   path: '/publish',
-  //   name: 'publish',
-  //   component: 'PublishControl',
-  //   title: 'Publish Control',
-  //   description: 'Package publishing and versioning',
-  // },
-  // {
-  //   path: '/release',
-  //   name: 'release',
-  //   component: 'ReleaseManager',
-  //   title: 'Release Manager',
-  //   description: 'Comprehensive release management with Changesets',
-  //   protected: true,
-  // },
-  // {
-  //   path: '/ci',
-  //   name: 'ci',
-  //   component: 'CIIntegration',
-  //   title: 'CI/CD',
-  //   description: 'Continuous integration and deployment',
-  // },
-  // {
-  //   path: '/pipeline',
-  //   name: 'pipeline',
-  //   component: 'Pipeline',
-  //   title: 'Release Pipeline',
-  //   description: 'Real-time release pipeline monitoring and management',
-  //   protected: true,
-  // },
+  {
+    path: '/publish',
+    name: 'publish',
+    component: 'PublishControl',
+    title: 'Publish Control',
+    description: 'Package publishing and versioning',
+  },
+  {
+    path: '/release',
+    name: 'release',
+    component: 'ReleaseManager',
+    title: 'Release Manager',
+    description: 'Comprehensive release management with Changesets',
+    protected: true,
+  },
+  {
+    path: '/ci',
+    name: 'ci',
+    component: 'CIIntegration',
+    title: 'CI/CD',
+    description: 'Continuous integration and deployment',
+  },
+  {
+    path: '/pipeline',
+    name: 'pipeline',
+    component: 'Pipeline',
+    title: 'Release Pipeline',
+    description: 'Real-time release pipeline monitoring and management',
+    protected: true,
+  },
   {
     path: '/config',
     name: 'config',

@@ -10,49 +10,26 @@ import React, {
   useEffect,
   ReactNode,
 } from 'react';
-
-export interface GitHubUser {
-  id: number;
-  login: string;
-  name: string | null;
-  email: string | null;
-  avatar_url: string;
-  public_repos: number;
-  followers: number;
-  following: number;
-}
-
-export interface AuthSession {
-  sessionToken: string;
-  user: GitHubUser;
-  scopes: string[];
-  expiresAt: number;
-  permission?: any; // User's repository permission level
-}
-
-export interface AuthContextType {
-  session: AuthSession | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  error: string | null;
-  login: () => Promise<void>;
-  logout: () => Promise<void>;
-  checkSession: () => Promise<boolean>;
-  refreshSession: () => Promise<boolean>;
-  hasPermission: (requiredPermission: string) => boolean;
-  permission: string | null;
-}
+import {
+  DASHBOARD_AUTH_MESSAGES,
+  DASHBOARD_ERROR_MESSAGES,
+  DASHBOARD_API_ENDPOINTS,
+  API_CONFIG,
+} from '../constants';
+import apiClient from './api';
+import { cookieUtils } from '../utils/cookies';
+import type {
+  GitHubUser,
+  AuthSession,
+  AuthContextType,
+  AuthProviderProps,
+  UserPermission,
+} from '../types/auth-context.types';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const apiUrl = (window as any).ENV?.API_URL ?? 'http://localhost:8999';
-const API_BASE = `${apiUrl}/api`;
 const SESSION_TOKEN_KEY = 'monodog_session_token';
 const SESSION_DATA_KEY = 'monodog_session_data';
-
-export interface AuthProviderProps {
-  children: ReactNode;
-}
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [session, setSession] = useState<AuthSession | null>(null);
@@ -60,11 +37,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [error, setError] = useState<string | null>(null);
 
   /**
-   * Load session from localStorage if available
+   * Load session from cookies if available
    */
   useEffect(() => {
-    const savedToken = localStorage.getItem(SESSION_TOKEN_KEY);
-    const savedData = localStorage.getItem(SESSION_DATA_KEY);
+    const savedToken = cookieUtils.get(SESSION_TOKEN_KEY);
+    const savedData = cookieUtils.get(SESSION_DATA_KEY);
 
     if (savedToken && savedData) {
       try {
@@ -75,8 +52,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         });
       } catch (err) {
         // Invalid stored data, clear it
-        localStorage.removeItem(SESSION_TOKEN_KEY);
-        localStorage.removeItem(SESSION_DATA_KEY);
+        cookieUtils.remove(SESSION_TOKEN_KEY);
+        cookieUtils.remove(SESSION_DATA_KEY);
       }
     }
 
@@ -91,22 +68,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetch(`${API_BASE}/auth/login`, {
-        method: 'GET',
-      });
+      const response = await apiClient.get<{ authUrl: string }>(
+        DASHBOARD_API_ENDPOINTS.AUTH.LOGIN
+      );
 
-      if (!response.ok) {
-        throw new Error('Failed to initiate login');
+      if (!response.success) {
+        throw new Error(response.error.message || DASHBOARD_AUTH_MESSAGES.LOGIN_FAILED);
       }
-
-      const data = await response.json();
 
       // Redirect to GitHub OAuth
-      if (data.authUrl) {
-        window.location.href = data.authUrl;
+      if (response.data.authUrl) {
+        window.location.href = response.data.authUrl;
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Login failed';
+      const message = err instanceof Error ? err.message : DASHBOARD_AUTH_MESSAGES.LOGIN_FAILED;
       setError(message);
       setIsLoading(false);
     }
@@ -116,24 +91,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
    * Handle OAuth callback and store session
    */
   const handleOAuthCallback = useCallback(
-    async (sessionToken: string, permissionData?: any) => {
+    async (sessionToken: string, permissionData?: UserPermission | null) => {
       try {
         setIsLoading(true);
         setError(null);
 
         // Fetch user info to validate token
-        const response = await fetch(`${API_BASE}/auth/me`, {
-          method: 'GET',
+        const response = await apiClient.get(DASHBOARD_API_ENDPOINTS.AUTH.ME, {
           headers: {
             Authorization: `Bearer ${sessionToken}`,
           },
         });
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch user info');
+        if (!response.success) {
+          throw new Error(DASHBOARD_ERROR_MESSAGES.FAILED_TO_FETCH_USER_INFO);
         }
 
-        const userData = await response.json();
+        const userData = response.data as { user: GitHubUser; scopes: string[]; expiresAt: number; permission?: UserPermission | null };
 
         const newSession: AuthSession = {
           sessionToken,
@@ -149,14 +123,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
           permission: permissionData || userData.permission,
           expiresAt: userData.expiresAt,
         };
-        localStorage.setItem(SESSION_TOKEN_KEY, sessionToken);
-        localStorage.setItem(SESSION_DATA_KEY, JSON.stringify(sessionData));
+        cookieUtils.set(SESSION_TOKEN_KEY, sessionToken);
+        cookieUtils.set(SESSION_DATA_KEY, JSON.stringify(sessionData));
 
         // Set session with permission
-        const sessionWithPermission = {
+        const sessionWithPermission: AuthSession = {
           ...newSession,
-          ...sessionData,
-        } as any;
+          permission: permissionData || userData.permission,
+        };
         setSession(sessionWithPermission);
         return true;
       } catch (err) {
@@ -178,17 +152,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setIsLoading(true);
 
       if (session?.sessionToken) {
-        await fetch(`${API_BASE}/auth/logout`, {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${session.sessionToken}`,
-          },
-        });
+        await apiClient.post(DASHBOARD_API_ENDPOINTS.AUTH.LOGOUT, undefined);
       }
 
       // Clear session
-      localStorage.removeItem(SESSION_TOKEN_KEY);
-      localStorage.removeItem(SESSION_DATA_KEY);
+      cookieUtils.remove(SESSION_TOKEN_KEY);
+      cookieUtils.remove(SESSION_DATA_KEY);
       setSession(null);
     } catch (err) {
       console.error('Logout error:', err);
@@ -206,22 +175,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
 
     try {
-      const response = await fetch(`${API_BASE}/auth/validate`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session.sessionToken}`,
-        },
-      });
+      const response = await apiClient.post(
+        DASHBOARD_API_ENDPOINTS.AUTH.VALIDATE,
+        undefined
+      );
 
-      if (!response.ok) {
+      if (!response.success) {
         // Session invalid
-        localStorage.removeItem(SESSION_TOKEN_KEY);
-        localStorage.removeItem(SESSION_DATA_KEY);
+        cookieUtils.remove(SESSION_TOKEN_KEY);
+        cookieUtils.remove(SESSION_DATA_KEY);
         setSession(null);
         return false;
       }
 
-      const data = await response.json();
+      const data = response.data as { valid: boolean };
       return data.valid === true;
     } catch (err) {
       console.error('Session check error:', err);
@@ -240,18 +207,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       setIsLoading(true);
 
-      const response = await fetch(`${API_BASE}/auth/refresh`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session.sessionToken}`,
-        },
-      });
+      const response = await apiClient.post(
+        DASHBOARD_API_ENDPOINTS.AUTH.REFRESH,
+        undefined
+      );
 
-      if (!response.ok) {
-        throw new Error('Failed to refresh session');
+      if (!response.success) {
+        throw new Error(DASHBOARD_ERROR_MESSAGES.FAILED_TO_REFRESH_SESSION);
       }
 
-      const data = await response.json();
+      const data = response.data as { success: boolean; sessionToken: string; expiresAt: number };
 
       if (data.success && data.sessionToken) {
         const newSession: AuthSession = {
@@ -262,8 +227,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         };
 
         // Update stored session
-        localStorage.setItem(SESSION_TOKEN_KEY, data.sessionToken);
-        localStorage.setItem(
+        cookieUtils.set(SESSION_TOKEN_KEY, data.sessionToken);
+        cookieUtils.set(
           SESSION_DATA_KEY,
           JSON.stringify({
             user: session.user,
@@ -314,12 +279,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     };
 
     // Get user's permission from session or default to 'read'
-    // Permission can be in multiple formats:
-    // 1. String: 'write', 'admin', etc.
-    // 2. OAuth response object: { level: "write", role: "Collaborator" }
-    // 3. CachedPermission object: { permission: "write", role: "Collaborator", userId, username, owner, repo, cachedAt, ttl }
     let userPermissionString = 'read';
-    const sessionPermission = (session as any)?.permission;
+    const sessionPermission = session.permission;
 
     if (typeof sessionPermission === 'string') {
       // Format 1: Direct string
@@ -356,8 +317,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     permission: (() => {
       const perm = (session as any)?.permission;
       if (!perm) return null;
-      // Handle both OAuth format { level, role } and CachedPermission format { permission, role, ... }
-      return perm.level || perm.permission || null;
+      return perm.level || null;
     })(),
   };
 
@@ -380,4 +340,8 @@ export function useAuth(): AuthContextType {
   return context;
 }
 
+// Re-export types for backward compatibility
+export type { GitHubUser, AuthSession, AuthContextType, AuthProviderProps } from '../types/auth-context.types';
+
 export default AuthContext;
+

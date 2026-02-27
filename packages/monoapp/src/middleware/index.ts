@@ -3,7 +3,7 @@
  */
 
 export { errorHandler, notFoundHandler } from './error-handler';
-export type { CustomError } from './error-handler';
+export type { CustomError } from '../types/errors';
 
 export {
   createHelmetMiddleware,

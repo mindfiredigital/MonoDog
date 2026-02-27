@@ -260,15 +260,16 @@ class MonorepoScanner {
             return JSON.parse(stdout);
         }
         catch (error) {
-            if (error.stdout) {
+            const errorObj = error;
+            if (errorObj.stdout) {
                 try {
-                    return JSON.parse(error.stdout.toString());
+                    return JSON.parse(errorObj.stdout.toString());
                 }
                 catch (parseError) {
                     throw new Error(`Failed to parse audit JSON: ${parseError}`);
                 }
             }
-            throw new Error(`pnpm audit failed: ${error.message}`);
+            throw new Error(`pnpm audit failed: ${errorObj.message || 'Unknown error'}`);
         }
     }
     /**
