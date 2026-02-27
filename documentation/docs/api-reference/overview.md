@@ -15,6 +15,14 @@ http://localhost:8999/api
 
 ## Endpoints
 
+### Authentication
+- `GET /auth/login` - Initiate GitHub OAuth login
+- `GET /auth/callback` - Handle OAuth callback
+- `GET /auth/me` - Get current user session
+- `POST /auth/validate` - Validate session
+- `POST /auth/logout` - Logout user
+- `POST /auth/refresh` - Refresh session
+
 ### Packages
 - `GET /packages` - List all packages
 - `GET /packages/{NAME}` - Get package details
@@ -33,6 +41,7 @@ http://localhost:8999/api
 
 ## Next Steps
 
+- [Authentication Endpoint](/api-reference/authentication)
 - [Packages Endpoint](/api-reference/packages)
 - [Health Endpoint](/api-reference/health)
 - [Commits Endpoint](/api-reference/commits)

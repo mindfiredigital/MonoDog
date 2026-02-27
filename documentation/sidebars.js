@@ -46,6 +46,7 @@ const sidebars = {
       collapsed: false,
       items: [
         'api-reference/overview',
+        'api-reference/authentication',
         'api-reference/packages',
         'api-reference/health',
         'api-reference/commits',
