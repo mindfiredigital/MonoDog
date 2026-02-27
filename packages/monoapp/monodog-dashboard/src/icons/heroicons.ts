@@ -39,6 +39,7 @@ export {
   XCircleIcon,
   ArrowLeftIcon,
   ArrowRightIcon,
+  ArrowLongRightIcon,
   ArrowTrendingUpIcon,
   ArrowTrendingDownIcon,
   UserIcon,
@@ -58,6 +59,7 @@ export {
   ChevronRightIcon,
   ExclamationCircleIcon,
   LogoutIcon,
+  GithubIcon,
   type IconProps,
   type IconVariant,
 } from './index';

@@ -16,6 +16,7 @@ export default function GraphVisualization({
 }: GraphVisualizationProps) {
   return (
     <div className="relative bg-white rounded-lg shadow-sm border border-gray-200 p-6 min-h-[600px]">
+      
       <svg className="w-full h-full absolute inset-0" viewBox="0 0 800 600">
         {/* Render dependency arrows */}
         {packages.map(pkg =>

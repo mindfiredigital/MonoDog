@@ -69,13 +69,13 @@ export default function DependencyDetails({
                         {dep.version}
                       </span>
                       <span
-                        className={`${getDependencyStatusColor(depName, packages)}`}
+                        className={`${getDependencyStatusColor(depName, packages)} p-1`}
                       >
                         {dep.status === 'healthy'
-                          ? '✓'
+                          ? (<div className="w-2 h-2 bg-green-500 rounded-full"></div>)
                           : dep.status === 'warning'
-                            ? '⚠'
-                            : '✗'}
+                            ? (<div className="w-2 h-2 bg-yellow-500 rounded-full"></div>)
+                            : (<div className="w-2 h-2 bg-red-500 rounded-full"></div>)}
                       </span>
                     </div>
                   </div>
@@ -116,13 +116,13 @@ export default function DependencyDetails({
                         {dep.version}
                       </span>
                       <span
-                        className={`${getDependencyStatusColor(depName, packages)}`}
+                        className={`${getDependencyStatusColor(depName, packages)} p-1`}
                       >
                         {dep.status === 'healthy'
-                          ? '✓'
+                          ? (<div className="w-2 h-2 bg-green-500 rounded-full"></div>)
                           : dep.status === 'warning'
-                            ? '⚠'
-                            : '✗'}
+                            ? (<div className="w-2 h-2 bg-yellow-500 rounded-full"></div>)
+                            : (<div className="w-2 h-2 bg-red-500 rounded-full"></div>)}
                       </span>
                     </div>
                   </div>

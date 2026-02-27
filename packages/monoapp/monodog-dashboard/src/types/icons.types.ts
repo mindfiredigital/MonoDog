@@ -9,4 +9,5 @@ export interface IconProps {
   height?: number;
   variant?: IconVariant;
   className?: string;
+  strokeWidth?: number;
 }
