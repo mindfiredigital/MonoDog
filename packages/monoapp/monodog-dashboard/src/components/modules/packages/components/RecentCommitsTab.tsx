@@ -1,9 +1,6 @@
 import { PackageDetail } from '../types/packages.types';
+import type { RecentCommitsTabProps } from '../../../../types';
 import { getCommitTypeColor, formatDate } from '../utils/packages.utils';
-
-interface RecentCommitsTabProps {
-  packageData: PackageDetail;
-}
 
 export default function RecentCommitsTab({
   packageData,

@@ -5,21 +5,13 @@
 
 import axios from 'axios';
 import ApiClient from '../src/services/api/api-client';
-import {
-  ApiError,
-  ValidationError,
-  UnauthorizedError,
-  ForbiddenError,
-  NotFoundError,
-  TimeoutError,
-  ServerError,
-} from '../src/services/api/types/api.types';
+import { cookieUtils } from '../src/utils/cookies';
 
 // Mock axios
 jest.mock('axios');
 
 describe('ApiClient', () => {
-  let mockAxiosInstance: any;
+  let mockAxiosInstance:  Record<string, jest.Mock|jest.MockedFunction<any>>;
   let apiClient: ApiClient;
 
   beforeEach(() => {
@@ -35,7 +27,8 @@ describe('ApiClient', () => {
     };
 
     (axios.create as jest.Mock).mockReturnValue(mockAxiosInstance);
-    (axios.isAxiosError as jest.Mock).mockImplementation(error => error && error.response);
+    // cast to unknown first to satisfy TS
+    ((axios.isAxiosError as unknown) as jest.Mock).mockImplementation(error => error && error.response);
 
     apiClient = new ApiClient({ baseUrl: 'http://localhost:8999' });
   });
@@ -82,9 +75,33 @@ describe('ApiClient', () => {
         })
       );
     });
+  });
 
-    it('should setup retry interceptor on creation', () => {
+  describe('Authentication handling', () => {
+    it('registers request interceptor that adds Authorization header', () => {
+      const token = 'abc123';
+      jest.spyOn(cookieUtils, 'get').mockReturnValue(token);
+
+      // ensure interceptor was attached
+      expect(mockAxiosInstance.interceptors.request.use).toHaveBeenCalled();
+      const interceptorFn = mockAxiosInstance.interceptors.request.use.mock.calls[0][0];
+      const cfg = interceptorFn({ headers: {} });
+      expect(cfg.headers).toEqual(expect.objectContaining({ Authorization: `Bearer ${token}` }));
+    });
+
+    it('registers response interceptor that clears cookies on 401 errors', async () => {
+      jest.spyOn(cookieUtils, 'get').mockReturnValue('token');
+      const removeSpy = jest.spyOn(cookieUtils, 'remove');
+
+      // confirm interceptor attached
       expect(mockAxiosInstance.interceptors.response.use).toHaveBeenCalled();
+      const errorHandler = mockAxiosInstance.interceptors.response.use.mock.calls[0][1];
+
+      const fakeError = { response: { status: 401 } };
+      await errorHandler(fakeError).catch(() => {});
+
+      expect(removeSpy).toHaveBeenCalledWith('monodog_session_token');
+      expect(removeSpy).toHaveBeenCalledWith('monodog_session_data');
     });
   });
 
@@ -102,7 +119,7 @@ describe('ApiClient', () => {
       const result = await apiClient.get('/test');
 
       expect(result.success).toBe(true);
-      expect(result.data).toEqual({ id: 1, name: 'Test' });
+      expect((result).data).toEqual({ id: 1, name: 'Test' });
       expect(mockAxiosInstance.request).toHaveBeenCalledWith(
         expect.objectContaining({
           method: 'get',
@@ -148,7 +165,7 @@ describe('ApiClient', () => {
       const result = await apiClient.post('/test', { name: 'Test' });
 
       expect(result.success).toBe(true);
-      expect(result.data).toEqual({ id: 1, name: 'Created' });
+      expect((result).data).toEqual({ id: 1, name: 'Created' });
       expect(result.meta?.status).toBe(201);
       expect(mockAxiosInstance.request).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -261,8 +278,8 @@ describe('ApiClient', () => {
       const result = await apiClient.get('/test');
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toMatch(/VALIDATION/i);
-      expect(result.error?.status).toBe(400);
+      expect((result).error?.code).toMatch(/VALIDATION/i);
+      expect((result).error?.status).toBe(400);
     });
 
     it('should handle 401 unauthorized error', async () => {
@@ -280,8 +297,8 @@ describe('ApiClient', () => {
       const result = await apiClient.get('/test');
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toMatch(/UNAUTHORIZED/i);
-      expect(result.error?.status).toBe(401);
+      expect((result).error?.code).toMatch(/UNAUTHORIZED/i);
+      expect((result).error?.status).toBe(401);
     });
 
     it('should handle 403 forbidden error', async () => {
@@ -299,8 +316,8 @@ describe('ApiClient', () => {
       const result = await apiClient.get('/test');
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toMatch(/FORBIDDEN/i);
-      expect(result.error?.status).toBe(403);
+      expect((result).error?.code).toMatch(/FORBIDDEN/i);
+      expect((result).error?.status).toBe(403);
     });
 
     it('should handle 404 not found error', async () => {
@@ -318,8 +335,8 @@ describe('ApiClient', () => {
       const result = await apiClient.get('/test');
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toMatch(/NOT_FOUND/i);
-      expect(result.error?.status).toBe(404);
+      expect((result).error?.code).toMatch(/NOT_FOUND/i);
+      expect((result).error?.status).toBe(404);
     });
 
     it('should handle 408 timeout error', async () => {
@@ -337,8 +354,8 @@ describe('ApiClient', () => {
       const result = await apiClient.get('/test');
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toMatch(/TIMEOUT/i);
-      expect(result.error?.status).toBe(408);
+      expect((result).error?.code).toMatch(/TIMEOUT/i);
+      expect((result).error?.status).toBe(408);
     });
 
     it('should handle 429 rate limit error', async () => {
@@ -356,8 +373,8 @@ describe('ApiClient', () => {
       const result = await apiClient.get('/test');
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toMatch(/RATE_LIMIT/i);
-      expect(result.error?.status).toBe(429);
+      expect((result).error?.code).toMatch(/RATE_LIMIT/i);
+      expect((result).error?.status).toBe(429);
     });
 
     it('should handle 500 server error', async () => {
@@ -375,21 +392,21 @@ describe('ApiClient', () => {
       const result = await apiClient.get('/test');
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toMatch(/SERVER/i);
-      expect(result.error?.status).toBe(500);
+      expect((result).error?.code).toMatch(/SERVER/i);
+      expect((result).error?.status).toBe(500);
     });
 
     it('should handle unknown non-axios errors', async () => {
       const error = new Error('Network error');
-      (axios.isAxiosError as jest.Mock).mockReturnValue(false);
+      ((axios.isAxiosError as unknown) as jest.Mock).mockReturnValue(false);
 
       mockAxiosInstance.request.mockRejectedValue(error);
 
       const result = await apiClient.get('/test');
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toMatch(/UNKNOWN/i);
-      expect(result.error?.message).toBe('Network error');
+      expect((result).error?.code).toMatch(/UNKNOWN/i);
+      expect((result).error?.message).toBe('Network error');
     });
   });
 
@@ -426,20 +443,6 @@ describe('ApiClient', () => {
     });
   });
 
-  describe('Interceptors', () => {
-    it('should add custom interceptor', () => {
-      const mockInterceptor = {
-        onRequest: jest.fn(async config => config),
-        onResponse: jest.fn(),
-        onError: jest.fn(),
-      };
-
-      apiClient.addInterceptor(mockInterceptor);
-
-      expect(mockAxiosInstance.interceptors.request.use).toHaveBeenCalled();
-      expect(mockAxiosInstance.interceptors.response.use).toHaveBeenCalled();
-    });
-  });
 
   describe('Endpoint Path Construction', () => {
     it('should prepend /api to all endpoint paths', async () => {

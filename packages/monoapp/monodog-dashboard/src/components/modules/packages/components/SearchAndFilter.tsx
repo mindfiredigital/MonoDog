@@ -1,12 +1,6 @@
 import { MagnifyingGlassIcon, FunnelIcon } from '../../../../icons/heroicons';
 import { PackageFilters } from '../types/packages.types';
-
-interface SearchAndFilterProps {
-  filters: PackageFilters;
-  onFiltersChange: (filters: PackageFilters) => void;
-  availableTypes: string[];
-  availableStatuses: string[];
-}
+import type { SearchAndFilterProps } from '../../../../types';
 
 export default function SearchAndFilter({
   filters,

@@ -20,13 +20,9 @@ export type {
 export type {
   WorkflowRun,
   WorkflowRunsListProps,
-  Job,
-  Pipeline as PipelineType,
-  PipelineManagerProps,
   HierarchicalStep,
   WorkflowOption,
   WorkflowTriggerProps,
-  LogLine as PipelineLogLine,
   LogViewerProps,
   StepItemProps,
 } from './pipeline.types';
@@ -45,7 +41,6 @@ export type {
 export type {
   ProtectedRouteProps,
   PermissionGuardProps,
-  HealthData as ComponentHealthData,
   GraphLegendProps,
   DependenciesTabProps,
   RecentCommitsTabProps,

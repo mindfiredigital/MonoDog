@@ -10,6 +10,7 @@ import {
   LinkIcon,
 } from '../../../../icons/heroicons';
 import { PackageDetail } from '../types/packages.types';
+import type { PackageDetailHeaderProps } from '../../../../types';
 import {
   getStatusColor,
   getTypeColor,
@@ -17,10 +18,6 @@ import {
   formatVersion,
   getPackageTypeIcon,
 } from '../utils/packages.utils';
-
-interface PackageDetailHeaderProps {
-  packageData: PackageDetail;
-}
 
 export default function PackageDetailHeader({
   packageData,

@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import '../types/controllers';
 import { AppLogger } from '../middleware/logger';
 import {
   getWorkspacePackages,
@@ -25,17 +26,6 @@ import {
   extractErrorMessage,
   PERMISSION_HIERARCHY,
 } from '../constants';
-
-declare module 'express' {
-  interface Request {
-    user?: {
-      id: number;
-      login: string;
-      avatar_url: string;
-    };
-    accessToken?: string;
-  }
-}
 
 /**
  * Get all workspace packages

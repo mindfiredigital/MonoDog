@@ -14,7 +14,6 @@ import {
   DASHBOARD_AUTH_MESSAGES,
   DASHBOARD_ERROR_MESSAGES,
   DASHBOARD_API_ENDPOINTS,
-  API_CONFIG,
 } from '../constants';
 import apiClient from './api';
 import { cookieUtils } from '../utils/cookies';
@@ -102,7 +101,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
             Authorization: `Bearer ${sessionToken}`,
           },
         });
-
         if (!response.success) {
           throw new Error(DASHBOARD_ERROR_MESSAGES.FAILED_TO_FETCH_USER_INFO);
         }
@@ -344,4 +342,3 @@ export function useAuth(): AuthContextType {
 export type { GitHubUser, AuthSession, AuthContextType, AuthProviderProps } from '../types/auth-context.types';
 
 export default AuthContext;
-

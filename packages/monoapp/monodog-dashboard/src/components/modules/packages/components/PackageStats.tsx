@@ -4,10 +4,8 @@ import {
   XCircleIcon,
 } from '../../../../icons/heroicons';
 import { PackageStats as StatsType } from '../types/packages.types';
+import type { PackageStatsProps } from '../../../../types';
 import { CubeIcon } from '../../../../icons/heroicons';
-interface PackageStatsProps {
-  stats: StatsType;
-}
 
 export default function PackageStats({ stats }: PackageStatsProps) {
   return (

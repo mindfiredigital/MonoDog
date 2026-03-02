@@ -128,19 +128,6 @@ Works with or without Bearer token
 - This means the Authorize button wasn't activated
 - Click the Authorize button again and confirm it shows "Logout" option
 
-## Advanced: Manual Token Testing
-
-If you prefer manual testing without Swagger:
-
-```bash
-# Get token from callback
-TOKEN=$(curl -s "http://localhost:8999/api/auth/callback?code=CODE&state=STATE" | jq -r '.sessionToken')
-
-# Use token in requests
-curl -H "Authorization: Bearer $TOKEN" \
-  http://localhost:8999/api/auth/me
-```
-
 ## Security Notes
 
 **Important:**

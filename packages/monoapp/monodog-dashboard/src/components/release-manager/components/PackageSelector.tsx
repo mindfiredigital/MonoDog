@@ -4,18 +4,13 @@
  */
 
 import React, { useState, useMemo } from 'react';
+import type { PackageSelectorProps } from '../../../types';
 
 interface Package {
   name: string;
   version: string;
   private?: boolean;
   dependencies?: string[];
-}
-
-interface PackageSelectorProps {
-  packages: Package[];
-  onConfirm: (packages: Package[]) => void;
-  loading?: boolean;
 }
 
 export default function PackageSelector({ packages, onConfirm, loading }: PackageSelectorProps) {

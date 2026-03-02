@@ -1,9 +1,5 @@
 import { CogIcon, CheckIcon, XMarkIcon } from '../../../icons/heroicons';
-
-interface ConfigurationHeaderProps {
-  onSave: () => void;
-  onClose: () => void;
-}
+import type { ConfigurationHeaderProps } from '../../../types';
 
 export default function ConfigurationHeader({
   onSave,
