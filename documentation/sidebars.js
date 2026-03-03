@@ -38,6 +38,8 @@ const sidebars = {
         'features/health-monitoring',
         'features/dependency-analysis',
         'features/git-integration',
+        'features/pipeline-management',
+        'features/release-publishing',
       ],
     },
     {
@@ -52,6 +54,7 @@ const sidebars = {
         'api-reference/commits',
         'api-reference/config',
         'api-reference/publish',
+        'api-reference/pipelines',
       ],
     },
     {
