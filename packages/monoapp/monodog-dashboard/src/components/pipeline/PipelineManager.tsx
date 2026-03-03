@@ -41,7 +41,7 @@ interface PipelineManagerProps {
   onNavigate?: (path: string) => void;
 }
 
-function parseStepsFromLogs(rawLogs: string): HierarchicalStep[] {
+export function parseStepsFromLogs(rawLogs: string): HierarchicalStep[] {
   const lines = rawLogs.split('\n');
   const steps: HierarchicalStep[] = [];
   let currentStep: HierarchicalStep | null = null;
@@ -99,7 +99,7 @@ function parseStepsFromLogs(rawLogs: string): HierarchicalStep[] {
   return steps;
 }
 
-function getStatusIcon(status: string, conclusion: string | null, isUpdating: boolean = false) {
+export function getStatusIcon(status: string, conclusion: string | null, isUpdating: boolean = false) {
   if (isUpdating) {
     return <ClockIcon className="h-6 w-6 text-yellow-500 animate-spin" />;
   }
