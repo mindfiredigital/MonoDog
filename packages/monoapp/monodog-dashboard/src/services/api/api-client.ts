@@ -7,12 +7,12 @@ import type {
 } from './types/api.types';
 import { cookieUtils } from '../../utils/cookies';
 
-import { DEFAULT_TIMEOUT } from '../../constants/api-config';
+import { DEFAULT_TIMEOUT, DEFAULT_API_BASE_URL } from '../../constants/api-config';
 class ApiClient {
   private axiosInstance: AxiosInstance;
 
   constructor(config: Partial<{ baseUrl?: string; timeout?: number; headers?: Record<string, string> }> = {}) {
-    const baseUrl = config.baseUrl || 'http://localhost:8999';
+    const baseUrl = config.baseUrl || DEFAULT_API_BASE_URL;
 
     this.axiosInstance = axios.create({
       baseURL: baseUrl,
@@ -94,7 +94,7 @@ class ApiClient {
 
     return {
       success: false,
-      error: { code, message: statusText, status, details: details as Record<string, unknown> | undefined },
+      error: { code, message: statusText, status, details: details?.details as Record<string, unknown> | undefined },
       meta: {
         status,
         statusText,

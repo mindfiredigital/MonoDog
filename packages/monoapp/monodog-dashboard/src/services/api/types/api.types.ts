@@ -61,11 +61,3 @@ export interface ApiErrorResponse {
  */
 export type ApiResponse<T = unknown> = ApiSuccessResponse<T> | ApiErrorResponse;
 
-/**
- * Configuration options for the ApiClient instance
- */
-// export interface ApiClientConfig {
-//   baseUrl?: string;
-//   timeout?: number;
-//   headers?: Record<string, string>;
-// }
