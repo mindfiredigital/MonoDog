@@ -4,6 +4,7 @@ import type {
   ApiRequestConfig,
   ApiResponse,
   ApiErrorResponse,
+  RateLimitInfo,
 } from './types/api.types';
 import { cookieUtils } from '../../utils/cookies';
 
@@ -60,6 +61,10 @@ class ApiClient {
     const details =
       error.response && typeof error.response.data === 'object' ? error.response.data : undefined;
 
+    // Extract rateLimit info if available in response body
+    const responseData = error.response?.data as any;
+    const rateLimit: RateLimitInfo | undefined = responseData?.rateLimit;
+
     let code: string;
     switch (status) {
       case 400:
@@ -102,6 +107,7 @@ class ApiClient {
         timestamp: Date.now(),
         duration: 0,
       },
+      ...(rateLimit && { rateLimit }),
     };
   }
 
@@ -124,6 +130,10 @@ class ApiClient {
 
       const duration = Date.now() - start;
 
+      // Extract rateLimit info if available in response body
+      const responseData = response.data as any;
+      const rateLimit: RateLimitInfo | undefined = responseData?.rateLimit;
+
       return {
         success: true,
         data: response.data,
@@ -134,6 +144,7 @@ class ApiClient {
           timestamp: Date.now(),
           duration,
         },
+        ...(rateLimit && { rateLimit }),
       };
     } catch (err) {
       const duration = Date.now() - start;

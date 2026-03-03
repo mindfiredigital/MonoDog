@@ -7,8 +7,9 @@ import JobsList from './JobsList';
 import { useAuth } from '../../services/auth-context';
 import { monorepoService } from '../../services/monorepoService';
 import { getSessionPermission } from './utils/pipeline.utils';
-import { DASHBOARD_ERROR_MESSAGES, DASHBOARD_AUTH_MESSAGES } from '../../constants/messages';
+import { DASHBOARD_ERROR_MESSAGES, DASHBOARD_AUTH_MESSAGES, DASHBOARD_RATE_LIMIT_MESSAGES } from '../../constants/messages';
 import { DASHBOARD_API_ENDPOINTS } from '../../constants/api-config';
+import { getRateLimitErrorMessage, getRateLimitWarningMessage } from '../../utils/rate-limit.utils';
 import apiClient from '../../services/api';
 import type { WorkflowRun, HierarchicalStep } from '../../types';
 
@@ -312,6 +313,13 @@ export default function PipelineManager({
         );
 
         if (!response.success) {
+          // Check for rate limit error first
+          const rateLimitError = getRateLimitErrorMessage(response.rateLimit);
+          if (rateLimitError) {
+            setError(rateLimitError);
+            return;
+          }
+
           if (response.error?.status === 403) {
             setError(DASHBOARD_ERROR_MESSAGES.PERMISSION_ERROR);
           } else if (response.error?.status === 401) {
@@ -333,6 +341,12 @@ export default function PipelineManager({
           setError(DASHBOARD_ERROR_MESSAGES.FAILED_TO_FETCH_LOGS);
         } else {
           setJobLogs(data.logs || data);
+
+          // Warn if approaching rate limit
+          const rateLimitWarning = getRateLimitWarningMessage(response.rateLimit);
+          if (rateLimitWarning) {
+            console.warn(rateLimitWarning);
+          }
           setError(null);
         }
       } catch (err) {

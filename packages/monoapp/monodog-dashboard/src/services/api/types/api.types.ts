@@ -9,6 +9,16 @@
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
 /**
+ * Rate Limit Information from GitHub API
+ */
+export interface RateLimitInfo {
+  limit: number;
+  remaining: number;
+  reset: number;
+  used?: number;
+}
+
+/**
  * Configuration passed to individual requests
  */
 export interface ApiRequestConfig {
@@ -36,6 +46,7 @@ export interface ApiSuccessResponse<T = unknown> {
   data: T;
   meta: ApiResponseMeta;
   message?: string;
+  rateLimit?: RateLimitInfo;
   // error property always present but undefined for successes
   error?: undefined;
 }
@@ -52,6 +63,7 @@ export interface ApiErrorResponse {
     details?: Record<string, unknown>;
   };
   meta: Partial<ApiResponseMeta>;
+  rateLimit?: RateLimitInfo;
   // data property always present but undefined for errors
   data?: undefined;
 }

@@ -52,6 +52,16 @@ const redirectOptions = (url: URL): GitHubRequestOptions => ({
 });
 
 /**
+ * Parse rate limit header value
+ * Returns null if header is missing or invalid, otherwise returns the parsed integer
+ */
+const parseRateLimitHeader = (header: string | string[] | undefined): number | null => {
+  if (header === undefined) return null;
+  const parsed = parseInt(header as string);
+  return isNaN(parsed) ? null : parsed;
+};
+
+/**
  * Make an HTTPS request to GitHub API
  */
 function makeGitHubRequest<T>(
@@ -62,11 +72,10 @@ function makeGitHubRequest<T>(
     const request = https.request(options, (response) => {
       let body = '';
       const rateLimit: RateLimitInfo = {
-        limit: parseInt(response.headers['x-ratelimit-limit'] as string) || 5000,
-        remaining:
-          parseInt(response.headers['x-ratelimit-remaining'] as string) || 0,
-        reset: parseInt(response.headers['x-ratelimit-reset'] as string) || 0,
-        used: parseInt(response.headers['x-ratelimit-used'] as string) || 0,
+        limit: parseRateLimitHeader(response.headers['x-ratelimit-limit']) || 5000,
+        remaining: parseRateLimitHeader(response.headers['x-ratelimit-remaining']) ?? 0,
+        reset: parseRateLimitHeader(response.headers['x-ratelimit-reset']) ?? 0,
+        used: parseRateLimitHeader(response.headers['x-ratelimit-used']) ?? 0,
       };
 
       response.on('data', (chunk) => {
@@ -341,10 +350,10 @@ export async function getJobLogs(
             });
             redirectResponse.on('end', () => {
               const rateLimit: RateLimitInfo = {
-                limit: parseInt(redirectResponse.headers['x-ratelimit-limit'] as string) || 5000,
-                remaining: parseInt(redirectResponse.headers['x-ratelimit-remaining'] as string) || 0,
-                reset: parseInt(redirectResponse.headers['x-ratelimit-reset'] as string) || 0,
-                used: parseInt(redirectResponse.headers['x-ratelimit-used'] as string) || 0,
+                limit: parseRateLimitHeader(redirectResponse.headers['x-ratelimit-limit']) || 5000,
+                remaining: parseRateLimitHeader(redirectResponse.headers['x-ratelimit-remaining']) ?? 0,
+                reset: parseRateLimitHeader(redirectResponse.headers['x-ratelimit-reset']) ?? 0,
+                used: parseRateLimitHeader(redirectResponse.headers['x-ratelimit-used']) ?? 0,
               };
 
               // Check for errors in the redirect response too
@@ -370,11 +379,10 @@ export async function getJobLogs(
       }
 
       const rateLimit: RateLimitInfo = {
-        limit: parseInt(response.headers['x-ratelimit-limit'] as string) || 5000,
-        remaining:
-          parseInt(response.headers['x-ratelimit-remaining'] as string) || 0,
-        reset: parseInt(response.headers['x-ratelimit-reset'] as string) || 0,
-        used: parseInt(response.headers['x-ratelimit-used'] as string) || 0,
+        limit: parseRateLimitHeader(response.headers['x-ratelimit-limit']) || 5000,
+        remaining: parseRateLimitHeader(response.headers['x-ratelimit-remaining']) ?? 0,
+        reset: parseRateLimitHeader(response.headers['x-ratelimit-reset']) ?? 0,
+        used: parseRateLimitHeader(response.headers['x-ratelimit-used']) ?? 0,
       };
 
       response.on('data', (chunk) => {

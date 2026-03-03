@@ -297,8 +297,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const userLevel = permissionHierarchy[userPermissionString] || 0;
     const requiredLevel = permissionHierarchy[requiredPermission] || 0;
 
-    console.debug(`[Auth] Permission check: user=${userPermissionString}(${userLevel}) required=${requiredPermission}(${requiredLevel}) result=${userLevel >= requiredLevel}`);
-
     return userLevel >= requiredLevel;
   }, [session]);
 

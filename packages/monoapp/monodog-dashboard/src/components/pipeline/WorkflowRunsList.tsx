@@ -3,6 +3,7 @@ import { ExclamationCircleIcon, CheckCircleIcon, ClockIcon } from '../../icons/i
 import { useAuth } from '../../services/auth-context';
 import { DASHBOARD_ERROR_MESSAGES } from '../../constants/messages';
 import { DASHBOARD_API_ENDPOINTS } from '../../constants/api-config';
+import { getRateLimitErrorMessage } from '../../utils/rate-limit.utils';
 import apiClient from '../../services/api';
 import type { WorkflowRun, WorkflowRunsListProps } from '../../types';
 
@@ -81,6 +82,12 @@ export default function WorkflowRunsList({
 
         const response = await apiClient.get(url);
         if (!response.success) {
+          // Check for rate limit error first
+          const rateLimitError = getRateLimitErrorMessage(response.rateLimit);
+          if (rateLimitError) {
+            setError(rateLimitError);
+            return;
+          }
           throw new Error(DASHBOARD_ERROR_MESSAGES.FAILED_TO_FETCH_WORKFLOWS);
         }
         const data = (response.data as { runs: WorkflowRun[] });
@@ -135,6 +142,12 @@ export default function WorkflowRunsList({
             : r
         ));
       } else {
+        // Check for rate limit error first
+        const rateLimitError = getRateLimitErrorMessage(response.rateLimit);
+        if (rateLimitError) {
+          setError(rateLimitError);
+          return;
+        }
         throw new Error(DASHBOARD_ERROR_MESSAGES.FAILED_TO_CANCEL_RUN);
       }
     } catch (err) {
@@ -164,6 +177,12 @@ export default function WorkflowRunsList({
             : r
         ));
       } else {
+        // Check for rate limit error first
+        const rateLimitError = getRateLimitErrorMessage(response.rateLimit);
+        if (rateLimitError) {
+          setError(rateLimitError);
+          return;
+        }
         throw new Error(DASHBOARD_ERROR_MESSAGES.FAILED_TO_RERUN_WORKFLOW);
       }
     } catch (err) {

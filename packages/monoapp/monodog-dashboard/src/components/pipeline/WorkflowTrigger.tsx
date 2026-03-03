@@ -3,6 +3,7 @@ import { PlayIcon, ExclamationCircleIcon } from '../../icons/index';
 import apiClient from '../../services/api';
 import { DASHBOARD_ERROR_MESSAGES } from '../../constants/messages';
 import { DASHBOARD_API_ENDPOINTS } from '../../constants/api-config';
+import { getRateLimitErrorMessage } from '../../utils/rate-limit.utils';
 import type { WorkflowTriggerProps } from '../../types';
 
 interface WorkflowOption {
@@ -71,6 +72,13 @@ export default function WorkflowTrigger({
       );
 
       if (!response.success) {
+        // Check for rate limit error first
+        const rateLimitError = getRateLimitErrorMessage(response.rateLimit);
+        if (rateLimitError) {
+          setError(rateLimitError);
+          onError?.(rateLimitError);
+          return;
+        }
         throw new Error(DASHBOARD_ERROR_MESSAGES.FAILED_TO_TRIGGER_WORKFLOW);
       }
 
