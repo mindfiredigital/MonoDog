@@ -12,32 +12,13 @@ export interface WorkflowRun {
 }
 
 export interface WorkflowRunsListProps {
-  runs: WorkflowRun[];
-  isLoading: boolean;
-  onRunSelect: (run: WorkflowRun) => void;
-}
-
-export interface Job {
-  id: number;
-  name: string;
-  status: string;
-  conclusion: string | null;
-  started_at: string;
-  completed_at: string | null;
-}
-
-export interface Pipeline {
-  id: number;
-  name: string;
-  status: string;
-  runs: WorkflowRun[];
-  lastRun: WorkflowRun | null;
-}
-
-export interface PipelineManagerProps {
-  repositoryOwner: string;
-  repositoryName: string;
-  onPipelineUpdate?: (pipeline: Pipeline) => void;
+  owner: string;
+  repo: string;
+  packageName?: string;
+  onSelectRun?: (runId: number) => void;
+  runId: number;
+  limit?: number;
+  pipelineId?: string;
 }
 
 export interface HierarchicalStep {
@@ -55,23 +36,37 @@ export interface WorkflowOption {
 }
 
 export interface WorkflowTriggerProps {
-  onTrigger: (workflowId: string) => void;
-  isLoading?: boolean;
+  owner: string;
+  repo: string;
+  defaultBranch?: string;
+  onSuccess?: (runUrl: string) => void;
+  onError?: (error: string) => void;
+  pipelineId?: string;
 }
 
-export interface LogLine {
-  number: number;
-  text: string;
+export interface HierarchicalStep {
+  stepNumber: number;
+  stepName: string;
+  level: number;
+  startedAt: string | null;
+  completedAt: string | null;
+  conclusion: string | null;
+  status: 'queued' | 'in_progress' | 'completed';
+  logs: any[];
+  children?: HierarchicalStep[];
 }
 
 export interface LogViewerProps {
-  jobId: number;
-  logs?: LogLine[];
-  isLoading?: boolean;
+  steps: HierarchicalStep[];
+  jobName: string;
+  jobStatus: string;
+  jobConclusion: string;
+  gitHubLogsUrl: string;
 }
 
 export interface StepItemProps {
   step: HierarchicalStep;
-  level: number;
-  onSelect: (step: HierarchicalStep) => void;
+  onToggle: (stepNumber: number) => void;
+  expandedSteps: Set<number>;
+  stepIndex: number;
 }

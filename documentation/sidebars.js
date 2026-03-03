@@ -51,6 +51,7 @@ const sidebars = {
         'api-reference/health',
         'api-reference/commits',
         'api-reference/config',
+        'api-reference/publish',
       ],
     },
     {

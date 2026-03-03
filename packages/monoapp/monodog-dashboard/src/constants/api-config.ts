@@ -7,12 +7,13 @@
 
 const DEFAULT_API_HOST = 'localhost';
 const DEFAULT_API_PORT = 8999;
+export const DEFAULT_TIMEOUT = 30000;
 
 export const TIMEOUT_MS = 60000;
 
-export const API_CONFIG = {
-  BASE_URL: import.meta.env.VITE_API_URL || `http://${DEFAULT_API_HOST}:${DEFAULT_API_PORT}`,
-} as const;
+// export const API_CONFIG = {
+//   BASE_URL: import.meta.env.VITE_API_URL || `http://${DEFAULT_API_HOST}:${DEFAULT_API_PORT}`,
+// } as const;
 
 // ============ API ENDPOINTS ============
 
@@ -77,6 +78,4 @@ export const DASHBOARD_API_ENDPOINTS = {
     RERUN: (owner: string, repo: string, runId: number) => `/workflows/${owner}/${repo}/runs/${runId}/rerun`,
   },
 } as const;
-
-
 

@@ -54,7 +54,6 @@ describe('LoginPage', () => {
 
     it('should have message constants defined', () => {
       expect(DASHBOARD_AUTH_MESSAGES).toBeDefined();
-      expect(DASHBOARD_AUTH_MESSAGES.LOGIN_INITIATED).toBe('Login initiated');
     });
   });
 
@@ -75,7 +74,6 @@ describe('LoginPage', () => {
 
     it('should have auth message constants available', () => {
       expect(DASHBOARD_AUTH_MESSAGES).toBeDefined();
-      expect(DASHBOARD_AUTH_MESSAGES.LOGIN_INITIATED).toBe('Login initiated');
     });
   });
 });

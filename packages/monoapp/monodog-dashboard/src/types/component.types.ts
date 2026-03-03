@@ -15,34 +15,27 @@ export interface PermissionGuardProps {
   repo: string;
 }
 
-export interface HealthData {
-  status: 'healthy' | 'warning' | 'critical';
-  metrics: Record<string, number>;
-  lastUpdated: number;
-}
-
 export interface GraphLegendProps {
-  onToggleNode?: (nodeId: string) => void;
+  show: boolean;
 }
 
 export interface DependenciesTabProps {
-  packageName: string;
-  dependencies?: Record<string, string>;
+  packageData: any;
 }
 
 export interface RecentCommitsTabProps {
-  packageName: string;
-  limit?: number;
+  packageData: any;
 }
 
 export interface PackagesTableProps {
-  packages: Array<{ name: string; version: string; type: string }>;
-  onSelectPackage?: (packageName: string) => void;
+  packages: any[];
+  sorting: any;
+  onSortChange: (sorting: any) => void;
 }
 
 export interface DependencyGraphHeaderProps {
-  title?: string;
   onRefresh?: () => void;
+  loading?: boolean;
 }
 
 export interface LoadingStateProps {
@@ -59,41 +52,45 @@ export interface HealthMetricsTabProps {
 }
 
 export interface PackageDetailHeaderProps {
-  packageName: string;
-  version?: string;
-  type?: string;
+  packageData: any;
 }
 
 export interface ConfigurationTabProps {
-  packageName: string;
-  configFiles?: Array<{ name: string; path: string; content: string }>;
+  packageData: any;
 }
 
 export interface PackageStatsProps {
-  stats: Record<string, number>;
+  stats: any;
 }
 
 export interface SearchAndFilterProps {
-  onSearch?: (query: string) => void;
-  onFilter?: (filters: Record<string, any>) => void;
+  filters: any;
+  onFiltersChange: (filters: any) => void;
+  availableTypes: string[];
+  availableStatuses: string[];
 }
 
 export interface ConfigurationHeaderProps {
-  title?: string;
-  onSave?: () => void;
+  onSave: () => void;
+  onClose: () => void;
 }
 
 export interface ConfigurationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave?: (config: Record<string, any>) => void;
+  children: React.ReactNode;
 }
 
 export interface PackageSelectorProps {
-  onSelect?: (packageName: string) => void;
-  selectedPackages?: string[];
+  packages: any[];
+  onConfirm: (packages: any[]) => void;
+  loading?: boolean;
 }
 
 export interface ChangesetPreviewProps {
-  changes: Array<{ packageName: string; type: string; version: string }>;
+  packages: any[];
+  existingChangesets: any[];
+  onConfirm: (summary: string) => void;
+  onBack: () => void;
+  loading?: boolean;
 }

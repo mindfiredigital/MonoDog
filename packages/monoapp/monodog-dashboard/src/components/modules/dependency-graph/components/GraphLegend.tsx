@@ -1,6 +1,4 @@
-interface GraphLegendProps {
-  show: boolean;
-}
+import type { GraphLegendProps } from '../../../../types';
 import { ArrowLongRightIcon } from '../../../../icons'
 
 export default function GraphLegend({ show }: GraphLegendProps) {

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { XMarkIcon } from '../../../../icons/heroicons';
+import { XMarkIcon, ArrowLongRightIcon } from '../../../../icons/heroicons';
 import { DependencyDetailsProps } from '../types/dependency.types';
 import {
   getStatusColor,
@@ -183,7 +183,7 @@ export default function DependencyDetails({
             to={`/packages/${encodeURIComponent(pkg.name)}`}
             className="block w-full text-center bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 text-sm font-medium transition-colors"
           >
-            View Package Details →
+            View Package Details <ArrowLongRightIcon></ArrowLongRightIcon>
           </Link>
         </div>
       </div>

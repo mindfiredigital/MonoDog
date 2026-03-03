@@ -1,10 +1,7 @@
 import { ArrowUpIcon } from '../../../../icons/heroicons';
 import { PackageDetail } from '../types/packages.types';
+import type { DependenciesTabProps } from '../../../../types';
 import { getDependencyStatusColor } from '../utils/packages.utils';
-
-interface DependenciesTabProps {
-  packageData: PackageDetail;
-}
 
 export default function DependenciesTab({ packageData }: DependenciesTabProps) {
   if (!packageData.dependenciesInfo.length) {

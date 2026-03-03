@@ -1,150 +1,71 @@
 /**
  * API Types and Interfaces
- * Centralized type definitions for API operations
+ * Minimal definitions used throughout the dashboard.
  */
 
 /**
- * HTTP Methods
+ * HTTP Methods supported by the client helpers
  */
-export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD' | 'OPTIONS';
+export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
 /**
- * API Request Configuration
+ * Configuration passed to individual requests
  */
 export interface ApiRequestConfig {
-  method?: HttpMethod;
   headers?: Record<string, string>;
   body?: unknown;
   timeout?: number;
-  credentials?: RequestCredentials;
-  cache?: RequestCache;
-  signal?: AbortSignal;
 }
 
 /**
- * API Response Metadata
+ * Metadata included with every response
  */
 export interface ApiResponseMeta {
   status: number;
   statusText: string;
-  headers: Headers;
+  headers: Record<string, unknown>;
   timestamp: number;
   duration: number;
 }
 
 /**
- * Successful API Response
+ * Successful API response shape
  */
 export interface ApiSuccessResponse<T = unknown> {
   success: true;
   data: T;
   meta: ApiResponseMeta;
   message?: string;
+  // error property always present but undefined for successes
+  error?: undefined;
 }
 
 /**
- * Error API Response
+ * Error API response shape exposed to callers
  */
 export interface ApiErrorResponse {
   success: false;
   error: {
     code: string;
     message: string;
-    details?: Record<string, unknown>;
     status: number;
+    details?: Record<string, unknown>;
   };
   meta: Partial<ApiResponseMeta>;
+  // data property always present but undefined for errors
+  data?: undefined;
 }
 
 /**
- * Unified API Response Type
+ * Union type returned by every client helper
  */
 export type ApiResponse<T = unknown> = ApiSuccessResponse<T> | ApiErrorResponse;
 
 /**
- * API Error Classes
+ * Configuration options for the ApiClient instance
  */
-export class ApiError extends Error {
-  constructor(
-    public code: string,
-    public statusCode: number,
-    message: string,
-    public details?: Record<string, unknown>
-  ) {
-    super(message);
-    this.name = 'ApiError';
-  }
-}
-
-export class NetworkError extends ApiError {
-  constructor(message: string) {
-    super('NETWORK_ERROR', 0, message);
-    this.name = 'NetworkError';
-  }
-}
-
-export class TimeoutError extends ApiError {
-  constructor(message: string) {
-    super('TIMEOUT_ERROR', 408, message);
-    this.name = 'TimeoutError';
-  }
-}
-
-export class ValidationError extends ApiError {
-  constructor(message: string, details?: Record<string, unknown>) {
-    super('VALIDATION_ERROR', 400, message, details);
-    this.name = 'ValidationError';
-  }
-}
-
-export class UnauthorizedError extends ApiError {
-  constructor(message: string) {
-    super('UNAUTHORIZED', 401, message);
-    this.name = 'UnauthorizedError';
-  }
-}
-
-export class ForbiddenError extends ApiError {
-  constructor(message: string) {
-    super('FORBIDDEN', 403, message);
-    this.name = 'ForbiddenError';
-  }
-}
-
-export class NotFoundError extends ApiError {
-  constructor(message: string) {
-    super('NOT_FOUND', 404, message);
-    this.name = 'NotFoundError';
-  }
-}
-
-export class ServerError extends ApiError {
-  constructor(message: string, statusCode: number = 500) {
-    super('SERVER_ERROR', statusCode, message);
-    this.name = 'ServerError';
-  }
-}
-
-/**
- * API Interceptor Hooks
- */
-export interface ApiInterceptor {
-  onRequest?(config: ApiRequestConfig): Promise<ApiRequestConfig>;
-  onResponse?<T>(response: ApiSuccessResponse<T>): Promise<ApiSuccessResponse<T>>;
-  onError?(error: ApiError): Promise<ApiError>;
-}
-
-/**
- * API Client Configuration
- */
-export interface ApiClientConfig {
-  baseUrl: string;
-  timeout?: number;
-  headers?: Record<string, string>;
-  interceptors?: ApiInterceptor[];
-  retryConfig?: {
-    maxRetries: number;
-    retryableStatusCodes: number[];
-    backoffMultiplier: number;
-  };
-}
+// export interface ApiClientConfig {
+//   baseUrl?: string;
+//   timeout?: number;
+//   headers?: Record<string, string>;
+// }

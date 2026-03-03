@@ -17,8 +17,7 @@ This service is typically run locally or on a central server and power a dedicat
 | **Framework** | Express.js, React    | Express Handles all API routing and middleware and React for building the user interface. |
 | **Styling**   | Tailwind CSS         | Utility-first framework for responsive, modern, and aesthetic design.                     |
 | **ORM**       | Prisma               | Database layer for managing package and health status records.                            |
-| **Scanning**  | monorepo-scanner     | Core logic for file system scanning and package metadata extraction.                      |
-| **VCS**       | GitService           | Used to fetch and analyze commit history per package path.                                |
+|**VCS**       | Github           |  Handles secure auth, automates Changeset PRs, and monitors CI/CD status.                           |
 
 ---
 
@@ -63,4 +62,10 @@ Run app using serve script:
 | **GET** | `/auth/validate`            | Validate current session token status.                       | Persistent          |
 | **GET** | `/auth/logout`              | Invalidate session and clear authentication token.                                      | Session termination |
 | **POST** | `/auth/refresh`            | Extend session token validity period.                        | Session update      |
+| **GET** | `/api/publish/packages`     | Retrieve all packages available for publishing.                                         | Persistent          |
+| **GET** | `/api/publish/changesets`   | Fetch existing unpublished changesets.                                                  | Persistent          |
+| **POST** | `/api/publish/changesets`   | Create a new changeset for selected packages.                                          | Triggers write      |
+| **POST** | `/api/publish/preview`      | Preview the publish plan with version bumps and validation checks.                     | Generated runtime   |
+| **GET** | `/api/publish/status`       | Check if the repository is ready for publishing.                                       | Persistent          |
+| **POST** | `/api/publish/trigger`      | Trigger the GitHub Actions release/publish workflow.                                   | Triggers write |
 

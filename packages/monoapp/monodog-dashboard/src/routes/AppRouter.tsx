@@ -9,6 +9,7 @@ import {
   PublishControl,
   CIIntegration,
   ConfigInspector,
+  ReleaseManager,
 } from '../pages';
 
 // Component mapping for dynamic routing
@@ -21,6 +22,7 @@ const componentMap = {
   PublishControl,
   CIIntegration,
   ConfigInspector,
+  ReleaseManager,
 } as const;
 
 // Route component renderer

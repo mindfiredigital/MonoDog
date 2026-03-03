@@ -3,35 +3,20 @@ import type {
   HttpMethod,
   ApiRequestConfig,
   ApiResponse,
-  ApiSuccessResponse,
   ApiErrorResponse,
-  ApiInterceptor,
-  ApiClientConfig,
 } from './types/api.types';
-import {
-  ApiError,
-  ValidationError,
-  UnauthorizedError,
-  ForbiddenError,
-  NotFoundError,
-  TimeoutError,
-  ServerError,
-} from './types/api.types';
+import { cookieUtils } from '../../utils/cookies';
 
+import { DEFAULT_TIMEOUT } from '../../constants/api-config';
 class ApiClient {
   private axiosInstance: AxiosInstance;
-  private retryConfig: {
-    maxRetries: number;
-    backoffMultiplier: number;
-    retryableStatusCodes: number[];
-  };
 
-  constructor(config: Partial<ApiClientConfig> = {}) {
+  constructor(config: Partial<{ baseUrl?: string; timeout?: number; headers?: Record<string, string> }> = {}) {
     const baseUrl = config.baseUrl || 'http://localhost:8999';
 
     this.axiosInstance = axios.create({
       baseURL: baseUrl,
-      timeout: config.timeout || 30000,
+      timeout: config.timeout || DEFAULT_TIMEOUT,
       headers: {
         'Content-Type': 'application/json',
         ...config.headers,
@@ -39,120 +24,86 @@ class ApiClient {
       withCredentials: true,
     });
 
-    this.retryConfig = {
-      maxRetries: config.retryConfig?.maxRetries || 3,
-      backoffMultiplier: config.retryConfig?.backoffMultiplier || 2,
-      retryableStatusCodes: config.retryConfig?.retryableStatusCodes || [408, 429, 500, 502, 503, 504],
-    };
-
-    this.setupRetryInterceptor();
-
-    if (config.interceptors) {
-      for (const interceptor of config.interceptors) {
-        this.addInterceptor(interceptor);
-      }
-    }
+    this.attachAuthHandling();
   }
 
-  private setupRetryInterceptor(): void {
+  /**
+   * Attach request/response handlers responsible for auth token header
+   * and clearing cookies on 401 responses.
+   */
+  private attachAuthHandling(): void {
+    this.axiosInstance.interceptors.request.use(config => {
+      const token = cookieUtils.get('monodog_session_token');
+      if (token) {
+        // axios headers type can be AxiosHeaders or plain object, cast to any for mutation
+        (config.headers as any) = config.headers || {};
+        (config.headers as any).Authorization = `Bearer ${token}`;
+      }
+      return config;
+    });
+
     this.axiosInstance.interceptors.response.use(
       response => response,
-      async error => {
-        const config = error.config as any;
-        if (!config) return Promise.reject(error);
-
-        config.retryCount = config.retryCount || 0;
-        const shouldRetry =
-          config.retryCount < this.retryConfig.maxRetries &&
-          error.response &&
-          this.retryConfig.retryableStatusCodes.includes(error.response.status);
-
-        if (shouldRetry) {
-          config.retryCount += 1;
-          const delay = 1000 * Math.pow(this.retryConfig.backoffMultiplier, config.retryCount - 1);
-          await new Promise(resolve => setTimeout(resolve, delay));
-          return this.axiosInstance(config);
-        }
-
-        return Promise.reject(error);
-      }
-    );
-  }
-
-  addInterceptor(interceptor: ApiInterceptor): void {
-    this.axiosInstance.interceptors.request.use(
-      async config => {
-        if (interceptor.onRequest) {
-          const apiConfig: ApiRequestConfig = {
-            method: config.method?.toUpperCase() as HttpMethod,
-            headers: config.headers as Record<string, string>,
-            body: config.data,
-            timeout: config.timeout,
-          };
-          const modified = await interceptor.onRequest(apiConfig);
-          config.headers = modified.headers || config.headers;
-          if (modified.body !== undefined) config.data = modified.body;
-        }
-        return config;
-      },
-      error => Promise.reject(error)
-    );
-
-    this.axiosInstance.interceptors.response.use(
-      async response => {
-        if (interceptor.onResponse) {
-          const successResponse: ApiSuccessResponse = {
-            success: true,
-            data: response.data,
-            meta: {
-              status: response.status,
-              statusText: response.statusText,
-              headers: response.headers,
-              timestamp: Date.now(),
-              duration: 0,
-            },
-          };
-          await interceptor.onResponse(successResponse);
-        }
-        return response;
-      },
-      async error => {
-        if (interceptor.onError && error.response) {
-          const apiError = this.createErrorFromStatus(error.response.status, error.response.statusText);
-          await interceptor.onError(apiError);
+      error => {
+        if (error.response?.status === 401) {
+          cookieUtils.remove('monodog_session_token');
+          cookieUtils.remove('monodog_session_data');
         }
         return Promise.reject(error);
       }
     );
   }
 
-  private createErrorFromStatus(status: number, statusText: string, body?: unknown): ApiError {
-    const message = statusText || `HTTP ${status}`;
-    const details = typeof body === 'object' ? (body as Record<string, unknown>) : undefined;
+  private mapAxiosError(error: AxiosError): ApiErrorResponse {
+    const status = error.response?.status || 0;
+    const statusText = error.response?.statusText || error.message;
+    const details =
+      error.response && typeof error.response.data === 'object' ? error.response.data : undefined;
 
+    let code: string;
     switch (status) {
       case 400:
-        return new ValidationError(message, details);
+        code = 'VALIDATION';
+        break;
       case 401:
-        return new UnauthorizedError(message);
+        code = 'UNAUTHORIZED';
+        break;
       case 403:
-        return new ForbiddenError(message);
+        code = 'FORBIDDEN';
+        break;
       case 404:
-        return new NotFoundError(message);
+        code = 'NOT_FOUND';
+        break;
       case 408:
-        return new TimeoutError(message);
+        code = 'TIMEOUT';
+        break;
       case 429:
-        return new ApiError('RATE_LIMIT', 429, 'Too many requests', details);
+        code = 'RATE_LIMIT';
+        break;
       case 500:
       case 502:
       case 503:
       case 504:
-        return new ServerError(message, status);
+        code = 'SERVER_ERROR';
+        break;
       default:
-        return new ApiError(`HTTP_${status}`, status, message, details);
+        code = status ? `HTTP_${status}` : 'UNKNOWN';
     }
-  }
 
+    console.error(`API error [${status}] ${statusText}`, { code, details });
+
+    return {
+      success: false,
+      error: { code, message: statusText, status, details: details as Record<string, unknown> | undefined },
+      meta: {
+        status,
+        statusText,
+        headers: error.response?.headers || {},
+        timestamp: Date.now(),
+        duration: 0,
+      },
+    };
+  }
 
   async request<T = unknown>(
     method: HttpMethod,
@@ -160,7 +111,7 @@ class ApiClient {
     config: Partial<ApiRequestConfig> = {}
   ): Promise<ApiResponse<T>> {
     const url = `/api${endpoint}`;
-    const startTime = Date.now();
+    const start = Date.now();
 
     try {
       const response = await this.axiosInstance.request<T>({
@@ -171,7 +122,7 @@ class ApiClient {
         timeout: config.timeout,
       });
 
-      const duration = Date.now() - startTime;
+      const duration = Date.now() - start;
 
       return {
         success: true,
@@ -183,67 +134,27 @@ class ApiClient {
           timestamp: Date.now(),
           duration,
         },
-      } as ApiSuccessResponse<T>;
-    } catch (error) {
-      const duration = Date.now() - startTime;
+      };
+    } catch (err) {
+      const duration = Date.now() - start;
 
-      if (axios.isAxiosError(error)) {
-        const status = error.response?.status || 0;
-        const statusText = error.response?.statusText || error.message;
-        const apiError = this.createErrorFromStatus(status, statusText, error.response?.data);
-
-        console.error(`[${method}] ${url}`, {
-          code: apiError.code,
-          status: apiError.statusCode,
-          message: apiError.message,
-        });
-
-        return {
-          success: false,
-          error: {
-            code: apiError.code,
-            message: apiError.message,
-            status: apiError.statusCode,
-            details: apiError.details,
-          },
-          meta: {
-            status,
-            statusText,
-            headers: error.response?.headers || {},
-            timestamp: Date.now(),
-            duration,
-          },
-        } as ApiErrorResponse;
+      if (axios.isAxiosError(err)) {
+        return this.mapAxiosError(err);
       }
 
-      const unknownError = new ApiError(
-        'UNKNOWN_ERROR',
-        0,
-        error instanceof Error ? error.message : 'Unknown error'
-      );
-
-      console.error(`[${method}] ${url}`, {
-        code: unknownError.code,
-        message: unknownError.message,
-      });
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      console.error('Unexpected error in API client', message);
 
       return {
         success: false,
-        error: {
-          code: unknownError.code,
-          message: unknownError.message,
-          status: unknownError.statusCode,
-        },
-        meta: {
-          timestamp: Date.now(),
-          duration,
-        },
-      } as ApiErrorResponse;
+        error: { code: 'UNKNOWN', message, status: 0 },
+        meta: { timestamp: Date.now(), duration },
+      };
     }
   }
 
   get<T = unknown>(endpoint: string, config?: Partial<ApiRequestConfig>): Promise<ApiResponse<T>> {
-    return this.request<T>('GET', endpoint, config);
+    return this.request<T>('GET', endpoint, config || {});
   }
 
   post<T = unknown>(
@@ -263,7 +174,7 @@ class ApiClient {
   }
 
   delete<T = unknown>(endpoint: string, config?: Partial<ApiRequestConfig>): Promise<ApiResponse<T>> {
-    return this.request<T>('DELETE', endpoint, config);
+    return this.request<T>('DELETE', endpoint, config || {});
   }
 
   patch<T = unknown>(

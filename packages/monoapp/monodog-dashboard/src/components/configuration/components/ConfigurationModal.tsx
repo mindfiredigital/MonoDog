@@ -1,8 +1,4 @@
-interface ConfigurationModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  children: React.ReactNode;
-}
+import type { ConfigurationModalProps } from '../../../types';
 
 export default function ConfigurationModal({
   isOpen,

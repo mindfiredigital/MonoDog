@@ -4,12 +4,9 @@ import {
   ClipboardDocumentCheckIcon,
 } from '../../../../icons/heroicons';
 import { type PackageDetail } from '../types/packages.types';
+import type { ConfigurationTabProps } from '../../../../types';
 import { useState } from 'react';
 import { monorepoService } from '../../../../services/monorepoService';
-
-interface ConfigurationTabProps {
-  packageData: PackageDetail;
-}
 
 export default function ConfigurationTab({
   packageData,
