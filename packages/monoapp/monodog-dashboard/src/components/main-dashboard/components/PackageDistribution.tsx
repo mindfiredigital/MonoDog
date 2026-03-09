@@ -1,9 +1,10 @@
+import React from 'react';
 import { Package } from '../types/dashboard.types';
 
 interface PackageDistributionProps {
   packages: Package[];
   packageTypes: string[];
-  getTypeIcon: (type: string) => string;
+  getTypeIcon: (type: string) => React.ReactNode;
 }
 
 export default function PackageDistribution({

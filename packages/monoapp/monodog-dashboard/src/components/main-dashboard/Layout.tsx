@@ -7,13 +7,18 @@ import {
   CloudArrowUpIcon,
   CpuChipIcon,
   Cog6ToothIcon,
-} from '../../icons/heroicons';
+  RocketLaunchIcon,
+  LogoutIcon,
+} from '../../icons/index';
+import { useAuth } from '../../services/auth-context';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: HomeIcon },
   { name: 'Packages', href: '/packages', icon: CubeIcon },
   { name: 'Dependencies', href: '/dependencies', icon: ChartBarIcon },
   { name: 'Health Status', href: '/health', icon: HeartIcon },
+  { name: 'Release', href: '/release', icon: CloudArrowUpIcon },
+  // { name: 'Pipeline', href: '/pipeline', icon: RocketLaunchIcon },
   // { name: 'Publish Control', href: '/publish', icon: CloudArrowUpIcon },
   // { name: 'CI/CD', href: '/ci', icon: CpuChipIcon },
   { name: 'Configuration', href: '/config', icon: Cog6ToothIcon },
@@ -25,6 +30,7 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
   const location = useLocation();
+    const { session, logout } = useAuth();
 
   return (
     <div className="min-h-screen bg-neutral-50">
@@ -81,13 +87,17 @@ export default function Layout({ children }: LayoutProps) {
             </div> */}
           </div>
           {/* User info */}
-          <div className="hidden flex items-center gap-3">
+          <div className="flex items-center gap-3">
             <div className="flex flex-col items-end text-sm">
-              <span className="font-medium text-primary-700">John Doe</span>
-              <span className="text-neutral-500">Admin</span>
+              <button className="font-medium" onClick={logout} title="Logout"><LogoutIcon></LogoutIcon></button>
+            </div>
+            <div className="flex flex-col items-end text-sm">
+              {session && <span className="font-medium text-primary-700">{session.user?.login ?? 'anonymous'}</span>}
+
+              {session && <span className="text-neutral-500">{session.permission?.role ?? 'Denied'}</span>}
             </div>
             <img
-              src=""
+              src={session.user?.avatar_url ?? ''}
               alt="User Avatar"
               className="h-8 w-8 rounded-full border border-neutral-200"
             />

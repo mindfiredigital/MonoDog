@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getPackageDetailService = exports.refreshPackagesService = exports.getPackagesService = void 0;
 const utilities_1 = require("../utils/utilities");
-const ci_status_1 = require("../utils/ci-status");
 const logger_1 = require("../middleware/logger");
 const repositories_1 = require("../repositories");
 const commit_service_1 = require("./commit-service");
@@ -172,13 +171,8 @@ const getPackageDetailService = async (name) => {
     transformedPkg.peerDependencies = pkg.peerDependencies
         ? JSON.parse(pkg.peerDependencies)
         : [];
-    // Get additional package information
-    // const reports = (await generateReports()) as unknown as PackageReport[] | undefined;
-    // const packageReport = reports?.find((r: PackageReport) => r.package?.name === name);
     const result = {
         ...transformedPkg,
-        // report: packageReport,
-        ciStatus: await ci_status_1.ciStatusManager.getPackageStatus(name),
     };
     return result;
 };

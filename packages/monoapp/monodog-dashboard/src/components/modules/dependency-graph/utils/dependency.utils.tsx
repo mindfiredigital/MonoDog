@@ -2,6 +2,7 @@ import {
   PackageNode,
   CircularDependency,
   GraphStats,
+  DependentsMap,
 } from '../types/dependency.types';
 import { BuildingLibraryIcon } from '../../../../icons/heroicons';
 import { RocketLaunchIcon } from '../../../../icons/heroicons';
@@ -181,8 +182,8 @@ export const sortPackages = (
   order: 'asc' | 'desc'
 ): PackageNode[] => {
   return [...packages].sort((a, b) => {
-    let aValue: any;
-    let bValue: any;
+    let aValue: string | number;
+    let bValue: string | number;
 
     switch (sortBy) {
       case 'name':
@@ -386,13 +387,6 @@ export const formatPackageName = (name: string): string => {
 };
 
 // --- DATA TRANSFORMATION UTILITY ---
-
-/**
- * Type definition for the final output map.
- * Key: Dependency Name (e.g., 'react', '@monodog/backend')
- * Value: Array of Package Names that depend on the key (e.g., ['@monodog/dashboard'])
- */
-type DependentsMap = Record<string, string[]>;
 
 /**
  * Calculates and returns a map of all packages that depend on every other package

@@ -4,13 +4,16 @@ exports.updatePackageConfig = exports.getPackageDetail = exports.refreshPackages
 const logger_1 = require("../middleware/logger");
 const config_service_1 = require("../services/config-service");
 const package_service_1 = require("../services/package-service");
+const error_messages_1 = require("../constants/error-messages");
+const error_messages_2 = require("../constants/error-messages");
+const http_1 = require("../constants/http");
 const getPackages = async (_req, res) => {
     try {
         const transformedPackages = await (0, package_service_1.getPackagesService)(_req.app.locals.rootPath);
         res.json(transformedPackages);
     }
     catch (error) {
-        res.status(500).json({ error: 'Failed to fetch packages, ' + error });
+        res.status(http_1.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({ error: error_messages_1.OPERATION_ERRORS.FAILED_TO_FETCH_PACKAGES, message: (0, error_messages_2.extractErrorMessage)(error) });
     }
 };
 exports.getPackages = getPackages;
@@ -21,7 +24,7 @@ const refreshPackages = async (_req, res) => {
         res.json(packages);
     }
     catch (error) {
-        res.status(500).json({ error: 'Failed to refresh packages' });
+        res.status(http_1.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({ error: error_messages_1.OPERATION_ERRORS.FAILED_TO_FETCH_PACKAGES, message: (0, error_messages_2.extractErrorMessage)(error) });
     }
 };
 exports.refreshPackages = refreshPackages;
@@ -32,7 +35,7 @@ const getPackageDetail = async (_req, res) => {
         res.json(packageDetail);
     }
     catch (error) {
-        res.status(500).json({ error: 'Failed to fetch package details' });
+        res.status(http_1.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({ error: error_messages_1.OPERATION_ERRORS.FAILED_TO_FETCH_PACKAGES, message: (0, error_messages_2.extractErrorMessage)(error) });
     }
 };
 exports.getPackageDetail = getPackageDetail;
@@ -40,9 +43,10 @@ const updatePackageConfig = async (req, res) => {
     try {
         const { packageName, config, packagePath } = req.body;
         if (!packageName || !config || !packagePath) {
-            return res.status(400).json({
+            return res.status(http_1.HTTP_STATUS_BAD_REQUEST).json({
                 success: false,
-                error: 'Package name, configuration, and package path are required',
+                error: error_messages_1.VALIDATION_ERRORS.INVALID_REQUEST,
+                message: 'Package name, configuration, and package path are required',
             });
         }
         logger_1.AppLogger.info('Updating package configuration for: ' + packageName);
@@ -56,9 +60,9 @@ const updatePackageConfig = async (req, res) => {
         });
     }
     catch (error) {
-        return res.status(500).json({
+        return res.status(http_1.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
             success: false,
-            error: 'Failed to update package configuration',
+            error: error_messages_1.OPERATION_ERRORS.FAILED_TO_SAVE_CONFIG,
             message: error instanceof Error ? error.message : 'Unknown error occurred',
         });
     }

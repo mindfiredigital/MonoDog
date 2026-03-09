@@ -3,24 +3,8 @@ import path from 'path';
 
 import { AppLogger } from '../middleware/logger';
 import { PackageRepository } from '../repositories';
-
-/**
- * Configuration file interface
- */
-interface ConfigFile {
-  id: string;
-  name: string;
-  path: string;
-  type: string;
-  content: string;
-  size: number;
-  lastModified: string;
-  hasSecrets: boolean;
-}
-
-interface TransformedConfigFile extends ConfigFile {
-  isEditable: boolean;
-}
+import { VALIDATION_ERRORS, OPERATION_ERRORS, FILE_OPERATION_ERRORS } from '../constants/error-messages';
+import type { ConfigFile, TransformedConfigFile } from '../types/config-service';
 
 // Helper function to scan for configuration files
 async function scanConfigFiles(rootDir: string): Promise<any[]> {
@@ -250,14 +234,14 @@ export const updateConfigFileService = async (id: string, rootDir: string, conte
 
   // Security check: ensure the file is within the project directory
   if (!filePath.startsWith(rootDir)) {
-    throw new Error('Invalid file path');
+    throw new Error(FILE_OPERATION_ERRORS.INVALID_FILE_PATH);
   }
 
   // Check if file exists and is writable
   try {
     await fs.promises.access(filePath, fs.constants.W_OK);
   } catch (error) {
-    throw new Error('File is not writable or does not exist ' + filePath);
+    throw new Error(FILE_OPERATION_ERRORS.FILE_NOT_WRITABLE(filePath));
   }
   // Write the new content
   await fs.promises.writeFile(filePath, content, 'utf8');
@@ -291,19 +275,19 @@ export const updatePackageConfigurationService = async (packagePath: string, pac
     newConfig = JSON.parse(config);
   } catch (error) {
     AppLogger.error('JSON parsing error', error as Error);
-    throw new Error('Invalid JSON format: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    throw new Error(VALIDATION_ERRORS.INVALID_JSON_FORMAT(error instanceof Error ? error.message : 'Unknown error'));
   }
 
   const packageJsonPath = path.join(packagePath, 'package.json');
 
   // Security check: ensure the path is valid
   if (!fs.existsSync(packagePath)) {
-    throw new Error('Package directory not found: ' + packagePath);
+    throw new Error(FILE_OPERATION_ERRORS.PACKAGE_DIRECTORY_NOT_FOUND(packagePath));
   }
 
   // Check if package.json exists
   if (!fs.existsSync(packageJsonPath)) {
-    throw new Error('package.json not found in directory: ' + packageJsonPath);
+    throw new Error(FILE_OPERATION_ERRORS.PACKAGE_JSON_NOT_FOUND(packageJsonPath));
   }
 
   // Read the existing package.json to preserve all fields
@@ -312,7 +296,7 @@ export const updatePackageConfigurationService = async (packagePath: string, pac
   try {
     existingConfig = JSON.parse(existingContent);
   } catch (error) {
-    throw new Error('Failed to parse existing package.json: ' + (error instanceof Error ? error.message : 'Invalid JSON'));
+    throw new Error(VALIDATION_ERRORS.INVALID_PACKAGE_JSON(error instanceof Error ? error.message : 'Invalid JSON'));
   }
 
   // Merge the new configuration with existing configuration

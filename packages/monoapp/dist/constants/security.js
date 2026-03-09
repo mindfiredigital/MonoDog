@@ -4,7 +4,7 @@
  * Defines security-related configuration and constants
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PRAGMA_HEADER = exports.EXPIRES_HEADER = exports.STATIC_FILE_PATTERN = exports.CSP_DIRECTIVES = exports.HTTP_PROTOCOL = exports.WILDCARD_ADDRESS = exports.DEFAULT_LOCALHOST = exports.CACHE_CONTROL_STATIC = exports.CACHE_CONTROL_NO_CACHE = exports.BODY_PARSER_LIMIT = exports.CORS_ALLOWED_HEADERS = exports.CORS_API_METHODS = exports.RESPONSE_TIMEOUT = exports.REQUEST_TIMEOUT = void 0;
+exports.PRAGMA_HEADER = exports.EXPIRES_HEADER = exports.STATIC_FILE_PATTERN = exports.HTTP_PROTOCOL = exports.WILDCARD_ADDRESS = exports.DEFAULT_LOCALHOST = exports.CACHE_CONTROL_STATIC = exports.CACHE_CONTROL_NO_CACHE = exports.BODY_PARSER_LIMIT = exports.CORS_ALLOWED_HEADERS = exports.CORS_API_METHODS = exports.RESPONSE_TIMEOUT = exports.REQUEST_TIMEOUT = void 0;
 /**
  * Request timeout duration in milliseconds (30 seconds)
  */
@@ -45,14 +45,6 @@ exports.WILDCARD_ADDRESS = 'localhost';
  * HTTP protocol prefix
  */
 exports.HTTP_PROTOCOL = 'http://';
-/**
- * CSP directives for Helmet
- */
-exports.CSP_DIRECTIVES = {
-    defaultSrc: ["'self'"],
-    scriptSrc: ["'self'"],
-    imgSrc: ["'self'", 'data:', 'https:'],
-};
 /**
  * Static file extensions pattern
  */

@@ -25,6 +25,10 @@ import packageRouter from '../routes/package-routes';
 import commitRouter from '../routes/commit-routes';
 import healthRouter from '../routes/health-routes';
 import configRouter from '../routes/config-routes';
+import authRouter from '../routes/auth-routes';
+import permissionRouter from '../routes/permission-routes';
+import publishRouter from '../routes/publish-routes';
+
 import {
   PORT_MIN,
   PORT_MAX,
@@ -35,7 +39,12 @@ import {
   ERROR_PERMISSION_DENIED,
   MESSAGE_GRACEFUL_SHUTDOWN,
   MESSAGE_SERVER_CLOSED,
+  ENDPOINTS
 } from '../constants';
+import {
+  initializeAuthentication,
+} from './auth-middleware';
+import { startCacheCleanup } from '../services/permission-service';
 
 /**
  * Validate port number
@@ -78,11 +87,25 @@ function createApp(rootPath: string): Express {
   // Setup Swagger documentation
   setupSwaggerDocs(app);
 
+  // Initialize authentication system
+  initializeAuthentication();
+
+  // Start permission cache cleanup
+  startCacheCleanup();
+
+  // Create a router for pipeline routes
+  const router = express.Router();
+
   // Routes
+  app.use('/api/auth', authRouter);
+  app.use('/api/permissions', permissionRouter);
   app.use('/api/packages', packageRouter);
   app.use('/api/commits/', commitRouter);
   app.use('/api/health/', healthRouter);
   app.use('/api/config/', configRouter);
+  app.use('/api/publish', publishRouter);
+
+  app.use('/api', router);
 
   // 404 handler
   app.use('*', notFoundHandler);
@@ -109,19 +132,8 @@ export function startServer(rootPath: string): void {
 
     const server = app.listen(validatedPort, host, () => {
       console.log(SUCCESS_SERVER_START(host, validatedPort));
-      AppLogger.info('API endpoints available:', {
-        endpoints: [
-          'POST /api/packages/refresh',
-          'GET  /api/packages',
-          'GET  /api/packages/:name',
-          'PUT  /api/packages/update-config',
-          'GET  /api/commits/:packagePath',
-          'GET  /api/health/packages',
-          'POST /api/health/refresh',
-          'PUT  /api/config/files/:id',
-          'GET  /api/config/files',
-        ],
-      });
+      console.log(SUCCESS_SERVER_START(host, validatedPort));
+      AppLogger.info('API endpoints available:', { ENDPOINTS });
     });
 
     server.on('error', (err: NodeJS.ErrnoException) => {

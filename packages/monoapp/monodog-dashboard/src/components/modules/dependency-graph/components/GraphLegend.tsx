@@ -1,6 +1,5 @@
-interface GraphLegendProps {
-  show: boolean;
-}
+import type { GraphLegendProps } from '../../../../types';
+import { ArrowLongRightIcon } from '../../../../icons'
 
 export default function GraphLegend({ show }: GraphLegendProps) {
   if (!show) return null;
@@ -59,38 +58,15 @@ export default function GraphLegend({ show }: GraphLegendProps) {
           </h5>
           <div className="space-y-1 text-xs">
             <div className="flex items-center space-x-2">
-              <svg width="16" height="8">
-                <line
-                  x1="0"
-                  y1="4"
-                  x2="16"
-                  y2="4"
-                  stroke="#6B7280"
-                  strokeWidth="2"
-                  markerEnd="url(#arrow)"
-                />
-                <defs>
-                  <marker
-                    id="arrow"
-                    markerWidth="10"
-                    markerHeight="10"
-                    refX="9"
-                    refY="3"
-                    orient="auto"
-                    markerUnits="strokeWidth"
-                  >
-                    <path d="M0,0 L0,6 L9,3 z" fill="#6B7280" />
-                  </marker>
-                </defs>
-              </svg>
+              <ArrowLongRightIcon></ArrowLongRightIcon>
               <span>Dependency</span>
             </div>
             <div className="flex items-center space-x-2">
-              <div className="w-4 h-3 border-2 border-blue-500 rounded bg-white"></div>
+              <div className="w-6 h-4 border-2 border-blue-500 rounded bg-white"></div>
               <span>Selected</span>
             </div>
             <div className="flex items-center space-x-2">
-              <div className="w-4 h-3 border-2 border-green-500 rounded bg-white"></div>
+              <div className="w-6 h-4 border-2 border-green-500 rounded bg-white"></div>
               <span>Connected</span>
             </div>
           </div>

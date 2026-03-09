@@ -1,9 +1,5 @@
 import { ArrowPathIcon } from '../../../../icons/heroicons';
-
-interface DependencyGraphHeaderProps {
-  onRefresh?: () => void;
-  loading?: boolean;
-}
+import type { DependencyGraphHeaderProps } from '../../../../types';
 
 export default function DependencyGraphHeader({
   onRefresh,

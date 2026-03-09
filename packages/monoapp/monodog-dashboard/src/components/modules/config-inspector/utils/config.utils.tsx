@@ -316,7 +316,7 @@ const validateJSON = (
 };
 
 // Package.json specific validations
-const validatePackageJSON = (pkg: any, results: ValidationResult[]) => {
+const validatePackageJSON = (pkg: Record<string, unknown>, results: ValidationResult[]) => {
   const requiredFields = ['name', 'version'];
 
   requiredFields.forEach(field => {
@@ -433,7 +433,7 @@ const validateYAML = (
 };
 
 // Docker Compose specific validation
-const validateDockerCompose = (compose: any, results: ValidationResult[]) => {
+const validateDockerCompose = (compose: Record<string, unknown>, results: ValidationResult[]) => {
   if (compose && typeof compose === 'object') {
     if (!compose.version && !compose.services) {
       results.push({
@@ -444,9 +444,10 @@ const validateDockerCompose = (compose: any, results: ValidationResult[]) => {
       });
     }
 
-    if (compose.services && typeof compose.services === 'object') {
-      Object.keys(compose.services).forEach(serviceName => {
-        const service = compose.services[serviceName];
+    const services = compose.services as Record<string, unknown> | undefined;
+    if (services && typeof services === 'object') {
+      Object.keys(services).forEach(serviceName => {
+        const service = services[serviceName];
         if (service && typeof service === 'object') {
           if (!service.image && !service.build) {
             results.push({
@@ -597,33 +598,11 @@ const validateCommonIssues = (
     });
   }
 
-  // Long lines
-  // const lines = content.split('\n');
-  // const longLines = lines.filter(line => line.length > 120);
-  // if (longLines.length > 0) {
-  //   results.push({
-  //     field: filename,
-  //     status: 'warning',
-  //     message: `File contains ${longLines.length} long line(s) (over 120 characters)`,
-  //   });
-  // }
-
-  // Trailing whitespace
-  // const trailingWhitespaceLines = lines.filter(
-  //   (line, index) => line.trim() !== line && line.trim().length > 0
-  // );
-  // if (trailingWhitespaceLines.length > 0) {
-  //   results.push({
-  //     field: filename,
-  //     status: 'warning',
-  //     message: `File contains ${trailingWhitespaceLines.length} line(s) with trailing whitespace`,
-  //   });
-  // }
 };
 
 // JSON structure validation
 const validateJSONStructure = (
-  obj: any,
+  obj: Record<string, unknown>,
   filename: string,
   results: ValidationResult[]
 ) => {
@@ -642,14 +621,17 @@ const validateJSONStructure = (
 
   // Check for duplicate keys (basic check)
   const jsonString = JSON.stringify(obj);
-  const keyCounts: { [key: string]: number } = {};
+  const keyCounts: Record<string, number> = {};
 
-  const countKeys = (obj: any, path: string = '') => {
+  const countKeys = (obj: Record<string, unknown>, path: string = ''): void => {
     if (obj && typeof obj === 'object') {
       Object.keys(obj).forEach(key => {
         const fullPath = path ? `${path}.${key}` : key;
         keyCounts[fullPath] = (keyCounts[fullPath] || 0) + 1;
-        countKeys(obj[key], fullPath);
+        const value = obj[key];
+        if (value && typeof value === 'object') {
+          countKeys(value as Record<string, unknown>, fullPath);
+        }
       });
     }
   };

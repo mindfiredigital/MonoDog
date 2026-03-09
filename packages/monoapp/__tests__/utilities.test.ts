@@ -134,7 +134,7 @@ describe('utilities module', () => {
 
     const graph = generateDependencyGraph([a, b]);
     expect(graph.nodes.length).toBe(2);
-    expect(graph.edges.some(e => e.from === 'a' && e.to === 'b')).toBe(true);
+    expect(graph.edges.some(e => e.source === 'a' && e.target === 'b')).toBe(true);
   });
 
   test('getPackageSize calculates files and size', () => {

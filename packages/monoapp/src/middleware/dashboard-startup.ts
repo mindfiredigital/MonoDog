@@ -17,6 +17,8 @@ import {
   createTimeoutMiddleware,
   buildApiUrl,
 } from './security';
+import { OPERATION_ERRORS } from '../constants/error-messages';
+import { HTTP_STATUS_INTERNAL_SERVER_ERROR } from '../constants/http';
 import {
   PORT_MIN,
   PORT_MAX,
@@ -95,7 +97,7 @@ function createDashboardApp(): Express {
       }, (err: Error | null) => {
         if (err) {
           AppLogger.error(ERROR_SERVING_INDEX_HTML, err);
-          _res.status(500).json({ error: 'Internal server error' });
+          _res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).json({ error: OPERATION_ERRORS.FAILED_TO_FETCH_PACKAGES });
         }
       });
     }

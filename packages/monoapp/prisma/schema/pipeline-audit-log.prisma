@@ -1,0 +1,22 @@
+model PipelineAuditLog {
+  id           String  @id @default(cuid())
+  userId       Int
+  username     String
+  action       String // trigger, cancel, rerun
+  resourceType String // workflow_run, job, pipeline
+  resourceId   String
+  resourceName String
+  details      String // JSON object
+  status       String  @default("success") // success, failure, pending
+  errorMessage String?
+
+  pipelineId String
+  pipeline   ReleasePipeline @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+
+  timestamp DateTime @default(now())
+
+  @@index([pipelineId])
+  @@index([userId])
+  @@index([action])
+  @@index([timestamp])
+}

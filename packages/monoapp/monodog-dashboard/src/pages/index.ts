@@ -9,6 +9,7 @@ export { default as HealthStatus } from '../components/modules/health-status/Hea
 export { default as PublishControl } from '../components/publish-control/PublishControl';
 export { default as CIIntegration } from '../components/modules/ci-integration/CIIntegration';
 export { default as ConfigInspector } from '../components/modules/config-inspector/ConfigInspector';
+export { default as ReleaseManager } from '../components/release-manager/ReleaseManager';
 
 // Page wrapper components (recommended approach)
 export { default as DashboardPage } from './DashboardPage';
@@ -19,6 +20,7 @@ export { default as HealthPage } from './HealthPage';
 export { default as PublishPage } from './PublishPage';
 export { default as CIPage } from './CIPage';
 export { default as ConfigPage } from './ConfigPage';
+export { default as ReleaseManagerPage } from './ReleaseManagerPage';
 
 // Layout component
 export { default as Layout } from '../components/main-dashboard/Layout';

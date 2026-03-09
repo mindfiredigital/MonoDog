@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { AppLogger } from '../middleware/logger';
 import { getConfigurationFilesService, updateConfigFileService, updatePackageConfigurationService } from '../services/config-service';
+import { OPERATION_ERRORS, VALIDATION_ERRORS } from '../constants/error-messages';
+import { HTTP_STATUS_BAD_REQUEST, HTTP_STATUS_INTERNAL_SERVER_ERROR } from '../constants/http';
 
 export const getConfigurationFiles = async (_req: Request, res: Response) => {
   try {
@@ -11,9 +13,9 @@ export const getConfigurationFiles = async (_req: Request, res: Response) => {
     res.json(configFiles);
   } catch (error) {
     AppLogger.error('Error fetching configuration files', error as Error);
-    res.status(500).json({
+    res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
       success: false,
-      error: 'Failed to fetch configuration files',
+      error: OPERATION_ERRORS.FAILED_TO_FETCH_PACKAGES,
     });
   }
 }
@@ -24,9 +26,9 @@ export const updateConfigFile = async (_req: Request, res: Response) => {
     const { content } = _req.body;
 
     if (!content) {
-      return res.status(400).json({
+      return res.status(HTTP_STATUS_BAD_REQUEST).json({
         success: false,
-        error: 'Content is required',
+        error: VALIDATION_ERRORS.INVALID_REQUEST,
       });
     }
     const rootDir = _req.app.locals.rootPath;
@@ -34,9 +36,9 @@ export const updateConfigFile = async (_req: Request, res: Response) => {
     res.json(result);
   } catch (error) {
     AppLogger.error('Error saving configuration file', error as Error);
-    res.status(500).json({
+    res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
       success: false,
-      error: 'Failed to save configuration file',
+      error: OPERATION_ERRORS.FAILED_TO_SAVE_CONFIG,
     });
   }
 }

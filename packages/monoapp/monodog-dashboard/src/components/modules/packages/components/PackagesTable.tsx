@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ArrowUpIcon, ArrowDownIcon } from '../../../../icons/heroicons';
 import { Package, PackageSorting } from '../types/packages.types';
+import type { PackagesTableProps } from '../../../../types';
 import {
   getStatusColor,
   getTypeColor,
@@ -8,12 +9,6 @@ import {
   formatVersion,
   getPackageTypeIcon,
 } from '../utils/packages.utils';
-
-interface PackagesTableProps {
-  packages: Package[];
-  sorting: PackageSorting;
-  onSortChange: (sorting: PackageSorting) => void;
-}
 
 export default function PackagesTable({
   packages,

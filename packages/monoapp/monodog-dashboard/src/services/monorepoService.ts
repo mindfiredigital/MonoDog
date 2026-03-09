@@ -1,70 +1,13 @@
-// Browser-compatible monorepo service
-// In a real production app, this would make API calls to a backend service
-const apiUrl = (window as any).ENV?.API_URL ?? 'http://localhost:8999';
-
-export interface Package {
-  name: string;
-  version: string;
-  type: 'app' | 'lib' | 'tool' | 'service';
-  status: 'healthy' | 'warning' | 'error' | 'building';
-  lastUpdated: string;
-  dependencies: string[];
-  maintainers: string[];
-  tags: string[];
-  description: string;
-  path: string;
-  private?: boolean;
-  scripts?: Record<string, string>;
-  peerDependencies?: string[];
-  devDependencies?: string[];
-  dependents: string[];
-}
-
-export interface DependencyInfo {
-  name: string;
-  version: string;
-  type: 'dependency' | 'devDependency' | 'peerDependency';
-  latest?: string;
-  outdated?: boolean;
-  status: string;
-}
-
-export interface HealthMetric {
-  name: string;
-  value: number;
-  status: 'healthy' | 'warning' | 'error';
-  description: string;
-}
-
-export interface BuildStatus {
-  id: string;
-  package: string;
-  status: 'success' | 'failed' | 'building' | 'queued';
-  startTime: string;
-  endTime?: string;
-  duration?: number;
-  stages: BuildStage[];
-}
-
-export interface BuildStage {
-  name: string;
-  status: 'success' | 'failed' | 'running' | 'pending';
-  duration?: number;
-  logs?: string[];
-}
-
-export interface ConfigFile {
-  id: string;
-  name: string;
-  path: string;
-  type: 'json' | 'yaml' | 'js' | 'ts' | 'env';
-  content: string;
-  lastModified: string;
-  size: number;
-  hasSecrets: boolean;
-}
-
-const API_BASE = `${apiUrl}/api`;
+import { DASHBOARD_API_ENDPOINTS } from '../constants/api-config';
+import apiClient from './api';
+import type {
+  Package,
+  DependencyInfo,
+  HealthMetric,
+  BuildStatus,
+  BuildStage,
+  ConfigFile,
+} from '../types/monorepo-service.types';
 class MonorepoService {
   // Simulated monorepo data based on typical monorepo structure
   private mockPackages: Package[] = [
@@ -197,17 +140,18 @@ class MonorepoService {
 
   async getPackages(): Promise<Package[]> {
     try {
-      const res = await fetch(`${API_BASE}/packages`);
+      const response = await apiClient.get<Package[]>(
+        DASHBOARD_API_ENDPOINTS.PACKAGES.LIST
+      );
 
-      if (res.ok) {
-        const data = await res.json();
-        return data;
+      if (response.success) {
+        return response.data;
       }
 
       // Log the failure and attempt a refresh, but don't throw so tests
       // that expect a graceful fallback will remain deterministic.
       console.error(
-        `getPackages: initial fetch failed with status ${res.status}. Attempting refresh...`
+        `getPackages: initial fetch failed with status ${response.error.status}. Attempting refresh...`
       );
 
       try {
@@ -225,13 +169,15 @@ class MonorepoService {
   }
 
   async getPackage(name: string): Promise<Package[]> {
-    const res = await fetch(`${API_BASE}/packages/` + encodeURIComponent(name));
-    if (!res.ok) {
+    const response = await apiClient.get<Package[]>(
+      DASHBOARD_API_ENDPOINTS.PACKAGES.DETAILS(name)
+    );
+    if (!response.success) {
       throw new Error(
-        `Failed to fetch package details for "${name}" (Status: ${res.status})`
+        `Failed to fetch package details for "${name}" (Status: ${response.error.status})`
       );
     }
-    return await res.json();
+    return response.data;
   }
 
   async getDependencies(): Promise<DependencyInfo[]> {
@@ -262,24 +208,18 @@ class MonorepoService {
 
   async refreshPackages(): Promise<Package[]> {
     try {
-      const pkg = await fetch(`${API_BASE}/packages/refresh`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await apiClient.post<Package[]>(
+        DASHBOARD_API_ENDPOINTS.PACKAGES.REFRESH
+      );
 
-      if (!pkg.ok) {
+      if (!response.success) {
         console.error(
-          `refreshPackages: fetch failed with status ${pkg.status}`
+          `refreshPackages: fetch failed with status ${response.error.status}`
         );
         return [];
       }
 
-      const pkgData = await pkg.json();
-      // console.log('data from refreshPackage:', pkgData);
-
-      return pkgData;
+      return response.data;
     } catch (error) {
       console.error('refreshPackages: unexpected error', error);
       return [];
@@ -316,23 +256,17 @@ class MonorepoService {
     metrics: HealthMetric[];
     packageHealth: Array<{ package: string; score: number; issues: string[] }>;
   }> {
-    // console.log('getHealthStatus');
     try {
       // First attempt to get health data
-      const healthRes = await fetch(`${API_BASE}/health/packages`);
-      // console.log('Health data from getHealthStatus:', healthRes);
-      if (!healthRes.ok) {
-        // console.log('Health data not available, attempting refresh...');
+      let response = await apiClient.get(DASHBOARD_API_ENDPOINTS.HEALTH.PACKAGES);
 
+      if (!response.success) {
         // If initial fetch fails, try to refresh the data
-        const refreshRes = await fetch(`${API_BASE}/health/refresh`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+        const refreshResponse = await apiClient.post(
+          DASHBOARD_API_ENDPOINTS.HEALTH.REFRESH
+        );
 
-        if (!refreshRes.ok) {
+        if (!refreshResponse.success) {
           throw new Error('Failed to refresh health data');
         }
 
@@ -340,26 +274,17 @@ class MonorepoService {
         await new Promise(resolve => setTimeout(resolve, 1000));
 
         // Second attempt to get health data after refresh
-        const retryRes = await fetch(`${API_BASE}/health/packages`);
+        response = await apiClient.get(DASHBOARD_API_ENDPOINTS.HEALTH.PACKAGES);
 
-        if (!retryRes.ok) {
+        if (!response.success) {
           throw new Error('Failed to fetch health data after refresh');
         }
-
-        const healthData = await retryRes.json();
-        // console.log('Health data after refresh:', healthData);
-        return healthData;
-        // return this.transformHealthData(healthData);
       }
 
-      const healthData = await healthRes.json();
-      // console.log('Health data from getHealthStatus:', healthData);
-      // return this.transformHealthData(healthData);
-      return healthData;
+      return response.data as any;
     } catch (error) {
-      // console.error('Error fetching health data:', error);
-      // Fallback to the existing mock implementation
-      // return await this.getFallbackHealthStatus();
+      console.error('Error fetching health data:', error);
+      throw error;
     }
   }
 
@@ -370,18 +295,13 @@ class MonorepoService {
   }> {
     try {
       // Call your real backend API
-      const healthRes = await fetch(`${API_BASE}/health/refresh`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const healthRes = await apiClient.post(DASHBOARD_API_ENDPOINTS.HEALTH.REFRESH);
 
-      if (!healthRes.ok) {
+      if (!healthRes.success) {
         throw new Error('Failed to fetch health data');
       }
 
-      const healthData = await healthRes.json();
+      const healthData = healthRes.data;
       // console.log('Health data from refreshHealthStatus:', healthData);
 
       // Transform the data to match your frontend expectations
@@ -614,7 +534,7 @@ class MonorepoService {
   ): Promise<{
     success: boolean;
     message: string;
-    package: any;
+    package: Package;
     healthRefreshed?: boolean;
     preservedFields?: boolean;
   }> {
@@ -624,38 +544,18 @@ class MonorepoService {
       //   packageName
       // );
 
-      const response = await fetch(`${API_BASE}/packages/update-config`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          packageName,
-          config,
-          packagePath,
-        }),
-      });
+      const response = await apiClient.put(DASHBOARD_API_ENDPOINTS.PACKAGES.UPDATE_CONFIG, JSON.stringify({
+        packageName,
+        config,
+        packagePath,
+      }));
 
-      // console.log('📥 Response status:', response.status);
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('📥 Error response:', errorText);
-
-        let errorMessage = `HTTP error ${response.status}`;
-        if (errorText) {
-          try {
-            const errorData = JSON.parse(errorText);
-            errorMessage = errorData.error || errorData.message || errorMessage;
-          } catch {
-            errorMessage = errorText || errorMessage;
-          }
-        }
-        throw new Error(errorMessage);
+      if (!response.success) {
+        throw new Error(`HTTP error: ${response.error?.message}`);
       }
 
-      const result = await response.json();
-      // console.log('📥 Success response:', result);
+      const result = response.data;
 
       return result;
     } catch (error) {
@@ -712,15 +612,15 @@ class MonorepoService {
       // console.log('Fetching configuration files from backend...');
 
       // Call your real backend API
-      const res = await fetch(`${API_BASE}/config/files`);
+      const res = await apiClient.get(DASHBOARD_API_ENDPOINTS.CONFIG.FILES);
 
-      if (!res.ok) {
+      if (!res.success) {
         throw new Error(
-          `Failed to fetch config files: ${res.status} ${res.statusText}`
+          `Failed to fetch config files: ${res.error?.message}`
         );
       }
 
-      const response = await res.json();
+      const response = res.data;
 
       // console.log('Response from config files API:', response);
 
@@ -748,26 +648,19 @@ class MonorepoService {
     try {
       // console.log('Saving configuration file:', fileId);
 
-      const res = await fetch(
-        `${API_BASE}/config/files/${encodeURIComponent(fileId)}`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ content }),
-        }
+      const res = await apiClient.put(
+        DASHBOARD_API_ENDPOINTS.CONFIG.FILE(fileId),
+        JSON.stringify({ content })
       );
 
-      if (!res.ok) {
-        const errorData = await res.json();
+      if (!res.success) {
         throw new Error(
-          errorData.error ||
-            `Failed to save file: ${res.status} ${res.statusText}`
+          res.error?.message ||
+            `Failed to save file`
         );
       }
 
-      const response = await res.json();
+      const response = res.data;
 
       if (response.success && response.file) {
         // console.log('File saved successfully:', fileId);
@@ -827,3 +720,14 @@ class MonorepoService {
 }
 
 export const monorepoService = new MonorepoService();
+
+// Re-export types for backward compatibility
+export type {
+  Package,
+  DependencyInfo,
+  HealthMetric,
+  BuildStatus,
+  BuildStage,
+  ConfigFile,
+} from '../types/monorepo-service.types';
+

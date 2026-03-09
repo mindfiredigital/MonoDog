@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import Configuration, { DashboardConfig } from '../configuration/Configuration';
 import SetupGuide from '../setup-guide/SetupGuide';
+import { DASHBOARD_ERROR_MESSAGES } from '../../constants/messages';
+import { cookieUtils } from '../../utils/cookies';
 
 // Import sub-components
 import {
@@ -104,7 +106,7 @@ export default function Dashboard() {
         setPackages(data);
         setError(null);
       } catch (err) {
-        setError('Failed to fetch packages');
+        setError(DASHBOARD_ERROR_MESSAGES.FAILED_TO_FETCH_PACKAGES);
         console.error('Error fetching packages:', err);
       } finally {
         setLoading(false);
@@ -114,18 +116,18 @@ export default function Dashboard() {
     fetchPackages();
   }, []);
 
-  // Load configuration from localStorage or environment
+  // Load configuration from cookies or environment
   useEffect(() => {
-    const savedConfig = localStorage.getItem('monodog-config');
+    const savedConfig = cookieUtils.get('monodog-config');
     if (savedConfig) {
       setConfig({ ...defaultConfig, ...JSON.parse(savedConfig) });
     }
   }, []);
 
-  // Save configuration to localStorage
+  // Save configuration to cookies
   const handleConfigSave = (newConfig: DashboardConfig) => {
     setConfig(newConfig);
-    localStorage.setItem('monodog-config', JSON.stringify(newConfig));
+    cookieUtils.set('monodog-config', JSON.stringify(newConfig));
   };
 
   // Handle refresh action
@@ -140,13 +142,13 @@ export default function Dashboard() {
         setPackages(data);
         setError(null);
       } catch (err) {
-        setError('Failed to fetch package data');
+        setError(DASHBOARD_ERROR_MESSAGES.FAILED_TO_FETCH_PACKAGES);
         console.error('Error fetching package data:', err);
       } finally {
         setLoading(false);
       }
     } catch (err) {
-      setError('Failed to refresh package data');
+      setError(DASHBOARD_ERROR_MESSAGES.FAILED_TO_FETCH_PACKAGES);
       console.error('Error refreshing package data:', err);
     } finally {
       setRefreshing(false);

@@ -58,33 +58,6 @@ jest.mock('../src/utils/monorepo-scanner', () => ({
   funCheckSecurityAudit: jest.fn().mockResolvedValue('pass'),
 }));
 
-jest.mock('../src/utils/ci-status', () => ({
-  ciStatusManager: {
-    getPackageStatus: jest.fn().mockResolvedValue({
-      package: '@monoapp/backend',
-      status: 'success',
-      lastBuild: '2025-01-01T00:00:00Z',
-    }),
-    triggerBuild: jest.fn().mockResolvedValue({
-      success: true,
-      buildId: 'build-123',
-    }),
-    getBuildLogs: jest.fn().mockResolvedValue([
-      'Build started',
-      'Compiling...',
-      'Build completed',
-    ]),
-    getBuildArtifacts: jest.fn().mockResolvedValue([
-      { name: 'app.js', size: 2048 },
-    ]),
-  },
-  getMonorepoCIStatus: jest.fn().mockResolvedValue({
-    packages: [
-      { name: '@monoapp/backend', status: 'success' },
-    ],
-  }),
-}));
-
 jest.mock('../src/utils/utilities', () => ({
   scanMonorepo: jest.fn((dir) => [
     {

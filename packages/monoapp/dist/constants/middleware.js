@@ -2,21 +2,10 @@
 /**
  * Middleware Constants
  * Defines constants used across middleware modules
+ * Note: HTTP status codes are now in http.ts
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MESSAGE_SHUTDOWN_INSTRUCTION = exports.ERROR_SERVING_INDEX_HTML = exports.CONTENT_TYPE_JAVASCRIPT = exports.MESSAGE_DASHBOARD_CLOSED = exports.MESSAGE_DASHBOARD_GRACEFUL_SHUTDOWN = exports.MESSAGE_SERVER_CLOSED = exports.MESSAGE_GRACEFUL_SHUTDOWN = exports.SUCCESS_DASHBOARD_START = exports.SUCCESS_SERVER_START = exports.ERROR_INTERNAL_SERVER = exports.ERROR_PERMISSION_DENIED = exports.ERROR_PORT_IN_USE = exports.HTTP_STATUS_BAD_REQUEST = exports.HTTP_STATUS_NOT_FOUND = exports.HTTP_STATUS_INTERNAL_SERVER_ERROR = void 0;
-/**
- * HTTP status code for internal server error
- */
-exports.HTTP_STATUS_INTERNAL_SERVER_ERROR = 500;
-/**
- * HTTP status code for not found
- */
-exports.HTTP_STATUS_NOT_FOUND = 404;
-/**
- * HTTP status code for bad request
- */
-exports.HTTP_STATUS_BAD_REQUEST = 400;
+exports.MESSAGE_SHUTDOWN_INSTRUCTION = exports.ERROR_SERVING_INDEX_HTML = exports.CONTENT_TYPE_JAVASCRIPT = exports.MESSAGE_DASHBOARD_CLOSED = exports.MESSAGE_DASHBOARD_GRACEFUL_SHUTDOWN = exports.MESSAGE_SERVER_CLOSED = exports.MESSAGE_GRACEFUL_SHUTDOWN = exports.SUCCESS_DASHBOARD_START = exports.SUCCESS_SERVER_START = exports.ERROR_INTERNAL_SERVER = exports.ERROR_PERMISSION_DENIED = exports.ERROR_PORT_IN_USE = void 0;
 /**
  * Error message for port already in use
  */

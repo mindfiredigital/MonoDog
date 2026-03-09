@@ -4,14 +4,9 @@
 
 import { Request, Response, NextFunction, ErrorRequestHandler } from 'express';
 import { AppLogger } from './logger';
-
-/**
- * Custom error interface extending Error
- */
-export interface CustomError extends Error {
-  status?: number;
-  statusCode?: number;
-}
+import { OPERATION_ERRORS } from '../constants/error-messages';
+import { HTTP_STATUS_NOT_FOUND } from '../constants/http';
+import type { CustomError } from '../types/errors';
 
 /**
  * Global error handler middleware
@@ -34,7 +29,7 @@ export const errorHandler: ErrorRequestHandler = (
   });
 
   res.status(status).json({
-    error: 'Internal server error',
+    error: OPERATION_ERRORS.FAILED_TO_FETCH_PACKAGES,
     timestamp: Date.now(),
   });
 };
@@ -43,7 +38,7 @@ export const errorHandler: ErrorRequestHandler = (
  * 404 Not Found handler
  */
 export const notFoundHandler = (_req: Request, res: Response): void => {
-  res.status(404).json({
+  res.status(HTTP_STATUS_NOT_FOUND).json({
     error: 'Endpoint not found',
     timestamp: Date.now(),
   });

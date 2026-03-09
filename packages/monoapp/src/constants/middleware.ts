@@ -1,22 +1,8 @@
 /**
  * Middleware Constants
  * Defines constants used across middleware modules
+ * Note: HTTP status codes are now in http.ts
  */
-
-/**
- * HTTP status code for internal server error
- */
-export const HTTP_STATUS_INTERNAL_SERVER_ERROR = 500;
-
-/**
- * HTTP status code for not found
- */
-export const HTTP_STATUS_NOT_FOUND = 404;
-
-/**
- * HTTP status code for bad request
- */
-export const HTTP_STATUS_BAD_REQUEST = 400;
 
 /**
  * Error message for port already in use
