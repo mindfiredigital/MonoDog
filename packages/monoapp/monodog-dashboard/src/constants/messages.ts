@@ -13,6 +13,16 @@ export const DASHBOARD_AUTH_MESSAGES = {
   AUTH_FAILED: 'Authentication failed',
 } as const;
 
+// ============ RATE LIMIT MESSAGES ============
+
+export const DASHBOARD_RATE_LIMIT_MESSAGES = {
+  QUOTA_EXHAUSTED: 'GitHub API quota exhausted',
+  QUOTA_RESET: (resetTime: string) =>
+    `GitHub API quota exhausted. The limit will reset at ${resetTime}. Please try again later.`,
+  APPROACHING_LIMIT: (remaining: number, limit: number) =>
+    `GitHub API quota running low: ${remaining}/${limit} requests remaining`,
+} as const;
+
 // ============ ERROR MESSAGES ============
 
 export const DASHBOARD_ERROR_MESSAGES = {

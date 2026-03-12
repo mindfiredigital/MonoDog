@@ -1,9 +1,5 @@
 /prisma/schema/*.db
 /monodog-dashboard/*
+/monodog-dashboard/.env.example
+/monodog-dashboard/package.json
 !/monodog-dashboard/dist
-/src
-/.turbo
-*__tests__*
-jest.config.js
-.eslintrc.cjs
-tsconfig.json

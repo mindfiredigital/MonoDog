@@ -1,10 +1,9 @@
 /**
  * API Client Instance and Initialization
- * Exports a pre-configured axios wrapper used by dashboard services.
  */
 
 import ApiClient from './api-client';
-import { TIMEOUT_MS } from '../../constants/api-config';
+import { TIMEOUT_MS, DEFAULT_API_BASE_URL } from '../../constants/api-config';
 
 /**
  * Determine base URL from env/window or fall back to localhost
@@ -16,7 +15,7 @@ function getBaseUrl(): string {
   const windowUrl = (window as any).ENV?.API_URL;
   if (windowUrl) return windowUrl;
 
-  return 'http://localhost:8999';
+  return DEFAULT_API_BASE_URL;
 }
 
 const apiClient = new ApiClient({

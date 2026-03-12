@@ -70,3 +70,20 @@ export interface StepItemProps {
   expandedSteps: Set<number>;
   stepIndex: number;
 }
+
+export interface Job {
+  id: number;
+  gitHubJobId: number;
+  name: string;
+  status: string;
+  conclusion: string | null;
+  htmlUrl: string;
+  startedAt: string | null;
+  completedAt: string | null;
+}
+
+export interface JobsListProps {
+  jobs: Job[];
+  selectedJob: Job | null;
+  onSelectJob: (job: Job) => void;
+}

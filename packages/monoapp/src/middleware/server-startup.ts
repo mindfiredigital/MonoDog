@@ -28,6 +28,8 @@ import configRouter from '../routes/config-routes';
 import authRouter from '../routes/auth-routes';
 import permissionRouter from '../routes/permission-routes';
 import publishRouter from '../routes/publish-routes';
+import pipelineRouter from '../routes/pipeline-routes';
+import workflowRouter from '../routes/workflow-routes';
 
 import {
   PORT_MIN,
@@ -39,7 +41,7 @@ import {
   ERROR_PERMISSION_DENIED,
   MESSAGE_GRACEFUL_SHUTDOWN,
   MESSAGE_SERVER_CLOSED,
-  ENDPOINTS
+  ENDPOINTS,
 } from '../constants';
 import {
   initializeAuthentication,
@@ -104,10 +106,12 @@ function createApp(rootPath: string): Express {
   app.use('/api/health/', healthRouter);
   app.use('/api/config/', configRouter);
   app.use('/api/publish', publishRouter);
+  app.use('/api/pipelines', pipelineRouter);
+  app.use('/api/workflows', workflowRouter);
 
   app.use('/api', router);
 
-  // 404 handler
+  // 404 handlerAPI_ENDPOINTS
   app.use('*', notFoundHandler);
 
   // Global error handler (must be last)
@@ -131,7 +135,6 @@ export function startServer(rootPath: string): void {
     const app = createApp(rootPath);
 
     const server = app.listen(validatedPort, host, () => {
-      console.log(SUCCESS_SERVER_START(host, validatedPort));
       console.log(SUCCESS_SERVER_START(host, validatedPort));
       AppLogger.info('API endpoints available:', { ENDPOINTS });
     });

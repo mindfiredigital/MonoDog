@@ -10,7 +10,7 @@ const DEFAULT_API_PORT = 8999;
 export const DEFAULT_TIMEOUT = 30000;
 
 export const TIMEOUT_MS = 60000;
-
+export const DEFAULT_API_BASE_URL = process.env.REACT_APP_API_URL || process.env.VITE_API_URL || `http://${DEFAULT_API_HOST}:${DEFAULT_API_PORT}`;
 // export const API_CONFIG = {
 //   BASE_URL: import.meta.env.VITE_API_URL || `http://${DEFAULT_API_HOST}:${DEFAULT_API_PORT}`,
 // } as const;

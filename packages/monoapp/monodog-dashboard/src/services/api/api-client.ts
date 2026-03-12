@@ -4,15 +4,16 @@ import type {
   ApiRequestConfig,
   ApiResponse,
   ApiErrorResponse,
+  RateLimitInfo,
 } from './types/api.types';
 import { cookieUtils } from '../../utils/cookies';
 
-import { DEFAULT_TIMEOUT } from '../../constants/api-config';
+import { DEFAULT_TIMEOUT, DEFAULT_API_BASE_URL } from '../../constants/api-config';
 class ApiClient {
   private axiosInstance: AxiosInstance;
 
   constructor(config: Partial<{ baseUrl?: string; timeout?: number; headers?: Record<string, string> }> = {}) {
-    const baseUrl = config.baseUrl || 'http://localhost:8999';
+    const baseUrl = config.baseUrl || DEFAULT_API_BASE_URL;
 
     this.axiosInstance = axios.create({
       baseURL: baseUrl,
@@ -60,6 +61,10 @@ class ApiClient {
     const details =
       error.response && typeof error.response.data === 'object' ? error.response.data : undefined;
 
+    // Extract rateLimit info if available in response body
+    const responseData = error.response?.data as any;
+    const rateLimit: RateLimitInfo | undefined = responseData?.rateLimit;
+
     let code: string;
     switch (status) {
       case 400:
@@ -94,7 +99,7 @@ class ApiClient {
 
     return {
       success: false,
-      error: { code, message: statusText, status, details: details as Record<string, unknown> | undefined },
+      error: { code, message: statusText, status, details: details?.details as Record<string, unknown> | undefined },
       meta: {
         status,
         statusText,
@@ -102,6 +107,7 @@ class ApiClient {
         timestamp: Date.now(),
         duration: 0,
       },
+      ...(rateLimit && { rateLimit }),
     };
   }
 
@@ -124,6 +130,10 @@ class ApiClient {
 
       const duration = Date.now() - start;
 
+      // Extract rateLimit info if available in response body
+      const responseData = response.data as any;
+      const rateLimit: RateLimitInfo | undefined = responseData?.rateLimit;
+
       return {
         success: true,
         data: response.data,
@@ -134,6 +144,7 @@ class ApiClient {
           timestamp: Date.now(),
           duration,
         },
+        ...(rateLimit && { rateLimit }),
       };
     } catch (err) {
       const duration = Date.now() - start;

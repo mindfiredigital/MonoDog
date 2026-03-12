@@ -12,7 +12,6 @@ import {
 } from '../src/services/changeset-service';
 import * as packageService from '../src/services/package-service';
 import * as gitHubActionsService from '../src/services/github-actions-service';
-import { AppLogger } from '../src/middleware/logger';
 import * as fs from 'fs/promises';
 
 jest.mock('fs/promises');

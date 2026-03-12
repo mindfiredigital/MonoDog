@@ -257,7 +257,7 @@ export default function ReleaseManager() {
             {existingChangesets.length} unpublished changeset(s) detected
           </p>
           <p className="text-blue-600 text-sm mt-1">
-            Consider reviewing existing changesets before creating new ones
+            Review existing changesets or pull the latest changes and refresh the dashboard before creating a new one.
           </p>
         </div>
       )}

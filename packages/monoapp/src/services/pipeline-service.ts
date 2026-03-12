@@ -4,12 +4,11 @@
  */
 
 import type {
-  ReleasePipeline,
+  ReleasePipeline
 } from '../types/github-actions';
 import { AppLogger } from '../middleware/logger';
 import { ReleasePipelineRepository } from '../repositories/release-pipeline-repository';
 import { PipelineAuditLogRepository } from '../repositories/pipeline-audit-log-repository';
-
 /**
  * Create or update a release pipeline
  */

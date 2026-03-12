@@ -25,6 +25,8 @@ export type {
   WorkflowTriggerProps,
   LogViewerProps,
   StepItemProps,
+  JobsListProps,
+  Job
 } from './pipeline.types';
 
 // Monorepo Service Types

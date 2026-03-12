@@ -17,6 +17,9 @@ import type { GitHubRequestOptions } from '../types/github-service';
 import { AppLogger } from '../middleware/logger';
 import { GITHUB_ACTIONS } from '../constants/features';
 import { PIPELINE_MESSAGES } from '../constants/api-messages';
+import { access, constants } from 'fs/promises';
+import path from 'path';
+import { findMonorepoRoot } from '../utils/utilities';
 
 const GITHUB_API_BASE = 'api.github.com';
 
@@ -49,6 +52,16 @@ const redirectOptions = (url: URL): GitHubRequestOptions => ({
 });
 
 /**
+ * Parse rate limit header value
+ * Returns null if header is missing or invalid, otherwise returns the parsed integer
+ */
+const parseRateLimitHeader = (header: string | string[] | undefined): number | null => {
+  if (header === undefined) return null;
+  const parsed = parseInt(header as string);
+  return isNaN(parsed) ? null : parsed;
+};
+
+/**
  * Make an HTTPS request to GitHub API
  */
 function makeGitHubRequest<T>(
@@ -59,11 +72,10 @@ function makeGitHubRequest<T>(
     const request = https.request(options, (response) => {
       let body = '';
       const rateLimit: RateLimitInfo = {
-        limit: parseInt(response.headers['x-ratelimit-limit'] as string) || 5000,
-        remaining:
-          parseInt(response.headers['x-ratelimit-remaining'] as string) || 0,
-        reset: parseInt(response.headers['x-ratelimit-reset'] as string) || 0,
-        used: parseInt(response.headers['x-ratelimit-used'] as string) || 0,
+        limit: parseRateLimitHeader(response.headers['x-ratelimit-limit']) || 5000,
+        remaining: parseRateLimitHeader(response.headers['x-ratelimit-remaining']) ?? 0,
+        reset: parseRateLimitHeader(response.headers['x-ratelimit-reset']) ?? 0,
+        used: parseRateLimitHeader(response.headers['x-ratelimit-used']) ?? 0,
       };
 
       response.on('data', (chunk) => {
@@ -122,27 +134,44 @@ export async function listWorkflows(
   }>;
   rateLimit: RateLimitInfo;
 }> {
-  const path = GITHUB_ACTIONS.WORKFLOWS_ENDPOINT(owner, repo);
+  const apiPath = GITHUB_ACTIONS.WORKFLOWS_ENDPOINT(owner, repo);
 
-  try {
-    const { data, rateLimit } = await makeGitHubRequest<{
-      total_count: number;
-      workflows: Array<{
-        id: number;
-        name: string;
-        path: string;
-        state: string;
-      }>;
-    }>(requestOptions('GET', path, accessToken));
+try {
+  const { data, rateLimit } = await makeGitHubRequest<{
+    total_count: number;
+    workflows: Array<{
+      id: number;
+      name: string;
+      path: string;
+      state: string;
+    }>;
+  }>(requestOptions('GET', apiPath, accessToken));
 
-    return {
-      workflows: data.workflows,
-      rateLimit,
-    };
-  } catch (error) {
-    AppLogger.error(`Failed to list workflows: ${error}`);
-    throw error;
-  }
+  // 1. Map workflows to a "check existence" promise
+  const rootPath = findMonorepoRoot();
+  const workflowCheckResults = await Promise.all(
+    data.workflows.map(async (wf) => {
+      try {
+        // GitHub returns path as '.github/workflows/main.yml'
+        const fullLocalPath = path.join(rootPath, wf.path);
+        await access(fullLocalPath, constants.F_OK);
+        return { ...wf, existsLocally: true };
+      } catch {
+        return { ...wf, existsLocally: false };
+      }
+    })
+  );
+
+  // 2. Filter out the ones that don't exist
+  return {
+    workflows: workflowCheckResults.filter(wf => wf.existsLocally),
+    rateLimit,
+  };
+
+} catch (error) {
+  AppLogger.error(`Failed to list workflows: ${error}`);
+  throw error;
+}
 }
 
 /**
@@ -321,10 +350,10 @@ export async function getJobLogs(
             });
             redirectResponse.on('end', () => {
               const rateLimit: RateLimitInfo = {
-                limit: parseInt(redirectResponse.headers['x-ratelimit-limit'] as string) || 5000,
-                remaining: parseInt(redirectResponse.headers['x-ratelimit-remaining'] as string) || 0,
-                reset: parseInt(redirectResponse.headers['x-ratelimit-reset'] as string) || 0,
-                used: parseInt(redirectResponse.headers['x-ratelimit-used'] as string) || 0,
+                limit: parseRateLimitHeader(redirectResponse.headers['x-ratelimit-limit']) || 5000,
+                remaining: parseRateLimitHeader(redirectResponse.headers['x-ratelimit-remaining']) ?? 0,
+                reset: parseRateLimitHeader(redirectResponse.headers['x-ratelimit-reset']) ?? 0,
+                used: parseRateLimitHeader(redirectResponse.headers['x-ratelimit-used']) ?? 0,
               };
 
               // Check for errors in the redirect response too
@@ -350,11 +379,10 @@ export async function getJobLogs(
       }
 
       const rateLimit: RateLimitInfo = {
-        limit: parseInt(response.headers['x-ratelimit-limit'] as string) || 5000,
-        remaining:
-          parseInt(response.headers['x-ratelimit-remaining'] as string) || 0,
-        reset: parseInt(response.headers['x-ratelimit-reset'] as string) || 0,
-        used: parseInt(response.headers['x-ratelimit-used'] as string) || 0,
+        limit: parseRateLimitHeader(response.headers['x-ratelimit-limit']) || 5000,
+        remaining: parseRateLimitHeader(response.headers['x-ratelimit-remaining']) ?? 0,
+        reset: parseRateLimitHeader(response.headers['x-ratelimit-reset']) ?? 0,
+        used: parseRateLimitHeader(response.headers['x-ratelimit-used']) ?? 0,
       };
 
       response.on('data', (chunk) => {

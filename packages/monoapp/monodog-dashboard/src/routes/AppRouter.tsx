@@ -10,6 +10,7 @@ import {
   CIIntegration,
   ConfigInspector,
   ReleaseManager,
+  Pipeline,
 } from '../pages';
 
 // Component mapping for dynamic routing
@@ -23,6 +24,7 @@ const componentMap = {
   CIIntegration,
   ConfigInspector,
   ReleaseManager,
+  Pipeline,
 } as const;
 
 // Route component renderer
