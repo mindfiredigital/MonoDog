@@ -11,16 +11,16 @@
     "dev": "tsx watch src/index.ts",
     "start": "tsx index.ts",
     "prepublishOnly": "pnpm run build",
-    "build": "rm -rf dist && tsc -p tsconfig.json",
+    "build": "rimraf dist && tsc -p tsconfig.json",
     "prestart": "npm run build",
     "cli": "pnpm run build && node dist/cli.js",
-    "clean": "rm -rf dist node_modules/.cache",
+    "clean": "rimraf dist node_modules/.cache",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "db:url": "node dist/get-db-url.js",
-    "generate": "DATABASE_URL=$(npm run db:url --silent 2>/dev/null | tr -d '\\n') prisma generate",
-    "migrate": "DATABASE_URL=$(npm run db:url --silent 2>/dev/null | tr -d '\\n') prisma migrate dev",
-    "serve": "DATABASE_URL=$(npm run db:url --silent 2>/dev/null | tr -d '\\n') node dist/cli.js --serve --root ../../"
+    "generate": "tsx src/run-db.ts prisma generate",
+    "migrate": "tsx src/run-db.ts prisma migrate dev",
+    "serve": "tsx src/run-db.ts node dist/cli.js --serve --root ../../"
   },
   "dependencies": {
     "@monodog/ci-status": "1.1.5",

@@ -16,7 +16,7 @@
     "lint:fix": "turbo run lint:fix",
     "type-check": "turbo run type-check",
     "test": "turbo run test",
-    "clean": "turbo run clean && rm -rf node_modules/.cache",
+    "clean": "turbo run clean && rimraf node_modules/.cache",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "changeset": "changeset",

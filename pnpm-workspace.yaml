@@ -1,4 +1,5 @@
 packages:
+  - monodog
   # Applications
   - 'apps/*'
   # Shared packages and libraries
