@@ -9,7 +9,7 @@
     "dev": "tsx watch src/index.ts",
     "start": "tsx src/index.ts",
     "build": "tsc",
-    "clean": "rm -rf dist node_modules/.cache",
+    "clean": "rimraf dist node_modules/.cache",
     "lint": "eslint ."
   },
   "dependencies": {

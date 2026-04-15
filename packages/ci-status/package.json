@@ -10,7 +10,7 @@
     "dev": "tsx watch index.ts",
     "start": "tsx index.ts",
     "build": "tsc",
-    "clean": "rm -rf dist node_modules/.cache",
+    "clean": "rimraf dist node_modules/.cache",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },

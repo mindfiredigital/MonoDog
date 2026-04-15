@@ -1,6 +1,6 @@
 {
   "name": "@mindfiredigital/monodog",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "App for monodog monorepo",
   "license": "MIT",
   "author": "Mindfiredigital",
@@ -18,20 +18,20 @@
   },
   "scripts": {
     "dev": "DATABASE_URL=$(npm run db:url --silent 2>/dev/null | tr -d '\\n') tsx watch src/serve.ts --dev --debug",
-    "serve": "DATABASE_URL=$(npm run db:url --silent 2>/dev/null | tr -d '\\n') tsx dist/serve.js",
+    "serve": "tsx src/run-db.ts tsx dist/serve.js",
     "prepublishOnly": "pnpm build",
-    "build": "rm -rf dist && tsc",
+    "build": "rimraf dist && tsc",
     "test:coverage": "jest --coverage --silent",
     "prestart": "npm run build",
-    "clean": "rm -rf dist node_modules/.cache",
+    "clean": "rimraf dist node_modules/.cache",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "db:url": "node dist/get-db-url.js",
-    "schema:format": "DATABASE_URL=$(npm run db:url --silent 2>/dev/null | tr -d '\\n') prisma format",
-    "schema:validate": "DATABASE_URL=$(npm run db:url --silent 2>/dev/null | tr -d '\\n') prisma validate",
-    "generate": "DATABASE_URL=$(npm run db:url --silent 2>/dev/null | tr -d '\\n') prisma generate",
-    "migrate": "DATABASE_URL=$(npm run db:url --silent 2>/dev/null | tr -d '\\n') prisma migrate deploy",
-    "migrate:reset": "DATABASE_URL=$(npm run db:url --silent 2>/dev/null | tr -d '\\n') prisma migrate reset --force"
+    "schema:format": "tsx src/run-db.ts prisma format",
+    "schema:validate": "tsx src/run-db.ts prisma validate",
+    "generate": "tsx src/run-db.ts prisma generate",
+    "migrate": "tsx src/run-db.ts prisma migrate deploy",
+    "migrate:reset": "tsx src/run-db.ts prisma migrate reset --force"
   },
   "keywords": [
     "monodog",
