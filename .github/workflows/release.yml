@@ -8,14 +8,15 @@ on:
 
 jobs:
   build:
-    name: "@mindfiredigital/monodog Build, Lint, and Test"
+    name: '@mindfiredigital/monodog Build, Lint, and Test'
     runs-on: ubuntu-latest
     permissions:
-        contents: write # Required to create release tags and update the changelog
-        pull-requests: write # Required for creating release pull requests (if configured)
+      contents: write # Required to create release tags and update the changelog
+      issues: write # Required to close issues/PRs linked in the changelog
+      pull-requests: write # Required for creating release pull requests (if configured)
 
     steps:
-      - name: "Checkout repository"
+      - name: 'Checkout repository'
         uses: actions/checkout@v3
 
       - name: Set up Node.js
@@ -28,30 +29,17 @@ jobs:
         with:
           version: 8
 
-      - name: "Install dependencies (at ROOT)"
-        run: pnpm install --no-frozen-lockfile
+      - name: 'Install dependencies'
+        run: pnpm install --ignore-scripts --no-frozen-lockfile
 
-      - name: "Create build (Backend)"
+      - name: 'Create build'
         run: pnpm run build
 
-      - name: "Lint code"
+      - name: 'Lint code'
         run: pnpm run lint
 
-      - name: "Run tests"
+      - name: 'Run tests'
         run: pnpm test
-
-      # Use the 'working-directory' flag specifically for Dashboard
-      - name: "Install dependencies (at Dashboard)"
-        working-directory: packages/monoapp/monodog-dashboard
-        run: npm install
-
-      - name: "Create build (Dashboard)"
-        working-directory: packages/monoapp/monodog-dashboard
-        run: npm run build
-
-      - name: "Lint code"
-        working-directory: packages/monoapp/monodog-dashboard
-        run: npm run lint
 
   create-github-release:
     name: Create GitHub release document and publish to npm
@@ -80,17 +68,8 @@ jobs:
       - name: 'Install dependencies with pnpm'
         run: pnpm install --no-frozen-lockfile --ignore-scripts
 
-      - name: 'Build Backend'
-        run: pnpm run build
-
-      # Use the 'working-directory' flag specifically for Dashboard
-      - name: "Install dependencies - Dashboard"
-        working-directory: packages/monoapp/monodog-dashboard
-        run: npm install
-
-      - name: "Build Dashboard"
-        working-directory: packages/monoapp/monodog-dashboard
-        run: npm run build
+      - name: 'Build application'
+        run: pnpm turbo run build
 
       - name: 'Set Git user name and email'
         run: |
@@ -110,4 +89,3 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # NPM_TOKEN is used for publishing to the npm registry
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-

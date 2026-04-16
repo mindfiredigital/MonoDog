@@ -29,6 +29,7 @@ module.exports = {
         'deps', // Dependencies
         'release', // Release related
         'docs', // Documentation
+        'core',
       ],
     ],
     'subject-max-length': [2, 'always', 100],
