@@ -17,9 +17,7 @@ import { loadConfig } from './config-loader';
 
 const appConfig = loadConfig();
 
-// --- Argument Parsing ---
-
-// 1. Get arguments excluding the node executable and script name
+// Get arguments excluding the node executable and script name
 const args = process.argv.slice(2);
 
 // Default settings
@@ -79,22 +77,15 @@ Example:
   }
 }
 
-// --- Execution Logic ---
-
 if (serve) {
   console.log(`Starting Monodog API server...`);
   console.log(`Analyzing monorepo at root: ${rootPath}`);
   // Start the Express server and begin analysis
   startServer(rootPath, port, host);
-  serveDashboard(
-    path.join(rootPath, appConfig.workspace.install_path),
-    appConfig.dashboard.port,
-    appConfig.dashboard.host
-  );
+  serveDashboard(rootPath, appConfig.dashboard.port, appConfig.dashboard.host);
 } else {
   console.log(`\nInitializing Configurations...`);
 
-  // createConfigFileIfMissing(rootPath ?? process.cwd());
   copyPackageToWorkspace(rootPath);
 
   console.log(
@@ -117,10 +108,13 @@ function copyPackageToWorkspace(rootDir: string): void {
     console.log('Usage: pnpm monodog-cli @monodog/dashboard --serve --root .');
   }
   if (
-    !(packageName == '@monodog/backend' || packageName == '@monodog/dashboard')
+    !(
+      packageName == '@mindfiredigital/monodog' ||
+      packageName == '@monodog/dashboard'
+    )
   ) {
     console.log(
-      '\n--- Skipping workspace setup for @monodog/backend to avoid self-copying. ---'
+      '\n--- Skipping workspace setup for @mindfiredigital/monodog to avoid self-copying. ---'
     );
     return;
   }
@@ -146,7 +140,7 @@ function copyPackageToWorkspace(rootDir: string): void {
 
   // 2. Validate Source existence
   if (!fs.existsSync(sourcePath)) {
-    console.error(`\n❌ Error: Source package not found at ${sourcePath}.`);
+    console.error(`\n Error: Source package not found at ${sourcePath}.`);
     console.error(
       "Please ensure the package is installed via 'pnpm install <package-name>' first."
     );
@@ -156,7 +150,7 @@ function copyPackageToWorkspace(rootDir: string): void {
   // 3. Validate Destination existence (prevent accidental overwrite)
   if (fs.existsSync(destinationPath)) {
     console.error(
-      `\n❌ Error: Destination directory already exists at ${destinationPath}.`
+      `\nError: Destination directory already exists at ${destinationPath}.`
     );
     console.error(
       'Please manually remove it or rename it before running the script.'
@@ -186,24 +180,24 @@ function copyPackageToWorkspace(rootDir: string): void {
     });
 
     console.log(
-      `\n✅ Success! Contents of '${packageName}' copied to '${destinationPath}'`
+      `\nSuccess! Contents of '${packageName}' copied to '${destinationPath}'`
     );
 
     // Post-copy instructions
     console.log('\n*** IMPORTANT NEXT STEPS (MANDATORY) ***');
     console.log('1.Migrate Database:');
     console.log(
-      `   - pnpm prisma migrate --schema ./node_modules/@monodog/backend/prisma/schema.prisma`
+      `   - pnpm prisma migrate --schema ./node_modules/@mindfiredigital/monodog/prisma/schema.prisma`
     );
     console.log('2. Generate Client:');
     console.log(
-      `   - pnpm exec prisma generate --schema ./node_modules/@monodog/backend/prisma/schema.prisma`
+      `   - pnpm exec prisma generate --schema ./node_modules/@mindfiredigital/monodog/prisma/schema.prisma`
     );
     console.log('3. Run Backend app server with dashboard setup');
     console.log(`   - pnpm monodog-cli @monodog/dashboard --serve --root .`);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
-    console.error(`\n❌ Failed to copy files: ${message}`);
+    console.error(`\nFailed to copy files: ${message}`);
     process.exit(1);
   }
 }
@@ -233,7 +227,6 @@ function createConfigFileIfMissing(rootPath: string): void {
   };
 
   const contentString = JSON.stringify(defaultContent, null, 2);
-  // ---------------------
 
   console.log(`\n[monodog] Checking for ${configFileName}...`);
 

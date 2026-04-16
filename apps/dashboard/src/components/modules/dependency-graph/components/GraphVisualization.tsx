@@ -16,7 +16,10 @@ export default function GraphVisualization({
 }: GraphVisualizationProps) {
   return (
     <div className="relative bg-white rounded-lg shadow-sm border border-gray-200 p-6 min-h-[600px]">
-      <svg className="w-full h-full absolute inset-0" viewBox="0 0 800 600">
+      <svg
+        className="w-full h-full absolute inset-0"
+        viewBox={`-50 -50 ${600} ${600 + 50 * 2}`}
+      >
         {/* Render dependency arrows */}
         {packages.map(pkg =>
           Object.keys(pkg.dependencies).map(depName => {
@@ -28,7 +31,32 @@ export default function GraphVisualization({
               hoveredPackage === depName ||
               selectedPackage === pkg.name ||
               selectedPackage === depName;
+            const sourceX = dep.x + 50;
+            const sourceY = dep.y + 25;
 
+            let targetX = pkg.x;
+            let targetY = pkg.y + 25;
+
+            // If source is left of target connect to left border
+            if (sourceX < pkg.x) {
+              targetX = pkg.x;
+              targetY = pkg.y + 25;
+            }
+            // If source is right of target  connect to right border
+            else if (sourceX > pkg.x + 100) {
+              targetX = pkg.x + 100;
+              targetY = pkg.y + 25;
+            }
+            // If source is above target  connect to top border
+            else if (sourceY < pkg.y) {
+              targetX = pkg.x + 50;
+              targetY = pkg.y;
+            }
+            // If source is below target  connect to bottom border
+            else {
+              targetX = pkg.x + 50;
+              targetY = pkg.y + 50;
+            }
             return (
               <g key={`${pkg.name}-${depName}`}>
                 <defs>
@@ -48,10 +76,10 @@ export default function GraphVisualization({
                   </marker>
                 </defs>
                 <line
-                  x1={dep.x + 50}
-                  y1={dep.y + 25}
-                  x2={pkg.x}
-                  y2={pkg.y + 25}
+                  x1={sourceX}
+                  y1={sourceY}
+                  x2={targetX}
+                  y2={targetY}
                   stroke={isHighlighted ? '#3B82F6' : '#6B7280'}
                   strokeWidth={isHighlighted ? '3' : '2'}
                   markerEnd={`url(#arrow-${pkg.name}-${depName})`}
@@ -75,7 +103,8 @@ export default function GraphVisualization({
               Object.keys(pkg.dependents).includes(selectedPackage));
 
           return (
-            <g key={pkg.name}>
+            <g key={pkg.name} className="select-none">
+              {/* Main Card */}
               <rect
                 x={pkg.x}
                 y={pkg.y}
@@ -92,7 +121,7 @@ export default function GraphVisualization({
                         ? '#6B7280'
                         : '#E5E7EB'
                 }
-                strokeWidth={isSelected ? '3' : isConnected ? '2' : '2'}
+                strokeWidth={isSelected ? '3' : '2'}
                 className="cursor-pointer transition-all duration-200"
                 style={{
                   filter:
@@ -105,31 +134,11 @@ export default function GraphVisualization({
                 onClick={() => onPackageSelect(isSelected ? null : pkg.name)}
               />
 
-              {/* Package name */}
-              <text
-                x={pkg.x + 50}
-                y={pkg.y + 20}
-                textAnchor="middle"
-                className="text-xs font-medium fill-gray-900 pointer-events-none"
-              >
-                {formatPackageName(pkg.name)}
-              </text>
-
-              {/* Package version */}
-              <text
-                x={pkg.x + 50}
-                y={pkg.y + 35}
-                textAnchor="middle"
-                className="text-xs fill-gray-500 pointer-events-none"
-              >
-                v{pkg.version}
-              </text>
-
-              {/* Status indicator */}
+              {/* Status Indicator */}
               <circle
-                cx={pkg.x + 85}
-                cy={pkg.y + 15}
-                r="6"
+                cx={pkg.x + 90}
+                cy={pkg.y + 10}
+                r="4"
                 fill={
                   pkg.status === 'healthy'
                     ? '#10B981'
@@ -140,13 +149,13 @@ export default function GraphVisualization({
                 className="pointer-events-none"
               />
 
-              {/* Type indicator */}
+              {/* Type Indicator */}
               <rect
-                x={pkg.x + 5}
-                y={pkg.y + 5}
-                width="12"
-                height="8"
-                rx="2"
+                x={pkg.x + 8}
+                y={pkg.y + 7}
+                width="10"
+                height="6"
+                rx="1"
                 fill={
                   pkg.type === 'app'
                     ? '#3B82F6'
@@ -156,6 +165,26 @@ export default function GraphVisualization({
                 }
                 className="pointer-events-none"
               />
+
+              {/* Package Name */}
+              <text
+                x={pkg.x + 50}
+                y={pkg.y + 26}
+                textAnchor="middle"
+                className="text-[10px] font-bold fill-gray-900 pointer-events-none"
+              >
+                {formatPackageName(pkg.name)}
+              </text>
+
+              {/* Package Version */}
+              <text
+                x={pkg.x + 50}
+                y={pkg.y + 38}
+                textAnchor="middle"
+                className="text-[9px] fill-gray-500 pointer-events-none"
+              >
+                v{pkg.version}
+              </text>
             </g>
           );
         })}
