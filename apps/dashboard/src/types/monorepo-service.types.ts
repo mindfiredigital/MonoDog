@@ -10,6 +10,7 @@ export interface Package {
   type: 'app' | 'lib' | 'tool';
   dependencies?: Record<string, string>;
   devDependencies?: Record<string, string>;
+  peerDependencies?: Record<string, string>;
 }
 
 export interface DependencyInfo {
