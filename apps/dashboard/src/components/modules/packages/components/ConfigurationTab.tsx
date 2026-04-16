@@ -18,7 +18,6 @@ export default function ConfigurationTab({
   const [copiedScript, setCopiedScript] = useState<string | null>(null); // Track which script was copied
   const [isConfigCopied, setIsConfigCopied] = useState(false);
 
-  // console.log('Package Data:', packageData);
   const generatePackageJson = () => {
     // Create a proper JavaScript object
     const configObject = {
@@ -64,8 +63,6 @@ export default function ConfigurationTab({
     setSaveMessage('');
 
     try {
-      // console.log('Saving package configuration...');
-
       // Use the MonorepoService to update the package configuration
       const result = await monorepoService.updatePackageConfiguration(
         packageData.name,
@@ -76,7 +73,6 @@ export default function ConfigurationTab({
       if (result.success) {
         setSaveMessage('Configuration updated successfully!');
         setIsEditing(false);
-        // console.log('Update successful:', result);
 
         // Optionally trigger a refresh of package data
         // You might want to call a callback prop here to refresh parent state

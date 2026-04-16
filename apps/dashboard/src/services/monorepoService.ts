@@ -10,133 +10,7 @@ import type {
 } from '../types/monorepo-service.types';
 class MonorepoService {
   // Simulated monorepo data based on typical monorepo structure
-  private mockPackages: Package[] = [
-    // {
-    //   name: '@monodog/dashboard',
-    //   version: '1.0.0',
-    //   type: 'app',
-    //   status: 'healthy',
-    //   lastUpdated: '2024-01-16',
-    //   dependencies: 12,
-    //   maintainers: ['team-frontend'],
-    //   tags: ['core', 'ui', 'application'],
-    //   description: 'React dashboard for monodog monorepo management',
-    //   path: 'apps/dashboard',
-    //   private: false,
-    //   scripts: {
-    //     dev: 'vite',
-    //     build: 'tsc && vite build',
-    //     preview: 'vite preview',
-    //     lint: 'eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0',
-    //     test: 'jest',
-    //   },
-    //   dependenciesList: [
-    //     'react',
-    //     'react-dom',
-    //     'react-router-dom',
-    //     '@heroicons/react',
-    //     'recharts',
-    //     'clsx',
-    //     'date-fns',
-    //     'zustand',
-    //   ],
-    //   devDependenciesList: [
-    //     '@types/react',
-    //     '@types/react-dom',
-    //     '@vitejs/plugin-react',
-    //     'typescript',
-    //     'vite',
-    //     'tailwindcss',
-    //   ],
-    // },
-    // {
-    //   name: '@monodog/backend',
-    //   version: '1.0.0',
-    //   type: 'service',
-    //   status: 'healthy',
-    //   lastUpdated: '2024-01-16',
-    //   dependencies: 8,
-    //   maintainers: ['team-backend'],
-    //   tags: ['core', 'api', 'service'],
-    //   description: 'Backend API server for monodog monorepo dashboard',
-    //   path: 'packages/backend',
-    //   private: false,
-    //   scripts: {
-    //     dev: 'tsx watch index.ts',
-    //     start: 'tsx index.ts',
-    //     build: 'tsc',
-    //     test: 'jest',
-    //   },
-    //   dependenciesList: ['express', 'cors', 'body-parser', '@prisma/client'],
-    //   devDependenciesList: [
-    //     '@types/express',
-    //     '@types/cors',
-    //     '@types/node',
-    //     'tsx',
-    //     'typescript',
-    //     'prisma',
-    //   ],
-    // },
-    // {
-    //   name: '@monodog/utils',
-    //   version: '1.0.0',
-    //   type: 'lib',
-    //   status: 'healthy',
-    //   lastUpdated: '2024-01-16',
-    //   dependencies: 3,
-    //   maintainers: ['team-shared'],
-    //   tags: ['shared', 'utilities', 'library'],
-    //   description: 'Shared utility functions for monodog monorepo dashboard',
-    //   path: 'libs/utils',
-    //   private: false,
-    //   scripts: {
-    //     build: 'tsc',
-    //     test: 'jest',
-    //   },
-    //   dependenciesList: [],
-    //   devDependenciesList: ['@types/node', 'typescript'],
-    // },
-    // {
-    //   name: '@monodog/monorepo-scanner',
-    //   version: '0.2.0',
-    //   type: 'tool',
-    //   status: 'warning',
-    //   lastUpdated: '2024-01-15',
-    //   dependencies: 7,
-    //   maintainers: ['team-devops'],
-    //   tags: ['tooling', 'scanner', 'core'],
-    //   description: 'Monorepo package discovery and analysis tool',
-    //   path: 'packages/monorepo-scanner',
-    //   private: false,
-    //   scripts: {
-    //     build: 'tsc',
-    //     test: 'jest',
-    //     scan: 'node dist/index.js',
-    //   },
-    //   dependenciesList: ['chalk', 'commander', 'glob', 'fs-extra'],
-    //   devDependenciesList: ['@types/node', 'typescript', 'jest'],
-    // },
-    // {
-    //   name: '@monodog/ci-status',
-    //   version: '0.3.1',
-    //   type: 'tool',
-    //   status: 'healthy',
-    //   lastUpdated: '2024-01-14',
-    //   dependencies: 5,
-    //   maintainers: ['team-devops'],
-    //   tags: ['tooling', 'ci', 'monitoring'],
-    //   description: 'CI/CD status monitoring and reporting tool',
-    //   path: 'packages/ci-status',
-    //   private: false,
-    //   scripts: {
-    //     build: 'tsc',
-    //     test: 'jest',
-    //     start: 'node dist/index.js',
-    //   },
-    //   dependenciesList: ['axios', 'ws', 'dotenv'],
-    //   devDependenciesList: ['@types/node', 'typescript', 'jest'],
-    // },
-  ];
+  private mockPackages: Package[] = [];
 
   async getPackages(): Promise<Package[]> {
     try {
@@ -225,31 +99,6 @@ class MonorepoService {
       return [];
     }
   }
-  // async getHealthStatus(): Promise<{
-  //   overallScore: number;
-  //   metrics: HealthMetric[];
-  //   packageHealth: Array<{ package: string; score: number; issues: string[] }>;
-  // }> {
-  //   console.log('Fetching health status...');
-  //   try {
-  //     // Call your real backend API
-  //     const healthRes = await fetch(`${API_BASE}/health/packages`);
-
-  //     if (!healthRes.ok) {
-  //       throw new Error('Failed to fetch health data');
-  //     }
-
-  //     const healthData = await healthRes.json();
-  //     console.log('Health data:', healthData);
-
-  //     // Transform the data to match your frontend expectations
-  //     return this.transformHealthData(healthData);
-  //   } catch (error) {
-  //     console.error('Error fetching health data:', error);
-  //     // Fallback to the existing mock implementation
-  //     return await this.getFallbackHealthStatus();
-  //   }
-  // }
 
   async getHealthStatus(): Promise<{
     overallScore: number;
@@ -306,113 +155,13 @@ class MonorepoService {
       }
 
       const healthData = healthRes.data;
-      // console.log('Health data from refreshHealthStatus:', healthData);
 
-      // Transform the data to match your frontend expectations
-      // return this.transformHealthData(healthData);
       return healthData;
     } catch (error) {
       console.error('Error fetching health data:', error);
-      // Fallback to the existing mock implementation
-      // return await this.getFallbackHealthStatus();
     }
   }
-  // Add this private method for fallback data
-  // async getHealthStatus(): Promise<{
-  //   overallScore: number;
-  //   metrics: HealthMetric[];
-  //   packageHealth: Array<{ package: string; score: number; issues: string[] }>;
-  // }> {
-  //   const healthRes = await fetch(`${API_BASE}/health/packages`);
-  //   await new Promise(resolve => setTimeout(resolve, 400));
 
-  //   const metrics: HealthMetric[] = [];
-  //   let totalScore = 0;
-
-  //   // Package count metric
-  //   const packageCount = this.mockPackages.length;
-  //   const packageCountScore = Math.min(100, (packageCount / 10) * 100);
-  //   metrics.push({
-  //     name: 'Package Count',
-  //     value: packageCount,
-  //     status:
-  //       packageCountScore >= 80
-  //         ? 'healthy'
-  //         : packageCountScore >= 60
-  //           ? 'warning'
-  //           : 'error',
-  //     description: `${packageCount} packages in monorepo`,
-  //   });
-  //   totalScore += packageCountScore;
-
-  //   // Dependency health metric
-  //   const avgDependencies =
-  //     this.mockPackages.reduce((sum, pkg) => sum + pkg.dependencies, 0) /
-  //     this.mockPackages.length;
-  //   const dependencyScore =
-  //     avgDependencies <= 15 ? 100 : avgDependencies <= 25 ? 80 : 60;
-  //   metrics.push({
-  //     name: 'Dependency Health',
-  //     value: Math.round(avgDependencies),
-  //     status:
-  //       dependencyScore >= 80
-  //         ? 'healthy'
-  //         : dependencyScore >= 60
-  //           ? 'warning'
-  //           : 'error',
-  //     description: `Average ${Math.round(avgDependencies)} dependencies per package`,
-  //   });
-  //   totalScore += dependencyScore;
-
-  //   // Version consistency metric
-  //   const versions = this.mockPackages.map(pkg => pkg.version);
-  //   const uniqueVersions = new Set(versions).size;
-  //   const versionScore =
-  //     uniqueVersions <= 3 ? 100 : uniqueVersions <= 5 ? 80 : 60;
-  //   metrics.push({
-  //     name: 'Version Consistency',
-  //     value: uniqueVersions,
-  //     status:
-  //       versionScore >= 80
-  //         ? 'healthy'
-  //         : versionScore >= 60
-  //           ? 'warning'
-  //           : 'error',
-  //     description: `${uniqueVersions} different versions in use`,
-  //   });
-  //   totalScore += versionScore;
-
-  //   // Package health analysis
-  //   const packageHealth = this.mockPackages.map(pkg => {
-  //     let score = 100;
-  //     const issues: string[] = [];
-
-  //     if (!pkg.description || pkg.description === 'No description provided') {
-  //       score -= 20;
-  //       issues.push('Missing description');
-  //     }
-
-  //     if (pkg.dependencies > 20) {
-  //       score -= 15;
-  //       issues.push('High dependency count');
-  //     }
-
-  //     if (pkg.private && !pkg.scripts?.build) {
-  //       score -= 10;
-  //       issues.push('Private package without build script');
-  //     }
-
-  //     return { package: pkg.name, score: Math.max(0, score), issues };
-  //   });
-
-  //   const overallScore = Math.round(totalScore / metrics.length);
-
-  //   return {
-  //     overallScore,
-  //     metrics,
-  //     packageHealth,
-  //   };
-  // }
   private async getFallbackHealthStatus(): Promise<{
     overallScore: number;
     metrics: HealthMetric[];
@@ -456,80 +205,6 @@ class MonorepoService {
     };
   }
 
-  // Add this private transform method
-  // private transformHealthData(healthData: any): {
-  //   overallScore: number;
-  //   metrics: HealthMetric[];
-  //   packageHealth: Array<{ package: string; score: number; issues: string[] }>;
-  // } {
-  //   console.log('-->', healthData);
-  //   const overallScore = healthData.summary?.averageScore || 75;
-
-  //   // Create metrics from health data
-  //   const metrics: HealthMetric[] = [
-  //     {
-  //       name: 'Package Health',
-  //       value: healthData.summary?.healthy || 0,
-  //       status: this.calculateHealthStatus(
-  //         healthData.summary?.healthy,
-  //         healthData.summary?.total
-  //       ),
-  //       description: `${healthData.summary?.healthy || 0} healthy packages out of ${healthData.summary?.total || 0}`,
-  //     },
-  //     {
-  //       name: 'Overall Score',
-  //       value: Math.round(overallScore),
-  //       status:
-  //         Math.round(overallScore) >= 80
-  //           ? 'healthy'
-  //           : Math.round(overallScore) >= 60
-  //             ? 'warning'
-  //             : 'error',
-  //       description: `Average health score: ${Math.round(overallScore)}/100`,
-  //     },
-  //     {
-  //       name: 'Unhealthy Packages',
-  //       value: healthData.summary?.unhealthy || 0,
-  //       status:
-  //         (healthData.summary?.unhealthy || 0) === 0
-  //           ? 'healthy'
-  //           : (healthData.summary?.unhealthy || 0) <= 2
-  //             ? 'warning'
-  //             : 'error',
-  //       description: `${healthData.summary?.unhealthy || 0} packages need attention`,
-  //     },
-  //   ];
-
-  //   // Transform package health data
-  //   const packageHealth = healthData.packages.map((pkg: any) => ({
-  //     package: pkg.packageName,
-  //     score: pkg.health?.overallScore || 0,
-  //     issues: pkg.error
-  //       ? [pkg.error]
-  //       : (pkg.health?.overallScore || 0) < 80
-  //         ? ['Needs improvement']
-  //         : [],
-  //   }));
-
-  //   return {
-  //     overallScore,
-  //     metrics,
-  //     packageHealth,
-  //   };
-  // }
-
-  // Add this helper method (RENAMED to avoid conflict)
-  // private calculateHealthStatus(
-  //   healthy: number,
-  //   total: number
-  // ): 'healthy' | 'warning' | 'error' {
-  //   if (total === 0) return 'healthy';
-  //   const ratio = healthy / total;
-  //   if (ratio >= 0.8) return 'healthy';
-  //   if (ratio >= 0.6) return 'warning';
-  //   return 'error';
-  // }
-
   // Add this method to your MonorepoService class
   async updatePackageConfiguration(
     packageName: string,
@@ -543,11 +218,6 @@ class MonorepoService {
     preservedFields?: boolean;
   }> {
     try {
-      // console.log(
-      //   '📤 Updating package configuration via MonorepoService:',
-      //   packageName
-      // );
-
       const response = await apiClient.put(
         DASHBOARD_API_ENDPOINTS.PACKAGES.UPDATE_CONFIG,
         JSON.stringify({
@@ -615,9 +285,6 @@ class MonorepoService {
 
   async getConfigurationFiles(): Promise<ConfigFile[]> {
     try {
-      // console.log('Fetching configuration files from backend...');
-
-      // Call your real backend API
       const res = await apiClient.get(DASHBOARD_API_ENDPOINTS.CONFIG.FILES);
 
       if (!res.success) {
@@ -626,21 +293,13 @@ class MonorepoService {
 
       const response = res.data;
 
-      // console.log('Response from config files API:', response);
-
       if (response.success && response.files) {
-        // console.log(
-        //   `Successfully fetched ${response.files.length} configuration files`
-        // );
         return response.files;
       } else {
         throw new Error('Invalid response format from config files API');
       }
     } catch (error) {
       console.error('Error fetching configuration files from backend:', error);
-
-      // Fallback to empty array if backend call fails
-      // console.log('Returning empty config files list due to error...');
       return [];
     }
   }
@@ -664,7 +323,6 @@ class MonorepoService {
       const response = res.data;
 
       if (response.success && response.file) {
-        // console.log('File saved successfully:', fileId);
         return response.file;
       } else {
         throw new Error('Invalid response format from save file API');

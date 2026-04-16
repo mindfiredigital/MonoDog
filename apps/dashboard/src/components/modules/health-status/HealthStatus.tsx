@@ -39,7 +39,6 @@ export default function HealthStatus() {
 
     fetchHealthData();
   }, [refreshKey]);
-  // console.log('Health data from outside of useEffect:', healthData);
 
   const refreshData = async () => {
     try {
@@ -48,7 +47,6 @@ export default function HealthStatus() {
       setLoading(true);
       try {
         const data = await monorepoService.refreshHealthStatus();
-        // console.log('Health data:', data);
         setHealthData(data);
         setError(null);
       } catch (err) {
@@ -172,7 +170,7 @@ export default function HealthStatus() {
   }
 
   const overallHealth = healthData ? healthData.summary?.averageScore : 0;
-  console.log('Overall', healthData);
+
   const healthyPackages = healthData
     ? healthData?.packages?.filter(pkg => pkg.health.overallScore >= 80).length
     : 0;
