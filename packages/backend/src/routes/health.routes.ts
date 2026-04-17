@@ -9,7 +9,7 @@ import {
 const router = Router();
 
 router.get('/', getHealth);
-router.get('/refresh', refreshHealth);
+router.post('/refresh', refreshHealth);
 router.get('/packages', getAllPackagesHealth);
 router.get('/packages/:name', getPackageHealth);
 
