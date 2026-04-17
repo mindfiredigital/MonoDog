@@ -19,7 +19,7 @@ Build Setup:
 
 Run monodog workspace using serve script:
 
-    npm --workspace @mindfiredigital/monodog run serve
+    pnpm --filter @mindfiredigital/monodog run serve
 
 ### Install Package in Monorepo
 
@@ -29,9 +29,8 @@ Install monodog in a monorepo workspace root:
 
 Run app using serve script:
 
-    cd ./monodog/ && npm run serve
+    cd ./monodog/ && pnpm run serve
 
 ## License
 
 Licensed under the MIT License, Copyright © Mindfire Solutions
-

@@ -4,10 +4,15 @@ import path from 'path';
 // dotenv.config({ path: path.resolve(__dirname, '../.env') });
 // Fallback import to handle environments where PrismaClient isn't a named export
 import * as PrismaPkg from '@prisma/client';
-const PrismaClient = (PrismaPkg as any).PrismaClient || (PrismaPkg as any).default || PrismaPkg;
+const PrismaClient =
+  (PrismaPkg as any).PrismaClient || (PrismaPkg as any).default || PrismaPkg;
 // Provide a fallback reference to the Prisma namespace so errors like
 // Prisma.PrismaClientKnownRequestError can be referenced safely.
-const Prisma = (PrismaPkg as any).Prisma || (PrismaPkg as any).PrismaClient?.Prisma || (PrismaPkg as any).default?.Prisma || PrismaPkg;
+const Prisma =
+  (PrismaPkg as any).Prisma ||
+  (PrismaPkg as any).PrismaClient?.Prisma ||
+  (PrismaPkg as any).default?.Prisma ||
+  PrismaPkg;
 // Import the validateConfig function from your utils
 import { loadConfig } from '../config-loader';
 
@@ -38,7 +43,6 @@ async function storeCommits(
   packageName: string,
   commits: Commit[]
 ): Promise<void> {
-  console.log('💾 Storing commits for:' + packageName);
   // Create or update dependencies
   for (const commit of commits) {
     try {
@@ -182,7 +186,6 @@ async function storeDependencies(
   packageName: string,
   dependencies: DependencyInfo[]
 ): Promise<void> {
-  console.log('💾 Storing Dependencies for:' + packageName);
   // Create or update dependencies
   for (const dep of dependencies) {
     try {
@@ -209,7 +212,6 @@ async function storeDependencies(
           packageName: packageName,
         },
       });
-      console.log('💾 Dependencies stored in database:' + dep.name);
     } catch (e) {
       const err = e as any;
       if (

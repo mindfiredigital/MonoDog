@@ -1,5 +1,5 @@
 {
-  "name": "@mindfiredigital/monodog",
+  "name": "monodog-workspace",
   "version": "1.0.0",
   "description": "Self-hosted monorepo package manager dashboard",
   "private": true,
@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
+    "cookie-parser": "^1.4.7",
     "dotenv": "^17.2.3"
   },
   "devDependencies": {
