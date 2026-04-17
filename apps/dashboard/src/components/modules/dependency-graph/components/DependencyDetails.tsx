@@ -182,14 +182,12 @@ export default function DependencyDetails({
         </div>
 
         {/* Actions */}
-        <div className="pt-2 border-t border-gray-200">
-          <Link
-            to={`/packages/${encodeURIComponent(pkg.name)}`}
-            className="block w-full text-center bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 text-sm font-medium transition-colors"
-          >
-            View Package Details <ArrowLongRightIcon></ArrowLongRightIcon>
-          </Link>
-        </div>
+        <Link
+          to={`/packages/${encodeURIComponent(pkg.name)}`}
+          className="flex items-center justify-center gap-2 w-full bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 text-sm font-medium transition-colors"
+        >
+          View Package Details <ArrowLongRightIcon className="w-5 h-5" />
+        </Link>
       </div>
     </div>
   );

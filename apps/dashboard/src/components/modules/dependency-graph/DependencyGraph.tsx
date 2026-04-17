@@ -24,8 +24,6 @@ import {
   calculateLayout,
   mapAllDependents,
 } from './utils/dependency.utils';
-import { LinkIcon } from '../../../icons/heroicons';
-// Re-export types for backward compatibility
 export type { PackageNode } from './types/dependency.types';
 
 export default function DependencyGraph() {
@@ -35,7 +33,9 @@ export default function DependencyGraph() {
       try {
         setLoading(true);
         const pkgs = await monorepoService.getPackages();
-        const dependentsMap = mapAllDependents(pkgs);
+        const dependentsMap = mapAllDependents(
+          pkgs as unknown as PackageNode[]
+        );
         const packagesMap = pkgs.map(pkg => ({
           ...pkg, // Keep all existing package data
           dependencies: {
@@ -46,7 +46,7 @@ export default function DependencyGraph() {
           dependents: dependentsMap[pkg.name],
         }));
 
-        setPackages(packagesMap);
+        setPackages(packagesMap as unknown as PackageNode[]);
         setError(null);
       } catch (err) {
         setError(DASHBOARD_ERROR_MESSAGES.FAILED_TO_FETCH_PACKAGES);
