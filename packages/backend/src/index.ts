@@ -14,13 +14,6 @@ import { prisma } from './db/prisma';
 
 export { scanner } from './services/scan.service';
 
-export interface HealthMetric {
-  name: string;
-  value: number;
-  status: 'healthy' | 'warning' | 'error';
-  description: string;
-}
-
 // The main function exported and called by the CLI
 export function startServer(
   rootPath: string,

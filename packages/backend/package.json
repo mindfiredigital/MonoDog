@@ -20,7 +20,8 @@
     "db:url": "node dist/get-db-url.js",
     "generate": "tsx src/run-db.ts prisma generate",
     "migrate": "tsx src/run-db.ts prisma migrate dev",
-    "serve": "tsx src/run-db.ts node dist/cli.js --serve --root ../../"
+    "serve": "tsx src/run-db.ts node dist/cli.js --serve --root ../../",
+    "test": "vitest run"
   },
   "dependencies": {
     "@monodog/ci-status": "1.1.5",
@@ -51,6 +52,7 @@
     "cross-env": "^10.1.0",
     "ts-node": "^10.0.0",
     "tsx": "^4.6.0",
-    "typescript": "^5.3.8"
+    "typescript": "^5.3.8",
+    "vitest": "^4.1.4"
   }
 }
