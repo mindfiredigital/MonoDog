@@ -1,3 +1,13 @@
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  afterEach,
+  beforeAll,
+  afterAll,
+} from 'vitest';
 /**
  * LoginPage Tests
  * Tests for login page: GitHub button,  error display, loading states
@@ -12,23 +22,7 @@ import {
 } from '../src/constants/messages';
 
 // Mock dependencies BEFORE imports
-jest.mock('../src/services/auth-context');
-jest.mock('../src/constants/api-config', () => ({
-  DASHBOARD_API_ENDPOINTS: {
-    AUTH: {
-      LOGIN: '/auth/login',
-    },
-  },
-}));
-
-jest.mock('../src/constants/messages', () => ({
-  DASHBOARD_ERROR_MESSAGES: {
-    AUTHENTICATION_ERROR: 'Authentication error',
-  },
-  DASHBOARD_AUTH_MESSAGES: {
-    LOGIN_INITIATED: 'Login initiated',
-  },
-}));
+vi.mock('../src/services/auth-context');
 
 describe('LoginPage', () => {
   describe('Component Structure', () => {

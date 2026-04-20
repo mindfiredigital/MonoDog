@@ -1,7 +1,17 @@
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  afterEach,
+  beforeAll,
+  afterAll,
+} from 'vitest';
 // Unit tests for monorepoService — single consolidated suite
 
 // Mock the dependencies before importing monorepoService
-jest.mock('../src/constants/api-config', () => ({
+vi.mock('../src/constants/api-config', () => ({
   DASHBOARD_API_ENDPOINTS: {
     PACKAGES: {
       LIST: '/packages',
@@ -23,13 +33,13 @@ jest.mock('../src/constants/api-config', () => ({
   },
 }));
 
-jest.mock('../src/services/api', () => ({
+vi.mock('../src/services/api', () => ({
   __esModule: true,
   default: {
-    get: jest.fn().mockResolvedValue({ success: true, data: [] }),
-    post: jest.fn().mockResolvedValue({ success: true, data: {} }),
-    put: jest.fn().mockResolvedValue({ success: true, data: {} }),
-    delete: jest.fn().mockResolvedValue({ success: true }),
+    get: vi.fn().mockResolvedValue({ success: true, data: [] }),
+    post: vi.fn().mockResolvedValue({ success: true, data: {} }),
+    put: vi.fn().mockResolvedValue({ success: true, data: {} }),
+    delete: vi.fn().mockResolvedValue({ success: true }),
   },
 }));
 
@@ -53,9 +63,9 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
-  jest.clearAllMocks();
+  vi.clearAllMocks();
   // mock global fetch by default; individual tests will override resolve/reject
-  (global as any).fetch = jest.fn();
+  (global as any).fetch = vi.fn();
 });
 
 describe('monorepoService (unit)', () => {

@@ -1,3 +1,4 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 /**
  * API Client Tests
  * Tests for ApiClient class: request handling, error handling, retries, interceptors
@@ -8,27 +9,27 @@ import ApiClient from '../src/services/api/api-client';
 import { cookieUtils } from '../src/utils/cookies';
 
 // Mock axios
-jest.mock('axios');
+vi.mock('axios');
 
 describe('ApiClient', () => {
-  let mockAxiosInstance: Record<string, jest.Mock | jest.MockedFunction<any>>;
+  let mockAxiosInstance: Record<string, vi.Mock | vi.MockedFunction<any>>;
   let apiClient: ApiClient;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     // Mock axios.create
     mockAxiosInstance = {
-      request: jest.fn(),
+      request: vi.fn(),
       interceptors: {
-        request: { use: jest.fn() },
-        response: { use: jest.fn() },
+        request: { use: vi.fn() },
+        response: { use: vi.fn() },
       },
     };
 
-    (axios.create as jest.Mock).mockReturnValue(mockAxiosInstance);
+    (axios.create as vi.Mock).mockReturnValue(mockAxiosInstance);
     // cast to unknown first to satisfy TS
-    (axios.isAxiosError as unknown as jest.Mock).mockImplementation(
+    (axios.isAxiosError as unknown as vi.Mock).mockImplementation(
       error => error && error.response
     );
 
@@ -50,15 +51,15 @@ describe('ApiClient', () => {
     });
 
     it('should create instance with custom config', () => {
-      jest.clearAllMocks();
+      vi.clearAllMocks();
       mockAxiosInstance = {
-        request: jest.fn(),
+        request: vi.fn(),
         interceptors: {
-          request: { use: jest.fn() },
-          response: { use: jest.fn() },
+          request: { use: vi.fn() },
+          response: { use: vi.fn() },
         },
       };
-      (axios.create as jest.Mock).mockReturnValue(mockAxiosInstance);
+      (axios.create as vi.Mock).mockReturnValue(mockAxiosInstance);
 
       const customClient = new ApiClient({
         baseUrl: 'http://api.example.com',
@@ -82,7 +83,7 @@ describe('ApiClient', () => {
   describe('Authentication handling', () => {
     it('registers request interceptor that adds Authorization header', () => {
       const token = 'abc123';
-      jest.spyOn(cookieUtils, 'get').mockReturnValue(token);
+      vi.spyOn(cookieUtils, 'get').mockReturnValue(token);
 
       // ensure interceptor was attached
       expect(mockAxiosInstance.interceptors.request.use).toHaveBeenCalled();
@@ -95,8 +96,8 @@ describe('ApiClient', () => {
     });
 
     it('registers response interceptor that clears cookies on 401 errors', async () => {
-      jest.spyOn(cookieUtils, 'get').mockReturnValue('token');
-      const removeSpy = jest.spyOn(cookieUtils, 'remove');
+      vi.spyOn(cookieUtils, 'get').mockReturnValue('token');
+      const removeSpy = vi.spyOn(cookieUtils, 'remove');
 
       // confirm interceptor attached
       expect(mockAxiosInstance.interceptors.response.use).toHaveBeenCalled();
@@ -404,7 +405,7 @@ describe('ApiClient', () => {
 
     it('should handle unknown non-axios errors', async () => {
       const error = new Error('Network error');
-      (axios.isAxiosError as unknown as jest.Mock).mockReturnValue(false);
+      (axios.isAxiosError as unknown as vi.Mock).mockReturnValue(false);
 
       mockAxiosInstance.request.mockRejectedValue(error);
 
@@ -465,7 +466,7 @@ describe('ApiClient', () => {
         expect.objectContaining({ url: '/api/packages' })
       );
 
-      jest.clearAllMocks();
+      vi.clearAllMocks();
       mockAxiosInstance.request.mockResolvedValue({
         data: {},
         status: 200,

@@ -1,3 +1,13 @@
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  afterEach,
+  beforeAll,
+  afterAll,
+} from 'vitest';
 /**
  * Tests for dashboard utility functions
  */

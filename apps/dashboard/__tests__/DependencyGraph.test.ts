@@ -1,3 +1,13 @@
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  afterEach,
+  beforeAll,
+  afterAll,
+} from 'vitest';
 /**
  * Unit tests for DependencyGraph component
  * Tests dependency visualization, circular detection, and graph navigation
@@ -5,14 +15,14 @@
 
 import { monorepoService } from '../src/services/monorepoService';
 
-jest.mock('../src/services/monorepoService', () => ({
+vi.mock('../src/services/monorepoService', () => ({
   monorepoService: {
-    getDependencies: jest.fn(),
+    getDependencies: vi.fn(),
   },
 }));
 
 describe('DependencyGraph Component', () => {
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => vi.clearAllMocks());
 
   describe('Component Initialization', () => {
     it('should initialize with empty graph data', () => {
@@ -39,7 +49,7 @@ describe('DependencyGraph Component', () => {
         { name: 'pkg-2', dependencies: ['pkg-1'] } as any,
       ];
 
-      (monorepoService.getDependencies as jest.Mock).mockResolvedValueOnce(
+      (monorepoService.getDependencies as vi.Mock).mockResolvedValueOnce(
         graphData
       );
 
@@ -51,7 +61,7 @@ describe('DependencyGraph Component', () => {
     it('should handle empty dependency graph', async () => {
       const graphData: any[] = [];
 
-      (monorepoService.getDependencies as jest.Mock).mockResolvedValueOnce(
+      (monorepoService.getDependencies as vi.Mock).mockResolvedValueOnce(
         graphData
       );
 
@@ -60,7 +70,7 @@ describe('DependencyGraph Component', () => {
     });
 
     it('should handle fetch errors', async () => {
-      (monorepoService.getDependencies as jest.Mock).mockRejectedValueOnce(
+      (monorepoService.getDependencies as vi.Mock).mockRejectedValueOnce(
         new Error('Failed to fetch dependencies')
       );
 
