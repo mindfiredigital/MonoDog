@@ -23,25 +23,39 @@ export const getSystemHealth = () => {
 export const getPackageHealthMetrics = async (name: string) => {
   const packages = scanMonorepo(process.cwd());
 
-  const packageInfo = packages.find(p => p.name === name);
+  const pkg = packages.find(p => p.name === name);
 
-  if (!packageInfo) {
+  if (!pkg) {
     throw new Error('Package not found');
   }
+
+  const buildStatus = await funCheckBuildStatus(pkg);
+  const testCoverage = await funCheckTestCoverage(pkg);
+  const lintStatus = await funCheckLintStatus(pkg);
+  const securityAudit = await funCheckSecurityAudit(pkg);
+
+  const overallScore = calculatePackageHealth(
+    buildStatus,
+    testCoverage,
+    lintStatus,
+    securityAudit
+  );
 
   return {
     packageName: name,
     health: {
-      buildStatus: 'success',
-      testCoverage: Math.floor(Math.random() * 100),
-      lintStatus: 'pass',
-      securityAudit: 'pass',
-      overallScore: Math.floor(Math.random() * 40) + 60,
+      buildStatus,
+      testCoverage,
+      lintStatus,
+      securityAudit,
+      overallScore: overallScore.overallScore,
       lastUpdated: new Date(),
     },
-    size: {
-      size: Math.floor(Math.random() * 1024 * 1024),
-      files: Math.floor(Math.random() * 1000),
+
+    dependencies: {
+      dependencies: pkg.dependencies || [],
+      devDependencies: pkg.devDependencies || [],
+      peerDependencies: pkg.peerDependencies || [],
     },
   };
 };
