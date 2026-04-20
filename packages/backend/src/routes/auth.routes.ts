@@ -13,7 +13,7 @@ const router = Router();
 router.get('/login', login);
 router.get('/callback', callback);
 router.get('/me', getMe);
-router.get('/validate', validate);
+router.post('/validate', validate);
 router.post('/logout', logout);
 
 export default router;
