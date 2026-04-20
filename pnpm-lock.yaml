@@ -6718,6 +6718,14 @@ packages:
     engines: { node: '>=14.0.0' }
     dev: true
 
+  /tinyrainbow@3.1.0:
+    resolution:
+      {
+        integrity: sha512-Bf+ILmBgretUrdJxzXM0SgXLZ3XfiaUuOj/IKQHuTXip+05Xn+uyEYdVg0kYDipTBcLrCVyUzAPz7QmArb0mmw==,
+      }
+    engines: { node: '>=14.0.0' }
+    dev: true
+
   /to-regex-range@5.0.1:
     resolution:
       {
