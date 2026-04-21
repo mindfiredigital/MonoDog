@@ -1,10 +1,7 @@
 import { GraphVisualizationProps } from '../types/dependency.types';
-import {
-  getStatusColor,
-  getTypeColor,
-  formatPackageName,
-} from '../utils/dependency.utils';
+import { formatPackageName } from '../utils/dependency.utils';
 import { LinkIcon } from '../../../../icons/heroicons';
+import { getConnectionPoints } from '../utils/graph.utils';
 
 export default function GraphVisualization({
   packages,
@@ -12,7 +9,6 @@ export default function GraphVisualization({
   hoveredPackage,
   onPackageSelect,
   onPackageHover,
-  layout,
 }: GraphVisualizationProps) {
   return (
     <div className="relative bg-white rounded-lg shadow-sm border border-gray-200 p-6 min-h-[600px]">
@@ -26,52 +22,30 @@ export default function GraphVisualization({
             const dep = packages.find(d => d.name === depName);
             if (!dep) return null;
 
-            const isHighlighted =
-              hoveredPackage === pkg.name ||
-              hoveredPackage === depName ||
-              selectedPackage === pkg.name ||
-              selectedPackage === depName;
-            const sourceX = dep.x + 50;
-            const sourceY = dep.y + 25;
+            const isHighlighted = [pkg.name, depName].some(
+              name => name === hoveredPackage || name === selectedPackage
+            );
 
-            let targetX = pkg.x;
-            let targetY = pkg.y + 25;
+            const { sourceX, sourceY, targetX, targetY } = getConnectionPoints(
+              pkg,
+              dep
+            );
 
-            // If source is left of target connect to left border
-            if (sourceX < pkg.x) {
-              targetX = pkg.x;
-              targetY = pkg.y + 25;
-            }
-            // If source is right of target  connect to right border
-            else if (sourceX > pkg.x + 100) {
-              targetX = pkg.x + 100;
-              targetY = pkg.y + 25;
-            }
-            // If source is above target  connect to top border
-            else if (sourceY < pkg.y) {
-              targetX = pkg.x + 50;
-              targetY = pkg.y;
-            }
-            // If source is below target  connect to bottom border
-            else {
-              targetX = pkg.x + 50;
-              targetY = pkg.y + 50;
-            }
             return (
               <g key={`${pkg.name}-${depName}`}>
                 <defs>
                   <marker
                     id={`arrow-${pkg.name}-${depName}`}
-                    markerWidth="10"
-                    markerHeight="10"
+                    viewBox="0 0 10 10"
                     refX="9"
-                    refY="3"
-                    orient="auto"
-                    markerUnits="strokeWidth"
+                    refY="5"
+                    markerWidth="6"
+                    markerHeight="6"
+                    orient="auto-start-reverse"
                   >
                     <path
-                      d="M0,0 L0,6 L9,3 z"
-                      fill={isHighlighted ? '#3B82F6' : '#6B7280'}
+                      d="M 0 0 L 10 5 L 0 10 z"
+                      fill={isHighlighted ? '#3B82F6' : '#94A3B8'}
                     />
                   </marker>
                 </defs>
