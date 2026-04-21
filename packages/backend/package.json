@@ -21,7 +21,8 @@
     "generate": "tsx src/run-db.ts prisma generate",
     "migrate": "tsx src/run-db.ts prisma migrate dev",
     "serve": "tsx src/run-db.ts node dist/cli.js --serve --root ../../",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@monodog/ci-status": "1.1.5",
@@ -49,6 +50,7 @@
     "@types/node": "^20.10.0",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
+    "@vitest/coverage-v8": "^4.1.4",
     "cross-env": "^10.1.0",
     "ts-node": "^10.0.0",
     "tsx": "^4.6.0",
