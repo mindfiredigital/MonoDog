@@ -8,6 +8,7 @@ import type {
   WorkflowRun,
   WorkflowJob,
   StepLog,
+  JobLogs,
   LogLine,
   WorkflowTriggerRequest,
   WorkflowTriggerResponse,
@@ -549,6 +550,75 @@ export function parseJobLogs(rawLogs: string, job: WorkflowJob): StepLog[] {
   }
 
   return steps;
+}
+
+export function paginateJobLogs(
+  steps: StepLog[],
+  cursor: number = 0,
+  limit: number = 500
+): {
+  steps: StepLog[];
+  nextCursor: number;
+  totalLines: number;
+  hasMore: boolean;
+} {
+  const safeCursor = Math.max(0, cursor);
+  const safeLimit = Math.max(1, limit);
+  const end = safeCursor + safeLimit;
+
+  let globalLineIndex = 0;
+  const paginatedSteps = steps
+    .map(step => {
+      const stepLogs = step.logs.filter(() => {
+        const include = globalLineIndex >= safeCursor && globalLineIndex < end;
+        globalLineIndex += 1;
+        return include;
+      });
+
+      return {
+        ...step,
+        logs: stepLogs,
+      };
+    })
+    .filter(step => step.logs.length > 0);
+
+  const totalLines = steps.reduce((sum, step) => sum + step.logs.length, 0);
+  const nextCursor = Math.min(totalLines, end);
+
+  return {
+    steps: paginatedSteps,
+    nextCursor,
+    totalLines,
+    hasMore: nextCursor < totalLines,
+  };
+}
+
+export function buildJobLogsResponse(
+  job: WorkflowJob,
+  rawLogs: string,
+  cursor: number = 0,
+  limit: number = 500
+): JobLogs & {
+  nextCursor: number;
+  totalLines: number;
+  rateLimited?: boolean;
+} {
+  const parsedSteps = parseJobLogs(rawLogs, job);
+  const pagination = paginateJobLogs(parsedSteps, cursor, limit);
+
+  return {
+    jobId: job.id,
+    jobName: job.name,
+    status: job.status,
+    conclusion: job.conclusion,
+    startedAt: job.started_at,
+    completedAt: job.completed_at,
+    steps: pagination.steps,
+    hasPreviousLogs: cursor > 0,
+    hasMoreLogs: pagination.hasMore,
+    nextCursor: pagination.nextCursor,
+    totalLines: pagination.totalLines,
+  };
 }
 
 /**
