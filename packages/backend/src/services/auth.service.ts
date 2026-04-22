@@ -8,6 +8,7 @@ import {
 import { getRepositoryInfoFromGit } from '../utils/utilities';
 import { AppLogger } from '../middleware';
 import { getUserRepositoryPermission } from './permission-service';
+import { storeSession } from '../middleware/auth-middleware';
 
 const stateStore = new Map<
   string,
@@ -229,15 +230,7 @@ export async function handleOAuthCallback(
       }
     : null;
 
-  const sessionToken = Buffer.from(
-    JSON.stringify({
-      userId: user.id,
-      login: user.login,
-      token: tokenResponse.access_token,
-      permission: permissionData,
-      issuedAt: Date.now(),
-    })
-  ).toString('base64');
+  const sessionToken = storeSession(session);
 
   // Get redirect URL
   const redirectUrl = getRedirectUrl(state) || '/';
