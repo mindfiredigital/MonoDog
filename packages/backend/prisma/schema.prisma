@@ -112,3 +112,49 @@ model PackageHealth {
   @@map("package_health")
 }
 
+model ReleasePipeline {
+  id                String   @id @default(cuid())
+  releaseVersion    String
+  packageName       String
+  owner             String
+  repo              String
+  workflowId        String
+  workflowName      String
+  workflowPath      String?
+  triggerType       String
+  triggeredBy       String
+  triggeredAt       DateTime
+  currentStatus     String
+  currentConclusion String?
+  lastRunId         String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  auditLogs PipelineAuditLog[]
+
+  @@index([owner, repo, workflowId, triggeredAt])
+  @@index([releaseVersion, packageName])
+  @@map("release_pipeline")
+}
+
+model PipelineAuditLog {
+  id           String          @id @default(cuid())
+  pipelineId   String
+  userId       Int
+  username     String
+  action       String
+  resourceType String
+  resourceId   String
+  resourceName String
+  details      String
+  timestamp    DateTime        @default(now())
+  status       String
+  errorMessage String?
+
+  pipeline ReleasePipeline @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+
+  @@index([pipelineId, timestamp])
+  @@index([userId, timestamp])
+  @@map("pipeline_audit_log")
+}
+
