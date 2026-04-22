@@ -4,24 +4,66 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import type { AuthSession, AuthenticatedRequest } from '../types/auth';
+import type { AuthSession } from '../types/auth';
 import { AppLogger } from './logger';
 import { AUTH_ERRORS, PERMISSION_ERRORS } from '../constants/error-messages';
 import {
   HTTP_STATUS_UNAUTHORIZED,
   HTTP_STATUS_FORBIDDEN,
 } from '../constants/http';
+import { chars, sessionTimeout } from '../constants';
 
-// Store sessions in memory (should be replaced with proper session store in production)
 const sessionStore = new Map<string, AuthSession>();
-const sessionTimeout = 24 * 60 * 60 * 1000; // 24 hours
+
+function decodeLegacySessionToken(token: string): AuthSession | null {
+  try {
+    const decoded = JSON.parse(Buffer.from(token, 'base64').toString('utf-8'));
+
+    if (!decoded?.token || !decoded?.login || !decoded?.userId) {
+      return null;
+    }
+
+    return {
+      accessToken: decoded.token,
+      expiresIn: 3600,
+      expiresAt: decoded.issuedAt
+        ? decoded.issuedAt + sessionTimeout
+        : Date.now() + sessionTimeout,
+      user: {
+        id: decoded.userId,
+        login: decoded.login,
+        name: null,
+        email: null,
+        avatar_url: '',
+        html_url: '',
+        bio: null,
+        public_repos: 0,
+        followers: 0,
+        following: 0,
+      },
+      scopes: ['user:email', 'read:user', 'repo'],
+      permission: decoded.permission
+        ? {
+            userId: decoded.userId,
+            username: decoded.login,
+            owner: decoded.permission.owner || '',
+            repo: decoded.permission.repo || '',
+            permission: decoded.permission.level || 'read',
+            role: decoded.permission.role || 'Denied',
+            cachedAt: decoded.issuedAt || Date.now(),
+            ttl: sessionTimeout,
+          }
+        : null,
+    };
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Generate session token
  */
 export function generateSessionToken(length: number = 32): string {
-  const chars =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let token = '';
   for (let i = 0; i < length; i++) {
     token += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -52,7 +94,7 @@ export function storeSession(session: AuthSession): string {
 export function getSession(token: string): AuthSession | null {
   const session = sessionStore.get(token);
   if (!session) {
-    return null;
+    return decodeLegacySessionToken(token);
   }
 
   // Check if session has expired based on expiresAt

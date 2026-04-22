@@ -69,3 +69,8 @@ export const ERROR_SERVING_INDEX_HTML = 'Error serving index.html:';
  * Shutdown instruction message
  */
 export const MESSAGE_SHUTDOWN_INSTRUCTION = 'Press Ctrl+C to quit.';
+
+export const chars =
+  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+export const sessionTimeout = 24 * 60 * 60 * 1000; // 24 hours
