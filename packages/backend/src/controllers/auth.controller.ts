@@ -4,6 +4,7 @@ import {
   decodeSessionToken,
   handleOAuthCallback,
 } from '../services/auth.service';
+import { getSession } from '../middleware/auth-middleware';
 import {
   AUTH_ERRORS,
   AUTH_MESSAGES,
@@ -97,6 +98,19 @@ export const getMe = (req: Request, res: Response) => {
       });
     }
 
+    const session = getSession(token);
+
+    if (session) {
+      res.json({
+        success: true,
+        user: session.user,
+        scopes: session.scopes,
+        expiresAt: session.expiresAt,
+        permission: session.permission,
+      });
+      return;
+    }
+
     const decoded = decodeSessionToken(token);
 
     res.json({
@@ -129,7 +143,11 @@ export const validate = (req: Request, res: Response) => {
       });
     }
 
-    decodeSessionToken(token);
+    const session = getSession(token);
+
+    if (!session) {
+      decodeSessionToken(token);
+    }
 
     res.json({
       success: true,
