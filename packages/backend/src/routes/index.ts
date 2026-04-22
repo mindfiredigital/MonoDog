@@ -8,6 +8,8 @@ import commitsRoutes from './commits.routes';
 import searchRoutes from './search.routes';
 import activityRoutes from './activity.routes';
 import authRoutes from './auth.routes';
+import pipelineRoutes from './pipeline.routes';
+import workflowRoutes from './workflow.routes';
 import { getSystemInfo, getStats } from '../controllers/system.controller';
 
 const router = Router();
@@ -21,6 +23,8 @@ router.use('/config', configRoutes);
 router.use('/commits', commitsRoutes);
 router.use('/search', searchRoutes);
 router.use('/activity', activityRoutes);
+router.use('/pipelines', pipelineRoutes);
+router.use('/workflows', workflowRoutes);
 
 router.get('/system', getSystemInfo);
 router.get('/stats', getStats);
