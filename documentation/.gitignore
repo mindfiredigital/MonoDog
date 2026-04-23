@@ -3,6 +3,7 @@
 
 # production
 /build
+dist
 
 # generated files
 .docusaurus

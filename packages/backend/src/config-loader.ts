@@ -1,28 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-
-// Define a type/interface for your configuration structure
-interface MonodogConfig {
-  workspace: {
-    root_dir: string;
-    install_path: string;
-  };
-  database: {
-    type: 'postgres' | 'mysql' | 'sqlite';
-    host: string;
-    port: number;
-    user: string;
-    path: string; // Used for SQLite path or general data storage path
-  };
-  dashboard: {
-    host: string;
-    port: number;
-  };
-  server: {
-    host: string;
-    port: number;
-  };
-}
+import { MonodogConfig } from './types';
 
 // Global variable to hold the loaded config
 let config: MonodogConfig | null = null;
@@ -37,7 +15,6 @@ export function loadConfig(): MonodogConfig {
     return config; // Return cached config if already loaded
   }
 
-  // 1. Determine the path to the config file
   // We assume the backend package is running from the monorepo root (cwd is root)
   // or that we can navigate up to the root from the current file's location.
   const rootPath = path.resolve(process.cwd(), '.'); // Adjust based on your workspace folder depth  from root if needed
@@ -50,11 +27,11 @@ export function loadConfig(): MonodogConfig {
   }
 
   try {
-    // 2. Read and parse the JSON file
+    // Read and parse the JSON file
     const fileContent = fs.readFileSync(configPath, 'utf-8');
     const parsedConfig = JSON.parse(fileContent) as MonodogConfig;
 
-    // 3. Optional: Add validation logic here (e.g., check if ports are numbers)
+    // Optional: Add validation logic here (e.g., check if ports are numbers)
 
     // Cache and return
     config = parsedConfig;
@@ -68,7 +45,6 @@ export function loadConfig(): MonodogConfig {
 }
 
 function createConfigFileIfMissing(rootPath: string): void {
-  // --- CONFIGURATION ---
   const configFileName = 'monodog-conf.json';
   const configFilePath = path.resolve(rootPath, configFileName);
 
@@ -92,7 +68,6 @@ function createConfigFileIfMissing(rootPath: string): void {
   };
 
   const contentString = JSON.stringify(defaultContent, null, 2);
-  // ---------------------
 
   process.stderr.write(`\n[monodog] Checking for ${configFileName}...`);
 
@@ -121,26 +96,5 @@ function createConfigFileIfMissing(rootPath: string): void {
   }
 }
 
-// --- Example Usage ---
-
-// In your main application file (e.g., packages/backend/src/index.ts):
-/*
-
-import { loadConfig } from './config-loader';
-
-// Load configuration on startup
 const appConfig = loadConfig();
-
-// Access the variables easily
-const dbHost = appConfig.database.host;
-const serverPort = appConfig.server.port;
-const workspaceRoot = appConfig.workspace.root_dir;
-
-console.log(`\nStarting server on port: ${serverPort}`);
-console.log(`Database connecting to host: ${dbHost}`);
-
-// Example server start logic
-// app.listen(serverPort, appConfig.server.host, () => {
-//   console.log(`Server running at http://${appConfig.server.host}:${serverPort}`);
-// });
-*/
+export { appConfig };

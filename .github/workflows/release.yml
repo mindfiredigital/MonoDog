@@ -8,15 +8,15 @@ on:
 
 jobs:
   build:
-    name: "@mindfiredigital/monodog Build, Lint, and Test"
+    name: '@mindfiredigital/monodog Build, Lint, and Test'
     runs-on: ubuntu-latest
     permissions:
-        contents: write # Required to create release tags and update the changelog
-        issues: write   # Required to close issues/PRs linked in the changelog
-        pull-requests: write # Required for creating release pull requests (if configured)
+      contents: write # Required to create release tags and update the changelog
+      issues: write # Required to close issues/PRs linked in the changelog
+      pull-requests: write # Required for creating release pull requests (if configured)
 
     steps:
-      - name: "Checkout repository"
+      - name: 'Checkout repository'
         uses: actions/checkout@v3
 
       - name: Set up Node.js
@@ -29,16 +29,16 @@ jobs:
         with:
           version: 8
 
-      - name: "Install dependencies"
+      - name: 'Install dependencies'
         run: pnpm install --ignore-scripts --no-frozen-lockfile
 
-      - name: "Create build"
+      - name: 'Create build'
         run: pnpm run build
 
-      - name: "Lint code"
+      - name: 'Lint code'
         run: pnpm run lint
 
-      - name: "Run tests"
+      - name: 'Run tests'
         run: pnpm test
 
   create-github-release:
@@ -89,4 +89,3 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # NPM_TOKEN is used for publishing to the npm registry
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-

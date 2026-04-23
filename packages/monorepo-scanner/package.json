@@ -9,7 +9,8 @@
     "dev": "tsx watch src/index.ts",
     "start": "tsx src/index.ts",
     "build": "tsc",
-    "clean": "rm -rf dist node_modules/.cache",
+    "test": "vitest run",
+    "clean": "rimraf dist node_modules/.cache",
     "lint": "eslint ."
   },
   "dependencies": {
@@ -20,6 +21,7 @@
     "@types/node": "^20.10.0",
     "tsx": "^4.6.0",
     "typescript": "^5.3.0",
+    "vitest": "^4.1.4",
     "prisma": "^5.7.0"
   },
   "peerDependencies": {}

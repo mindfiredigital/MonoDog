@@ -1,5 +1,5 @@
 {
-  "name": "@mindfiredigital/monodog",
+  "name": "monodog-workspace",
   "version": "1.0.0",
   "description": "Self-hosted monorepo package manager dashboard",
   "private": true,
@@ -16,7 +16,8 @@
     "lint:fix": "turbo run lint:fix",
     "type-check": "turbo run type-check",
     "test": "turbo run test",
-    "clean": "turbo run clean && rm -rf node_modules/.cache",
+    "test:coverage": "turbo run test:coverage",
+    "clean": "turbo run clean && rimraf node_modules/.cache",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "changeset": "changeset",
@@ -26,6 +27,7 @@
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
+    "cookie-parser": "^1.4.7",
     "dotenv": "^17.2.3"
   },
   "devDependencies": {

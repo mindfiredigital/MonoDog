@@ -58,10 +58,7 @@ const sidebars = {
       type: 'category',
       label: 'Upcoming Features',
       collapsed: true,
-      items: [
-        'upcoming-features/CICD',
-        'upcoming-features/version-control',
-      ],
+      items: ['upcoming-features/CICD', 'upcoming-features/version-control'],
     },
   ],
 };

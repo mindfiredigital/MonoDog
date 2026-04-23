@@ -22,7 +22,6 @@ async function getCommits(path) {
   return await res.json();
 }
 async function storeCommits(packageName, commits) {
-  console.log('💾 Storing commits for:' + packageName);
   // Create or update dependencies
   for (const commit of commits) {
     try {
@@ -115,7 +114,7 @@ async function storePackage(pkg) {
       await storeDependencies(pkg.name, dependenciesInfo);
     }
   } catch (error) {
-    console.warn(`⚠️  Failed to store report for ${pkg.name}:`, error);
+    console.warn(`Failed to store report for ${pkg.name}:`, error);
   }
 }
 /**
@@ -156,7 +155,6 @@ function getPackageDependenciesInfo(pkg) {
  * Store dependencies in database
  */
 async function storeDependencies(packageName, dependencies) {
-  console.log('💾 Storing Dependencies for:' + packageName);
   // Create or update dependencies
   for (const dep of dependencies) {
     try {
@@ -183,7 +181,6 @@ async function storeDependencies(packageName, dependencies) {
           packageName: packageName,
         },
       });
-      console.log('💾 Dependencies stored in database:' + dep.name);
     } catch (e) {
       if (
         e instanceof client_1.Prisma.PrismaClientKnownRequestError &&
