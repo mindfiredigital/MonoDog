@@ -1,3 +1,13 @@
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  afterEach,
+  beforeAll,
+  afterAll,
+} from 'vitest';
 /**
  * Unit tests for HealthStatus component
  * Tests health metrics, package health, and status colors
@@ -5,14 +15,14 @@
 
 import { monorepoService } from '../src/services/monorepoService';
 
-jest.mock('../src/services/monorepoService', () => ({
+vi.mock('../src/services/monorepoService', () => ({
   monorepoService: {
-    getHealthStatus: jest.fn(),
+    getHealthStatus: vi.fn(),
   },
 }));
 
 describe('HealthStatus Component', () => {
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => vi.clearAllMocks());
 
   describe('Component Initialization', () => {
     it('should initialize with empty health data', () => {
@@ -37,7 +47,7 @@ describe('HealthStatus Component', () => {
         packageHealth: [{ package: 'pkg-1', score: 90, issues: [] }],
       };
 
-      (monorepoService.getHealthStatus as jest.Mock).mockResolvedValueOnce(
+      (monorepoService.getHealthStatus as vi.Mock).mockResolvedValueOnce(
         healthData
       );
 
@@ -49,7 +59,7 @@ describe('HealthStatus Component', () => {
     it('should handle empty health data', async () => {
       const healthData = { overallScore: 0, metrics: [], packageHealth: [] };
 
-      (monorepoService.getHealthStatus as jest.Mock).mockResolvedValueOnce(
+      (monorepoService.getHealthStatus as vi.Mock).mockResolvedValueOnce(
         healthData
       );
 
@@ -58,7 +68,7 @@ describe('HealthStatus Component', () => {
     });
 
     it('should handle fetch errors', async () => {
-      (monorepoService.getHealthStatus as jest.Mock).mockRejectedValueOnce(
+      (monorepoService.getHealthStatus as vi.Mock).mockRejectedValueOnce(
         new Error('Failed to fetch health status')
       );
 

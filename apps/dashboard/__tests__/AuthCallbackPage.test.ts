@@ -1,3 +1,13 @@
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  afterEach,
+  beforeAll,
+  afterAll,
+} from 'vitest';
 /**
  * AuthCallbackPage Tests
  * Tests for OAuth callback handler: parameter validation, API calls, error handling
@@ -12,30 +22,11 @@ import {
   DASHBOARD_AUTH_MESSAGES,
 } from '../src/constants/messages';
 
-// Mock dependencies BEFORE imports
-jest.mock('../src/services/api');
-jest.mock('../src/constants/api-config', () => ({
-  DASHBOARD_API_ENDPOINTS: {
-    AUTH: {
-      CALLBACK: '/auth/callback',
-    },
-  },
-}));
+vi.mock('../src/services/api');
 
-jest.mock('react-router-dom', () => ({
-  useSearchParams: jest.fn(() => [new URLSearchParams(), jest.fn()]),
-  useNavigate: jest.fn(),
-}));
-
-jest.mock('../src/constants/messages', () => ({
-  DASHBOARD_ERROR_MESSAGES: {
-    OAUTH_AUTHENTICATION_FAILED: 'OAuth authentication failed',
-    INVALID_STATE_PARAMETER: 'Invalid state parameter',
-    MISSING_CODE: 'Missing authorization code',
-  },
-  DASHBOARD_AUTH_MESSAGES: {
-    PROCESSING_CALLBACK: 'Processing OAuth callback',
-  },
+vi.mock('react-router-dom', () => ({
+  useSearchParams: vi.fn(() => [new URLSearchParams(), vi.fn()]),
+  useNavigate: vi.fn(),
 }));
 
 describe('AuthCallbackPage', () => {

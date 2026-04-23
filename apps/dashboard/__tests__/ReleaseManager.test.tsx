@@ -1,3 +1,13 @@
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  afterEach,
+  beforeAll,
+  afterAll,
+} from 'vitest';
 /**
  * Release Manager Tests
  * Tests for release workflow components and state management
@@ -81,7 +91,7 @@ const MockPublishConfirmation = ({
 
 describe('Release Manager', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Package Selection', () => {
@@ -106,7 +116,7 @@ describe('Release Manager', () => {
     });
 
     test('calls onNext when next button clicked', () => {
-      const mockNext = jest.fn();
+      const mockNext = vi.fn();
 
       render(
         <MockPackageSelector
@@ -173,7 +183,7 @@ describe('Release Manager', () => {
     });
 
     test('calls onConfirm when bump type selected', () => {
-      const mockConfirm = jest.fn();
+      const mockConfirm = vi.fn();
       const packages = [{ name: '@pkg/a', version: '1.0.0' }];
 
       render(
@@ -189,7 +199,7 @@ describe('Release Manager', () => {
     });
 
     test('calls onBack when back button clicked', () => {
-      const mockBack = jest.fn();
+      const mockBack = vi.fn();
 
       render(
         <MockVersionBumpSelector
@@ -237,7 +247,7 @@ describe('Release Manager', () => {
     });
 
     test('validates summary length before confirming', () => {
-      const mockConfirm = jest.fn();
+      const mockConfirm = vi.fn();
 
       render(
         <MockChangesetPreview
@@ -265,7 +275,7 @@ describe('Release Manager', () => {
     });
 
     test('calls onBack when back button clicked', () => {
-      const mockBack = jest.fn();
+      const mockBack = vi.fn();
 
       render(
         <MockChangesetPreview
@@ -339,7 +349,7 @@ describe('Release Manager', () => {
     });
 
     test('calls onReset when reset button clicked', () => {
-      const mockReset = jest.fn();
+      const mockReset = vi.fn();
 
       render(
         <MockPublishConfirmation packages={[]} summary="" onReset={mockReset} />

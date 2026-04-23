@@ -125,6 +125,18 @@ export async function getRecentPipelines(
 }
 
 /**
+ * Get a single pipeline by id
+ */
+export async function getPipelineById(pipelineId: string): Promise<any | null> {
+  try {
+    return await ReleasePipelineRepository.findById(pipelineId);
+  } catch (error) {
+    AppLogger.error(`Failed to get pipeline ${pipelineId}: ${error}`);
+    throw error;
+  }
+}
+
+/**
  * Delete old pipelines (cleanup)
  */
 export async function deleteOldPipelines(

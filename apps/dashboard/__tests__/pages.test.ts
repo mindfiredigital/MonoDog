@@ -1,56 +1,66 @@
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  afterEach,
+  beforeAll,
+  afterAll,
+} from 'vitest';
 /**
  * Tests for page wrapper components.
  * These are basic smoke tests to ensure pages export and have expected structure.
  */
 
 // Mock API dependencies
-jest.mock('../src/constants/api-config', () => ({
+vi.mock('../src/constants/api-config', () => ({
   DASHBOARD_API_ENDPOINTS: {
     PACKAGES: {
       LIST: '/packages',
-      DETAILS: jest.fn((name: string) => `/packages/${name}`),
+      DETAILS: vi.fn((name: string) => `/packages/${name}`),
     },
   },
   API_CONFIG: {},
 }));
 
-jest.mock('../src/services/api', () => ({
+vi.mock('../src/services/api', () => ({
   __esModule: true,
   default: {},
 }));
 
 // Mock the components before importing pages
-jest.mock('../src/components/main-dashboard/Dashboard', () => ({
+vi.mock('../src/components/main-dashboard/Dashboard', () => ({
   __esModule: true,
-  default: jest.fn(() => null),
+  default: vi.fn(() => null),
 }));
 
-jest.mock('../src/components/modules/health-status/HealthStatus', () => ({
+vi.mock('../src/components/modules/health-status/HealthStatus', () => ({
   __esModule: true,
-  default: jest.fn(() => null),
+  default: vi.fn(() => null),
 }));
 
-jest.mock('../src/components/modules/packages/PackagesOverview', () => ({
+vi.mock('../src/components/modules/packages/PackagesOverview', () => ({
   __esModule: true,
-  default: jest.fn(() => null),
+  default: vi.fn(() => null),
 }));
 
-jest.mock('../src/components/modules/packages/PackageDetail', () => ({
+vi.mock('../src/components/modules/packages/PackageDetail', () => ({
   __esModule: true,
-  default: jest.fn(() => null),
+  default: vi.fn(() => null),
 }));
 
-jest.mock('../src/components/modules/ci-integration/CIIntegration', () => ({
+vi.mock('../src/components/modules/ci-integration/CIIntegration', () => ({
   __esModule: true,
-  default: jest.fn(() => null),
+  default: vi.fn(() => null),
 }));
 
-jest.mock('../src/components/modules/config-inspector/ConfigInspector', () => ({
+vi.mock('../src/components/modules/config-inspector/ConfigInspector', () => ({
   __esModule: true,
-  default: jest.fn(() => null),
+  default: vi.fn(() => null),
 }));
 
-jest.mock('../src/services/monorepoService', () => ({
+vi.mock('../src/services/monorepoService', () => ({
   __esModule: true,
   monorepoService: {},
 }));

@@ -1,3 +1,13 @@
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  afterEach,
+  beforeAll,
+  afterAll,
+} from 'vitest';
 /**
  * Unit tests for ConfigInspector component
  * Tests configuration validation, inspection, and comparison
@@ -5,14 +15,14 @@
 
 import { monorepoService } from '../src/services/monorepoService';
 
-jest.mock('../src/services/monorepoService', () => ({
+vi.mock('../src/services/monorepoService', () => ({
   monorepoService: {
-    getConfiguration: jest.fn(),
+    getConfiguration: vi.fn(),
   },
 }));
 
 describe('ConfigInspector Component', () => {
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => vi.clearAllMocks());
 
   describe('Component Initialization', () => {
     it('should initialize with empty config', () => {

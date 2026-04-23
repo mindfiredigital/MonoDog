@@ -1,9 +1,15 @@
 import { Request, Response } from 'express';
 import {
   generateGithubAuthUrl,
-  exchangeGithubCodeForToken,
   decodeSessionToken,
+  handleOAuthCallback,
 } from '../services/auth.service';
+import {
+  AUTH_ERRORS,
+  AUTH_MESSAGES,
+  HTTP_STATUS_BAD_REQUEST,
+  HTTP_STATUS_INTERNAL_SERVER_ERROR,
+} from '../constants';
 
 export const login = (req: Request, res: Response) => {
   try {
@@ -31,27 +37,51 @@ export const login = (req: Request, res: Response) => {
 
 export const callback = async (req: Request, res: Response) => {
   try {
-    const { code, state } = req.query;
-    const cookieState = req.cookies?.oauth_state;
+    const { code, state, error, error_description } = req.query;
 
-    const result = await exchangeGithubCodeForToken(
-      code as string,
-      state as string,
-      cookieState as string
-    );
+    // Handle OAuth errors from GitHub
+    if (error) {
+      res.status(HTTP_STATUS_BAD_REQUEST).json({
+        success: false,
+        error: error as string,
+        message: error_description as string,
+      });
+      return;
+    }
 
-    res.clearCookie('oauth_state');
+    if (!code || !state) {
+      res.status(HTTP_STATUS_BAD_REQUEST).json({
+        success: false,
+        error: AUTH_ERRORS.MISSING_PARAMETERS,
+        message: AUTH_ERRORS.MISSING_CODE_OR_STATE,
+      });
+      return;
+    }
+
+    const result = await handleOAuthCallback(code as string, state as string);
 
     res.json({
       success: true,
-      sessionToken: result.sessionToken,
-      user: result.user,
+      message: AUTH_MESSAGES.AUTHENTICATION_SUCCESSFUL,
+      ...result,
     });
   } catch (error) {
-    res.status(400).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'OAuth callback failed',
-    });
+    const message =
+      error instanceof Error ? error.message : AUTH_ERRORS.GITHUB_OAUTH_FAILED;
+
+    if (message.includes('CSRF')) {
+      res.status(HTTP_STATUS_BAD_REQUEST).json({
+        success: false,
+        error: AUTH_ERRORS.INVALID_STATE,
+        message,
+      });
+    } else {
+      res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
+        success: false,
+        error: AUTH_ERRORS.LOGIN_FAILED,
+        message,
+      });
+    }
   }
 };
 
@@ -75,7 +105,7 @@ export const getMe = (req: Request, res: Response) => {
         id: decoded.userId,
         login: decoded.login,
       },
-      scopes: ['user:email', 'read:user'],
+      scopes: ['user:email', 'read:user', 'repo'],
       expiresAt: decoded.issuedAt + 24 * 60 * 60 * 1000,
     });
   } catch (error) {
