@@ -8,14 +8,13 @@ import { cookieUtils } from '../../utils/cookies';
 import {
   Header,
   StatsCards,
-  PackageDistribution,
   QuickActions,
   PackageSearchFilter,
   PackageTable,
 } from './components';
 import { monorepoService } from '../../services/monorepoService';
 // Import types and utilities
-import { Package, PackageStats } from './types/dashboard.types';
+import { Package } from './types/dashboard.types';
 import {
   calculatePackageStats,
   getUniquePackageTypes,
@@ -24,27 +23,9 @@ import {
   getTypeIcon,
 } from './utils/dashboard.utils';
 import { LoadingState, ErrorState } from '../modules/packages/components';
+import { defaultConfig } from './constants/dashboard';
 
 // Configuration interface for customization - imported from Configuration component
-
-// Default configuration that can be overridden
-const defaultConfig: DashboardConfig = {
-  title: 'Monorepo Dashboard',
-  description: 'Visual management and monitoring of your monorepo packages',
-  packageTypes: ['app', 'lib', 'tool'],
-  features: {
-    healthChecks: true,
-    ciIntegration: true,
-    dependencyGraph: true,
-    publishControl: true,
-    searchAndFilter: true,
-    configurationInspector: true,
-  },
-  branding: {
-    primaryColor: '#3B82F6',
-    secondaryColor: '#1E40AF',
-  },
-};
 
 export default function Dashboard() {
   const [packages, setPackages] = useState<Package[]>();
@@ -63,7 +44,7 @@ export default function Dashboard() {
       try {
         setLoading(true);
         const data = await monorepoService.getPackages();
-        setPackages(data);
+        setPackages(data as unknown as Package[]);
         setError(null);
       } catch (err) {
         setError(DASHBOARD_ERROR_MESSAGES.FAILED_TO_FETCH_PACKAGES);
@@ -98,7 +79,7 @@ export default function Dashboard() {
       setLoading(true);
       try {
         const data = await monorepoService.refreshPackages();
-        setPackages(data);
+        setPackages(data as unknown as Package[]);
         setError(null);
       } catch (err) {
         setError(DASHBOARD_ERROR_MESSAGES.FAILED_TO_FETCH_PACKAGES);
@@ -154,13 +135,6 @@ export default function Dashboard() {
 
       {/* Statistics Cards */}
       <StatsCards stats={stats} />
-
-      {/* Package Type Distribution */}
-      {/* <PackageDistribution
-        packages={packages ?? []}
-        packageTypes={packageTypes}
-        getTypeIcon={getTypeIcon}
-      /> */}
 
       {/* Quick Actions */}
       <QuickActions />

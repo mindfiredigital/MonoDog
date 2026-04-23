@@ -1,4 +1,3 @@
-import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../services/auth-context';
 import type { ProtectedRouteProps } from '../types/component.types';

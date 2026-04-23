@@ -5,7 +5,6 @@ import {
   ChartBarIcon,
   HeartIcon,
   CloudArrowUpIcon,
-  CpuChipIcon,
   Cog6ToothIcon,
   RocketLaunchIcon,
   LogoutIcon,
@@ -18,7 +17,7 @@ const navigation = [
   { name: 'Dependencies', href: '/dependencies', icon: ChartBarIcon },
   { name: 'Health Status', href: '/health', icon: HeartIcon },
   { name: 'Release', href: '/release', icon: CloudArrowUpIcon },
-  // { name: 'Pipeline', href: '/pipeline', icon: RocketLaunchIcon },
+  { name: 'Pipeline', href: '/pipeline', icon: RocketLaunchIcon },
   // { name: 'Publish Control', href: '/publish', icon: CloudArrowUpIcon },
   // { name: 'CI/CD', href: '/ci', icon: CpuChipIcon },
   { name: 'Configuration', href: '/config', icon: Cog6ToothIcon },
@@ -70,21 +69,7 @@ export default function Layout({ children }: LayoutProps) {
               {navigation.find(item => item.href === location.pathname)?.name ||
                 'Dashboard'}
             </h2>
-            {/* System stats */}
-            {/* <div className="flex items-center gap-6 ml-8">
-              <div className="flex items-center gap-2 text-sm text-neutral-700">
-                <CpuChipIcon className="h-5 w-5 text-primary-500" />
-                <span>
-                  CPU: <span className="font-medium">32%</span>
-                </span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-neutral-700">
-                <ChartBarIcon className="h-5 w-5 text-primary-500" />
-                <span>
-                  Memory: <span className="font-medium">2.1 GB / 8 GB</span>
-                </span>
-              </div>
-            </div> */}
+            
           </div>
           {/* User info */}
           <div className="flex items-center gap-3">
