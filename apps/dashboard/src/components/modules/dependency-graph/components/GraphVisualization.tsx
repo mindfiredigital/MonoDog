@@ -1,10 +1,7 @@
 import { GraphVisualizationProps } from '../types/dependency.types';
-import {
-  getStatusColor,
-  getTypeColor,
-  formatPackageName,
-} from '../utils/dependency.utils';
+import { formatPackageName } from '../utils/dependency.utils';
 import { LinkIcon } from '../../../../icons/heroicons';
+import { getConnectionPoints } from '../utils/graph.utils';
 
 export default function GraphVisualization({
   packages,
@@ -12,27 +9,7 @@ export default function GraphVisualization({
   hoveredPackage,
   onPackageSelect,
   onPackageHover,
-  layout,
 }: GraphVisualizationProps) {
-  const getConnectionPoints = (pkg: any, dep: any) => {
-    const sourceX = dep.x + 50;
-    const sourceY = dep.y + 25;
-    let targetX = pkg.x + 50;
-    let targetY = pkg.y + 25;
-
-    if (sourceX < pkg.x) {
-      targetX = pkg.x;
-    } else if (sourceX > pkg.x + 100) {
-      targetX = pkg.x + 100;
-    } else if (sourceY < pkg.y) {
-      targetY = pkg.y;
-    } else {
-      targetY = pkg.y + 50;
-    }
-
-    return { sourceX, sourceY, targetX, targetY };
-  };
-
   return (
     <div className="relative bg-white rounded-lg shadow-sm border border-gray-200 p-6 min-h-[600px]">
       <svg

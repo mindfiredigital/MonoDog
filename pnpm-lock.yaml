@@ -7343,21 +7343,12 @@ packages:
     engines: { node: '>=14.0.0' }
     dev: true
 
-  /tldts-core@7.0.28:
+  /tinyrainbow@3.1.0:
     resolution:
       {
-        integrity: sha512-7W5Efjhsc3chVdFhqtaU0KtK32J37Zcr9RKtID54nG+tIpcY79CQK/veYPODxtD/LJ4Lue66jvrQzIX2Z2/pUQ==,
+        integrity: sha512-Bf+ILmBgretUrdJxzXM0SgXLZ3XfiaUuOj/IKQHuTXip+05Xn+uyEYdVg0kYDipTBcLrCVyUzAPz7QmArb0mmw==,
       }
-    dev: true
-
-  /tldts@7.0.28:
-    resolution:
-      {
-        integrity: sha512-+Zg3vWhRUv8B1maGSTFdev9mjoo8Etn2Ayfs4cnjlD3CsGkxXX4QyW3j2WJ0wdjYcYmy7Lx2RDsZMhgCWafKIw==,
-      }
-    hasBin: true
-    dependencies:
-      tldts-core: 7.0.28
+    engines: { node: '>=14.0.0' }
     dev: true
 
   /to-regex-range@5.0.1:
