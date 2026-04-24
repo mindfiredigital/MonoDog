@@ -1,8 +1,13 @@
 import { execSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import process from 'node:process';
 
 try {
-  const dbUrl = execSync('node dist/get-db-url.js', {
+  const getDbUrlCommand = existsSync('dist/get-db-url.js')
+    ? 'node dist/get-db-url.js'
+    : 'tsx src/get-db-url.ts';
+
+  const dbUrl = execSync(getDbUrlCommand, {
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'ignore'],
   }).trim();

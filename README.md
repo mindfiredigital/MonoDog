@@ -31,6 +31,36 @@ Run app using serve script:
 
     cd ./monodog/ && pnpm run serve
 
+## Docker
+
+Build and run MonoDog with Docker Compose:
+
+    docker compose --env-file .env.docker up --build
+
+The container starts both services:
+
+- Dashboard: `http://localhost:3010`
+- API: `http://localhost:4000/api`
+
+The Docker setup uses `.env.docker` for runtime defaults and persists SQLite data
+using the named volume `monodog-data` by default.
+
+For GitHub OAuth in Docker, set your GitHub app callback URL to:
+
+    http://localhost:3010/auth/callback
+
+To use a host bind mount instead of the named volume, set this in `.env.docker`:
+
+    MONODOG_DATA_MOUNT=./.docker-data:/app/data
+
+To stop the stack:
+
+    docker compose down
+
+To remove the persisted database volume too:
+
+    docker compose down -v
+
 ## License
 
 Licensed under the MIT License, Copyright © Mindfire Solutions
