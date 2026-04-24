@@ -32,7 +32,7 @@ import { monorepoService } from '../../../services/monorepoService';
 export type { Package } from './types/packages.types';
 
 export default function PackagesOverview() {
-  const [packages, setPackages] = useState<Package[]>([]);
+  const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
