@@ -25,6 +25,8 @@ import configRouter from '../routes/config.routes';
 import authRouter from '../routes/auth.routes';
 import permissionRouter from '../routes/permission-routes';
 import publishRouter from '../routes/publish-routes';
+import pipelineRouter from '../routes/pipeline.routes';
+import workflowRouter from '../routes/workflow.routes';
 
 import {
   PORT_MIN,
@@ -99,6 +101,8 @@ function createApp(rootPath: string): Express {
   app.use('/api/health/', healthRouter);
   app.use('/api/config/', configRouter);
   app.use('/api/publish', publishRouter);
+  app.use('/api/pipelines', pipelineRouter);
+  app.use('/api/workflows', workflowRouter);
 
   app.use('/api', router);
 

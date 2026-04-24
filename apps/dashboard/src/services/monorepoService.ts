@@ -82,7 +82,7 @@ class MonorepoService {
 
   async refreshPackages(): Promise<Package[]> {
     try {
-      const response = await apiClient.post<Package[]>(
+      const response = await apiClient.get<Package[]>(
         DASHBOARD_API_ENDPOINTS.PACKAGES.REFRESH
       );
 

@@ -3,12 +3,10 @@
  * Manages repository permissions per user
  */
 
-import React, { createContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useState, useCallback } from 'react';
 import { DASHBOARD_ERROR_MESSAGES } from '../constants/messages';
 import apiClient from './api';
 import type {
-  RepositoryPermission,
-  MonoDogPermissionRole,
   PermissionCheckResponse,
   PermissionContextType,
   PermissionProviderProps,

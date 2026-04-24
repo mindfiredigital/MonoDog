@@ -3,7 +3,7 @@
  * Base URLs, endpoints, and API configuration constants
  */
 
-// ============ API BASE CONFIGURATION ============
+// API BASE CONFIGURATION
 
 const DEFAULT_API_HOST = 'localhost';
 const DEFAULT_API_PORT = 4000;
@@ -11,11 +11,8 @@ export const DEFAULT_TIMEOUT = 30000;
 
 export const TIMEOUT_MS = 60000;
 
-// export const API_CONFIG = {
-//   BASE_URL: import.meta.env.VITE_API_URL || `http://${DEFAULT_API_HOST}:${DEFAULT_API_PORT}`,
-// } as const;
 
-// ============ API ENDPOINTS ============
+// API ENDPOINTS
 
 export const DASHBOARD_API_ENDPOINTS = {
   // Authentication endpoints
@@ -40,7 +37,10 @@ export const DASHBOARD_API_ENDPOINTS = {
   // Pipeline endpoints
   PIPELINES: {
     LIST: '/pipelines',
+    DETAILS: (pipelineId: string) => `/pipelines/${pipelineId}`,
     STATUS: (pipelineId: string) => `/pipelines/${pipelineId}/status`,
+    AUDIT_LOGS: (pipelineId: string) => `/pipelines/${pipelineId}/audit-logs`,
+    RUN_STATUS: (pipelineId: string) => `/pipelines/${pipelineId}/run-status`,
   },
 
   // Publish endpoints
@@ -86,3 +86,7 @@ export const DASHBOARD_API_ENDPOINTS = {
       `/workflows/${owner}/${repo}/runs/${runId}/rerun`,
   },
 } as const;
+
+
+export const POLL_INTERVAL_MS = 5000;
+export const LOG_PAGE_SIZE = 800;
