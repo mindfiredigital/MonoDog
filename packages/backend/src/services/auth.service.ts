@@ -175,7 +175,7 @@ export async function handleOAuthCallback(
     code,
     process.env.GITHUB_CLIENT_ID as string,
     process.env.GITHUB_CLIENT_SECRET as string,
-    process.env.OAUTH_REDIRECT_URI as string
+    process.env.GITHUB_REDIRECT_URI as string
   );
 
   // Get user information
