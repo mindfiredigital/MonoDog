@@ -16,13 +16,14 @@ export function PipelineDetails({
             {selectedPipeline.packageName}
           </h2>
           <span
-            className={`rounded-full border px-3 py-1 text-xs font-semibold ${statusTone[
-              formatStatus(
-                selectedPipeline.currentStatus,
-                selectedPipeline.currentConclusion
-              )
-            ] || statusTone[selectedPipeline.currentStatus]
-              }`}
+            className={`rounded-full border px-3 py-1 text-xs font-semibold ${
+              statusTone[
+                formatStatus(
+                  selectedPipeline.currentStatus,
+                  selectedPipeline.currentConclusion
+                )
+              ] || statusTone[selectedPipeline.currentStatus]
+            }`}
           >
             {formatStatus(
               selectedPipeline.currentStatus,
@@ -31,8 +32,8 @@ export function PipelineDetails({
           </span>
         </div>
         <p className="mt-2 text-sm text-neutral-600">
-          Workflow {selectedPipeline.workflowName} on{' '}
-          {selectedPipeline.owner}/{selectedPipeline.repo}
+          Workflow {selectedPipeline.workflowName} on {selectedPipeline.owner}/
+          {selectedPipeline.repo}
         </p>
         <div className="mt-4 grid gap-3 md:grid-cols-3">
           <div className="rounded-2xl bg-neutral-50 p-3">

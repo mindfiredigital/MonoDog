@@ -1,6 +1,6 @@
 import type { PipelineAuditLogEntry } from '../../../types/pipeline.types';
 import { formatRelativeTime } from '../utils/release.utils';
-import { statusTone } from "../../../constants/messages"
+import { statusTone } from '../../../constants/messages';
 import { AuditSidebarProps } from '../types/pipeline-sidebar.props';
 
 export function AuditSidebar({ auditLogs }: AuditSidebarProps) {
@@ -19,12 +19,18 @@ export function AuditSidebar({ auditLogs }: AuditSidebarProps) {
         )}
 
         {auditLogs.map(entry => (
-          <div key={entry.id} className="rounded-2xl bg-neutral-50 p-4 ring-1 ring-neutral-200">
+          <div
+            key={entry.id}
+            className="rounded-2xl bg-neutral-50 p-4 ring-1 ring-neutral-200"
+          >
             <div className="flex items-center justify-between gap-3">
-              <span className="font-semibold text-neutral-900">{entry.action}</span>
+              <span className="font-semibold text-neutral-900">
+                {entry.action}
+              </span>
               <span
-                className={`rounded-full border px-2 py-1 text-xs font-semibold ${statusTone[entry.status] || statusTone.completed
-                  }`}
+                className={`rounded-full border px-2 py-1 text-xs font-semibold ${
+                  statusTone[entry.status] || statusTone.completed
+                }`}
               >
                 {entry.status}
               </span>

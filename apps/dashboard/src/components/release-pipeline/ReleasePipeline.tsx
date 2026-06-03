@@ -10,7 +10,7 @@ import { AuditSidebar } from './components/AuditSidebar';
 
 export default function ReleasePipeline() {
   const { hasPermission } = useAuth();
-  
+
   const {
     pipelines,
     auditLogs,

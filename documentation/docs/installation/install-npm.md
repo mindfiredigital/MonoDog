@@ -28,7 +28,6 @@ Once installed, Monodog will automatically:
 1. **Generate Prisma Files**: Database schema and migrations
 2. **Initialize Database**: Create SQLite database (monodog.db)
 
-
 ## Viewing Installed Files
 
 After installation, you'll have:
@@ -46,10 +45,10 @@ monodog/
 └── monodog-config.json      # Customize port, host and scan workspaces
 ```
 
-
 ## Next Steps
 
 Once installed, proceed to:
+
 1. [Configure Your Monorepo](/installation/configure-monorepo)
 2. [Set Up Environment Variables](/installation/environment-setup)
 3. [Run Your First Instance](/installation/first-run)

@@ -11,7 +11,7 @@ Health Monitoring offers up-to-date information on the linting, security, and bu
 
 Real-time insights into the package quality of your monorepo are provided by Health Monitoring including <!-- test coverage, --> linting, security, and build status.
 
-![Screenshot of the health metrics](/img/health-page.png "Health Metrics Screen")
+![Screenshot of the health metrics](/img/health-page.png 'Health Metrics Screen')
 
 ## Health Metrics
 
@@ -29,9 +29,9 @@ Measures what percentage of your code is covered by tests:
 
 Identifies problems with code quality:
 
- - **Pass**: No warnings or lint errors
- - **Warn**: Just warnings; no errors
- - **Fail**: Linting errors found
+- **Pass**: No warnings or lint errors
+- **Warn**: Just warnings; no errors
+- **Fail**: Linting errors found
 
 ### Security Audit
 
@@ -54,6 +54,7 @@ Tracks build success rate:
 Each package receives an overall health score (0-100) based on:
 
 <!-- - **30%** - Test Coverage -->
+
 - **35%** - Linting Status
 - **35%** - Security Status
 - **30%** - Build Health

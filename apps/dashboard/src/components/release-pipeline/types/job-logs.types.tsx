@@ -1,4 +1,4 @@
-import { PipelineLogBundle, PipelineWorkflowJob } from "@/types/pipeline.types";
+import { PipelineLogBundle, PipelineWorkflowJob } from '@/types/pipeline.types';
 
 export interface JobLogsProps {
   selectedJob: PipelineWorkflowJob;

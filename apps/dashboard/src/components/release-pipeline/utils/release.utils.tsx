@@ -25,7 +25,10 @@ export function formatRelativeTime(value?: string | null) {
   return `${diffDays}d ago`;
 }
 
-export function formatDuration(startedAt?: string | null, completedAt?: string | null) {
+export function formatDuration(
+  startedAt?: string | null,
+  completedAt?: string | null
+) {
   if (!startedAt) return 'n/a';
   const end = completedAt ? new Date(completedAt).getTime() : Date.now();
   const start = new Date(startedAt).getTime();
@@ -57,7 +60,9 @@ export function mergeStepLogs(
       return;
     }
 
-    const seen = new Set(current.logs.map(log => `${log.lineNumber}-${log.timestamp}`));
+    const seen = new Set(
+      current.logs.map(log => `${log.lineNumber}-${log.timestamp}`)
+    );
     const nextLogs = [...current.logs];
     step.logs.forEach(log => {
       const key = `${log.lineNumber}-${log.timestamp}`;
@@ -74,10 +79,13 @@ export function mergeStepLogs(
     });
   });
 
-  return Array.from(merged.values()).sort((a, b) => a.stepNumber - b.stepNumber);
+  return Array.from(merged.values()).sort(
+    (a, b) => a.stepNumber - b.stepNumber
+  );
 }
 
 export function renderAnsiSegments(text: string) {
+  // eslint-disable-next-line no-control-regex
   const regex = /\u001b\[([0-9;]*)m/g;
   const segments: Array<{
     text: string;
@@ -113,7 +121,9 @@ export function renderAnsiSegments(text: string) {
       activeBold = true;
     }
 
-    const foregroundCode = [...codes].reverse().find(code => ansiColorMap[code]);
+    const foregroundCode = [...codes]
+      .reverse()
+      .find(code => ansiColorMap[code]);
     if (foregroundCode) {
       activeColor = ansiColorMap[foregroundCode];
     }

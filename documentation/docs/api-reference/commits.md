@@ -12,11 +12,13 @@ Access git commit history via REST API.
 ```bash
 GET /api/commits/PACKAGE_PATH
 ```
+
 PACKAGE_PATH is the encoded path relative to workspace root (..%2F..%2Fpackages%2Fpackage-name)
 
 This returns recent commits for the specified package directory.
 
 Response:
+
 ```json
 [
   {

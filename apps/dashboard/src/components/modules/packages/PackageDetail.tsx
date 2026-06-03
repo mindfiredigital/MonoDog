@@ -26,9 +26,7 @@ export type { PackageDetail as PackageDetailType } from './types/packages.types'
 
 export default function PackageDetail() {
   const { name } = useParams<{ name: string }>();
-  const [packageData, setPackageData] = useState(
-    null
-  );
+  const [packageData, setPackageData] = useState(null);
   const [activeTab, setActiveTab] = useState<PackageDetailTab>('overview');
 
   useEffect(() => {

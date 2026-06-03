@@ -2,7 +2,11 @@ import { formatStatus, formatRelativeTime } from '../utils/release.utils';
 import { statusTone } from '../../../constants/messages';
 import { PipelineSidebarProps } from '../types/pipeline-sidebar.props';
 
-export function PipelineSidebar({ pipelines, selectedPipelineId, setSelectedPipelineId }: PipelineSidebarProps) {
+export function PipelineSidebar({
+  pipelines,
+  selectedPipelineId,
+  setSelectedPipelineId,
+}: PipelineSidebarProps) {
   return (
     <aside className="rounded-3xl border border-neutral-200 bg-white p-4 shadow-soft">
       <div className="mb-4 flex items-center justify-between">
@@ -25,17 +29,20 @@ export function PipelineSidebar({ pipelines, selectedPipelineId, setSelectedPipe
             pipeline.currentConclusion
           );
           const tone =
-            statusTone[label] || statusTone[pipeline.currentStatus] || statusTone.completed;
+            statusTone[label] ||
+            statusTone[pipeline.currentStatus] ||
+            statusTone.completed;
 
           return (
             <button
               type="button"
               key={pipeline.id}
               onClick={() => setSelectedPipelineId(pipeline.id)}
-              className={`w-full rounded-2xl border p-4 text-left transition ${pipeline.id === selectedPipelineId
-                ? 'border-primary-400 bg-primary-50'
-                : 'border-neutral-200 bg-white hover:border-primary-200 hover:bg-neutral-50'
-                }`}
+              className={`w-full rounded-2xl border p-4 text-left transition ${
+                pipeline.id === selectedPipelineId
+                  ? 'border-primary-400 bg-primary-50'
+                  : 'border-neutral-200 bg-white hover:border-primary-200 hover:bg-neutral-50'
+              }`}
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
@@ -46,14 +53,23 @@ export function PipelineSidebar({ pipelines, selectedPipelineId, setSelectedPipe
                     Release {pipeline.releaseVersion}
                   </p>
                 </div>
-                <span className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${tone}`}>
+                <span
+                  className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${tone}`}
+                >
                   {label}
                 </span>
               </div>
               <div className="mt-3 space-y-1 text-xs text-neutral-500">
-                <p>{pipeline.owner}/{pipeline.repo}</p>
+                <p>
+                  {pipeline.owner}/{pipeline.repo}
+                </p>
                 <p>Triggered by {pipeline.triggeredBy}</p>
-                <p>Updated {formatRelativeTime(pipeline.lastRun?.updated_at || pipeline.triggeredAt)}</p>
+                <p>
+                  Updated{' '}
+                  {formatRelativeTime(
+                    pipeline.lastRun?.updated_at || pipeline.triggeredAt
+                  )}
+                </p>
               </div>
             </button>
           );

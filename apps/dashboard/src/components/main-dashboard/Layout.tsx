@@ -69,7 +69,6 @@ export default function Layout({ children }: LayoutProps) {
               {navigation.find(item => item.href === location.pathname)?.name ||
                 'Dashboard'}
             </h2>
-            
           </div>
           {/* User info */}
           <div className="flex items-center gap-3">

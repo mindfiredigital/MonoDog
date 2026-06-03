@@ -1,4 +1,4 @@
-import { DashboardConfig } from "@/components/configuration/Configuration";
+import { DashboardConfig } from '@/components/configuration/Configuration';
 
 export const defaultConfig: DashboardConfig = {
   title: 'Monorepo Dashboard',

@@ -1,4 +1,8 @@
-import { formatStatus, formatDuration, renderAnsiSegments } from '../utils/release.utils';
+import {
+  formatStatus,
+  formatDuration,
+  renderAnsiSegments,
+} from '../utils/release.utils';
 import { JobLogsProps } from '../types/job-logs.types';
 
 export function JobLogs({
@@ -79,7 +83,9 @@ export function JobLogs({
             {expandedSteps.has(step.stepNumber) && (
               <div className="max-h-[420px] overflow-auto bg-neutral-950 px-4 py-3 font-mono text-xs text-neutral-100">
                 {step.logs.length === 0 && (
-                  <div className="text-neutral-500">Waiting for log output...</div>
+                  <div className="text-neutral-500">
+                    Waiting for log output...
+                  </div>
                 )}
                 {step.logs.map(log => (
                   <div

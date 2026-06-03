@@ -11,7 +11,7 @@ Examine and graph dependencies among the packages in your monorepo.
 
 Get to know the inter-package dependencies and find out if there are any circular dependencies or if the problematics coexist in the system.
 
-![Screenshot of the dependency graph](/img/dependency-graph.png "Dependency Graph Screen")
+![Screenshot of the dependency graph](/img/dependency-graph.png 'Dependency Graph Screen')
 
 ## Features
 

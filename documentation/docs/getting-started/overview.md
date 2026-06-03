@@ -7,7 +7,6 @@ title: Overview
 
 This guide will take you through the process of learning Monodog and how to set it up in your monorepo.
 
-
 ## How Monodog Works
 
 Monodog acts as a service layer within your monorepo that:
@@ -25,12 +24,14 @@ Monodog acts as a service layer within your monorepo that:
 - Build status is monitored
 
 ### 3. **Provides APIs**
+
 - RESTful interfaces for monorepo data access
 - Instant health metrics
 - Relationships and dependencies between packages
 - Information on Git history and contributors
 
 ### 4. **Powers the Dashboard**
+
 - Graphical representation of your monorepo
 - Overview of package health
 - Analytics of performance
@@ -63,10 +64,10 @@ Monodog acts as a service layer within your monorepo that:
 
 ## Key Capabilities
 
-| Capability | Description |
-|---|---|
-| **Package Discovery** | Automatically finds all packages in your monorepo |
-| **Health Metrics** | Monitors the status of linting, security, and building |
+| Capability              | Description                                                 |
+| ----------------------- | ----------------------------------------------------------- |
+| **Package Discovery**   | Automatically finds all packages in your monorepo           |
+| **Health Metrics**      | Monitors the status of linting, security, and building      |
 | **Dependency Analysis** | Shows the relationships between packages in a visual manner |
 
 ## What's Next?

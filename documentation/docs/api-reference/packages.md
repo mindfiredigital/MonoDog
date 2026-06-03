@@ -14,6 +14,7 @@ GET /api/packages
 ```
 
 Response:
+
 ```json
 {
   "packages": [
@@ -63,9 +64,11 @@ Response:
 ```bash
 GET /api/packages/PACKAGE_NAME
 ```
+
 PACKAGE_NAME is the name of package
 
 Response:
+
 ```json
 {
       "name": "package-name",
@@ -145,7 +148,9 @@ Response:
 ```bash
 PUT /api/packages/update-config
 ```
+
 Response:
+
 ```json
 {
   "success": true,
@@ -190,13 +195,14 @@ Response:
 }
 ```
 
-
 ## Refresh Packages
 
 ```bash
 POST /api/packages/refresh
 ```
+
 Response:
+
 ```json
 {
   "packages": [
