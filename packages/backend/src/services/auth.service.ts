@@ -21,7 +21,7 @@ export const generateGithubAuthUrl = () => {
   const redirectUri =
     process.env.GITHUB_REDIRECT_URI || 'http://localhost:5173/auth/callback';
 
-  const scope = 'user:email read:user repo';
+  const scope = 'user:email read:user repo workflow';
 
   const state = crypto.randomBytes(16).toString('hex');
 

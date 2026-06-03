@@ -16,6 +16,16 @@ import {
 const router = Router();
 
 router.get(
+  '/:owner/:repo/jobs/:jobId/logs',
+  authenticationMiddleware,
+  getWorkflowJobLogs
+);
+router.get(
+  '/:owner/:repo/runs/:runId',
+  authenticationMiddleware,
+  getWorkflowRunDetails
+);
+router.get(
   '/:owner/:repo/available',
   authenticationMiddleware,
   getAvailableWorkflows
@@ -24,16 +34,6 @@ router.get(
   '/:owner/:repo',
   authenticationMiddleware,
   getRepositoryWorkflowRuns
-);
-router.get(
-  '/:owner/:repo/runs/:runId',
-  authenticationMiddleware,
-  getWorkflowRunDetails
-);
-router.get(
-  '/:owner/:repo/jobs/:jobId/logs',
-  authenticationMiddleware,
-  getWorkflowJobLogs
 );
 router.post(
   '/:owner/:repo/trigger',
