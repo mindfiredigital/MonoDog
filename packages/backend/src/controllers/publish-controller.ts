@@ -13,7 +13,10 @@ import {
 } from '../services/changeset-service';
 import * as pipelineService from '../services/pipeline-service';
 import { getRepositoryInfoFromGit } from '../utils/utilities';
-import { listWorkflows } from '../services/github-actions-service';
+import {
+  listWorkflows,
+  triggerWorkflow,
+} from '../services/github-actions-service';
 import {
   PUBLISH_MESSAGES,
   CHANGESET_MESSAGES,
@@ -26,6 +29,10 @@ import {
   extractErrorMessage,
   PERMISSION_HIERARCHY,
 } from '../constants';
+import { exec } from 'child_process';
+import { promisify } from 'util';
+
+const execPromise = promisify(exec);
 
 /**
  * Get all workspace packages
@@ -502,10 +509,36 @@ export async function triggerPublish(req: Request, res: Response) {
             AppLogger.warn('No access token available to fetch workflows');
           }
 
+          if (accessToken && realWorkflowId !== '1') {
+            try {
+              const { stdout: branch } = await execPromise(
+                'git rev-parse --abbrev-ref HEAD',
+                { cwd: rootPath }
+              );
+              const currentBranch = branch.trim();
+
+              AppLogger.info(
+                `Dispatching workflow ${realWorkflowId} on branch: ${currentBranch}...`
+              );
+
+              await triggerWorkflow(accessToken, {
+                repo,
+                owner,
+                workflow: realWorkflowId,
+                ref: currentBranch,
+                inputs: {
+                  source: 'monodog',
+                },
+              });
+            } catch (dispatchError) {
+              AppLogger.warn(`Failed to dispatch workflow: ${dispatchError}`);
+            }
+          }
+
           for (const pkg of selectedPackages) {
             try {
               AppLogger.info(`Creating pipeline for package: ${pkg.name}`);
-              await pipelineService.createOrUpdatePipeline({
+              const newPipeline = await pipelineService.createOrUpdatePipeline({
                 releaseVersion: pkg.newVersion,
                 packageName: pkg.name,
                 owner,
@@ -522,6 +555,17 @@ export async function triggerPublish(req: Request, res: Response) {
               });
               AppLogger.info(
                 `Created pipeline record for package: ${pkg.name}`
+              );
+
+              await pipelineService.createAuditLog(
+                newPipeline.id,
+                Number(authUser?.id || 0),
+                authUser?.login || 'unknown',
+                'trigger',
+                'pipeline',
+                realWorkflowId,
+                'Release',
+                { owner, repo, version: pkg.newVersion, package: pkg.name }
               );
             } catch (pipelineError) {
               AppLogger.warn(
