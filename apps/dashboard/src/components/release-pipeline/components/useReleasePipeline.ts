@@ -222,7 +222,8 @@ export function useReleasePipeline() {
   useEffect(() => {
     const isTerminal =
       selectedPipeline?.currentStatus === 'completed' ||
-      selectedPipeline?.currentStatus === 'cancelled';
+      selectedPipeline?.currentStatus === 'cancelled' ||
+      selectedPipeline?.currentConclusion !== null;
 
     if (isTerminal || !selectedPipeline) return;
 
