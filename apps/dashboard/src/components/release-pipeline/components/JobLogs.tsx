@@ -45,7 +45,7 @@ export function JobLogs({
         </div>
       </div>
 
-      <div className="mt-4 space-y-4">
+      <div className="mt-4 space-y-4 max-h-[600px] overflow-y-auto pr-2">
         {selectedLogs?.steps.map(step => (
           <div
             key={step.stepNumber}

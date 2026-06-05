@@ -8,7 +8,7 @@ export function PipelineSidebar({
   setSelectedPipelineId,
 }: PipelineSidebarProps) {
   return (
-    <aside className="rounded-3xl border border-neutral-200 bg-white p-4 shadow-soft">
+    <aside className="rounded-3xl border border-neutral-200 bg-white p-4 shadow-soft max-h-[650px] overflow-y-auto pr-2">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-lg font-semibold text-neutral-900">Releases</h2>
         <span className="text-xs uppercase tracking-[0.16em] text-neutral-500">

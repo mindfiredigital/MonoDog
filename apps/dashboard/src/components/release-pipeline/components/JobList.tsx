@@ -9,12 +9,12 @@ export function JobList({
   setSelectedJobId,
 }: JobListProps) {
   return (
-    <div className="rounded-3xl border border-neutral-200 bg-white p-4 shadow-soft">
+    <div className="rounded-3xl border border-neutral-200 bg-white p-4 shadow-soft flex flex-col h-full">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-lg font-semibold text-neutral-900">Jobs</h3>
         <span className="text-xs text-neutral-500">{jobs.length} total</span>
       </div>
-      <div className="space-y-3">
+      <div className="space-y-3 flex-1 overflow-y-auto pr-2">
         {jobs.map((job: PipelineWorkflowJob) => (
           <button
             type="button"
