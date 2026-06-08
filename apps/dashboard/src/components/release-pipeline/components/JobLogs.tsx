@@ -1,8 +1,5 @@
-import {
-  formatStatus,
-  formatDuration,
-  renderAnsiSegments,
-} from '../utils/release.utils';
+import { formatStatus, formatDuration } from '../utils/release.utils';
+import { renderAnsiSegments } from '../utils/render-ansi-segments';
 import { JobLogsProps } from '../types/job-logs.types';
 
 export function JobLogs({
