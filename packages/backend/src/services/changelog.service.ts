@@ -2,6 +2,10 @@ import fs from 'fs/promises';
 import path from 'path';
 import { AppLogger } from '../middleware/logger';
 import { ReleaseData } from '../types/changelog.types';
+import { getPrismaClient } from '../repositories';
+import { Commit } from '../types/database';
+
+const prisma = getPrismaClient();
 
 // Parse the local CHANGELOG.md file
 async function parseChangelog(packagePath: string): Promise<ReleaseData[]> {
@@ -73,4 +77,36 @@ async function fetchGitHubReleases(
   }
 }
 
-export { parseChangelog, fetchGitHubReleases };
+// fetch commits from DB using date
+async function getVersionCommits(
+  packageName: string,
+  startDate: Date | null,
+  endDate: Date
+): Promise<any[]> {
+  try {
+    const commits = await prisma.commit.findMany({
+      where: {
+        packageName: packageName,
+        date: {
+          lte: endDate,
+          ...(startDate && { gt: startDate }),
+        },
+      },
+      orderBy: {
+        date: 'desc',
+      },
+    });
+
+    return commits.map((c: Commit) => ({
+      hash: c.hash,
+      message: c.message,
+      author: c.author,
+      date: c.date?.toISOString() || '',
+    }));
+  } catch (error) {
+    AppLogger.error(`Failed to fetch commits for ${packageName}: ${error}`);
+    return [];
+  }
+}
+
+export { parseChangelog, fetchGitHubReleases, getVersionCommits };
