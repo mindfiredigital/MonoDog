@@ -11,6 +11,7 @@ import publishRoutes from './publish-routes';
 import authRoutes from './auth.routes';
 import pipelineRoutes from './pipeline.routes';
 import workflowRoutes from './workflow.routes';
+import changelogRoutes from './changelog.routes';
 import { getSystemInfo, getStats } from '../controllers/system.controller';
 
 const router = Router();
@@ -27,6 +28,7 @@ router.use('/search', searchRoutes);
 router.use('/activity', activityRoutes);
 router.use('/pipelines', pipelineRoutes);
 router.use('/workflows', workflowRoutes);
+router.use('/changelog', changelogRoutes);
 
 router.get('/system', getSystemInfo);
 router.get('/stats', getStats);
