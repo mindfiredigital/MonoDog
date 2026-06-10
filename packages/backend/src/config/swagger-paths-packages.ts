@@ -81,6 +81,53 @@ export const packagesPaths = {
       },
     },
   },
+  '/changelog/{packageName}': {
+    get: {
+      tags: ['Packages'],
+      summary: 'Release changelogs for a package',
+      operationId: 'getPackageChangelog',
+      security: [{ BearerAuth: [] }],
+      parameters: [
+        {
+          name: 'packageName',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          description: 'URL-encoded package name',
+        },
+        {
+          name: 'owner',
+          in: 'query',
+          required: false,
+          schema: { type: 'string' },
+          description: 'GitHub repo owner',
+        },
+        {
+          name: 'repo',
+          in: 'query',
+          required: false,
+          schema: { type: 'string' },
+          description: 'GitHub repo name',
+        },
+      ],
+      responses: {
+        '200': {
+          description: 'Successfully retrieved version history',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'array',
+                items: { $ref: '#/components/schemas/ReleaseData' },
+              },
+            },
+          },
+        },
+        '404': {
+          $ref: '#/components/responses/NotFoundError',
+        },
+      },
+    },
+  },
 };
 
 export const healthPaths = {

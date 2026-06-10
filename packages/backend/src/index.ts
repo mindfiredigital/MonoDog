@@ -11,6 +11,7 @@ import path from 'path';
 import { json } from 'body-parser';
 import apiRouter from './routes';
 import { prisma } from './db/prisma';
+import { setupSwaggerDocs } from './middleware/swagger-middleware';
 
 export { scanner } from './services/scan.service';
 
@@ -55,6 +56,7 @@ export function startServer(
 
   // Mount API router
   app.use('/api', apiRouter);
+  setupSwaggerDocs(app);
 
   // Error handling middleware
   app.use(

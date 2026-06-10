@@ -588,6 +588,40 @@ export const swaggerSchemas = {
         },
       },
     },
+    ReleaseData: {
+      type: 'object',
+      properties: {
+        version: {
+          type: 'string',
+          description: 'Release version',
+        },
+        date: {
+          type: 'string',
+          format: 'date-time',
+          description: 'Release date',
+        },
+        author: {
+          type: 'string',
+          description: 'Author of the release',
+        },
+        markdownBody: {
+          type: 'string',
+          description: 'Markdown content',
+        },
+        source: {
+          type: 'string',
+          enum: ['changelog', 'github'],
+          description: 'Source of the fetched release',
+        },
+        commits: {
+          type: 'array',
+          items: {
+            $ref: '#/components/schemas/Commit',
+          },
+          description: 'List of commits that happened in this release window',
+        },
+      },
+    },
     Error: {
       type: 'object',
       properties: {
