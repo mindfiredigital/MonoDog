@@ -13,6 +13,7 @@ const ChangelogViewer: React.FC<ChangelogViewerProps> = ({ packageName }) => {
 
   // Version Filter State
   const [selectedVersion, setSelectedVersion] = useState<string>('all');
+  const [showCommits, setShowCommits] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const fetchChangelog = async () => {
@@ -38,6 +39,18 @@ const ChangelogViewer: React.FC<ChangelogViewerProps> = ({ packageName }) => {
       fetchChangelog();
     }
   }, [packageName]);
+
+  const toggleCommits = (version: string) => {
+    setShowCommits(prev => {
+      const next = new Set(prev);
+      if (next.has(version)) {
+        next.delete(version);
+      } else {
+        next.add(version);
+      }
+      return next;
+    });
+  };
 
   if (loading)
     return (
@@ -112,20 +125,40 @@ const ChangelogViewer: React.FC<ChangelogViewerProps> = ({ packageName }) => {
 
             {/* Commits Section */}
             {release.commits && release.commits.length > 0 && (
-              <div className="bg-neutral-50 px-6 py-4 border-t border-neutral-200">
-                <h4 className="text-caption font-semibold mb-3 uppercase tracking-wider">
-                  Associated Commits
-                </h4>
-                <ul className="space-y-2">
-                  {release.commits.map((commit: any) => (
-                    <li key={commit.hash} className="flex gap-3 text-sm">
-                      <span className="text-code bg-primary-50 text-primary-600 px-1.5 py-0.5 rounded">
-                        {commit.hash.substring(0, 7)}
-                      </span>
-                      <span className="text-body">{commit.message}</span>
-                    </li>
-                  ))}
-                </ul>
+              <div className="border-t border-neutral-200">
+                <button
+                  onClick={() => toggleCommits(release.version)}
+                  className="w-full bg-neutral-50 px-6 py-3 flex items-center justify-between hover:bg-neutral-100 transition-colors cursor-pointer"
+                >
+                  <span className="text-caption font-semibold tracking-wider flex items-center gap-2">
+                    <span
+                      className="inline-block transition-transform duration-200"
+                      style={{
+                        transform: showCommits.has(release.version)
+                          ? 'rotate(90deg)'
+                          : 'rotate(0deg)',
+                      }}
+                    >
+                      ▶
+                    </span>
+                    Associated Commits ({release.commits.length})
+                  </span>
+                </button>
+
+                {showCommits.has(release.version) && (
+                  <div className="bg-neutral-50 px-6 py-4">
+                    <ul className="space-y-2">
+                      {release.commits.map((commit: any) => (
+                        <li key={commit.hash} className="flex gap-3 text-sm">
+                          <span className="text-code bg-primary-50 text-primary-600 px-1.5 py-0.5 rounded">
+                            {commit.hash.substring(0, 7)}
+                          </span>
+                          <span className="text-body">{commit.message}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             )}
           </div>
