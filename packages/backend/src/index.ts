@@ -114,6 +114,22 @@ export function serveDashboard(
 ): void {
   const app = express();
 
+  const staticPath = path.resolve(
+    rootPath,
+    'monodog',
+    'monodog-dashboard',
+    'dist'
+  );
+  const indexHtmlPath = path.join(staticPath, 'index.html');
+
+  if (!fs.existsSync(indexHtmlPath)) {
+    console.error(`Dashboard build not found at ${indexHtmlPath}.`);
+    console.error(
+      'Please build the dashboard first with: pnpm --dir monodog/monodog-dashboard run build'
+    );
+    process.exit(1);
+  }
+
   // This code makes sure that any request that does not matches a static file
   // in the build folder, will just serve index.html. Client side routing is
   // going to make sure that the correct content will be loaded.
@@ -128,21 +144,11 @@ export function serveDashboard(
       res.header('Expires', '-1');
       res.header('Pragma', 'no-cache');
       res.sendFile('index.html', {
-        root: path.resolve(rootPath, 'apps', 'dashboard', 'dist'),
+        root: staticPath,
       });
     }
   });
 
-  const staticPath = path.resolve(rootPath, 'apps', 'dashboard', 'dist');
-  const indexHtmlPath = path.join(staticPath, 'index.html');
-
-  if (!fs.existsSync(indexHtmlPath)) {
-    console.error(`Dashboard build not found at ${indexHtmlPath}.`);
-    console.error(
-      'Please build the dashboard first with: pnpm --dir apps/dashboard run build'
-    );
-    process.exit(1);
-  }
   console.log('Serving static files from:', staticPath);
   app.use(express.static(staticPath));
 
