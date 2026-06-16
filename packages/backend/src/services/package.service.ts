@@ -1,10 +1,10 @@
 import path from 'path';
 import fs from 'fs';
 import { prisma } from '../db/prisma';
-import { scanMonorepo } from '@monodog/utils/helpers';
+import { scanMonorepo } from '@mindfiredigital/utils/helpers';
 import { storePackage } from '../utils/helpers';
-import { generateReports } from '@monodog/monorepo-scanner';
-import { ciStatusManager } from '@monodog/ci-status';
+import { generateReports } from '@mindfiredigital/monorepo-scanner';
+import { ciStatusManager } from '@mindfiredigital/ci-status';
 import { PackageRepository } from '../repositories';
 import { AppLogger } from '../middleware';
 import type { PackageModel } from '../types/database';

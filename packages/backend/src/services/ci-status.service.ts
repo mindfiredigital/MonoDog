@@ -1,8 +1,8 @@
-import { scanMonorepo } from '@monodog/utils/helpers';
+import { scanMonorepo } from '@mindfiredigital/utils/helpers';
 import {
   ciStatusManager,
   getMonorepoCIStatus as getMonorepoCIStatusCore,
-} from '@monodog/ci-status';
+} from '@mindfiredigital/ci-status';
 
 export const getMonorepoCIStatus = async () => {
   const packages = scanMonorepo(process.cwd());

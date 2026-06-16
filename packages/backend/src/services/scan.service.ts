@@ -1,4 +1,4 @@
-import { MonorepoScanner, quickScan } from '@monodog/monorepo-scanner';
+import { MonorepoScanner, quickScan } from '@mindfiredigital/monorepo-scanner';
 
 export const scanner = new MonorepoScanner();
 
