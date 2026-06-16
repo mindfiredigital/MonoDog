@@ -6,7 +6,7 @@ import {
   PackageHealth,
   checkOutdatedDependencies,
   calculatePackageHealth,
-} from '@monodog/utils/helpers';
+} from '@mindfiredigital/utils/helpers';
 
 export async function checkBuildStatus(
   pkg: PackageInfo

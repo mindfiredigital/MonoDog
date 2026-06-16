@@ -7,7 +7,7 @@ import {
   checkOutdatedDependencies,
   getPackageSize,
   PackageHealth,
-} from '@monodog/utils/helpers';
+} from '@mindfiredigital/utils/helpers';
 
 import { ScanResult, PackageReport } from './types';
 export { ScanResult, PackageReport };
