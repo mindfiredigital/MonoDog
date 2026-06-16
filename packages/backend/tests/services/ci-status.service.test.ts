@@ -7,14 +7,14 @@ import {
 import {
   ciStatusManager,
   getMonorepoCIStatus as getMonorepoCIStatusCore,
-} from '@monodog/ci-status';
-import { scanMonorepo } from '@monodog/utils/helpers';
+} from '@mindfiredigital/ci-status';
+import { scanMonorepo } from '@mindfiredigital/utils/helpers';
 
-vi.mock('@monodog/utils/helpers', () => ({
+vi.mock('@mindfiredigital/utils/helpers', () => ({
   scanMonorepo: vi.fn(),
 }));
 
-vi.mock('@monodog/ci-status', () => ({
+vi.mock('@mindfiredigital/ci-status', () => ({
   ciStatusManager: {
     getPackageStatus: vi.fn(),
     triggerBuild: vi.fn(),

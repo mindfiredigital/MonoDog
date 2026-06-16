@@ -3,7 +3,7 @@ import {
   getAllPackages,
   getPackageByName,
 } from '../../src/services/package.service';
-import { scanMonorepo } from '@monodog/utils/helpers';
+import { scanMonorepo } from '@mindfiredigital/utils/helpers';
 import { prisma } from '../../src/db/prisma';
 
 vi.mock('../../src/db/prisma', () => ({
@@ -19,15 +19,15 @@ vi.mock('../../src/utils/helpers', () => ({
   storePackage: vi.fn(),
 }));
 
-vi.mock('@monodog/utils/helpers', () => ({
+vi.mock('@mindfiredigital/utils/helpers', () => ({
   scanMonorepo: vi.fn(),
 }));
 
-vi.mock('@monodog/monorepo-scanner', () => ({
+vi.mock('@mindfiredigital/monorepo-scanner', () => ({
   generateReports: vi.fn().mockResolvedValue([]),
 }));
 
-vi.mock('@monodog/ci-status', () => ({
+vi.mock('@mindfiredigital/ci-status', () => ({
   ciStatusManager: {
     getPackageStatus: vi.fn().mockResolvedValue({}),
   },
