@@ -199,13 +199,13 @@ importers:
 
   packages/backend:
     dependencies:
-      '@monodog/ci-status':
+      '@mindfiredigital/ci-status':
         specifier: 1.1.5
         version: link:../ci-status
-      '@monodog/monorepo-scanner':
+      '@mindfiredigital/monorepo-scanner':
         specifier: 1.0.9
         version: link:../monorepo-scanner
-      '@monodog/utils':
+      '@mindfiredigital/utils':
         specifier: 1.0.2
         version: link:../../libs/utils
       '@prisma/client':
@@ -290,7 +290,7 @@ importers:
 
   packages/ci-status:
     dependencies:
-      '@monodog/utils':
+      '@mindfiredigital/utils':
         specifier: 1.0.2
         version: link:../../libs/utils
       '@prisma/client':
@@ -315,7 +315,7 @@ importers:
 
   packages/monorepo-scanner:
     dependencies:
-      '@monodog/utils':
+      '@mindfiredigital/utils':
         specifier: 1.0.2
         version: link:../../libs/utils
       '@prisma/client':
