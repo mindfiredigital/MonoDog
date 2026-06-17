@@ -1,4 +1,5 @@
-import { execSync } from 'child_process';
+import { exec } from 'child_process';
+import util from 'util';
 import path from 'path';
 import fs from 'fs';
 import {
@@ -8,14 +9,15 @@ import {
   calculatePackageHealth,
 } from '@mindfiredigital/utils/helpers';
 
+const execAsync = util.promisify(exec);
+
 export async function checkBuildStatus(
   pkg: PackageInfo
 ): Promise<PackageHealth['buildStatus']> {
   try {
     if (pkg.scripts && pkg.scripts.build) {
-      execSync('npm run build', {
+      await execAsync('npm run build', {
         cwd: pkg.path,
-        stdio: 'pipe',
         timeout: 30000,
       });
       return 'success';
@@ -75,9 +77,8 @@ export async function checkLintStatus(
 ): Promise<PackageHealth['lintStatus']> {
   try {
     if (pkg.scripts && pkg.scripts.lint) {
-      execSync('npm run lint', {
+      await execAsync('npm run lint', {
         cwd: pkg.path,
-        stdio: 'pipe',
         timeout: 10000,
       });
       return 'pass';
@@ -92,13 +93,12 @@ export async function checkSecurityAudit(
   pkg: PackageInfo
 ): Promise<PackageHealth['securityAudit']> {
   try {
-    const result = execSync('npm audit --json', {
+    const { stdout } = await execAsync('npm audit --json', {
       cwd: pkg.path,
-      stdio: 'pipe',
       timeout: 15000,
     });
 
-    const audit = JSON.parse(result.toString());
+    const audit = JSON.parse(stdout.toString());
     return audit.metadata &&
       audit.metadata.vulnerabilities &&
       audit.metadata.vulnerabilities.total === 0
