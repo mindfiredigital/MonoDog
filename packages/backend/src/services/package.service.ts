@@ -3,7 +3,7 @@ import fs from 'fs';
 import { prisma } from '../db/prisma';
 import { scanMonorepo } from '@mindfiredigital/utils/helpers';
 import { storePackage } from '../utils/helpers';
-import { generateReports } from '@mindfiredigital/monorepo-scanner';
+import { MonorepoScanner } from '@mindfiredigital/monorepo-scanner';
 import { ciStatusManager } from '@mindfiredigital/ci-status';
 import { PackageRepository } from '../repositories';
 import { AppLogger } from '../middleware';
@@ -120,8 +120,15 @@ export const getPackageByName = async (name: string) => {
 
   const transformedPkg = transformPackage(pkg);
 
-  const reports: any[] = await generateReports();
-  const packageReport = reports.find((r: any) => r.package.name === name);
+  let packageReport = null;
+  const rootPath = process.cwd();
+  const allPackages = scanMonorepo(rootPath);
+  const pkgInfo = allPackages.find(p => p.name === name);
+
+  if (pkgInfo) {
+    const localScanner = new MonorepoScanner() as unknown as any;
+    packageReport = await localScanner.generatePackageReport(pkgInfo);
+  }
 
   return {
     ...transformedPkg,
