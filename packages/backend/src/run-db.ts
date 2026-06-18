@@ -1,11 +1,15 @@
 import { execSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import process from 'node:process';
+import path from 'node:path';
 
 try {
-  const getDbUrlCommand = existsSync('dist/get-db-url.js')
-    ? 'node dist/get-db-url.js'
-    : 'tsx src/get-db-url.ts';
+  const compiledUrlPath = path.join(__dirname, '..', 'dist', 'get-db-url.js');
+  const sourceUrlPath = path.join(__dirname, 'get-db-url.ts');
+
+  const getDbUrlCommand = existsSync(compiledUrlPath)
+    ? `node "${compiledUrlPath}"`
+    : `tsx "${sourceUrlPath}"`;
 
   const dbUrl = execSync(getDbUrlCommand, {
     encoding: 'utf8',

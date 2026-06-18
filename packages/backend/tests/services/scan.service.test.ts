@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { performMonorepoScan } from '../../src/services/scan.service';
 
-vi.mock('@monodog/monorepo-scanner', () => {
+vi.mock('@mindfiredigital/monorepo-scanner', () => {
   return {
     MonorepoScanner: class {
       scan = vi.fn().mockResolvedValue({ packages: [] });

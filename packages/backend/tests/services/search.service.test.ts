@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import { searchMonorepoPackages } from '../../src/services/search.service';
-import { scanMonorepo } from '@monodog/utils/helpers';
+import { scanMonorepo } from '@mindfiredigital/utils/helpers';
 
-vi.mock('@monodog/utils/helpers', () => ({
+vi.mock('@mindfiredigital/utils/helpers', () => ({
   scanMonorepo: vi.fn(),
 }));
 

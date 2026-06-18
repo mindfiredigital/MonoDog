@@ -73,32 +73,53 @@ Example:
   }
 }
 
-const run = async () => {
-  if (serve) {
-    console.log(`Starting Monodog API server...`);
-    console.log(`Analyzing monorepo at root: ${rootPath}`);
-    // Lazy loaded imports!
-    const { startServer, serveDashboard } = await import('./index.js');
-    startServer(rootPath, port, host);
-    serveDashboard(
-      rootPath,
-      appConfig.dashboard.port,
-      appConfig.dashboard.host
-    );
-  } else if (init) {
-    console.log(`\nInitializing Monodog Environment...`);
-    initMonodogEnvironment(rootPath);
-  } else {
+const createConfigFileIfMissing = (rootPath: string): void => {
+  // --- CONFIGURATION ---
+  const configFileName = 'monodog-conf.json';
+  const configFilePath = path.resolve(rootPath, configFileName);
+
+  // The default content for the configuration file
+  const defaultContent = {
+    workspace: {
+      root_dir: '../', // We are inside monodog/ folder, so root is one level up
+      install_path: 'packages',
+    },
+    database: {
+      path: './monodog.db',
+    },
+    dashboard: {
+      host: '0.0.0.0',
+      port: '3010',
+    },
+    server: {
+      host: '0.0.0.0',
+      port: 4000,
+    },
+  };
+
+  const contentString = JSON.stringify(defaultContent, null, 2);
+
+  console.log(`\n[monodog] Checking for ${configFileName}...`);
+
+  if (fs.existsSync(configFilePath)) {
     console.log(
-      `Monodog CLI: No operation specified. Use --serve to start the API or -h for help.`
+      `[monodog] ${configFileName} already exists. Skipping creation.`
     );
+  } else {
+    try {
+      fs.writeFileSync(configFilePath, contentString, 'utf-8');
+      console.log(
+        `[monodog] Successfully generated default ${configFileName} in the workspace root.`
+      );
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error(
+        `[monodog Error] Failed to generate ${configFileName}:`,
+        message
+      );
+    }
   }
 };
-
-run().catch(e => {
-  console.error('error:', e);
-  process.exit(1);
-});
 
 const initMonodogEnvironment = (rootDir: string): void => {
   const monodogPath = path.join(rootDir, 'monodog');
@@ -130,14 +151,14 @@ const initMonodogEnvironment = (rootDir: string): void => {
   fs.writeFileSync(pkgJsonPath, JSON.stringify(pkgJsonContent, null, 2));
 
   // Download and configure Dashboard
-  console.log(`\nFetching @monodog/dashboard...`);
+  console.log(`\nFetching @mindfiredigital/dashboard...`);
   try {
     // Run pnpm add inside the monodog directory to fetch the dashboard
     spawnSync(
       'pnpm',
       [
         'add',
-        '@monodog/dashboard',
+        '@mindfiredigital/dashboard',
         '@mindfiredigital/monodog',
         '--ignore-workspace',
       ],
@@ -148,7 +169,7 @@ const initMonodogEnvironment = (rootDir: string): void => {
     const dashboardSource = path.join(
       monodogPath,
       'node_modules',
-      '@monodog/dashboard'
+      '@mindfiredigital/dashboard'
     );
     const dashboardDest = path.join(monodogPath, 'monodog-dashboard');
     fs.cpSync(dashboardSource, dashboardDest, {
@@ -245,50 +266,29 @@ const initMonodogEnvironment = (rootDir: string): void => {
   console.log(`4. pnpm run serve`);
 };
 
-const createConfigFileIfMissing = (rootPath: string): void => {
-  // --- CONFIGURATION ---
-  const configFileName = 'monodog-conf.json';
-  const configFilePath = path.resolve(rootPath, configFileName);
-
-  // The default content for the configuration file
-  const defaultContent = {
-    workspace: {
-      root_dir: '../', // We are inside monodog/ folder, so root is one level up
-      install_path: 'packages',
-    },
-    database: {
-      path: './monodog.db',
-    },
-    dashboard: {
-      host: '0.0.0.0',
-      port: '3010',
-    },
-    server: {
-      host: '0.0.0.0',
-      port: 4000,
-    },
-  };
-
-  const contentString = JSON.stringify(defaultContent, null, 2);
-
-  console.log(`\n[monodog] Checking for ${configFileName}...`);
-
-  if (fs.existsSync(configFilePath)) {
-    console.log(
-      `[monodog] ${configFileName} already exists. Skipping creation.`
+const run = async () => {
+  if (serve) {
+    console.log(`Starting Monodog API server...`);
+    console.log(`Analyzing monorepo at root: ${rootPath}`);
+    // Lazy loaded imports!
+    const { startServer, serveDashboard } = await import('./index.js');
+    startServer(rootPath, port, host);
+    serveDashboard(
+      rootPath,
+      appConfig.dashboard.port,
+      appConfig.dashboard.host
     );
+  } else if (init) {
+    console.log(`\nInitializing Monodog Environment...`);
+    initMonodogEnvironment(rootPath);
   } else {
-    try {
-      fs.writeFileSync(configFilePath, contentString, 'utf-8');
-      console.log(
-        `[monodog] Successfully generated default ${configFileName} in the workspace root.`
-      );
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      console.error(
-        `[monodog Error] Failed to generate ${configFileName}:`,
-        message
-      );
-    }
+    console.log(
+      `Monodog CLI: No operation specified. Use --serve to start the API or -h for help.`
+    );
   }
 };
+
+run().catch(e => {
+  console.error('error:', e);
+  process.exit(1);
+});

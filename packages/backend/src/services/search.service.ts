@@ -1,4 +1,4 @@
-import { scanMonorepo } from '@monodog/utils/helpers';
+import { scanMonorepo } from '@mindfiredigital/utils/helpers';
 
 export const searchMonorepoPackages = async (
   query?: string,

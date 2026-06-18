@@ -1,7 +1,7 @@
 // This declaration explicitly tells TypeScript about the specific functions
-// exported by the '@monodog/monorepo-scanner' package, bypassing TS7016 errors.
+// exported by the '@mindfiredigital/monorepo-scanner' package, bypassing TS7016 errors.
 
-declare module '@monodog/monorepo-scanner' {
+declare module '@mindfiredigital/monorepo-scanner' {
   /**
    * Declares the exported function 'funCheckSecurityAudit'.
    * The actual implementation and return type reside in the source package.

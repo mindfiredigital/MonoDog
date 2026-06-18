@@ -1,4 +1,7 @@
-import { scanMonorepo, generateMonorepoStats } from '@monodog/utils/helpers';
+import {
+  scanMonorepo,
+  generateMonorepoStats,
+} from '@mindfiredigital/utils/helpers';
 
 export const getSystemInformation = () => {
   return {

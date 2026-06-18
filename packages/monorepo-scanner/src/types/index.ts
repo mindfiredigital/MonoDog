@@ -3,7 +3,7 @@ import {
   DependencyInfo,
   PackageHealth,
   MonorepoStats,
-} from '@monodog/utils/helpers';
+} from '@mindfiredigital/utils/helpers';
 
 export interface ScanResult {
   packages: PackageInfo[];

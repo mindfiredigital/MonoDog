@@ -1,4 +1,4 @@
-import { PackageInfo } from '@monodog/utils/helpers';
+import { PackageInfo } from '@mindfiredigital/utils/helpers';
 
 export interface CIProvider {
   name: string;

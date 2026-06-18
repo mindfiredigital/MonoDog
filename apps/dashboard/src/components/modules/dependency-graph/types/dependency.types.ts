@@ -35,7 +35,7 @@ export interface CircularDependency {
 
 /**
  * Map of all packages that depend on every other package.
- * Key: Dependency Name (e.g., 'react', '@monodog/backend')
+ * Key: Dependency Name (e.g., 'react', '@mindfiredigital/backend')
  * Value: Array of Package Names that depend on the key
  */
 export type DependentsMap = Record<string, string[]>;

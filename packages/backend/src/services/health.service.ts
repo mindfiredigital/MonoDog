@@ -1,12 +1,15 @@
 import path from 'path';
 import { prisma } from '../db/prisma';
-import { scanMonorepo, calculatePackageHealth } from '@monodog/utils/helpers';
+import {
+  scanMonorepo,
+  calculatePackageHealth,
+} from '@mindfiredigital/utils/helpers';
 import {
   funCheckBuildStatus,
   funCheckTestCoverage,
   funCheckLintStatus,
   funCheckSecurityAudit,
-} from '@monodog/monorepo-scanner';
+} from '@mindfiredigital/monorepo-scanner';
 
 export const getSystemHealth = () => {
   return {

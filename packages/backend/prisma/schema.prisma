@@ -18,7 +18,7 @@ datasource db {
 /// Represents a single package within the monorepo, based on the pnpm/package.json data.
 model Package {
   // Primary Key and Identity Field (using the package name as the unique ID)
-  // Example: '@monodog/dashboard'
+  // Example: '@mindfiredigital/dashboard'
   name String @id @unique
 
   // Core Package Metadata
