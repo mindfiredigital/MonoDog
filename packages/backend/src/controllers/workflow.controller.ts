@@ -178,7 +178,8 @@ export async function triggerRepositoryWorkflow(req: Request, res: Response) {
   try {
     const { owner, repo } = req.params;
     const accessToken = (req as any).accessToken as string;
-    const { workflow, ref, inputs } = req.body ?? {};
+    const { workflow, ref, inputs, releaseVersion, packageName } =
+      req.body ?? {};
 
     const result = await triggerWorkflow(accessToken, {
       owner,
@@ -188,14 +189,48 @@ export async function triggerRepositoryWorkflow(req: Request, res: Response) {
       inputs,
     });
 
-    await createAuditLogIfNeeded(
-      req,
-      'trigger',
-      'pipeline',
-      String(workflow),
-      String(workflow),
-      { owner, repo, ref, inputs }
-    );
+    // await createAuditLogIfNeeded(
+    //   req,
+    //   'trigger',
+    //   'pipeline',
+    //   String(workflow),
+    //   String(workflow),
+    //   { owner, repo, ref, inputs }
+    // );
+
+    if (result.response.success) {
+      const workflowsList = await listWorkflows(owner, repo, accessToken);
+      const workflowData = workflowsList.workflows.find(
+        w => String(w.id) === String(workflow)
+      );
+
+      const newPipeline = await pipelineService.createOrUpdatePipeline({
+        releaseVersion: releaseVersion ?? 'unversioned',
+        packageName: packageName ?? repo,
+        owner,
+        repo,
+        workflowId: String(workflowData?.id ?? workflow),
+        workflowName: workflowData?.name ?? String(workflow),
+        workflowPath: workflowData?.path ?? undefined,
+        triggerType: 'manual',
+        triggeredBy: (req as any).user?.login ?? 'unknown',
+        triggeredAt: new Date().toISOString(),
+        currentStatus: 'queued',
+        currentConclusion: null,
+        lastRunId: undefined,
+      });
+
+      await pipelineService.createAuditLog(
+        newPipeline.id,
+        Number((req as any).user?.id || 0),
+        (req as any).user?.login || 'unknown',
+        'trigger',
+        'pipeline',
+        String(workflow),
+        workflowData?.name ?? String(workflow),
+        { owner, repo, ref, inputs }
+      );
+    }
 
     res.json({
       success: result.response.success,

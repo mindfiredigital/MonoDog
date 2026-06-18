@@ -14,6 +14,7 @@ In your monorepo root directory, run:
 ```bash
 pnpm dlx @mindfiredigital/monodog
 ```
+
 the installation script will create a new directory on project root: `monodog`
 
 ## Step 2: Start the Server
@@ -31,6 +32,7 @@ pnpm serve
 ```
 
 You should see output like:
+
 ```
 [monodog] Checking for monodog-config.json
 Starting Monodog API server...
@@ -44,11 +46,13 @@ Backend server running on http://localhost:8999
 ## Step 3: Access the Dashboard
 
 Open your browser and navigate to:
+
 ```
 http://localhost:3010
 ```
 
 You should see the Monodog dashboard with:
+
 - All packages in your monorepo
 - Health status for each package
 - Dependency visualization
@@ -59,6 +63,7 @@ You should see the Monodog dashboard with:
 The REST API is available at `http://localhost:8999/api`
 
 Try these endpoints:
+
 ```bash
 # Get all packages
 curl http://localhost:8999/api/packages
@@ -83,11 +88,13 @@ If Monodog is installed, you can explore:
 - [Examples](/usage/examples) -->
 
 ### Features
+
 - [Package Scanning](/features/package-scanning)
 - [Health Monitoring](/features/health-monitoring)
 <!-- - [CI Integration](/features/ci-integration) -->
 
 ### API
+
 - [Complete API Reference](/api-reference/overview)
 - [Packages Endpoint](/api-reference/packages)
 - [Health Endpoint](/api-reference/health)
@@ -97,12 +104,15 @@ If Monodog is installed, you can explore:
 ### Port 3010 Already in Use
 
 If port 3010 is already in use, specify a different port in monodog-config.json:
+
 ```
   "dashboard": {
     "port": 3011
   }
 ```
+
 If port 8999 is already in use, specify a different port in monodog-config.json:
+
 ```
   "server": {
     "port": 8990
@@ -112,6 +122,7 @@ If port 8999 is already in use, specify a different port in monodog-config.json:
 ### Packages Not Appearing
 
 Ensure that your monorepo structure is detected by the system:
+
 ```bash
 # Verify workspace configuration
 cat pnpm-workspace.yaml

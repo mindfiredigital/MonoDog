@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import apiClient from '../../../services/api';
-import { DASHBOARD_API_ENDPOINTS, POLL_INTERVAL_MS, LOG_PAGE_SIZE } from '../../../constants/api-config';
+import {
+  DASHBOARD_API_ENDPOINTS,
+  POLL_INTERVAL_MS,
+  LOG_PAGE_SIZE,
+} from '../../../constants/api-config';
 import type {
   PipelineAuditLogEntry,
   PipelineLogBundle,
@@ -13,9 +17,13 @@ export function useReleasePipeline() {
   const [pipelines, setPipelines] = useState<ReleasePipeline[]>([]);
   const [auditLogs, setAuditLogs] = useState<PipelineAuditLogEntry[]>([]);
   const [workflows, setWorkflows] = useState<WorkflowOption[]>([]);
-  const [selectedPipelineId, setSelectedPipelineId] = useState<string | null>(null);
+  const [selectedPipelineId, setSelectedPipelineId] = useState<string | null>(
+    null
+  );
   const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
-  const [selectedLogs, setSelectedLogs] = useState<PipelineLogBundle | null>(null);
+  const [selectedLogs, setSelectedLogs] = useState<PipelineLogBundle | null>(
+    null
+  );
   const [expandedSteps, setExpandedSteps] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState(true);
   const [logsLoading, setLogsLoading] = useState(false);
@@ -23,10 +31,13 @@ export function useReleasePipeline() {
   const [error, setError] = useState<string | null>(null);
   const [triggerRef, setTriggerRef] = useState('main');
   const [selectedWorkflowId, setSelectedWorkflowId] = useState('');
-  const [triggerInputs, setTriggerInputs] = useState('{\n  "source": "monodog"\n}');
+  const [triggerInputs, setTriggerInputs] = useState(
+    '{\n  "source": "monodog"\n}'
+  );
 
   const selectedPipeline = useMemo(
-    () => pipelines.find(pipeline => pipeline.id === selectedPipelineId) ?? null,
+    () =>
+      pipelines.find(pipeline => pipeline.id === selectedPipelineId) ?? null,
     [pipelines, selectedPipelineId]
   );
 
@@ -72,7 +83,10 @@ export function useReleasePipeline() {
       setError(null);
 
       setSelectedPipelineId(currentId => {
-        if (currentId && nextPipelines.some(pipeline => pipeline.id === currentId)) {
+        if (
+          currentId &&
+          nextPipelines.some(pipeline => pipeline.id === currentId)
+        ) {
           return currentId;
         }
 
@@ -110,7 +124,9 @@ export function useReleasePipeline() {
 
     const nextWorkflows = response.data.workflows || [];
     setWorkflows(nextWorkflows);
-    setSelectedWorkflowId(current => current || String(nextWorkflows[0]?.id || ''));
+    setSelectedWorkflowId(
+      current => current || String(nextWorkflows[0]?.id || '')
+    );
   };
 
   const fetchJobLogs = async (reset = false) => {
@@ -204,20 +220,26 @@ export function useReleasePipeline() {
   }, [selectedJobId, selectedPipeline?.lastRun?.id]);
 
   useEffect(() => {
+    const isTerminal =
+      selectedPipeline?.currentStatus === 'completed' ||
+      selectedPipeline?.currentStatus === 'cancelled' ||
+      selectedPipeline?.currentConclusion !== null;
+
+    if (isTerminal || !selectedPipeline) return;
+
+    const isActive = selectedPipeline.currentStatus === 'in_progress';
+    const delay = isActive ? POLL_INTERVAL_MS : 15000;
+
     const interval = window.setInterval(() => {
       fetchPipelines(true);
 
-      if (
-        selectedPipeline &&
-        selectedPipeline.currentStatus === 'in_progress' &&
-        selectedJob
-      ) {
+      if (isActive && selectedJob) {
         fetchJobLogs(false);
       }
-    }, POLL_INTERVAL_MS);
+    }, delay);
 
     return () => window.clearInterval(interval);
-  }, [selectedPipeline, selectedJob, selectedLogs?.nextCursor]);
+  }, [selectedPipeline?.currentStatus, selectedJob, selectedLogs?.nextCursor]);
 
   const handleTriggerWorkflow = async () => {
     if (!selectedPipeline || !selectedWorkflowId) {
@@ -271,15 +293,15 @@ export function useReleasePipeline() {
       const endpoint =
         action === 'cancel'
           ? DASHBOARD_API_ENDPOINTS.WORKFLOWS.CANCEL(
-            selectedPipeline.owner,
-            selectedPipeline.repo,
-            selectedPipeline.lastRun.id
-          )
+              selectedPipeline.owner,
+              selectedPipeline.repo,
+              selectedPipeline.lastRun.id
+            )
           : DASHBOARD_API_ENDPOINTS.WORKFLOWS.RERUN(
-            selectedPipeline.owner,
-            selectedPipeline.repo,
-            selectedPipeline.lastRun.id
-          );
+              selectedPipeline.owner,
+              selectedPipeline.repo,
+              selectedPipeline.lastRun.id
+            );
 
       const response = await apiClient.post(endpoint, {
         pipelineId: selectedPipeline.id,

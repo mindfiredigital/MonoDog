@@ -11,7 +11,6 @@ export const DEFAULT_TIMEOUT = 30000;
 
 export const TIMEOUT_MS = 60000;
 
-
 // API ENDPOINTS
 
 export const DASHBOARD_API_ENDPOINTS = {
@@ -86,7 +85,6 @@ export const DASHBOARD_API_ENDPOINTS = {
       `/workflows/${owner}/${repo}/runs/${runId}/rerun`,
   },
 } as const;
-
 
 export const POLL_INTERVAL_MS = 5000;
 export const LOG_PAGE_SIZE = 800;

@@ -29,7 +29,8 @@ const config = {
         docs: {
           sidebarPath: './sidebars.js',
           routeBasePath: '/',
-          editUrl: 'https://github.com/mindfiredigital/MonoDog/tree/main/documentation',
+          editUrl:
+            'https://github.com/mindfiredigital/MonoDog/tree/main/documentation',
         },
         blog: false,
         theme: {

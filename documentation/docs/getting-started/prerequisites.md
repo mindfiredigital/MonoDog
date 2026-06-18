@@ -10,20 +10,25 @@ Before you install Monodog, make sure your environment meets these requirements.
 ## System Requirements
 
 ### Node.js
+
 - **Minimum Version**: v18.0.0
 - **Recommended Version**: v18.17.0 or higher
 - **LTS Versions**: v20.x or higher
 
 Check your Node.js version:
+
 ```bash
 node --version
 ```
 
 ### Package Manager
+
 Monodog requires package manager:
-- **pnpm**: v8.0.0 or higher *(Recommended)*
+
+- **pnpm**: v8.0.0 or higher _(Recommended)_
 
 Check your package manager version:
+
 ```bash
 # For pnpm
 pnpm --version
@@ -34,7 +39,6 @@ pnpm --version
 
 Your project must be a monorepo using pnpm Workspaces
 
-
 ## Monorepo Structure
 
 Your monorepo should have a standard structure:
@@ -42,7 +46,7 @@ Your monorepo should have a standard structure:
 ```
 my-monorepo/
 ├── package.json              (root workspace config)
-├── pnpm-workspace.yaml       
+├── pnpm-workspace.yaml
 ├── packages/
 │   ├── package-a/
 │   ├── package-b/
@@ -61,6 +65,7 @@ my-monorepo/
 Make sure your monorepo has:
 
 1. **Root `package.json`** with workspace configuration
+
    ```json
    {
      "workspaces": ["packages/*"]
@@ -92,7 +97,9 @@ Before proceeding with installation, verify:
 ## Troubleshooting Prerequisites
 
 ### Node.js Version Issues
+
 If you have an older Node.js version:
+
 ```bash
 # Using nvm (Node Version Manager)
 nvm install 18
@@ -100,6 +107,7 @@ nvm use 18
 ```
 
 ### Package Manager Not Found
+
 ```bash
 # Install pnpm globally
 npm install -g pnpm@latest
@@ -109,7 +117,9 @@ pnpm --version
 ```
 
 ### Not in a Monorepo
+
 If you're not sure if you're in a monorepo, check for:
+
 ```bash
 # Look for workspace config
 ls -la pnpm-workspace.yaml
