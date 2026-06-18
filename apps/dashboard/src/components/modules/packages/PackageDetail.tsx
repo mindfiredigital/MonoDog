@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { ChangelogViewer } from '../../../components/publish-control/components';
 // No additional icons needed - using sub-components
 
 // Import sub-components
@@ -26,14 +27,16 @@ export type { PackageDetail as PackageDetailType } from './types/packages.types'
 
 export default function PackageDetail() {
   const { name } = useParams<{ name: string }>();
-  const [packageData, setPackageData] = useState(null);
+  const [packageData, setPackageData] = useState<PackageDetailType | null>(
+    null
+  );
   const [activeTab, setActiveTab] = useState<PackageDetailTab>('overview');
 
   useEffect(() => {
     const fetchPackage = async () => {
       try {
         const data = await monorepoService.getPackage(name ?? '');
-        setPackageData(data);
+        setPackageData(data as unknown as PackageDetailType);
       } catch (err) {
         console.error('Error fetching packages:', err);
       }
@@ -155,6 +158,15 @@ export default function PackageDetail() {
 
         {/* Tab Content */}
         <div className="px-6">{renderTabContent()}</div>
+      </div>
+
+      <div className="card mt-8 mb-8 overflow-hidden">
+        <div className="bg-neutral-50 px-6 py-5 border-b border-neutral-200">
+          <h2 className="text-heading text-xl">Version History</h2>
+        </div>
+        <div className="p-6">
+          {name && <ChangelogViewer packageName={name} />}
+        </div>
       </div>
     </div>
   );
