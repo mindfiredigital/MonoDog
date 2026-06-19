@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { RocketLaunchIcon } from '../../../icons/heroicons';
 // Import sub-components
 import {
-  LoadingState,
   ErrorState,
   CIIntegrationHeader,
   BuildOverview,
@@ -10,6 +9,7 @@ import {
   PipelineStatus,
   BuildDetails,
 } from './components';
+import { TableSkeleton } from '../../skeletons';
 
 // Import types and utilities
 import { Build, Pipeline, CIFilters } from './types/ci.types';
@@ -170,7 +170,11 @@ export default function CIIntegration() {
 
   // Loading state
   if (loading) {
-    return <LoadingState />;
+    return (
+      <div className="space-y-6">
+        <TableSkeleton rows={6} />
+      </div>
+    );
   }
 
   // Error state

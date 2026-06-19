@@ -9,9 +9,9 @@ import {
   PackageReleaseTable,
   ReleaseSchedule,
   ChangelogViewer,
-  LoadingState,
   ErrorState,
 } from './components';
+import { TableSkeleton } from '../skeletons';
 
 // Import types and utilities
 import { Package, Release } from './types/publish.types';
@@ -190,7 +190,11 @@ export default function PublishControl() {
   const stats = calculatePublishStats(packages);
 
   if (loading) {
-    return <LoadingState />;
+    return (
+      <div className="space-y-6">
+        <TableSkeleton rows={4} />
+      </div>
+    );
   }
 
   if (error) {
