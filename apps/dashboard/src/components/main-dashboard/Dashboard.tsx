@@ -22,7 +22,8 @@ import {
   getStatusColor,
   getTypeIcon,
 } from './utils/dashboard.utils';
-import { LoadingState, ErrorState } from '../modules/packages/components';
+import { ErrorState } from '../modules/packages/components';
+import { CardGridSkeleton, TableSkeleton } from '../skeletons';
 import { defaultConfig } from './constants/dashboard';
 
 // Configuration interface for customization - imported from Configuration component
@@ -97,7 +98,12 @@ export default function Dashboard() {
 
   // Loading state
   if (loading && !packages) {
-    return <LoadingState />;
+    return (
+      <div className="p-6 space-y-6">
+        <CardGridSkeleton cards={3} />
+        <TableSkeleton rows={5} />
+      </div>
+    );
   }
 
   // Error state

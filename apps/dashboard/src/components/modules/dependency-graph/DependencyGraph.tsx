@@ -3,7 +3,6 @@ import { monorepoService } from '../../../services/monorepoService';
 import { DASHBOARD_ERROR_MESSAGES } from '../../../constants/messages';
 // Import sub-components
 import {
-  LoadingState,
   ErrorState,
   DependencyGraphHeader,
   GraphToolbar,
@@ -14,6 +13,7 @@ import {
   CircularDependencies,
   GraphLegend,
 } from './components';
+import { CardGridSkeleton } from '../../skeletons';
 
 // Import types and utilities
 import { PackageNode } from './types/dependency.types';
@@ -121,7 +121,11 @@ export default function DependencyGraph() {
 
   // Loading state
   if (loading) {
-    return <LoadingState />;
+    return (
+      <div className="space-y-6">
+        <CardGridSkeleton cards={4} />
+      </div>
+    );
   }
 
   // Error state
