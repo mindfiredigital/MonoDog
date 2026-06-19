@@ -5,7 +5,6 @@ import { ChangelogViewer } from '../../../components/publish-control/components'
 
 // Import sub-components
 import {
-  LoadingState,
   PackageDetailHeader,
   PackageDetailTabs,
   DependenciesTab,
@@ -13,6 +12,7 @@ import {
   HealthMetricsTab,
   ConfigurationTab,
 } from './components';
+import { DetailHeaderSkeleton } from '../../skeletons';
 
 // Import types
 import {
@@ -47,7 +47,7 @@ export default function PackageDetail() {
 
   // Loading state
   if (!packageData) {
-    return <LoadingState message="Loading package details..." />;
+    return <DetailHeaderSkeleton />;
   }
 
   // Render tab content

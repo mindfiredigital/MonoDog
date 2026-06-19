@@ -3,7 +3,6 @@ import { DASHBOARD_ERROR_MESSAGES } from '../../../constants/messages';
 
 // Import sub-components
 import {
-  LoadingState,
   ErrorState,
   ConfigInspectorHeader,
   ConfigSidebar,
@@ -12,6 +11,7 @@ import {
   ValidationPanel,
   ConfigPreview,
 } from './components';
+import { DetailHeaderSkeleton } from '../../skeletons';
 
 // Import types and utilities
 // Import types and utilities
@@ -204,7 +204,11 @@ export default function ConfigInspector() {
 
   // Loading state
   if (loading) {
-    return <LoadingState />;
+    return (
+      <div className="space-y-6">
+        <DetailHeaderSkeleton />
+      </div>
+    );
   }
 
   // Error state
