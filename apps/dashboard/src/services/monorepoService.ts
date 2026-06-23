@@ -198,7 +198,9 @@ class MonorepoService {
       const response = await apiClient.get<any>('/ci/status');
 
       if (!response.success) {
-        console.error(`getBuildStatus: fetch failed with status ${response.error?.status}`);
+        console.error(
+          `getBuildStatus: fetch failed with status ${response.error?.status}`
+        );
         return [];
       }
 

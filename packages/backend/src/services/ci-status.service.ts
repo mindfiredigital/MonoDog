@@ -5,7 +5,10 @@ import {
   triggerWorkflow,
 } from './github-actions-service';
 
-export const getMonorepoCIStatus = async (monorepoRoot: string, accessToken?: string) => {
+export const getMonorepoCIStatus = async (
+  monorepoRoot: string,
+  accessToken?: string
+) => {
   if (!accessToken) throw new Error('GitHub access token is required');
   const repoInfo = await getRepositoryInfoFromGit(monorepoRoot);
   if (!repoInfo) throw new Error('Could not determine GitHub repository info');
@@ -40,7 +43,7 @@ export const getPackageCIStatus = async (
     { per_page: 20 }
   );
 
-  const filteredRuns = runs.filter((run) =>
+  const filteredRuns = runs.filter(run =>
     run.name.toLowerCase().includes(name.toLowerCase())
   );
 

@@ -23,8 +23,6 @@ import {
 // Re-export types for backward compatibility
 export type { Package, Release } from './types/publish.types';
 
-
-
 export default function PublishControl() {
   const [selectedPackage, setSelectedPackage] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');

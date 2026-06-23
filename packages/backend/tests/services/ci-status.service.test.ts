@@ -5,7 +5,9 @@ import {
 } from '../../src/services/ci-status.service';
 
 vi.mock('../../src/utils/utilities', () => ({
-  getRepositoryInfoFromGit: vi.fn().mockResolvedValue({ owner: 'test', repo: 'test-repo' }),
+  getRepositoryInfoFromGit: vi
+    .fn()
+    .mockResolvedValue({ owner: 'test', repo: 'test-repo' }),
 }));
 
 vi.mock('../../src/services/github-actions-service', () => ({
@@ -24,7 +26,11 @@ describe('CI Status Service', () => {
 
   describe('getPackageCIStatus', () => {
     it('should return package CI status if found', async () => {
-      const status = await getPackageCIStatus('root/path', 'core', 'fake-token');
+      const status = await getPackageCIStatus(
+        'root/path',
+        'core',
+        'fake-token'
+      );
       expect(status.success).toBe(true);
       expect(status.pipelines).toEqual([]);
     });

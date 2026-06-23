@@ -79,7 +79,12 @@ export const getBuildLogs = async (req: Request, res: Response) => {
     const accessToken = (req as any).accessToken as string | undefined;
     const rootPath = req.app.locals.rootPath;
 
-    const result = await getBuildLogsService(rootPath, buildId, provider as string, accessToken);
+    const result = await getBuildLogsService(
+      rootPath,
+      buildId,
+      provider as string,
+      accessToken
+    );
 
     res.json(result);
   } catch (error) {
@@ -96,7 +101,11 @@ export const getBuildArtifacts = async (req: Request, res: Response) => {
     const { provider } = req.query;
     const accessToken = (req as any).accessToken as string | undefined;
 
-    const result = await getBuildArtifactsService(buildId, provider as string, accessToken);
+    const result = await getBuildArtifactsService(
+      buildId,
+      provider as string,
+      accessToken
+    );
 
     res.json(result);
   } catch (error) {

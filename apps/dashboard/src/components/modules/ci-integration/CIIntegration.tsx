@@ -22,7 +22,6 @@ import { DASHBOARD_ERROR_MESSAGES } from '../../../constants/messages';
 // Re-export types for backward compatibility
 export type { Build, Pipeline, CIFilters } from './types/ci.types';
 
-
 export default function CIIntegration() {
   // State management
   const [loading, setLoading] = useState(true);
@@ -69,17 +68,21 @@ export default function CIIntegration() {
         );
 
         // get pipelines from the unique workflow names in the runs
-        const uniqueWorkflowNames = Array.from(new Set(data.map((b: any) => b.name).filter(Boolean)));
-        const derivedPipelines: Pipeline[] = uniqueWorkflowNames.map((name: any, index) => ({
-          id: String(index),
-          name: name as string,
-          packageName: 'monorepo',
-          status: 'active',
-          lastRun: new Date().toISOString(),
-          successRate: 100,
-          avgDuration: 0,
-          triggers: ['github_actions'],
-        }));
+        const uniqueWorkflowNames = Array.from(
+          new Set(data.map((b: any) => b.name).filter(Boolean))
+        );
+        const derivedPipelines: Pipeline[] = uniqueWorkflowNames.map(
+          (name: any, index) => ({
+            id: String(index),
+            name: name as string,
+            packageName: 'monorepo',
+            status: 'active',
+            lastRun: new Date().toISOString(),
+            successRate: 100,
+            avgDuration: 0,
+            triggers: ['github_actions'],
+          })
+        );
 
         setPipelines(derivedPipelines);
         setBuilds(transformedData);
