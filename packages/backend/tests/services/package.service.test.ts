@@ -27,12 +27,6 @@ vi.mock('@mindfiredigital/monorepo-scanner', () => ({
   generateReports: vi.fn().mockResolvedValue([]),
 }));
 
-vi.mock('@mindfiredigital/ci-status', () => ({
-  ciStatusManager: {
-    getPackageStatus: vi.fn().mockResolvedValue({}),
-  },
-}));
-
 describe('Package Service', () => {
   beforeEach(() => {
     vi.clearAllMocks();

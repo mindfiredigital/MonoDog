@@ -14,7 +14,11 @@ describe('CI Controller', () => {
   let req: any, res: any;
 
   beforeEach(() => {
-    req = { params: {} };
+    req = { 
+      params: {},
+      app: { locals: { rootPath: '/mock/root/path' } },
+      accessToken: 'mock-token'
+    };
     res = { json: vi.fn(), status: vi.fn().mockReturnThis() };
     vi.clearAllMocks();
   });
