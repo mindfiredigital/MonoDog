@@ -9,9 +9,6 @@ import type {
   ConfigFile,
 } from '../types/monorepo-service.types';
 class MonorepoService {
-  // Simulated monorepo data based on typical monorepo structure
-  private mockPackages: Package[] = [];
-
   async getPackages(): Promise<Package[]> {
     try {
       const response = await apiClient.get<Package[]>(
@@ -55,7 +52,6 @@ class MonorepoService {
   }
 
   async getDependencies(): Promise<DependencyInfo[]> {
-    await new Promise(resolve => setTimeout(resolve, 200));
     const allDeps = new Set<string>();
     try {
       const packages = await this.getPackages();
@@ -162,49 +158,6 @@ class MonorepoService {
     }
   }
 
-  private async getFallbackHealthStatus(): Promise<{
-    overallScore: number;
-    metrics: HealthMetric[];
-    packageHealth: Array<{ package: string; score: number; issues: string[] }>;
-  }> {
-    await new Promise(resolve => setTimeout(resolve, 400));
-
-    const metrics: HealthMetric[] = [
-      {
-        name: 'Package Count',
-        value: this.mockPackages.length,
-        status: 'healthy',
-        description: `${this.mockPackages.length} packages in monorepo`,
-      },
-      {
-        name: 'Dependency Health',
-        value: 85,
-        status: 'healthy',
-        description: 'Dependencies are up to date',
-      },
-      {
-        name: 'Build Status',
-        value: 95,
-        status: 'healthy',
-        description: 'Most builds are successful',
-      },
-    ];
-
-    const packageHealth = this.mockPackages.map(pkg => ({
-      package: pkg.name,
-      score: pkg.status === 'healthy' ? 90 : pkg.status === 'warning' ? 70 : 50,
-      issues: pkg.status === 'healthy' ? [] : ['Needs attention'],
-    }));
-
-    const overallScore = 85;
-
-    return {
-      overallScore,
-      metrics,
-      packageHealth,
-    };
-  }
-
   // Add this method to your MonorepoService class
   async updatePackageConfiguration(
     packageName: string,
@@ -240,47 +193,20 @@ class MonorepoService {
     }
   }
 
-  async getBuildStatus(): Promise<BuildStatus[]> {
-    await new Promise(resolve => setTimeout(resolve, 500));
+  async getBuildStatus(): Promise<any[]> {
+    try {
+      const response = await apiClient.get<any>('/ci/status');
 
-    const builds: BuildStatus[] = [];
-
-    for (const pkg of this.mockPackages) {
-      const hasBuildScript = pkg.scripts && pkg.scripts.build;
-      const hasTestScript = pkg.scripts && pkg.scripts.test;
-
-      if (hasBuildScript || hasTestScript) {
-        const startTime = new Date(
-          Date.now() - Math.random() * 86400000
-        ).toISOString();
-        const status: 'success' | 'failed' | 'building' | 'queued' =
-          Math.random() > 0.8
-            ? 'failed'
-            : Math.random() > 0.6
-              ? 'building'
-              : Math.random() > 0.4
-                ? 'queued'
-                : 'success';
-
-        builds.push({
-          id: `build-${pkg.name}-${Date.now()}`,
-          package: pkg.name,
-          status,
-          startTime,
-          endTime:
-            status !== 'building'
-              ? new Date(Date.now() - Math.random() * 3600000).toISOString()
-              : undefined,
-          duration:
-            status !== 'building'
-              ? Math.floor(Math.random() * 300) + 60
-              : undefined,
-          stages: this.generateBuildStages(pkg, status),
-        });
+      if (!response.success) {
+        console.error(`getBuildStatus: fetch failed with status ${response.error?.status}`);
+        return [];
       }
-    }
 
-    return builds;
+      return response.data?.pipelines || [];
+    } catch (error) {
+      console.error('getBuildStatus: unexpected error', error);
+      return [];
+    }
   }
 
   async getConfigurationFiles(): Promise<ConfigFile[]> {
@@ -309,8 +235,6 @@ class MonorepoService {
     content: string
   ): Promise<ConfigFile> {
     try {
-      // console.log('Saving configuration file:', fileId);
-
       const res = await apiClient.put(
         DASHBOARD_API_ENDPOINTS.CONFIG.FILE(fileId),
         JSON.stringify({ content })
@@ -329,52 +253,8 @@ class MonorepoService {
       }
     } catch (error) {
       console.error('Error saving configuration file:', error);
-      throw error; // Re-throw to let the component handle it
+      throw error;
     }
-  }
-
-  private generateBuildStages(pkg: Package, status: string): BuildStage[] {
-    const stages: BuildStage[] = [
-      {
-        name: 'Install',
-        status: 'success',
-        duration: Math.floor(Math.random() * 30) + 10,
-        logs: [
-          'Installing dependencies...',
-          'Dependencies installed successfully',
-        ],
-      },
-      {
-        name: 'Lint',
-        status:
-          status === 'failed' && Math.random() > 0.7 ? 'failed' : 'success',
-        duration: Math.floor(Math.random() * 20) + 5,
-        logs: ['Running ESLint...', 'Linting completed'],
-      },
-      {
-        name: 'Test',
-        status:
-          status === 'failed' && Math.random() > 0.5 ? 'failed' : 'success',
-        duration: Math.floor(Math.random() * 60) + 30,
-        logs: ['Running tests...', 'Test suite completed'],
-      },
-      {
-        name: 'Build',
-        status: status === 'failed' ? 'failed' : 'success',
-        duration: Math.floor(Math.random() * 120) + 60,
-        logs: ['Building package...', 'Build completed successfully'],
-      },
-    ];
-
-    if (status === 'building') {
-      const buildingStage = Math.floor(Math.random() * stages.length);
-      stages[buildingStage].status = 'running';
-      stages
-        .slice(buildingStage + 1)
-        .forEach(stage => (stage.status = 'pending'));
-    }
-
-    return stages;
   }
 }
 

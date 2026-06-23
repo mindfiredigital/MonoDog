@@ -19,7 +19,7 @@ const navigation = [
   { name: 'Release', href: '/release', icon: CloudArrowUpIcon },
   { name: 'Pipeline', href: '/pipeline', icon: RocketLaunchIcon },
   // { name: 'Publish Control', href: '/publish', icon: CloudArrowUpIcon },
-  // { name: 'CI/CD', href: '/ci', icon: CpuChipIcon },
+  { name: 'CI/CD', href: '/ci', icon: RocketLaunchIcon },
   { name: 'Configuration', href: '/config', icon: Cog6ToothIcon },
 ];
 
