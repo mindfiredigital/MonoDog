@@ -84,8 +84,23 @@ export const filterBuilds = (builds: Build[], filters: CIFilters): Build[] => {
     const matchesStatus =
       filters.status === 'all' || build.status === filters.status;
 
-    // Date range filtering would be implemented here
-    const matchesDateRange = true; // Placeholder
+    // Date range filtering
+    let matchesDateRange = true;
+    if (filters.dateRange !== 'all') {
+      const buildDate = new Date(build.startTime);
+      const now = new Date();
+
+      if (filters.dateRange === 'today') {
+        const today = new Date(now.setHours(0, 0, 0, 0));
+        matchesDateRange = buildDate >= today;
+      } else if (filters.dateRange === 'week') {
+        const lastWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        matchesDateRange = buildDate >= lastWeek;
+      } else if (filters.dateRange === 'month') {
+        const lastMonth = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        matchesDateRange = buildDate >= lastMonth;
+      }
+    }
 
     return matchesPackage && matchesStatus && matchesDateRange;
   });
