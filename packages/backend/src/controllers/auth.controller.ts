@@ -86,7 +86,7 @@ export const callback = async (req: Request, res: Response) => {
   }
 };
 
-export const getMe = (req: Request, res: Response) => {
+export const getMe = async (req: Request, res: Response) => {
   try {
     const authHeader = req.headers.authorization;
     const token = authHeader?.replace('Bearer ', '');
@@ -98,7 +98,7 @@ export const getMe = (req: Request, res: Response) => {
       });
     }
 
-    const session = getSession(token);
+    const session = await getSession(token);
 
     if (session) {
       res.json({
@@ -130,7 +130,7 @@ export const getMe = (req: Request, res: Response) => {
   }
 };
 
-export const validate = (req: Request, res: Response) => {
+export const validate = async (req: Request, res: Response) => {
   try {
     const authHeader = req.headers.authorization;
     const token = authHeader?.replace('Bearer ', '');
@@ -143,7 +143,7 @@ export const validate = (req: Request, res: Response) => {
       });
     }
 
-    const session = getSession(token);
+    const session = await getSession(token);
 
     if (!session) {
       decodeSessionToken(token);
