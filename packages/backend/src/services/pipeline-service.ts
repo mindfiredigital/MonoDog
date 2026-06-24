@@ -170,9 +170,11 @@ export async function scheduleRelease(
         scheduledAt,
         status: 'pending',
         triggeredBy,
-      }
+      },
     });
-    AppLogger.info(`Scheduled release ${releaseVersion} for ${packageName} at ${scheduledAt}`);
+    AppLogger.info(
+      `Scheduled release ${releaseVersion} for ${packageName} at ${scheduledAt}`
+    );
     return scheduledRelease;
   } catch (error) {
     AppLogger.error(`Failed to schedule release: ${error}`);
@@ -189,7 +191,7 @@ export async function getPendingScheduledReleases(limit = 20) {
       where: { status: 'pending' },
       orderBy: { scheduledAt: 'asc' },
       take: limit,
-      include: { package: true }
+      include: { package: true },
     });
   } catch (error) {
     AppLogger.error(`Failed to get scheduled releases: ${error}`);
@@ -204,7 +206,7 @@ export async function updateScheduledReleaseStatus(id: string, status: string) {
   try {
     return await prisma.scheduledRelease.update({
       where: { id },
-      data: { status }
+      data: { status },
     });
   } catch (error) {
     AppLogger.error(`Failed to update scheduled release status: ${error}`);

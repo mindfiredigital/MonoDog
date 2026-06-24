@@ -6,15 +6,33 @@ vi.mock('../../src/db/prisma', () => ({
     activityLog: {
       findMany: vi.fn().mockImplementation(async ({ take }) => {
         const data = [
-          { id: '1', type: 'test', packageName: 'pkg-a', timestamp: new Date('2023-01-03'), metadata: JSON.stringify({ version: '1.0.0', type: 'library' }) },
-          { id: '2', type: 'test', packageName: 'pkg-b', timestamp: new Date('2023-01-02'), metadata: JSON.stringify({ version: '2.0.0', type: 'app' }) },
-          { id: '3', type: 'test', packageName: 'pkg-c', timestamp: new Date('2023-01-01'), metadata: JSON.stringify({ version: '3.0.0', type: 'library' }) },
+          {
+            id: '1',
+            type: 'test',
+            packageName: 'pkg-a',
+            timestamp: new Date('2023-01-03'),
+            metadata: JSON.stringify({ version: '1.0.0', type: 'library' }),
+          },
+          {
+            id: '2',
+            type: 'test',
+            packageName: 'pkg-b',
+            timestamp: new Date('2023-01-02'),
+            metadata: JSON.stringify({ version: '2.0.0', type: 'app' }),
+          },
+          {
+            id: '3',
+            type: 'test',
+            packageName: 'pkg-c',
+            timestamp: new Date('2023-01-01'),
+            metadata: JSON.stringify({ version: '3.0.0', type: 'library' }),
+          },
         ];
         return data.slice(0, take);
       }),
-      count: vi.fn().mockResolvedValue(3)
-    }
-  }
+      count: vi.fn().mockResolvedValue(3),
+    },
+  },
 }));
 
 describe('Activity Service', () => {
