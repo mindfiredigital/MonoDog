@@ -304,3 +304,56 @@ export async function refreshPipelineFromRun(req: Request, res: Response) {
     });
   }
 }
+
+export async function scheduleRelease(req: Request, res: Response) {
+  try {
+    const { releaseVersion, packageName, scheduledAt } = req.body;
+    const user = (req as any).user;
+    const triggeredBy = user.login;
+
+    if (!releaseVersion || !packageName || !scheduledAt) {
+      res.status(HTTP_STATUS_BAD_REQUEST).json({
+        success: false,
+        error: 'packageName, releaseVersion, and scheduledAt are required',
+      });
+      return;
+    }
+
+    const release = await pipelineService.scheduleRelease(
+      releaseVersion,
+      packageName,
+      new Date(scheduledAt),
+      triggeredBy
+    );
+
+    res.json({
+      success: true,
+      release,
+    });
+  } catch (error) {
+    res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: 'Failed to schedule release',
+      message: extractErrorMessage(error),
+    });
+  }
+}
+
+export async function getPendingScheduledReleases(req: Request, res: Response) {
+  try {
+    const limit = req.query.limit ? Number(req.query.limit) : undefined;
+    const releases = await pipelineService.getPendingScheduledReleases(limit);
+
+    res.json({
+      success: true,
+      releases,
+      total: releases.length,
+    });
+  } catch (error) {
+    res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: 'Failed to fetch scheduled releases',
+      message: extractErrorMessage(error),
+    });
+  }
+}
