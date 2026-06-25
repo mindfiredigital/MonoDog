@@ -11,6 +11,7 @@ import type { PackageModel } from '../types/database';
 const transformPackage = (pkg: any) => {
   return {
     ...pkg,
+    commits: pkg._count?.commits || 0,
     maintainers: pkg.maintainers ? JSON.parse(pkg.maintainers) : [],
     scripts: pkg.scripts ? JSON.parse(pkg.scripts) : {},
     repository: pkg.repository ? JSON.parse(pkg.repository) : {},
@@ -25,7 +26,9 @@ const transformPackage = (pkg: any) => {
 export const getAllPackages = async (rootPath?: string) => {
   const resolvedRootPath = rootPath || process.cwd();
 
-  let dbPackages = await prisma.package.findMany();
+  let dbPackages = await prisma.package.findMany({
+    include: { _count: { select: { commits: true } } },
+  });
 
   if (!dbPackages.length) {
     const rootDir = path.resolve(resolvedRootPath);
@@ -35,7 +38,9 @@ export const getAllPackages = async (rootPath?: string) => {
       await storePackage(pkg);
     }
 
-    dbPackages = await prisma.package.findMany();
+    dbPackages = await prisma.package.findMany({
+      include: { _count: { select: { commits: true } } },
+    });
   }
 
   return dbPackages.map(transformPackage);
@@ -82,6 +87,8 @@ export const getPackagesService = async (rootPath: string) => {
     transformedPkg.peerDependencies = pkg.peerDependencies
       ? JSON.parse(pkg.peerDependencies)
       : [];
+
+    (transformedPkg as any).commits = (pkg as any)._count?.commits || 0;
     return transformedPkg; // Return the fully transformed object
   });
 
