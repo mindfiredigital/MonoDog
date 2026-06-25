@@ -27,6 +27,7 @@ export default function PublishControl() {
   const [selectedPackage, setSelectedPackage] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [packages, setPackages] = useState<Package[]>([]);
+  const [scheduledReleases, setScheduledReleases] = useState<Release[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -48,6 +49,22 @@ export default function PublishControl() {
           publishType: getPublishType(),
         }));
         setPackages(publishPackages);
+
+        const scheduledData = await monorepoService.getScheduledReleases();
+
+        // Map database schema to frontend Release interface
+        const mappedReleases = scheduledData.map((rel: any) => ({
+          id: rel.id,
+          packageName: rel.packageName,
+          version: rel.releaseVersion,
+          status: rel.status,
+          scheduledFor: new Date(rel.scheduledAt).toLocaleString(),
+          changelog: 'Scheduled via dashboard',
+          author: rel.triggeredBy,
+        }));
+
+        setScheduledReleases(mappedReleases);
+
         setError(null);
       } catch (err) {
         setError(DASHBOARD_ERROR_MESSAGES.FAILED_TO_FETCH_PACKAGES);
@@ -139,7 +156,7 @@ export default function PublishControl() {
 
       {/* Release Schedule */}
       <ReleaseSchedule
-        releases={[]}
+        releases={scheduledReleases}
         selectedStatus={selectedStatus}
         onStatusChange={setSelectedStatus}
       />
