@@ -99,11 +99,11 @@ const ChangelogViewer: React.FC<ChangelogViewerProps> = ({ packageName }) => {
       : releases.filter(r => r.version === selectedVersion);
 
   return (
-    <div className="flex flex-col gap-6 w-full">
-      <div className="flex items-center justify-between card p-4">
+    <div className="card overflow-hidden w-full">
+      <div className="bg-neutral-50 px-6 py-5 border-b border-neutral-200 flex items-center justify-between">
         <h2 className="text-heading text-xl">Release History</h2>
         <select
-          className="input-base"
+          className="input-base bg-white"
           value={selectedVersion}
           onChange={e => setSelectedVersion(e.target.value)}
         >
@@ -116,7 +116,7 @@ const ChangelogViewer: React.FC<ChangelogViewerProps> = ({ packageName }) => {
         </select>
       </div>
 
-      <div className="flex flex-col gap-4">
+      <div className="p-6 flex flex-col gap-4">
         {displayedReleases.map(release => (
           <div key={release.version} className="card overflow-hidden">
             {/* Release Header */}
