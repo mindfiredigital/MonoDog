@@ -1,4 +1,4 @@
-import { PlayIcon, RocketLaunchIcon } from '../../../icons/heroicons';
+import { PlayIcon, RocketLaunchIcon, ClockIcon } from '../../../icons/heroicons';
 import { PublishStats } from '../types/publish.types';
 
 interface QuickActionCardsProps {
@@ -27,7 +27,11 @@ export default function QuickActionCards({ stats }: QuickActionCardsProps) {
       <div className="bg-white p-6 rounded-lg shadow border">
         <div className="flex items-center">
           <div className="p-2 bg-blue-100 rounded-lg">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+            {stats.inProgress > 0 ? (
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+            ) : (
+              <ClockIcon className="w-6 h-6 text-blue-500" />
+            )}
           </div>
           <div className="ml-4">
             <p className="text-sm font-medium text-gray-600">In Progress</p>
