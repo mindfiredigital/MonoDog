@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { TagIcon, ClockIcon } from '../../../icons/heroicons';
 import { Package } from '../types/publish.types';
 import { getStatusColor, getPublishTypeColor } from '../utils/publish.utils';
@@ -13,6 +14,8 @@ export default function PackageReleaseTable({
   selectedPackage,
   onPackageChange,
 }: PackageReleaseTableProps) {
+  const navigate = useNavigate();
+
   return (
     <div className="bg-white rounded-lg shadow border overflow-hidden">
       <div className="px-6 py-4 border-b border-gray-200">
@@ -63,14 +66,17 @@ export default function PackageReleaseTable({
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Last Published
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {packages.map(pkg => (
-              <tr key={pkg.name} className="hover:bg-gray-50">
+              <tr
+                key={pkg.name}
+                className="hover:bg-gray-50 cursor-pointer transition-colors duration-150"
+                onClick={() =>
+                  navigate(`/packages/${encodeURIComponent(pkg.name)}`)
+                }
+              >
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <div className="h-8 w-8 rounded-lg bg-gray-100 flex items-center justify-center">
@@ -113,21 +119,6 @@ export default function PackageReleaseTable({
                   <div className="flex items-center text-sm text-gray-900">
                     <ClockIcon className="w-4 h-4 mr-1 text-gray-400" />
                     {pkg.lastPublished}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <div className="flex space-x-2">
-                    {pkg.status === 'ready' && (
-                      <button className="text-green-600 hover:text-green-900">
-                        Publish
-                      </button>
-                    )}
-                    <button className="text-blue-600 hover:text-blue-900">
-                      Details
-                    </button>
-                    <button className="text-purple-600 hover:text-purple-900">
-                      Changelog
-                    </button>
                   </div>
                 </td>
               </tr>
