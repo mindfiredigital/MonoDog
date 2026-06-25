@@ -1,4 +1,8 @@
-import { PlayIcon, RocketLaunchIcon, ClockIcon } from '../../../icons/heroicons';
+import {
+  PlayIcon,
+  RocketLaunchIcon,
+  ClockIcon,
+} from '../../../icons/heroicons';
 import { PublishStats } from '../types/publish.types';
 
 interface QuickActionCardsProps {
