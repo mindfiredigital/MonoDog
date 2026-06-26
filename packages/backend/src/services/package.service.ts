@@ -8,7 +8,7 @@ import { PackageRepository } from '../repositories';
 import { AppLogger } from '../middleware';
 import type { PackageModel } from '../types/database';
 
-const transformPackage = (pkg: any) => {
+export const transformPackage = (pkg: any) => {
   return {
     ...pkg,
     commits: pkg._count?.commits || 0,
