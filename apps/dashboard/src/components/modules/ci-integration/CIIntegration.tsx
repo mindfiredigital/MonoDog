@@ -8,6 +8,8 @@ import {
   BuildList,
   PipelineStatus,
   BuildDetails,
+  TriggerBuildModal,
+  CreatePipelineModal,
 } from './components';
 import { TableSkeleton } from '../../skeletons';
 
@@ -39,6 +41,11 @@ export default function CIIntegration() {
     pipeline: 'all',
     dateRange: 'all',
   });
+
+  // Modal states
+  const [isTriggerModalOpen, setIsTriggerModalOpen] = useState(false);
+  const [isTriggering, setIsTriggering] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   // Fetch build data
   useEffect(() => {
@@ -122,14 +129,32 @@ export default function CIIntegration() {
     window.location.reload();
   };
 
-  const handleTriggerBuild = () => {
-    // In a real implementation, this would trigger a new build
-    console.log('Triggering new build...');
+  const handleTriggerBuild = async (packageName: string, branch: string) => {
+    setIsTriggering(true);
+    try {
+      await monorepoService.triggerCIBuild(packageName, branch);
+
+      setIsTriggerModalOpen(false);
+      alert(
+        'Pipeline successfully triggered! GitHub is provisioning the runner...'
+      );
+
+      // Poll after 5 seconds to gracefully fetch the newly created run ID from GitHub
+      setTimeout(() => {
+        handleRefresh();
+      }, 5000);
+    } catch (err) {
+      console.error(err);
+      alert(
+        `Error triggering build: ${err instanceof Error ? err.message : 'Unknown error'}`
+      );
+    } finally {
+      setIsTriggering(false);
+    }
   };
 
   const handleCreatePipeline = () => {
-    // In a real implementation, this would open a pipeline creation dialog
-    console.log('Creating new pipeline...');
+    setIsCreateModalOpen(true);
   };
 
   const handleBuildSelect = (buildId: string | null) => {
@@ -141,21 +166,39 @@ export default function CIIntegration() {
     console.log('Selected pipeline:', pipelineId);
   };
 
-  const handlePipelineToggle = (pipelineId: string, active: boolean) => {
-    // In a real implementation, this would toggle pipeline status
-    console.log('Toggle pipeline:', pipelineId, 'active:', active);
+  const handlePipelineToggle = async (pipelineId: string, active: boolean) => {
+    try {
+      await monorepoService.togglePipeline(pipelineId, active);
+      alert(`Pipeline ${active ? 'enabled' : 'disabled'} successfully!`);
+      handleRefresh();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to toggle pipeline status');
+    }
   };
 
-  const handleBuildCancel = (buildId: string) => {
-    // In a real implementation, this would cancel the build
-    console.log('Cancelling build:', buildId);
-    setSelectedBuild(null);
+  const handleBuildCancel = async (buildId: string) => {
+    try {
+      await monorepoService.cancelPipeline(buildId);
+      alert('Pipeline successfully cancelled!');
+      setSelectedBuild(null);
+      handleRefresh();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to cancel pipeline run');
+    }
   };
 
-  const handleBuildRetry = (buildId: string) => {
-    // In a real implementation, this would retry the build
-    console.log('Retrying build:', buildId);
-    setSelectedBuild(null);
+  const handleBuildRetry = async (buildId: string) => {
+    try {
+      await monorepoService.retryPipeline(buildId);
+      alert('Pipeline successfully restarted!');
+      setSelectedBuild(null);
+      handleRefresh();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to restart pipeline run');
+    }
   };
 
   const handleRetry = () => {
@@ -180,7 +223,7 @@ export default function CIIntegration() {
     <div className="space-y-6">
       {/* Header */}
       <CIIntegrationHeader
-        onTriggerBuild={handleTriggerBuild}
+        onTriggerBuild={() => setIsTriggerModalOpen(true)}
         onCreatePipeline={handleCreatePipeline}
       />
 
@@ -220,6 +263,18 @@ export default function CIIntegration() {
         onClose={() => setSelectedBuild(null)}
         onCancel={handleBuildCancel}
         onRetry={handleBuildRetry}
+      />
+
+      <TriggerBuildModal
+        isOpen={isTriggerModalOpen}
+        onClose={() => setIsTriggerModalOpen(false)}
+        onSubmit={handleTriggerBuild}
+        isLoading={isTriggering}
+      />
+
+      <CreatePipelineModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
       />
 
       {/* Empty State */}
@@ -263,7 +318,7 @@ export default function CIIntegration() {
           </p>
           <div className="flex justify-center space-x-4">
             <button
-              onClick={handleTriggerBuild}
+              onClick={() => setIsTriggerModalOpen(true)}
               className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
             >
               Trigger Build

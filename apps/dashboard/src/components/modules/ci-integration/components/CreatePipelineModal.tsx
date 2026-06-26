@@ -47,7 +47,9 @@ export default function CreatePipelineModal({
       try {
         await new Promise(resolve => setTimeout(resolve, 1500));
 
-        alert(`Successfully generated ${template} pipeline for ${selectedPackage}! Committing to repository...`);
+        alert(
+          `Successfully generated ${template} pipeline for ${selectedPackage}! Committing to repository...`
+        );
         onClose();
       } catch (error) {
         console.error(error);
@@ -64,7 +66,9 @@ export default function CreatePipelineModal({
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div className="flex items-center space-x-2">
             <CpuChipIcon className="w-6 h-6 text-blue-600" />
-            <h2 className="text-xl font-semibold text-gray-900">Pipeline Creation Wizard</h2>
+            <h2 className="text-xl font-semibold text-gray-900">
+              Pipeline Creation Wizard
+            </h2>
           </div>
           <button
             onClick={onClose}
@@ -82,7 +86,7 @@ export default function CreatePipelineModal({
               </label>
               <select
                 value={selectedPackage}
-                onChange={(e) => setSelectedPackage(e.target.value)}
+                onChange={e => setSelectedPackage(e.target.value)}
                 disabled={loadingPackages || isSubmitting}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
                 required
@@ -90,7 +94,7 @@ export default function CreatePipelineModal({
                 {loadingPackages ? (
                   <option value="">Loading packages...</option>
                 ) : (
-                  packages.map((pkg) => (
+                  packages.map(pkg => (
                     <option key={pkg.name} value={pkg.name}>
                       {pkg.name}
                     </option>
@@ -105,7 +109,7 @@ export default function CreatePipelineModal({
               </label>
               <select
                 value={template}
-                onChange={(e) => setTemplate(e.target.value)}
+                onChange={e => setTemplate(e.target.value)}
                 disabled={isSubmitting}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
               >
@@ -118,7 +122,9 @@ export default function CreatePipelineModal({
 
             <div className="bg-blue-50 p-3 rounded-lg border border-blue-100">
               <p className="text-xs text-blue-800">
-                This wizard will automatically generate a GitHub Actions <code className="bg-blue-100 px-1 rounded">.yml</code> workflow file in your repository tailored for the selected package.
+                This wizard will automatically generate a GitHub Actions{' '}
+                <code className="bg-blue-100 px-1 rounded">.yml</code> workflow
+                file in your repository tailored for the selected package.
               </p>
             </div>
           </div>

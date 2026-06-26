@@ -54,7 +54,9 @@ export default function TriggerBuildModal({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-md w-full overflow-hidden">
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">Trigger New Build</h2>
+          <h2 className="text-xl font-semibold text-gray-900">
+            Trigger New Build
+          </h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -71,7 +73,7 @@ export default function TriggerBuildModal({
               </label>
               <select
                 value={selectedPackage}
-                onChange={(e) => setSelectedPackage(e.target.value)}
+                onChange={e => setSelectedPackage(e.target.value)}
                 disabled={loadingPackages || isLoading}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
                 required
@@ -79,7 +81,7 @@ export default function TriggerBuildModal({
                 {loadingPackages ? (
                   <option value="">Loading packages...</option>
                 ) : (
-                  packages.map((pkg) => (
+                  packages.map(pkg => (
                     <option key={pkg.name} value={pkg.name}>
                       {pkg.name}
                     </option>
@@ -95,7 +97,7 @@ export default function TriggerBuildModal({
               <input
                 type="text"
                 value={branch}
-                onChange={(e) => setBranch(e.target.value)}
+                onChange={e => setBranch(e.target.value)}
                 disabled={isLoading}
                 placeholder="e.g. main, develop"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"

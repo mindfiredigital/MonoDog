@@ -214,8 +214,13 @@ class MonorepoService {
 
   async triggerCIBuild(packageName: string, branch: string): Promise<any> {
     try {
-      const res = await apiClient.post(DASHBOARD_API_ENDPOINTS.CI.TRIGGER, { packageName, providerName: 'github', branch });
-      if (!res.success) throw new Error(res.error?.message || 'Failed to trigger build');
+      const res = await apiClient.post(DASHBOARD_API_ENDPOINTS.CI.TRIGGER, {
+        packageName,
+        providerName: 'github',
+        branch,
+      });
+      if (!res.success)
+        throw new Error(res.error?.message || 'Failed to trigger build');
       return res.data;
     } catch (error) {
       console.error('Error triggering build:', error);
@@ -225,8 +230,12 @@ class MonorepoService {
 
   async togglePipeline(pipelineId: string, active: boolean): Promise<any> {
     try {
-      const res = await apiClient.post(DASHBOARD_API_ENDPOINTS.CI.TOGGLE(pipelineId), { active });
-      if (!res.success) throw new Error(res.error?.message || 'Failed to toggle pipeline');
+      const res = await apiClient.post(
+        DASHBOARD_API_ENDPOINTS.CI.TOGGLE(pipelineId),
+        { active }
+      );
+      if (!res.success)
+        throw new Error(res.error?.message || 'Failed to toggle pipeline');
       return res.data;
     } catch (error) {
       console.error('Error toggling pipeline:', error);
@@ -236,8 +245,11 @@ class MonorepoService {
 
   async cancelPipeline(buildId: string): Promise<any> {
     try {
-      const res = await apiClient.post(DASHBOARD_API_ENDPOINTS.CI.CANCEL(buildId));
-      if (!res.success) throw new Error(res.error?.message || 'Failed to cancel pipeline');
+      const res = await apiClient.post(
+        DASHBOARD_API_ENDPOINTS.CI.CANCEL(buildId)
+      );
+      if (!res.success)
+        throw new Error(res.error?.message || 'Failed to cancel pipeline');
       return res.data;
     } catch (error) {
       console.error('Error cancelling pipeline:', error);
@@ -247,8 +259,11 @@ class MonorepoService {
 
   async retryPipeline(buildId: string): Promise<any> {
     try {
-      const res = await apiClient.post(DASHBOARD_API_ENDPOINTS.CI.RETRY(buildId));
-      if (!res.success) throw new Error(res.error?.message || 'Failed to retry pipeline');
+      const res = await apiClient.post(
+        DASHBOARD_API_ENDPOINTS.CI.RETRY(buildId)
+      );
+      if (!res.success)
+        throw new Error(res.error?.message || 'Failed to retry pipeline');
       return res.data;
     } catch (error) {
       console.error('Error retrying pipeline:', error);
