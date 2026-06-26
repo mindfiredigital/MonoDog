@@ -3,6 +3,10 @@ import {
   getWorkflowRuns,
   getJobLogs,
   triggerWorkflow,
+  cancelWorkflowRun,
+  rerunWorkflow,
+  enableWorkflow,
+  disableWorkflow,
 } from './github-actions-service';
 
 export const getMonorepoCIStatus = async (
@@ -117,5 +121,80 @@ export const getBuildArtifacts = async (
   return {
     buildId,
     artifacts: [],
+  };
+};
+
+export const cancelCIBuild = async (
+  monorepoRoot: string,
+  buildId: string,
+  accessToken?: string
+) => {
+  if (!accessToken) throw new Error('GitHub access token is required');
+  const repoInfo = await getRepositoryInfoFromGit(monorepoRoot);
+  if (!repoInfo) throw new Error('Could not determine GitHub repository info');
+
+  const result = await cancelWorkflowRun(
+    repoInfo.owner,
+    repoInfo.repo,
+    Number(buildId),
+    accessToken
+  );
+  if (!result.success) throw new Error('Failed to cancel build via GitHub API');
+
+  return { success: true, message: `Build ${buildId} cancelled successfully` };
+};
+
+export const retryCIBuild = async (
+  monorepoRoot: string,
+  buildId: string,
+  accessToken?: string
+) => {
+  if (!accessToken) throw new Error('GitHub access token is required');
+  const repoInfo = await getRepositoryInfoFromGit(monorepoRoot);
+  if (!repoInfo) throw new Error('Could not determine GitHub repository info');
+
+  const result = await rerunWorkflow(
+    repoInfo.owner,
+    repoInfo.repo,
+    Number(buildId),
+    accessToken
+  );
+  if (!result.success) throw new Error('Failed to retry build via GitHub API');
+
+  return { success: true, message: `Build ${buildId} retried successfully` };
+};
+
+export const togglePipeline = async (
+  monorepoRoot: string,
+  pipelineId: string,
+  active: boolean,
+  accessToken?: string
+) => {
+  if (!accessToken) throw new Error('GitHub access token is required');
+  const repoInfo = await getRepositoryInfoFromGit(monorepoRoot);
+  if (!repoInfo) throw new Error('Could not determine GitHub repository info');
+
+  const result = active
+    ? await enableWorkflow(
+        repoInfo.owner,
+        repoInfo.repo,
+        pipelineId,
+        accessToken
+      )
+    : await disableWorkflow(
+        repoInfo.owner,
+        repoInfo.repo,
+        pipelineId,
+        accessToken
+      );
+
+  if (!result.success)
+    throw new Error(
+      `Failed to ${active ? 'enable' : 'disable'} pipeline via GitHub API`
+    );
+
+  return {
+    success: true,
+    message: `Pipeline ${pipelineId} is now ${active ? 'active' : 'inactive'}`,
   };
 };
