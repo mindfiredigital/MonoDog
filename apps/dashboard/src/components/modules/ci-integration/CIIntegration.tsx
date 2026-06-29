@@ -91,16 +91,69 @@ export default function CIIntegration() {
           new Set(data.map((b: any) => b.name).filter(Boolean))
         );
         const derivedPipelines: Pipeline[] = uniqueWorkflowNames.map(
-          (name: any, index) => ({
-            id: String(index),
-            name: name as string,
-            packageName: 'monorepo',
-            status: 'active',
-            lastRun: new Date().toISOString(),
-            successRate: 100,
-            avgDuration: 0,
-            triggers: ['github_actions'],
-          })
+          (name: any, index) => {
+            // Get all builds for this workflow
+            const workflowBuilds = data.filter((b: any) => b.name === name);
+            const completedBuilds = workflowBuilds.filter(
+              (b: any) => b.status === 'completed'
+            );
+            const successfulBuilds = completedBuilds.filter(
+              (b: any) => b.conclusion === 'success'
+            );
+
+            // Calculate success rate from completed builds
+            const successRate =
+              completedBuilds.length > 0
+                ? Math.round(
+                    (successfulBuilds.length / completedBuilds.length) * 100
+                  )
+                : 0;
+
+            // Calculate average duration in seconds from completed builds
+            const durations = completedBuilds
+              .map((b: any) => {
+                if (b.created_at && b.updated_at) {
+                  return (
+                    (new Date(b.updated_at).getTime() -
+                      new Date(b.created_at).getTime()) /
+                    1000
+                  );
+                }
+                return 0;
+              })
+              .filter((d: number) => d > 0);
+            const avgDuration =
+              durations.length > 0
+                ? Math.round(
+                    durations.reduce((a: number, b: number) => a + b, 0) /
+                      durations.length
+                  )
+                : 0;
+
+            // Get the most recent run timestamp
+            const sortedByDate = [...workflowBuilds].sort(
+              (a: any, b: any) =>
+                new Date(b.created_at).getTime() -
+                new Date(a.created_at).getTime()
+            );
+            const lastRun =
+              sortedByDate[0]?.created_at || new Date().toISOString();
+
+            return {
+              id: String(index),
+              name: name as string,
+              packageName: (name as string) || 'monorepo',
+              status:
+                sortedByDate[0]?.conclusion === 'failure' ||
+                sortedByDate[0]?.conclusion === 'cancelled'
+                  ? 'failed'
+                  : 'active',
+              lastRun,
+              successRate,
+              avgDuration,
+              triggers: ['github_actions'],
+            };
+          }
         );
 
         setPipelines(derivedPipelines);
@@ -162,8 +215,14 @@ export default function CIIntegration() {
   };
 
   const handlePipelineSelect = (pipelineId: string) => {
-    // In a real implementation, this would show pipeline details
-    console.log('Selected pipeline:', pipelineId);
+    const pipeline = pipelines.find(p => p.id === pipelineId);
+    if (pipeline) {
+      // Filter builds to show only those matching this pipeline's workflow name
+      setFilters(prev => ({
+        ...prev,
+        pipeline: prev.pipeline === pipeline.name ? 'all' : pipeline.name,
+      }));
+    }
   };
 
   const handlePipelineToggle = async (pipelineId: string, active: boolean) => {
