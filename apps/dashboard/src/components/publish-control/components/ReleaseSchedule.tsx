@@ -1,25 +1,79 @@
+import { useState } from 'react';
 import { CalendarIcon, ClockIcon } from '../../../icons/heroicons';
-import { Release } from '../types/publish.types';
+import { Package, Release } from '../types/publish.types';
 import { getStatusColor } from '../utils/publish.utils';
 
 interface ReleaseScheduleProps {
   releases: Release[];
   selectedStatus: string;
   onStatusChange: (status: string) => void;
+  packages: Package[];
+  onSchedule: (data: {
+    packageName: string;
+    releaseVersion: string;
+    scheduledAt: string;
+  }) => Promise<void>;
 }
 
 export default function ReleaseSchedule({
   releases,
   selectedStatus,
   onStatusChange,
+  packages,
+  onSchedule,
 }: ReleaseScheduleProps) {
+  const [isScheduling, setIsScheduling] = useState(false);
+  const [packageName, setPackageName] = useState(packages[0]?.name || '');
+  const [scheduledAt, setScheduledAt] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Auto-calculate the next version based on the selected package version bump type
+  const selectedPackage = packages.find(p => p.name === packageName);
+  const nextVersion = selectedPackage?.nextVersion || 'unknown';
+  const currentVersion = selectedPackage?.currentVersion || 'unknown';
+  const publishType = selectedPackage?.publishType || 'patch';
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!packageName || !nextVersion || !scheduledAt) {
+      setError('All fields are required.');
+      return;
+    }
+    try {
+      setIsSubmitting(true);
+      setError(null);
+      await onSchedule({
+        packageName,
+        releaseVersion: nextVersion,
+        scheduledAt: new Date(scheduledAt).toISOString(),
+      });
+      setIsScheduling(false);
+      setScheduledAt('');
+    } catch (err: any) {
+      setError(err.message || 'Failed to schedule release');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg shadow border overflow-hidden">
       <div className="px-6 py-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-medium text-gray-900">
-            Release Schedule
-          </h3>
+          <div className="flex items-center space-x-4">
+            <h3 className="text-lg font-medium text-gray-900">
+              Release Schedule
+            </h3>
+            {!isScheduling && (
+              <button
+                onClick={() => setIsScheduling(true)}
+                className="btn-primary flex items-center space-x-2"
+              >
+                Schedule Release
+              </button>
+            )}
+          </div>
           <div className="flex items-center space-x-2">
             <span className="text-sm text-gray-500">Filter by status:</span>
             <select
@@ -38,6 +92,96 @@ export default function ReleaseSchedule({
       </div>
 
       <div className="p-6">
+        {isScheduling && (
+          <div className="card p-5 mb-8 bg-neutral-50 border-neutral-200">
+            <h4 className="text-heading text-md font-semibold mb-4">
+              Schedule New Release
+            </h4>
+            {error && (
+              <div className="mb-4 rounded-lg bg-error-50 p-4 text-sm text-error-800 border border-error-200">
+                {error}
+              </div>
+            )}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-neutral-700">
+                    Package
+                  </label>
+                  <select
+                    value={packageName}
+                    onChange={e => setPackageName(e.target.value)}
+                    className="input-base w-full bg-white"
+                    required
+                  >
+                    <option value="" disabled>
+                      Select a package
+                    </option>
+                    {packages.map(pkg => (
+                      <option key={pkg.name} value={pkg.name}>
+                        {pkg.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-neutral-700">
+                    Target Version
+                  </label>
+                  <div className="flex items-center space-x-2 mt-1 bg-white border border-neutral-200 rounded-lg p-2 shadow-soft">
+                    <span className="text-sm text-neutral-500">
+                      v{currentVersion}
+                    </span>
+                    <span className="text-neutral-400">→</span>
+                    <span className="text-sm font-bold text-neutral-900">
+                      v{nextVersion}
+                    </span>
+                    <span
+                      className={`px-2 py-0.5 text-xs rounded-full font-medium ${
+                        publishType === 'major'
+                          ? 'badge-error'
+                          : publishType === 'minor'
+                            ? 'badge-info'
+                            : 'badge-success'
+                      }`}
+                    >
+                      {publishType}
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-neutral-700">
+                    Date & Time
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={scheduledAt}
+                    onChange={e => setScheduledAt(e.target.value)}
+                    className="input-base w-full bg-white"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end space-x-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsScheduling(false)}
+                  className="btn-outline"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="btn-primary"
+                >
+                  {isSubmitting ? 'Scheduling...' : 'Confirm Schedule'}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
         <div className="space-y-4">
           {releases.map(release => (
             <div
