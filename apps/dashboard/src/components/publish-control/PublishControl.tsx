@@ -32,6 +32,24 @@ export default function PublishControl() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const fetchScheduledData = async () => {
+    try {
+      const scheduledData = await monorepoService.getScheduledReleases();
+      const mappedReleases = scheduledData.map((rel: any) => ({
+        id: rel.id,
+        packageName: rel.packageName,
+        version: rel.releaseVersion,
+        author: rel.triggeredBy || 'System',
+        status: rel.status,
+        scheduledFor: new Date(rel.scheduledAt).toLocaleString(),
+        changelog: 'Scheduled release',
+      }));
+      setScheduledReleases(mappedReleases);
+    } catch (err) {
+      console.error('Failed to fetch scheduled releases', err);
+    }
+  };
+
   useEffect(() => {
     const fetchPackageData = async () => {
       try {
@@ -47,24 +65,11 @@ export default function PublishControl() {
           changelog: pkg.description || 'No changelog available',
           commits: pkg.commits || 0,
           dependencies: pkg.dependencies || [],
-          publishType: 'patch',
+          publishType: pkg.publishType || 'patch',
         }));
         setPackages(publishPackages);
 
-        const scheduledData = await monorepoService.getScheduledReleases();
-
-        // Map database schema to frontend Release interface
-        const mappedReleases = scheduledData.map((rel: any) => ({
-          id: rel.id,
-          packageName: rel.packageName,
-          version: rel.releaseVersion,
-          status: rel.status,
-          scheduledFor: new Date(rel.scheduledAt).toLocaleString(),
-          changelog: 'Scheduled via dashboard',
-          author: rel.triggeredBy,
-        }));
-
-        setScheduledReleases(mappedReleases);
+        await fetchScheduledData();
 
         setError(null);
       } catch (err) {
@@ -111,6 +116,15 @@ export default function PublishControl() {
     window.location.reload();
   };
 
+  const handleScheduleSubmit = async (data: {
+    packageName: string;
+    releaseVersion: string;
+    scheduledAt: string;
+  }) => {
+    await monorepoService.scheduleRelease(data);
+    await fetchScheduledData(); // Refresh the list
+  };
+
   // Calculate derived data using utility functions
   const filteredPackages = filterPackagesByName(packages, selectedPackage);
   const stats = calculatePublishStats(packages);
@@ -150,6 +164,8 @@ export default function PublishControl() {
         releases={scheduledReleases}
         selectedStatus={selectedStatus}
         onStatusChange={setSelectedStatus}
+        packages={packages}
+        onSchedule={handleScheduleSubmit}
       />
     </div>
   );
