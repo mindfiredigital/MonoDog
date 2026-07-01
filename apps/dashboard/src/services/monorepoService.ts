@@ -271,6 +271,25 @@ class MonorepoService {
     }
   }
 
+  async getPublishPackages(): Promise<any> {
+    try {
+      const response = await apiClient.get<any>(
+        DASHBOARD_API_ENDPOINTS.PUBLISH.PACKAGES
+      );
+
+      if (!response.success) {
+        throw new Error(
+          `getPublishPackages: fetch failed with status ${response.error?.status}`
+        );
+      }
+
+      return response.data?.packages || [];
+    } catch (error) {
+      console.error('getPublishPackages: ', error);
+      throw error;
+    }
+  }
+
   async getScheduledReleases(): Promise<any[]> {
     try {
       const response = await apiClient.get<any>(
@@ -286,6 +305,28 @@ class MonorepoService {
       return response.data?.releases || [];
     } catch (error) {
       console.error('getScheduledReleases: ', error);
+      throw error;
+    }
+  }
+
+  async scheduleRelease(releaseData: {
+    packageName: string;
+    releaseVersion: string;
+    scheduledAt: string;
+  }): Promise<any> {
+    try {
+      const response = await apiClient.post(
+        DASHBOARD_API_ENDPOINTS.PIPELINES.SCHEDULE,
+        JSON.stringify(releaseData)
+      );
+      if (!response.success) {
+        throw new Error(
+          `scheduleRelease: failed with status ${response.error?.status}`
+        );
+      }
+      return response.data;
+    } catch (error) {
+      console.error('scheduleRelease: ', error);
       throw error;
     }
   }
