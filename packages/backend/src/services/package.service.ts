@@ -7,6 +7,7 @@ import { MonorepoScanner } from '@mindfiredigital/monorepo-scanner';
 import { PackageRepository } from '../repositories';
 import { AppLogger } from '../middleware';
 import type { PackageModel } from '../types/database';
+import { getPackageBumpTypes } from './changeset-service';
 
 export const transformPackage = (pkg: any) => {
   return {
@@ -43,7 +44,12 @@ export const getAllPackages = async (rootPath?: string) => {
     });
   }
 
-  return dbPackages.map(transformPackage);
+  const bumpTypes = await getPackageBumpTypes(resolvedRootPath);
+
+  return dbPackages.map((pkg: any) => ({
+    ...transformPackage(pkg),
+    publishType: bumpTypes[pkg.name] || 'patch',
+  }));
 };
 
 export const getPackagesService = async (rootPath: string) => {
@@ -92,7 +98,12 @@ export const getPackagesService = async (rootPath: string) => {
     return transformedPkg; // Return the fully transformed object
   });
 
-  return transformedPackages;
+  const bumpTypes = await getPackageBumpTypes(rootPath);
+
+  return transformedPackages.map((pkg: any) => ({
+    ...pkg,
+    publishType: bumpTypes[pkg.name] || 'patch',
+  }));
 };
 
 export const refreshAllPackages = async (rootPath?: string) => {
