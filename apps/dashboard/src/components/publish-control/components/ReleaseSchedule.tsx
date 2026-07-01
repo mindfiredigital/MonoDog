@@ -1,19 +1,7 @@
 import { useState } from 'react';
 import { CalendarIcon, ClockIcon } from '../../../icons/heroicons';
-import { Package, Release } from '../types/publish.types';
+import { Package, Release, ReleaseScheduleProps } from '../types/publish.types';
 import { getStatusColor } from '../utils/publish.utils';
-
-interface ReleaseScheduleProps {
-  releases: Release[];
-  selectedStatus: string;
-  onStatusChange: (status: string) => void;
-  packages: Package[];
-  onSchedule: (data: {
-    packageName: string;
-    releaseVersion: string;
-    scheduledAt: string;
-  }) => Promise<void>;
-}
 
 export default function ReleaseSchedule({
   releases,
