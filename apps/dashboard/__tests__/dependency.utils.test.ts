@@ -1,8 +1,4 @@
-import {
-  describe,
-  it,
-  expect,
-} from 'vitest';
+import { describe, it, expect } from 'vitest';
 /**
  * Tests for dependency graph utility functions
  */
@@ -45,12 +41,16 @@ describe('Dependency Graph Utils', () => {
 
     it('should return purple for lib type', () => {
       const color = getTypeColor('lib');
-      expect(color).toBe('inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800');
+      expect(color).toBe(
+        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800'
+      );
     });
 
     it('should return orange for tool type', () => {
       const color = getTypeColor('tool');
-      expect(color).toBe('inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800');
+      expect(color).toBe(
+        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800'
+      );
     });
 
     it('should return gray for unknown type', () => {
