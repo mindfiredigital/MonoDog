@@ -15,7 +15,7 @@ export default function DependencyDetails({
   if (!pkg) return null;
 
   return (
-    <div className="absolute top-4 right-4 bg-white p-4 rounded-lg shadow-lg border border-gray-200 w-80 max-h-[80vh] overflow-y-auto">
+    <div className="card h-[600px] p-4 flex flex-col">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-lg font-medium text-gray-900">{pkg.name}</h3>
         <button
@@ -26,20 +26,12 @@ export default function DependencyDetails({
         </button>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-4 overflow-y-auto flex-1 pr-2 custom-scrollbar">
         {/* Package Info */}
         <div>
           <div className="flex items-center space-x-2 mb-2">
-            <span
-              className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getTypeColor(pkg.type)}`}
-            >
-              {pkg.type}
-            </span>
-            <span
-              className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(pkg.status)}`}
-            >
-              {pkg.status}
-            </span>
+            <span className={getTypeColor(pkg.type)}>{pkg.type}</span>
+            <span className={getStatusColor(pkg.status)}>{pkg.status}</span>
           </div>
           <div className="text-sm text-gray-600">
             Version: <span className="font-mono">{pkg.version}</span>
@@ -145,7 +137,7 @@ export default function DependencyDetails({
         </div>
 
         {/* Impact Analysis */}
-        <div className="pt-2 border-t border-gray-200">
+        <div className="pt-4 border-t border-gray-200 mt-auto">
           <h4 className="text-sm font-medium text-gray-700 mb-2">
             Impact Analysis
           </h4>
