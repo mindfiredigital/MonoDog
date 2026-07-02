@@ -12,13 +12,11 @@ export default function GraphToolbar({
   onViewModeChange,
   layout,
   onLayoutChange,
-  showLegend,
   onToggleLegend,
-  zoomLevel,
   onZoomChange,
 }: GraphToolbarProps) {
   return (
-    <div className="bg-white p-4 rounded-lg shadow border flex items-center justify-between">
+    <div className="card p-4 flex items-center justify-between">
       {/* View Mode Toggle */}
       <div className="flex items-center space-x-2">
         <span className="text-sm font-medium text-gray-700">View:</span>
@@ -56,52 +54,14 @@ export default function GraphToolbar({
             <select
               value={layout}
               onChange={e => onLayoutChange(e.target.value as any)}
-              className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="input-base w-40"
             >
-              <option value="hierarchical">Hierarchical</option>
-              <option value="circular">Circular</option>
-              <option value="force">Force-Directed</option>
+              <option value="TB">Vertical</option>
+              <option value="LR">Horizontal</option>
             </select>
-          </div>
-
-          {/* Zoom Controls */}
-          <div className="flex items-center space-x-2">
-            <span className="text-sm font-medium text-gray-700">Zoom:</span>
-            <div className="flex items-center space-x-1">
-              <button
-                onClick={() => onZoomChange(Math.max(0.5, zoomLevel - 0.1))}
-                className="p-1 text-gray-600 hover:text-gray-800 disabled:opacity-50"
-                disabled={zoomLevel <= 0.5}
-              >
-                <MagnifyingGlassMinusIcon className="w-4 h-4" />
-              </button>
-              <span className="text-sm text-gray-600 min-w-[3rem] text-center">
-                {Math.round(zoomLevel * 100)}%
-              </span>
-              <button
-                onClick={() => onZoomChange(Math.min(2, zoomLevel + 0.1))}
-                className="p-1 text-gray-600 hover:text-gray-800 disabled:opacity-50"
-                disabled={zoomLevel >= 2}
-              >
-                <MagnifyingGlassPlusIcon className="w-4 h-4" />
-              </button>
-            </div>
           </div>
         </div>
       )}
-
-      {/* Legend Toggle */}
-      <button
-        onClick={onToggleLegend}
-        className={`px-3 py-2 text-sm font-medium rounded-lg flex items-center space-x-1 transition-colors ${
-          showLegend
-            ? 'bg-blue-100 text-blue-700'
-            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-        }`}
-      >
-        <InformationCircleIcon className="w-4 h-4" />
-        <span>Legend</span>
-      </button>
     </div>
   );
 }
