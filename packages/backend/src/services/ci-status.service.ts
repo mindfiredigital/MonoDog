@@ -7,6 +7,7 @@ import {
   rerunWorkflow,
   enableWorkflow,
   disableWorkflow,
+  listWorkflows,
 } from './github-actions-service';
 
 export const getMonorepoCIStatus = async (
@@ -62,6 +63,7 @@ export const triggerCIBuild = async (
   packageName: string,
   providerName = 'github',
   branch = 'main',
+  workflowFileName = 'ci.yml',
   accessToken?: string
 ) => {
   if (!packageName) throw new Error('Package name is required');
@@ -73,7 +75,7 @@ export const triggerCIBuild = async (
   const request = {
     owner: repoInfo.owner,
     repo: repoInfo.repo,
-    workflow: 'ci.yml',
+    workflow: workflowFileName,
     ref: branch,
     inputs: { package: packageName },
   };
@@ -196,5 +198,26 @@ export const togglePipeline = async (
   return {
     success: true,
     message: `Pipeline ${pipelineId} is now ${active ? 'active' : 'inactive'}`,
+  };
+};
+
+export const getAvailableWorkflows = async (
+  monorepoRoot: string,
+  accessToken?: string
+) => {
+  if (!accessToken) throw new Error('GitHub access token is required');
+  const repoInfo = await getRepositoryInfoFromGit(monorepoRoot);
+  if (!repoInfo) throw new Error('Could not determine GitHub repository info');
+
+  const result = await listWorkflows(repoInfo.owner, repoInfo.repo, accessToken);
+  
+  if (!result.workflows) {
+    throw new Error('Failed to fetch workflows');
+  }
+
+  return {
+    success: true,
+    workflows: result.workflows,
+    rateLimit: result.rateLimit,
   };
 };
