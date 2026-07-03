@@ -14,7 +14,11 @@ import { authenticationMiddleware } from '../middleware/auth-middleware';
 
 const router = Router();
 
-router.get('/workflows/available', authenticationMiddleware, getAvailableWorkflows);
+router.get(
+  '/workflows/available',
+  authenticationMiddleware,
+  getAvailableWorkflows
+);
 router.get('/status', authenticationMiddleware, getMonorepoCIStatus);
 router.get('/packages/:name', authenticationMiddleware, getPackageCIStatus);
 router.post('/trigger', authenticationMiddleware, triggerCIBuild);

@@ -191,7 +191,9 @@ export const getAvailableWorkflows = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       error:
-        error instanceof Error ? error.message : 'Failed to fetch available workflows',
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch available workflows',
     });
   }
 };

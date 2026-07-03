@@ -209,8 +209,12 @@ export const getAvailableWorkflows = async (
   const repoInfo = await getRepositoryInfoFromGit(monorepoRoot);
   if (!repoInfo) throw new Error('Could not determine GitHub repository info');
 
-  const result = await listWorkflows(repoInfo.owner, repoInfo.repo, accessToken);
-  
+  const result = await listWorkflows(
+    repoInfo.owner,
+    repoInfo.repo,
+    accessToken
+  );
+
   if (!result.workflows) {
     throw new Error('Failed to fetch workflows');
   }
