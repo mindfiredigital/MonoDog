@@ -8,6 +8,7 @@ import {
   cancelCIBuild as cancelCIBuildService,
   retryCIBuild as retryCIBuildService,
   togglePipeline as togglePipelineService,
+  getAvailableWorkflows as getAvailableWorkflowsService,
 } from '../services/ci-status.service';
 
 export const getMonorepoCIStatus = async (req: Request, res: Response) => {
@@ -54,7 +55,7 @@ export const getPackageCIStatus = async (req: Request, res: Response) => {
 
 export const triggerCIBuild = async (req: Request, res: Response) => {
   try {
-    const { packageName, providerName, branch } = req.body;
+    const { packageName, providerName, branch, workflowFileName } = req.body;
     const accessToken = (req as any).accessToken as string | undefined;
     const rootPath = req.app.locals.rootPath;
 
@@ -63,6 +64,7 @@ export const triggerCIBuild = async (req: Request, res: Response) => {
       packageName,
       providerName,
       branch,
+      workflowFileName,
       accessToken
     );
 
@@ -174,6 +176,22 @@ export const togglePipeline = async (req: Request, res: Response) => {
       success: false,
       error:
         error instanceof Error ? error.message : 'Failed to toggle pipeline',
+    });
+  }
+};
+
+export const getAvailableWorkflows = async (req: Request, res: Response) => {
+  try {
+    const accessToken = (req as any).accessToken as string | undefined;
+    const rootPath = req.app.locals.rootPath;
+
+    const result = await getAvailableWorkflowsService(rootPath, accessToken);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error:
+        error instanceof Error ? error.message : 'Failed to fetch available workflows',
     });
   }
 };
