@@ -122,7 +122,9 @@ export const refreshAllPackages = async (rootPath?: string) => {
     select: { name: true },
   });
 
-  const packageNamesToDelete = packagesToDelete.map((p: { name: string }) => p.name);
+  const packageNamesToDelete = packagesToDelete.map(
+    (p: { name: string }) => p.name
+  );
 
   if (packageNamesToDelete.length > 0) {
     // Manually delete related records that lack onDelete: Cascade in the schema
