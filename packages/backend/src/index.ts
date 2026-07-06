@@ -12,6 +12,8 @@ import { json } from 'body-parser';
 import apiRouter from './routes';
 import { prisma } from './db/prisma';
 import { setupSwaggerDocs } from './middleware/swagger-middleware';
+import { startScheduledReleaseWorker } from './workers/scheduled-release-worker';
+import { refreshAllPackages } from './services/package.service';
 
 export { scanner } from './services/scan.service';
 
@@ -36,10 +38,10 @@ export function startServer(
   const allowedOrigins = process.env.CORS_ORIGINS
     ? process.env.CORS_ORIGINS.split(',')
     : [
-        'http://localhost:5173',
-        'http://localhost:3000',
-        'http://localhost:4173',
-      ];
+      'http://localhost:5173',
+      'http://localhost:3000',
+      'http://localhost:4173',
+    ];
 
   app.use(
     cors({
@@ -87,11 +89,17 @@ export function startServer(
 
   app
     .listen(PORT, host, async () => {
+
+      await refreshAllPackages(rootPath);
+
       const pcount = await prisma.package.count();
       console.log(`[Database] Total packages found: ${pcount}`);
 
       console.log(`Backend server running on http://${host}:${PORT}`);
       console.log(`API endpoints available on /api`);
+
+      // Start background worker for scheduled releases & pipeline cleanup
+      startScheduledReleaseWorker(rootPath);
     })
     .on('error', (err: any) => {
       // Handle common errors like EADDRINUSE (port already in use)
