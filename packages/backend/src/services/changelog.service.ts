@@ -59,12 +59,20 @@ async function parseChangelog(packagePath: string): Promise<ReleaseData[]> {
   }
 }
 
+const githubReleasesCache = new Map<string, CachedChangelog>();
+
 // Fetch official releases from GitHub API
 async function fetchGitHubReleases(
   owner: string,
   repo: string,
   accessToken: string
 ): Promise<ReleaseData[]> {
+  const cacheKey = `${owner}/${repo}`;
+  const cached = githubReleasesCache.get(cacheKey);
+  if (cached && Date.now() - cached.cachedAt < CACHE_TTL_MS) {
+    return cached.data;
+  }
+
   try {
     const headers = {
       Authorization: `Bearer ${accessToken}`,
@@ -81,7 +89,7 @@ async function fetchGitHubReleases(
 
     const data = await response.json();
 
-    return data.map((release: any) => ({
+    const releases = data.map((release: any) => ({
       version: release.tag_name.replace(/^v/, ''),
       date: release.published_at,
       author: release.author?.login || 'Unknown',
@@ -89,6 +97,10 @@ async function fetchGitHubReleases(
       source: 'github',
       commits: [],
     }));
+
+    githubReleasesCache.set(cacheKey, { data: releases, cachedAt: Date.now() });
+
+    return releases;
   } catch (error) {
     AppLogger.error(`Failed to fetch GitHub releases: ${error}`);
     return [];
