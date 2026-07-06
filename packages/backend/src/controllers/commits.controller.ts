@@ -4,8 +4,9 @@ import { getPackageCommits } from '../services/commits.service';
 export const getCommits = async (req: Request, res: Response) => {
   try {
     const { packagePath } = req.params;
+    const rootPath = req.app.locals.rootPath;
 
-    const commits = await getPackageCommits(packagePath);
+    const commits = await getPackageCommits(packagePath, rootPath);
 
     res.json(commits);
   } catch (error: any) {
