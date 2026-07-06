@@ -107,7 +107,11 @@ class MonorepoService {
         DASHBOARD_API_ENDPOINTS.HEALTH.PACKAGES
       );
 
-      if (!response.success) {
+      if (
+        !response.success ||
+        !response.data?.packages ||
+        response.data.packages.length === 0
+      ) {
         // If initial fetch fails, try to refresh the data
         const refreshResponse = await apiClient.post(
           DASHBOARD_API_ENDPOINTS.HEALTH.REFRESH
