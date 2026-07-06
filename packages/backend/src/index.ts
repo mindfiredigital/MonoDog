@@ -38,10 +38,10 @@ export function startServer(
   const allowedOrigins = process.env.CORS_ORIGINS
     ? process.env.CORS_ORIGINS.split(',')
     : [
-      'http://localhost:5173',
-      'http://localhost:3000',
-      'http://localhost:4173',
-    ];
+        'http://localhost:5173',
+        'http://localhost:3000',
+        'http://localhost:4173',
+      ];
 
   app.use(
     cors({
@@ -89,7 +89,6 @@ export function startServer(
 
   app
     .listen(PORT, host, async () => {
-
       await refreshAllPackages(rootPath);
 
       const pcount = await prisma.package.count();
