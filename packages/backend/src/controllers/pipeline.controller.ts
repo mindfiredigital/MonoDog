@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import * as pipelineService from '../services/pipeline-service';
+import { prisma } from '../db/prisma';
 import {
   getWorkflowRun,
   getWorkflowRunJobs,
@@ -325,6 +326,24 @@ export async function scheduleRelease(req: Request, res: Response) {
       new Date(scheduledAt),
       triggeredBy
     );
+
+    // Log the scheduling activity
+    try {
+      await prisma.activityLog.create({
+        data: {
+          type: 'schedule_release',
+          packageName,
+          message: `Scheduled release ${releaseVersion} for ${new Date(scheduledAt).toLocaleString()}`,
+          metadata: JSON.stringify({
+            releaseVersion,
+            scheduledAt,
+            triggeredBy,
+          }),
+        },
+      });
+    } catch (logError) {
+      AppLogger.warn(`Failed to log schedule activity: ${logError}`);
+    }
 
     res.json({
       success: true,
