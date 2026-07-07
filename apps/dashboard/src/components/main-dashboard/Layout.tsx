@@ -20,7 +20,6 @@ const navigation = [
   { name: 'Pipeline', href: '/pipeline', icon: RocketLaunchIcon },
   { name: 'Publish Control', href: '/publish', icon: CloudArrowUpIcon },
   { name: 'Changelog', href: '/changelog', icon: ChartBarIcon },
-  { name: 'CI/CD', href: '/ci', icon: RocketLaunchIcon },
   { name: 'Configuration', href: '/config', icon: Cog6ToothIcon },
 ];
 
@@ -42,7 +41,10 @@ export default function Layout({ children }: LayoutProps) {
         <nav className="mt-8 px-4">
           <ul className="space-y-2">
             {navigation.map(item => {
-              const isActive = location.pathname === item.href;
+              const isActive =
+                location.pathname === item.href ||
+                (item.href !== '/' &&
+                  location.pathname.startsWith(`${item.href}/`));
               return (
                 <li key={item.name}>
                   <Link
@@ -64,7 +66,7 @@ export default function Layout({ children }: LayoutProps) {
       {/* Main content */}
       <div className="pl-64">
         {/* Header */}
-        <header className="bg-white shadow-soft border-b border-neutral-200 flex items-center justify-between px-6 py-4">
+        <header className="sticky top-0 z-40 bg-white shadow-soft border-b border-neutral-200 flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-4">
             <h2 className="text-heading text-lg font-semibold">
               {navigation.find(item => item.href === location.pathname)?.name ||
