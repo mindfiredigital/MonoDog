@@ -18,12 +18,6 @@ export default function BuildOverview({
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-heading text-lg">Build Statistics</h2>
-        <button onClick={onRefresh} disabled={loading} className="btn-ghost">
-          <ArrowPathIcon
-            className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`}
-          />
-          Refresh
-        </button>
       </div>
 
       {/* Stats Grid */}
