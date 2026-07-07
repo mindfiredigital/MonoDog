@@ -7,9 +7,10 @@ import {
   DependencyGraph,
   HealthStatus,
   PublishControl,
-  CIIntegration,
   ConfigInspector,
   ReleaseManager,
+  ScheduledReleasesPage,
+  CreateSchedulePage,
   Pipeline,
   ChangelogPage,
 } from '../pages';
@@ -22,9 +23,10 @@ const componentMap = {
   DependencyGraph,
   HealthStatus,
   PublishControl,
-  CIIntegration,
   ConfigInspector,
   ReleaseManager,
+  ScheduledReleasesPage,
+  CreateSchedulePage,
   Pipeline,
   ChangelogPage,
 } as const;
