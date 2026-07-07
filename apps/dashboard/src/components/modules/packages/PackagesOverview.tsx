@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { PlusIcon } from '../../../icons/heroicons';
+import { ArrowPathIcon } from '../../../icons/heroicons';
 import { CubeIcon } from '../../../icons/heroicons';
 import { DASHBOARD_ERROR_MESSAGES } from '../../../constants/messages';
 // Import sub-components
@@ -103,10 +103,13 @@ export default function PackagesOverview() {
             Manage and monitor all packages in your monorepo
           </p>
         </div>
-        {/* <button className="btn-primary flex items-center space-x-2">
-          <PlusIcon className="w-5 h-5" />
-          <span>Add Package</span>
-        </button> */}
+        <button
+          onClick={handleRetry}
+          className="btn-primary flex items-center space-x-2"
+        >
+          <ArrowPathIcon className="w-5 h-5" />
+          <span>Refresh</span>
+        </button>
       </div>
 
       {/* Stats Cards */}
