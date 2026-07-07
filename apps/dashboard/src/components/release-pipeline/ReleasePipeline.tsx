@@ -66,17 +66,17 @@ export default function ReleasePipeline() {
         </div>
       )}
 
-      <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)_320px] max-h-[800px]">
+      <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)_320px]">
         <PipelineSidebar
           pipelines={pipelines}
           selectedPipelineId={selectedPipelineId}
           setSelectedPipelineId={setSelectedPipelineId}
         />
 
-        <section className="flex flex-col gap-4">
+        <section className="space-y-6">
           {!selectedPipeline && (
-            <div className="rounded-3xl border border-dashed border-neutral-300 bg-white p-8 text-sm text-neutral-500 h-full">
-              Select a release pipeline to inspect workflow runs and logs.
+            <div className="rounded-3xl border border-dashed border-neutral-300 bg-white p-8 text-sm text-neutral-500 text-center flex flex-col justify-center min-h-[160px]">
+              Please select a release pipeline
             </div>
           )}
 
@@ -89,10 +89,8 @@ export default function ReleasePipeline() {
                   handleRunAction={handleRunAction}
                   hasPermission={hasPermission}
                 />
-              </div>
 
-              {hasPermission('maintain') && (
-                <div className="rounded-3xl border border-neutral-200 bg-white p-6 shadow-soft h-[398px] overflow-y-auto">
+                {hasPermission('maintain') && (
                   <ManualDispatch
                     workflows={workflows}
                     selectedWorkflowId={selectedWorkflowId}
@@ -104,8 +102,8 @@ export default function ReleasePipeline() {
                     handleTriggerWorkflow={handleTriggerWorkflow}
                     actionLoading={actionLoading}
                   />
-                </div>
-              )}
+                )}
+              </div>
             </>
           )}
         </section>
