@@ -173,74 +173,6 @@ export const maskSecrets = (content: string): string => {
 };
 
 // Validate configuration content
-// export const validateConfig = (
-//   content: string,
-//   filename: string
-// ): ValidationResult[] => {
-//   const results: ValidationResult[] = [];
-//   const language = detectLanguage(filename);
-
-//   try {
-//     switch (language) {
-//       case 'json':
-//         JSON.parse(content);
-//         results.push({
-//           field: filename,
-//           status: 'valid',
-//           message: 'Valid JSON syntax',
-//         });
-//         break;
-//       case 'yaml':
-//         // Basic YAML validation (would use a proper YAML parser in real implementation)
-//         if (content.includes('\t')) {
-//           results.push({
-//             field: filename,
-//             status: 'warning',
-//             message: 'YAML files should use spaces instead of tabs',
-//           });
-//         } else {
-//           results.push({
-//             field: filename,
-//             status: 'valid',
-//             message: 'Valid YAML syntax',
-//           });
-//         }
-//         break;
-//       default:
-//         results.push({
-//           field: filename,
-//           status: 'valid',
-//           message: 'File format appears valid',
-//         });
-//     }
-//   } catch (error) {
-//     results.push({
-//       field: filename,
-//       status: 'error',
-//       message: `Invalid ${language.toUpperCase()} syntax: ${error}`,
-//     });
-//   }
-
-//   // Check for security issues
-//   if (containsSecrets(content) && !filename.includes('.env')) {
-//     results.push({
-//       field: filename,
-//       status: 'warning',
-//       message: 'File may contain sensitive information',
-//     });
-//   }
-
-//   // Check for common issues
-//   if (content.includes('TODO') || content.includes('FIXME')) {
-//     results.push({
-//       field: filename,
-//       status: 'warning',
-//       message: 'File contains TODO or FIXME comments',
-//     });
-//   }
-
-//   return results;
-// };
 
 export const validateConfig = (
   content: string,
@@ -475,7 +407,7 @@ const validateJavaScript = (
   results: ValidationResult[]
 ) => {
   try {
-    // Basic syntax check - in a real implementation, you might use a proper parser
+    // Basic syntax check
     if (content.trim() && !content.match(/console\.log/)) {
       results.push({
         field: filename,
