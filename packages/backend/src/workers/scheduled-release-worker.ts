@@ -6,12 +6,10 @@
 import { prisma } from '../db/prisma';
 import { AppLogger } from '../middleware/logger';
 
-import {
-  updateScheduledReleaseStatus,
-  deleteOldPipelines,
-} from '../services/pipeline-service';
+import { updateScheduledReleaseStatus, deleteOldPipelines } from '../services/pipeline-service';
 import { getRepositoryInfoFromGit } from '../utils/utilities';
 import { createChangesetPullRequest } from '../services/github-repo-service';
+import { decryptToken } from '../utils/encryption';
 
 const CHECK_INTERVAL_MS = 60 * 1000; // Check every 60 seconds
 const CLEANUP_INTERVAL_MS = 60 * 60 * 1000; // Cleanup every 1 hour
@@ -58,7 +56,7 @@ async function checkAndExecuteReleases(rootPath: string): Promise<void> {
               orderBy: { createdAt: 'desc' },
             });
             if (session) {
-              accessToken = session.accessToken;
+              accessToken = decryptToken(session.accessToken);
             }
           } catch (e) {
             AppLogger.warn(

@@ -14,6 +14,7 @@ import {
 } from '../constants/http';
 import { sessionTimeout } from '../constants';
 import { prisma } from '../db/prisma';
+import { encryptToken, decryptToken } from '../utils/encryption';
 
 function decodeLegacySessionToken(token: string): AuthSession | null {
   try {
@@ -78,7 +79,7 @@ export async function storeSession(session: AuthSession): Promise<string> {
       sessionToken: token,
       userId: session.user.id,
       login: session.user.login,
-      accessToken: session.accessToken,
+      accessToken: encryptToken(session.accessToken),
       userData: JSON.stringify(session.user),
       permission: session.permission
         ? JSON.stringify(session.permission)
@@ -112,7 +113,7 @@ export async function getSession(token: string): Promise<AuthSession | null> {
 
   // Reconstruct AuthSession
   const session: AuthSession = {
-    accessToken: sessionRecord.accessToken,
+    accessToken: decryptToken(sessionRecord.accessToken),
     expiresIn: 3600,
     expiresAt: sessionRecord.expiresAt.getTime(),
     user: JSON.parse(sessionRecord.userData),
