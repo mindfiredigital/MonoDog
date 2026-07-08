@@ -4,6 +4,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
+import crypto from 'crypto';
 import type { AuthSession } from '../types/auth';
 import { AppLogger } from './logger';
 import { AUTH_ERRORS, PERMISSION_ERRORS } from '../constants/error-messages';
@@ -11,7 +12,7 @@ import {
   HTTP_STATUS_UNAUTHORIZED,
   HTTP_STATUS_FORBIDDEN,
 } from '../constants/http';
-import { chars, sessionTimeout } from '../constants';
+import { sessionTimeout } from '../constants';
 import { prisma } from '../db/prisma';
 
 function decodeLegacySessionToken(token: string): AuthSession | null {
@@ -60,14 +61,10 @@ function decodeLegacySessionToken(token: string): AuthSession | null {
 }
 
 /**
- * Generate session token
+ * Generate cryptographically secure session token
  */
 export function generateSessionToken(length: number = 32): string {
-  let token = '';
-  for (let i = 0; i < length; i++) {
-    token += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return token;
+  return crypto.randomBytes(length).toString('hex');
 }
 
 /**
