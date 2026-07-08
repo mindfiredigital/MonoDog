@@ -65,7 +65,11 @@ export async function makeGitHubRequest<T>(
   let attempt = 0;
 
   const executeRequest = () => {
-    return new Promise<{ data: T; rateLimit: RateLimitInfo; statusCode: number }>((resolve, reject) => {
+    return new Promise<{
+      data: T;
+      rateLimit: RateLimitInfo;
+      statusCode: number;
+    }>((resolve, reject) => {
       const request = https.request(options, response => {
         let body = '';
         const rateLimit: RateLimitInfo = {
@@ -85,9 +89,7 @@ export async function makeGitHubRequest<T>(
           try {
             const statusCode = response.statusCode || 500;
             if (statusCode >= 400 && statusCode < 500) {
-              reject(
-                new Error(`GitHub API error: ${statusCode} - ${body}`)
-              );
+              reject(new Error(`GitHub API error: ${statusCode} - ${body}`));
             } else if (statusCode >= 500) {
               reject({ type: 'server_error', statusCode, message: body });
             } else {
@@ -106,7 +108,10 @@ export async function makeGitHubRequest<T>(
 
       request.setTimeout(15000, () => {
         request.destroy();
-        reject({ type: 'network_error', error: new Error('GitHub API request timeout') });
+        reject({
+          type: 'network_error',
+          error: new Error('GitHub API request timeout'),
+        });
       });
 
       if (data) {
@@ -124,15 +129,20 @@ export async function makeGitHubRequest<T>(
     } catch (error: any) {
       attempt++;
 
-      const isRetryable = error?.type === 'server_error' || error?.type === 'network_error';
+      const isRetryable =
+        error?.type === 'server_error' || error?.type === 'network_error';
 
       if (!isRetryable || attempt >= maxRetries) {
         if (error instanceof Error) throw error;
-        throw new Error(error?.message || error?.error?.message || 'GitHub API request failed');
+        throw new Error(
+          error?.message || error?.error?.message || 'GitHub API request failed'
+        );
       }
 
       const delay = Math.pow(2, attempt - 1) * 1000;
-      AppLogger.warn(`GitHub API request failed (${error?.statusCode || 'network'}). Retrying in ${delay}ms (Attempt ${attempt} of ${maxRetries})`);
+      AppLogger.warn(
+        `GitHub API request failed (${error?.statusCode || 'network'}). Retrying in ${delay}ms (Attempt ${attempt} of ${maxRetries})`
+      );
 
       await new Promise(resolve => setTimeout(resolve, delay));
     }
@@ -371,7 +381,7 @@ export async function getJobLogs(
                     remaining:
                       parseInt(
                         redirectResponse.headers[
-                        'x-ratelimit-remaining'
+                          'x-ratelimit-remaining'
                         ] as string
                       ) || 0,
                     reset:

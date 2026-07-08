@@ -8,7 +8,11 @@ const ENCRYPTION_KEY = crypto.scryptSync('monodog-secret-salt', 'salt', 32);
  */
 export function encryptToken(text: string): string {
   const iv = crypto.randomBytes(16);
-  const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY), iv);
+  const cipher = crypto.createCipheriv(
+    ALGORITHM,
+    Buffer.from(ENCRYPTION_KEY),
+    iv
+  );
 
   let encrypted = cipher.update(text, 'utf8', 'hex');
   encrypted += cipher.final('hex');
@@ -32,7 +36,11 @@ export function decryptToken(encryptedText: string): string {
     const iv = Buffer.from(ivHex, 'hex');
     const authTag = Buffer.from(authTagHex, 'hex');
 
-    const decipher = crypto.createDecipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY), iv);
+    const decipher = crypto.createDecipheriv(
+      ALGORITHM,
+      Buffer.from(ENCRYPTION_KEY),
+      iv
+    );
     decipher.setAuthTag(authTag);
 
     let decrypted = decipher.update(encryptedHex, 'hex', 'utf8');
@@ -40,7 +48,10 @@ export function decryptToken(encryptedText: string): string {
 
     return decrypted;
   } catch (error) {
-    console.error('Failed to decrypt token. Using original text as fallback.', error);
+    console.error(
+      'Failed to decrypt token. Using original text as fallback.',
+      error
+    );
     return encryptedText;
   }
 }

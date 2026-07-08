@@ -6,7 +6,10 @@
 import { prisma } from '../db/prisma';
 import { AppLogger } from '../middleware/logger';
 
-import { updateScheduledReleaseStatus, deleteOldPipelines } from '../services/pipeline-service';
+import {
+  updateScheduledReleaseStatus,
+  deleteOldPipelines,
+} from '../services/pipeline-service';
 import { getRepositoryInfoFromGit } from '../utils/utilities';
 import { createChangesetPullRequest } from '../services/github-repo-service';
 import { decryptToken } from '../utils/encryption';
