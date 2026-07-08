@@ -7,6 +7,7 @@ import {
   updatePipelineStatus,
   scheduleRelease,
   getPendingScheduledReleases,
+  cancelScheduledRelease,
 } from '../controllers/pipeline.controller';
 import {
   authenticationMiddleware,
@@ -22,6 +23,12 @@ router.post(
   authenticationMiddleware,
   repositoryPermissionMiddleware('write'),
   scheduleRelease
+);
+router.delete(
+  '/scheduled/:id',
+  authenticationMiddleware,
+  repositoryPermissionMiddleware('write'),
+  cancelScheduledRelease
 );
 router.get('/:pipelineId', authenticationMiddleware, getPipelineDetails);
 router.put(

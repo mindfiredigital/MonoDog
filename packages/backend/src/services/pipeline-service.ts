@@ -197,6 +197,37 @@ export async function scheduleRelease(
 }
 
 /**
+ * Cancel a scheduled release
+ */
+export async function cancelScheduledRelease(id: string) {
+  try {
+    const existing = await prisma.scheduledRelease.findUnique({
+      where: { id },
+    });
+
+    if (!existing) {
+      throw new Error(`Scheduled release not found`);
+    }
+
+    if (existing.status !== 'pending') {
+      throw new Error(
+        `Cannot cancel a release that is already ${existing.status}`
+      );
+    }
+
+    await prisma.scheduledRelease.delete({
+      where: { id },
+    });
+
+    AppLogger.info(`Cancelled scheduled release ${id}`);
+    return true;
+  } catch (error) {
+    AppLogger.error(`Failed to cancel scheduled release: ${error}`);
+    throw error;
+  }
+}
+
+/**
  * Get pending scheduled releases
  */
 export async function getPendingScheduledReleases(limit = 20) {
