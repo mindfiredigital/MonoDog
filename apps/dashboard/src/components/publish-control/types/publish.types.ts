@@ -16,7 +16,7 @@ export interface Release {
   id: string;
   packageName: string;
   version: string;
-  status: 'scheduled' | 'in-progress' | 'completed' | 'failed';
+  status: 'scheduled' | 'pending' | 'in-progress' | 'completed' | 'failed';
   scheduledFor: string;
   startedAt?: string;
   completedAt?: string;

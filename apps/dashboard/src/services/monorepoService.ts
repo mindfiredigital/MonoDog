@@ -355,6 +355,23 @@ class MonorepoService {
     }
   }
 
+  async cancelScheduledRelease(releaseId: string): Promise<any> {
+    try {
+      const response = await apiClient.delete(
+        DASHBOARD_API_ENDPOINTS.PIPELINES.CANCEL_SCHEDULE(releaseId)
+      );
+      if (!response.success) {
+        throw new Error(
+          `cancelScheduledRelease: failed with status ${response.error?.status}`
+        );
+      }
+      return response.data;
+    } catch (error) {
+      console.error('cancelScheduledRelease: ', error);
+      throw error;
+    }
+  }
+
   async getConfigurationFiles(): Promise<ConfigFile[]> {
     try {
       const res = await apiClient.get(DASHBOARD_API_ENDPOINTS.CONFIG.FILES);
