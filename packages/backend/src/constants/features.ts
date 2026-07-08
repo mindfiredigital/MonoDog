@@ -44,6 +44,21 @@ export const GITHUB_OAUTH = {
   ) => `/repos/${owner}/${repo}/collaborators/${username}/permission`,
 } as const;
 
+// ============ GITHUB REPO ============
+
+export const GITHUB_REPO = {
+  REPOSITORY_ENDPOINT: (owner: string, repo: string) =>
+    `/repos/${owner}/${repo}`,
+  REF_ENDPOINT: (owner: string, repo: string, ref: string) =>
+    `/repos/${owner}/${repo}/git/ref/${ref}`,
+  REFS_ENDPOINT: (owner: string, repo: string) =>
+    `/repos/${owner}/${repo}/git/refs`,
+  CONTENTS_ENDPOINT: (owner: string, repo: string, path: string) =>
+    `/repos/${owner}/${repo}/contents/${path}`,
+  PULLS_ENDPOINT: (owner: string, repo: string) =>
+    `/repos/${owner}/${repo}/pulls`,
+} as const;
+
 /**
  * Higher number = Higher authority
  */
