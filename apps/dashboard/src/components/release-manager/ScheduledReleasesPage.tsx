@@ -44,6 +44,22 @@ export default function ScheduledReleasesPage() {
     }
   };
 
+  const handleCancelRelease = async (pipelineId: string) => {
+    if (
+      !window.confirm('Are you sure you want to cancel this scheduled release?')
+    ) {
+      return;
+    }
+
+    try {
+      await monorepoService.cancelScheduledRelease(pipelineId);
+      // Refresh the list
+      fetchScheduledData();
+    } catch (err: any) {
+      alert(`Failed to cancel release: ${err.message}`);
+    }
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
@@ -155,6 +171,15 @@ export default function ScheduledReleasesPage() {
                           {release.scheduledFor}
                         </div>
                       </div>
+                      {release.status === 'pending' &&
+                        hasPermission('maintain') && (
+                          <button
+                            onClick={() => handleCancelRelease(release.id)}
+                            className="text-sm text-red-600 hover:text-red-800 font-medium px-3 py-1 rounded-md border border-red-200 hover:bg-red-50 transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        )}
                     </div>
                   </div>
                 </div>
