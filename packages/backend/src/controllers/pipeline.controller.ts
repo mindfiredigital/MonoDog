@@ -12,6 +12,7 @@ import {
 } from '../constants/error-messages';
 import {
   HTTP_STATUS_BAD_REQUEST,
+  HTTP_STATUS_NOT_FOUND,
   HTTP_STATUS_INTERNAL_SERVER_ERROR,
 } from '../constants/http';
 import { AppLogger } from '../middleware/logger';
@@ -374,5 +375,59 @@ export async function getPendingScheduledReleases(req: Request, res: Response) {
       error: 'Failed to fetch scheduled releases',
       message: extractErrorMessage(error),
     });
+  }
+}
+
+export async function cancelScheduledRelease(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      res.status(HTTP_STATUS_BAD_REQUEST).json({
+        success: false,
+        error: 'Invalid release ID',
+      });
+      return;
+    }
+
+    await pipelineService.cancelScheduledRelease(id);
+
+    // Log the cancellation activity
+    const user = (req as any).user;
+    try {
+      await prisma.activityLog.create({
+        data: {
+          type: 'cancel_schedule',
+          packageName: 'system',
+          message: `Cancelled scheduled release ${id}`,
+          metadata: JSON.stringify({
+            releaseId: id,
+            triggeredBy: user?.login || 'unknown',
+          }),
+        },
+      });
+    } catch (logError) {
+      AppLogger.warn(
+        `Failed to log schedule cancellation activity: ${logError}`
+      );
+    }
+
+    res.json({
+      success: true,
+      message: 'Scheduled release cancelled successfully',
+    });
+  } catch (error) {
+    const isNotFoundError = extractErrorMessage(error).includes('not found');
+    res
+      .status(
+        isNotFoundError
+          ? HTTP_STATUS_NOT_FOUND
+          : HTTP_STATUS_INTERNAL_SERVER_ERROR
+      )
+      .json({
+        success: false,
+        error: 'Failed to cancel scheduled release',
+        message: extractErrorMessage(error),
+      });
   }
 }
