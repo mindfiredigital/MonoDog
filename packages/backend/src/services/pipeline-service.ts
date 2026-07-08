@@ -172,7 +172,9 @@ export async function scheduleRelease(
     });
 
     if (existing) {
-      throw new Error(`A pending release for ${packageName} at version ${releaseVersion} is already scheduled.`);
+      throw new Error(
+        `A pending release for ${packageName} at version ${releaseVersion} is already scheduled.`
+      );
     }
 
     const scheduledRelease = await prisma.scheduledRelease.create({
