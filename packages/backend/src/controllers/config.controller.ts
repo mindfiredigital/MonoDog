@@ -54,13 +54,19 @@ export const updateConfigFile = async (req: Request, res: Response) => {
       });
     }
 
-    const rootDir = findMonorepoRoot();
-    const filePath = path.join(rootDir, id.startsWith('/') ? id.slice(1) : id);
+    const rootDir = path.resolve(findMonorepoRoot());
+    // eslint-disable-next-line no-useless-escape
+    const normalizedId = id.replace(/^[\/\\]+/, ''); // Remove leading slashes/backslashes
+    const filePath = path.resolve(rootDir, normalizedId);
 
-    if (!filePath.startsWith(rootDir)) {
+    // Strict path traversal check
+    if (
+      !filePath.startsWith(rootDir) ||
+      path.relative(rootDir, filePath).startsWith('..')
+    ) {
       return res.status(403).json({
         success: false,
-        error: 'Access denied',
+        error: 'Access denied: Invalid file path',
       });
     }
 
@@ -71,6 +77,18 @@ export const updateConfigFile = async (req: Request, res: Response) => {
         success: false,
         error: 'File is not writable or does not exist',
       });
+    }
+
+    // Validate JSON before saving
+    if (filePath.endsWith('.json')) {
+      try {
+        JSON.parse(content);
+      } catch (e) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid JSON format.',
+        });
+      }
     }
 
     await fs.promises.writeFile(filePath, content, 'utf8');
