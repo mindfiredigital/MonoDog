@@ -47,13 +47,3 @@ export interface ScheduleReleaseData {
   releaseVersion: string;
   scheduledAt: string;
 }
-
-export interface ReleaseScheduleProps {
-  releases: Release[];
-  packages: Package[];
-  onSchedule: (releaseData: {
-    packageName: string;
-    releaseVersion: string;
-    scheduledAt: string;
-  }) => Promise<void>;
-}
