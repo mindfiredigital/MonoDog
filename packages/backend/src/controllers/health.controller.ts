@@ -66,3 +66,11 @@ export const refreshHealth = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const getLiveStatus = (req: Request, res: Response) => {
+  res.json({
+    status: 'ok',
+    uptime: process.uptime(),
+    timestamp: Date.now(),
+  });
+};
