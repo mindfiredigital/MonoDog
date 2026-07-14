@@ -23,6 +23,7 @@ export { default as CIPage } from './CIPage';
 export { default as ConfigPage } from './ConfigPage';
 export { default as ReleaseManagerPage } from './ReleaseManagerPage';
 export { default as PipelinePage } from './PipelinePage';
+export { default as ChangelogPage } from './ChangelogPage';
 
 // Layout component
 export { default as Layout } from '../components/main-dashboard/Layout';

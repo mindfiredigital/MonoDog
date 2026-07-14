@@ -1,36 +1,40 @@
-import { scanMonorepo } from '@mindfiredigital/utils/helpers';
+import { prisma } from '../db/prisma';
+import { transformPackage } from './package.service';
 
 export const searchMonorepoPackages = async (
   query?: string,
   type?: string,
   status?: string
 ) => {
-  const packages = scanMonorepo(process.cwd());
-
-  let filtered = packages;
+  const where: any = {};
 
   if (query) {
     const searchTerm = query.toLowerCase();
-
-    filtered = filtered.filter(
-      (pkg: any) =>
-        pkg.name.toLowerCase().includes(searchTerm) ||
-        pkg.description?.toLowerCase().includes(searchTerm)
-    );
+    where.OR = [
+      { name: { contains: searchTerm } },
+      { description: { contains: searchTerm } },
+    ];
   }
 
   if (type && type !== 'all') {
-    filtered = filtered.filter((pkg: any) => pkg.type === type);
+    where.type = type;
   }
 
   if (status && status !== 'all') {
-    // Placeholder for future status filtering
+    where.status = status;
   }
+
+  const dbPackages = await prisma.package.findMany({
+    where,
+    include: { _count: { select: { commits: true } } },
+  });
+
+  const formattedResults = dbPackages.map(transformPackage);
 
   return {
     query,
-    results: filtered,
-    total: filtered.length,
+    results: formattedResults,
+    total: formattedResults.length,
     filters: {
       type,
       status,

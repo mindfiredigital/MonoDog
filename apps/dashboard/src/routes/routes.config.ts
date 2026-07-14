@@ -76,6 +76,13 @@ export const routes: RouteConfig[] = [
     title: 'Configuration',
     description: 'Configuration file inspector',
   },
+  {
+    path: '/changelog',
+    name: 'changelog',
+    component: 'ChangelogPage',
+    title: 'Changelog',
+    description: 'View release changelogs for all packages',
+  },
 ];
 
 // Navigation items for sidebar (subset of routes)

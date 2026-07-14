@@ -1,27 +1,47 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { searchMonorepoPackages } from '../../src/services/search.service';
-import { scanMonorepo } from '@mindfiredigital/utils/helpers';
+import { prisma } from '../../src/db/prisma';
 
-vi.mock('@mindfiredigital/utils/helpers', () => ({
-  scanMonorepo: vi.fn(),
+vi.mock('../../src/db/prisma', () => ({
+  prisma: {
+    package: {
+      findMany: vi.fn(),
+    },
+  },
 }));
 
 describe('Search Service', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('should return matched packages based on query', async () => {
     const mockPackages = [
-      { name: 'ui-core', description: 'Core UI components' },
-      { name: 'api-client', description: 'API' },
+      {
+        name: 'ui-core',
+        description: 'Core UI components',
+        type: 'library',
+        status: 'active',
+        _count: { commits: 0 },
+      },
+      {
+        name: 'api-client',
+        description: 'API',
+        type: 'library',
+        status: 'active',
+        _count: { commits: 0 },
+      },
     ];
-    vi.mocked(scanMonorepo).mockReturnValue(mockPackages as any);
+    vi.mocked(prisma.package.findMany).mockResolvedValue(mockPackages as any);
 
     const response = await searchMonorepoPackages('core');
-    expect(scanMonorepo).toHaveBeenCalled();
+    expect(prisma.package.findMany).toHaveBeenCalled();
     expect(response.results.length).toBeGreaterThan(0);
     expect(response.results[0].name).toContain('core');
   });
 
   it('should return empty array if no match', async () => {
-    vi.mocked(scanMonorepo).mockReturnValue([{ name: 'api-client' }] as any);
+    vi.mocked(prisma.package.findMany).mockResolvedValue([] as any);
 
     const response = await searchMonorepoPackages('missing');
     expect(response.results.length).toBe(0);

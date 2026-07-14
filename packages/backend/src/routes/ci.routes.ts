@@ -5,6 +5,9 @@ import {
   triggerCIBuild,
   getBuildLogs,
   getBuildArtifacts,
+  cancelPipeline,
+  retryPipeline,
+  togglePipeline,
 } from '../controllers/ci.controller';
 import { authenticationMiddleware } from '../middleware/auth-middleware';
 
@@ -18,6 +21,22 @@ router.get(
   '/builds/:buildId/artifacts',
   authenticationMiddleware,
   getBuildArtifacts
+);
+
+router.post(
+  '/pipelines/:buildId/cancel',
+  authenticationMiddleware,
+  cancelPipeline
+);
+router.post(
+  '/pipelines/:buildId/retry',
+  authenticationMiddleware,
+  retryPipeline
+);
+router.post(
+  '/pipelines/:pipelineId/toggle',
+  authenticationMiddleware,
+  togglePipeline
 );
 
 export default router;

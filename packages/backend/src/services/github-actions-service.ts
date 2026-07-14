@@ -736,3 +736,53 @@ export async function rerunWorkflow(
     };
   }
 }
+
+/**
+ * Enable a workflow
+ */
+export async function enableWorkflow(
+  owner: string,
+  repo: string,
+  workflowId: string,
+  accessToken: string
+): Promise<{ success: boolean; rateLimit: RateLimitInfo }> {
+  const path = `/repos/${owner}/${repo}/actions/workflows/${workflowId}/enable`;
+
+  try {
+    const { rateLimit } = await makeGitHubRequest<Record<string, unknown>>(
+      requestOptions('PUT', path, accessToken)
+    );
+    return { success: true, rateLimit };
+  } catch (error) {
+    AppLogger.error(`Failed to enable workflow: ${error}`);
+    return {
+      success: false,
+      rateLimit: { limit: 0, remaining: 0, reset: 0, used: 0 },
+    };
+  }
+}
+
+/**
+ * Disable a workflow
+ */
+export async function disableWorkflow(
+  owner: string,
+  repo: string,
+  workflowId: string,
+  accessToken: string
+): Promise<{ success: boolean; rateLimit: RateLimitInfo }> {
+  const path = `/repos/${owner}/${repo}/actions/workflows/${workflowId}/disable`;
+
+  try {
+    const { rateLimit } = await makeGitHubRequest<Record<string, unknown>>(
+      requestOptions('PUT', path, accessToken)
+    );
+    return { success: true, rateLimit };
+  } catch (error) {
+    AppLogger.error(`Failed to disable workflow: ${error}`);
+    return {
+      success: false,
+      rateLimit: { limit: 0, remaining: 0, reset: 0, used: 0 },
+    };
+  }
+}
