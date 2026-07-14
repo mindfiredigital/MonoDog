@@ -83,6 +83,8 @@ export const filterBuilds = (builds: Build[], filters: CIFilters): Build[] => {
       filters.package === 'all' || build.packageName === filters.package;
     const matchesStatus =
       filters.status === 'all' || build.status === filters.status;
+    const matchesPipeline =
+      filters.pipeline === 'all' || build.packageName === filters.pipeline;
 
     // Date range filtering
     let matchesDateRange = true;
@@ -102,7 +104,9 @@ export const filterBuilds = (builds: Build[], filters: CIFilters): Build[] => {
       }
     }
 
-    return matchesPackage && matchesStatus && matchesDateRange;
+    return (
+      matchesPackage && matchesStatus && matchesPipeline && matchesDateRange
+    );
   });
 };
 

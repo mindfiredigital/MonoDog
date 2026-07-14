@@ -5,6 +5,9 @@ import {
   triggerCIBuild as triggerCIBuildService,
   getBuildLogs as getBuildLogsService,
   getBuildArtifacts as getBuildArtifactsService,
+  cancelCIBuild as cancelCIBuildService,
+  retryCIBuild as retryCIBuildService,
+  togglePipeline as togglePipelineService,
 } from '../services/ci-status.service';
 
 export const getMonorepoCIStatus = async (req: Request, res: Response) => {
@@ -114,6 +117,63 @@ export const getBuildArtifacts = async (req: Request, res: Response) => {
         error instanceof Error
           ? error.message
           : 'Failed to fetch build artifacts',
+    });
+  }
+};
+
+export const cancelPipeline = async (req: Request, res: Response) => {
+  try {
+    const { buildId } = req.params;
+    const accessToken = (req as any).accessToken as string | undefined;
+    const rootPath = req.app.locals.rootPath;
+
+    const result = await cancelCIBuildService(rootPath, buildId, accessToken);
+    res.json(result);
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error:
+        error instanceof Error ? error.message : 'Failed to cancel pipeline',
+    });
+  }
+};
+
+export const retryPipeline = async (req: Request, res: Response) => {
+  try {
+    const { buildId } = req.params;
+    const accessToken = (req as any).accessToken as string | undefined;
+    const rootPath = req.app.locals.rootPath;
+
+    const result = await retryCIBuildService(rootPath, buildId, accessToken);
+    res.json(result);
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error:
+        error instanceof Error ? error.message : 'Failed to retry pipeline',
+    });
+  }
+};
+
+export const togglePipeline = async (req: Request, res: Response) => {
+  try {
+    const { pipelineId } = req.params;
+    const { active } = req.body;
+    const accessToken = (req as any).accessToken as string | undefined;
+    const rootPath = req.app.locals.rootPath;
+
+    const result = await togglePipelineService(
+      rootPath,
+      pipelineId,
+      active,
+      accessToken
+    );
+    res.json(result);
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error:
+        error instanceof Error ? error.message : 'Failed to toggle pipeline',
     });
   }
 };

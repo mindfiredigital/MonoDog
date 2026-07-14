@@ -6,3 +6,5 @@ export { default as BuildOverview } from './BuildOverview';
 export { default as BuildList } from './BuildList';
 export { default as PipelineStatus } from './PipelineStatus';
 export { default as BuildDetails } from './BuildDetails';
+export { default as TriggerBuildModal } from './TriggerBuildModal';
+export { default as CreatePipelineModal } from './CreatePipelineModal';

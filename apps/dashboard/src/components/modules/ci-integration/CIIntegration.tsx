@@ -8,6 +8,8 @@ import {
   BuildList,
   PipelineStatus,
   BuildDetails,
+  TriggerBuildModal,
+  CreatePipelineModal,
 } from './components';
 import { TableSkeleton } from '../../skeletons';
 
@@ -39,6 +41,11 @@ export default function CIIntegration() {
     pipeline: 'all',
     dateRange: 'all',
   });
+
+  // Modal states
+  const [isTriggerModalOpen, setIsTriggerModalOpen] = useState(false);
+  const [isTriggering, setIsTriggering] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   // Fetch build data
   useEffect(() => {
@@ -84,16 +91,69 @@ export default function CIIntegration() {
           new Set(data.map((b: any) => b.name).filter(Boolean))
         );
         const derivedPipelines: Pipeline[] = uniqueWorkflowNames.map(
-          (name: any, index) => ({
-            id: String(index),
-            name: name as string,
-            packageName: 'monorepo',
-            status: 'active',
-            lastRun: new Date().toISOString(),
-            successRate: 100,
-            avgDuration: 0,
-            triggers: ['github_actions'],
-          })
+          (name: any, index) => {
+            // Get all builds for this workflow
+            const workflowBuilds = data.filter((b: any) => b.name === name);
+            const completedBuilds = workflowBuilds.filter(
+              (b: any) => b.status === 'completed'
+            );
+            const successfulBuilds = completedBuilds.filter(
+              (b: any) => b.conclusion === 'success'
+            );
+
+            // Calculate success rate from completed builds
+            const successRate =
+              completedBuilds.length > 0
+                ? Math.round(
+                    (successfulBuilds.length / completedBuilds.length) * 100
+                  )
+                : 0;
+
+            // Calculate average duration in seconds from completed builds
+            const durations = completedBuilds
+              .map((b: any) => {
+                if (b.created_at && b.updated_at) {
+                  return (
+                    (new Date(b.updated_at).getTime() -
+                      new Date(b.created_at).getTime()) /
+                    1000
+                  );
+                }
+                return 0;
+              })
+              .filter((d: number) => d > 0);
+            const avgDuration =
+              durations.length > 0
+                ? Math.round(
+                    durations.reduce((a: number, b: number) => a + b, 0) /
+                      durations.length
+                  )
+                : 0;
+
+            // Get the most recent run timestamp
+            const sortedByDate = [...workflowBuilds].sort(
+              (a: any, b: any) =>
+                new Date(b.created_at).getTime() -
+                new Date(a.created_at).getTime()
+            );
+            const lastRun =
+              sortedByDate[0]?.created_at || new Date().toISOString();
+
+            return {
+              id: String(index),
+              name: name as string,
+              packageName: (name as string) || 'monorepo',
+              status:
+                sortedByDate[0]?.conclusion === 'failure' ||
+                sortedByDate[0]?.conclusion === 'cancelled'
+                  ? 'failed'
+                  : 'active',
+              lastRun,
+              successRate,
+              avgDuration,
+              triggers: ['github_actions'],
+            };
+          }
         );
 
         setPipelines(derivedPipelines);
@@ -122,14 +182,32 @@ export default function CIIntegration() {
     window.location.reload();
   };
 
-  const handleTriggerBuild = () => {
-    // In a real implementation, this would trigger a new build
-    console.log('Triggering new build...');
+  const handleTriggerBuild = async (packageName: string, branch: string) => {
+    setIsTriggering(true);
+    try {
+      await monorepoService.triggerCIBuild(packageName, branch);
+
+      setIsTriggerModalOpen(false);
+      alert(
+        'Pipeline successfully triggered! GitHub is provisioning the runner...'
+      );
+
+      // Poll after 5 seconds to gracefully fetch the newly created run ID from GitHub
+      setTimeout(() => {
+        handleRefresh();
+      }, 5000);
+    } catch (err) {
+      console.error(err);
+      alert(
+        `Error triggering build: ${err instanceof Error ? err.message : 'Unknown error'}`
+      );
+    } finally {
+      setIsTriggering(false);
+    }
   };
 
   const handleCreatePipeline = () => {
-    // In a real implementation, this would open a pipeline creation dialog
-    console.log('Creating new pipeline...');
+    setIsCreateModalOpen(true);
   };
 
   const handleBuildSelect = (buildId: string | null) => {
@@ -137,25 +215,49 @@ export default function CIIntegration() {
   };
 
   const handlePipelineSelect = (pipelineId: string) => {
-    // In a real implementation, this would show pipeline details
-    console.log('Selected pipeline:', pipelineId);
+    const pipeline = pipelines.find(p => p.id === pipelineId);
+    if (pipeline) {
+      // Filter builds to show only those matching this pipeline's workflow name
+      setFilters(prev => ({
+        ...prev,
+        pipeline: prev.pipeline === pipeline.name ? 'all' : pipeline.name,
+      }));
+    }
   };
 
-  const handlePipelineToggle = (pipelineId: string, active: boolean) => {
-    // In a real implementation, this would toggle pipeline status
-    console.log('Toggle pipeline:', pipelineId, 'active:', active);
+  const handlePipelineToggle = async (pipelineId: string, active: boolean) => {
+    try {
+      await monorepoService.togglePipeline(pipelineId, active);
+      alert(`Pipeline ${active ? 'enabled' : 'disabled'} successfully!`);
+      handleRefresh();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to toggle pipeline status');
+    }
   };
 
-  const handleBuildCancel = (buildId: string) => {
-    // In a real implementation, this would cancel the build
-    console.log('Cancelling build:', buildId);
-    setSelectedBuild(null);
+  const handleBuildCancel = async (buildId: string) => {
+    try {
+      await monorepoService.cancelPipeline(buildId);
+      alert('Pipeline successfully cancelled!');
+      setSelectedBuild(null);
+      handleRefresh();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to cancel pipeline run');
+    }
   };
 
-  const handleBuildRetry = (buildId: string) => {
-    // In a real implementation, this would retry the build
-    console.log('Retrying build:', buildId);
-    setSelectedBuild(null);
+  const handleBuildRetry = async (buildId: string) => {
+    try {
+      await monorepoService.retryPipeline(buildId);
+      alert('Pipeline successfully restarted!');
+      setSelectedBuild(null);
+      handleRefresh();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to restart pipeline run');
+    }
   };
 
   const handleRetry = () => {
@@ -180,7 +282,7 @@ export default function CIIntegration() {
     <div className="space-y-6">
       {/* Header */}
       <CIIntegrationHeader
-        onTriggerBuild={handleTriggerBuild}
+        onTriggerBuild={() => setIsTriggerModalOpen(true)}
         onCreatePipeline={handleCreatePipeline}
       />
 
@@ -220,6 +322,18 @@ export default function CIIntegration() {
         onClose={() => setSelectedBuild(null)}
         onCancel={handleBuildCancel}
         onRetry={handleBuildRetry}
+      />
+
+      <TriggerBuildModal
+        isOpen={isTriggerModalOpen}
+        onClose={() => setIsTriggerModalOpen(false)}
+        onSubmit={handleTriggerBuild}
+        isLoading={isTriggering}
+      />
+
+      <CreatePipelineModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
       />
 
       {/* Empty State */}
@@ -263,7 +377,7 @@ export default function CIIntegration() {
           </p>
           <div className="flex justify-center space-x-4">
             <button
-              onClick={handleTriggerBuild}
+              onClick={() => setIsTriggerModalOpen(true)}
               className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
             >
               Trigger Build
