@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunk_mindfiredigital_docs=self.webpackChunk_mindfiredigital_docs||[]).push([[235],{8552:function(e){e.exports=JSON.parse('{"name":"docusaurus-plugin-content-pages","id":"default"}')}}]);
