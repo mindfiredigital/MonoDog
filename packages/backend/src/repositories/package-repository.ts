@@ -10,7 +10,13 @@ export class PackageRepository {
    * Find all packages
    */
   static async findAll() {
-    return await prisma.package.findMany();
+    return await prisma.package.findMany({
+      include: {
+        _count: {
+          select: { commits: true },
+        },
+      },
+    });
   }
 
   /**
