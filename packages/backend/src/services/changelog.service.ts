@@ -7,8 +7,22 @@ import { Commit } from '../types/database';
 
 const prisma = getPrismaClient();
 
+// In-memory cache for parsed changelogs
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 min
+interface CachedChangelog {
+  data: ReleaseData[];
+  cachedAt: number;
+}
+const changelogCache = new Map<string, CachedChangelog>();
+
 // Parse the local CHANGELOG.md file
 async function parseChangelog(packagePath: string): Promise<ReleaseData[]> {
+  // Check cache first
+  const cached = changelogCache.get(packagePath);
+  if (cached && Date.now() - cached.cachedAt < CACHE_TTL_MS) {
+    return cached.data;
+  }
+
   try {
     const changelogPath = path.join(packagePath, 'CHANGELOG.md');
     const content = await fs.readFile(changelogPath, 'utf-8');
@@ -34,6 +48,10 @@ async function parseChangelog(packagePath: string): Promise<ReleaseData[]> {
         commits: [],
       });
     }
+
+    // Store in cache
+    changelogCache.set(packagePath, { data: entries, cachedAt: Date.now() });
+
     return entries;
   } catch (error) {
     AppLogger.warn(`No local CHANGELOG.md found at ${packagePath}`);

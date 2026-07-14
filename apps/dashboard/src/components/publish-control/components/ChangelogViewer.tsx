@@ -12,8 +12,9 @@ const ChangelogViewer: React.FC<ChangelogViewerProps> = ({ packageName }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Version Filter State
+  // Filter State
   const [selectedVersion, setSelectedVersion] = useState<string>('all');
+  const [searchKeyword, setSearchKeyword] = useState<string>('');
   const [showCommits, setShowCommits] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -93,27 +94,44 @@ const ChangelogViewer: React.FC<ChangelogViewerProps> = ({ packageName }) => {
     );
 
   // Filter Logic
-  const displayedReleases =
-    selectedVersion === 'all'
-      ? releases
-      : releases.filter(r => r.version === selectedVersion);
+  const keyword = searchKeyword.toLowerCase().trim();
+  const displayedReleases = releases.filter(r => {
+    const matchesVersion =
+      selectedVersion === 'all' || r.version === selectedVersion;
+    const matchesSearch =
+      !keyword ||
+      r.version.toLowerCase().includes(keyword) ||
+      (r.markdownBody && r.markdownBody.toLowerCase().includes(keyword)) ||
+      (r.commits &&
+        r.commits.some((c: any) => c.message?.toLowerCase().includes(keyword)));
+    return matchesVersion && matchesSearch;
+  });
 
   return (
     <div className="card overflow-hidden w-full">
-      <div className="bg-neutral-50 px-6 py-5 border-b border-neutral-200 flex items-center justify-between">
-        <h2 className="text-heading text-xl">Release History</h2>
-        <select
-          className="input-base bg-white"
-          value={selectedVersion}
-          onChange={e => setSelectedVersion(e.target.value)}
-        >
-          <option value="all">All Versions</option>
-          {releases.map(r => (
-            <option key={r.version} value={r.version}>
-              v{r.version}
-            </option>
-          ))}
-        </select>
+      <div className="bg-neutral-50 px-6 py-5 border-b border-neutral-200">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-heading text-xl">Release History</h2>
+          <select
+            className="input-base bg-white"
+            value={selectedVersion}
+            onChange={e => setSelectedVersion(e.target.value)}
+          >
+            <option value="all">All Versions</option>
+            {releases.map(r => (
+              <option key={r.version} value={r.version}>
+                v{r.version}
+              </option>
+            ))}
+          </select>
+        </div>
+        <input
+          type="text"
+          className="input-base bg-white w-full"
+          placeholder="Search changelogs by keyword..."
+          value={searchKeyword}
+          onChange={e => setSearchKeyword(e.target.value)}
+        />
       </div>
 
       <div className="p-6 flex flex-col gap-4">
