@@ -22,11 +22,13 @@ This documentation covers everything you need to know to install and use Monodog
 ### View Locally
 
 1. Install dependencies:
+
    ```bash
    npm install
    ```
 
 2. Start development server:
+
    ```bash
    npm start
    ```

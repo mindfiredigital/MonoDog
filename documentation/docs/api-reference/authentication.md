@@ -7,7 +7,6 @@ title: Authentication Endpoint
 
 GitHub OAuth authentication and session management via REST API.
 
-
 ## Initiate Login
 
 Start the GitHub OAuth authentication flow.
@@ -17,9 +16,11 @@ GET /api/auth/login
 ```
 
 Query Parameters:
+
 - `redirect` (optional) - URL to redirect after successful authentication
 
 Response:
+
 ```json
 {
   "success": true,
@@ -37,12 +38,14 @@ GET /api/auth/callback
 ```
 
 Query Parameters:
+
 - `code` (required) - GitHub authorization code
 - `state` (required) - CSRF protection state token
 - `error` (optional) - Error code if authorization failed
 - `error_description` (optional) - Error message from GitHub
 
 Response (Success):
+
 ```json
 {
   "success": true,
@@ -57,6 +60,7 @@ Response (Success):
 ```
 
 Response (Error):
+
 ```json
 {
   "success": false,
@@ -74,11 +78,13 @@ GET /api/auth/me
 ```
 
 Headers:
+
 - `Authorization: Bearer <sessionToken>` (required)
 
 **In Swagger UI:** Click "Authorize" button and enter your session token
 
 Response:
+
 ```json
 {
   "success": true,
@@ -100,11 +106,13 @@ POST /api/auth/validate
 ```
 
 Headers:
+
 - `Authorization: Bearer <sessionToken>` (required)
 
 **In Swagger UI:** Click "Authorize" button and enter your session token
 
 Response:
+
 ```json
 {
   "success": true,
@@ -126,11 +134,13 @@ POST /api/auth/refresh
 ```
 
 Headers:
+
 - `Authorization: Bearer <sessionToken>` (required)
 
 **In Swagger UI:** Click "Authorize" button and enter your session token
 
 Response:
+
 ```json
 {
   "success": true,
@@ -149,9 +159,11 @@ POST /api/auth/logout
 ```
 
 Headers:
+
 - `Authorization: Bearer <sessionToken>` (optional)
 
 Response:
+
 ```json
 {
   "success": true,
@@ -161,11 +173,10 @@ Response:
 
 ## Error Responses
 
-| Status Code | Error | Message |
-|---|---|---|
-| 400 | MISSING_PARAMETERS | Missing authorization code or state |
-| 400 | INVALID_STATE | CSRF validation failed |
-| 401 | UNAUTHORIZED | Authentication token required |
-| 401 | INVALID_OR_EXPIRED_SESSION | Session no longer valid |
-| 500 | GITHUB_OAUTH_FAILED | OAuth authentication failed |
-
+| Status Code | Error                      | Message                             |
+| ----------- | -------------------------- | ----------------------------------- |
+| 400         | MISSING_PARAMETERS         | Missing authorization code or state |
+| 400         | INVALID_STATE              | CSRF validation failed              |
+| 401         | UNAUTHORIZED               | Authentication token required       |
+| 401         | INVALID_OR_EXPIRED_SESSION | Session no longer valid             |
+| 500         | GITHUB_OAUTH_FAILED        | OAuth authentication failed         |

@@ -17,8 +17,8 @@ import VersionBumpSelector from './components/VersionBumpSelector';
 import ChangesetPreview from './components/ChangesetPreview';
 import ReleaseValidation from './components/ReleaseValidation';
 import PublishConfirmation from './components/PublishConfirmation';
-import LoadingState from './components/LoadingState';
 import ErrorState from './components/ErrorState';
+import { TableSkeleton } from '../skeletons';
 import { DASHBOARD_ERROR_MESSAGES } from '../../constants/messages';
 import { DASHBOARD_API_ENDPOINTS } from '../../constants/api-config';
 import type { SelectedPackage, ChangesetData, ValidationResult } from './types';
@@ -243,7 +243,11 @@ export default function ReleaseManager() {
   }
 
   if (loading && currentStep === 'select' && allPackages.length === 0) {
-    return <LoadingState message="Loading workspace packages..." />;
+    return (
+      <div className="space-y-6">
+        <TableSkeleton rows={4} />
+      </div>
+    );
   }
 
   if (error && currentStep === 'select') {

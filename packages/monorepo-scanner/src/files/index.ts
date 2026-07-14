@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { scanMonorepo } from '@monodog/utils/helpers';
+import { scanMonorepo } from '@mindfiredigital/utils/helpers';
 
 export function scanForFileTypes(
   rootDir: string,

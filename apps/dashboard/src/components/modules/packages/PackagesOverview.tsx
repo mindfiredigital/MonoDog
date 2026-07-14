@@ -4,12 +4,12 @@ import { CubeIcon } from '../../../icons/heroicons';
 import { DASHBOARD_ERROR_MESSAGES } from '../../../constants/messages';
 // Import sub-components
 import {
-  LoadingState,
   ErrorState,
   PackageStats,
   SearchAndFilter,
   PackagesTable,
 } from './components';
+import { TableSkeleton } from '../../skeletons';
 
 // Import types and utilities
 import {
@@ -81,7 +81,11 @@ export default function PackagesOverview() {
 
   // Loading state
   if (loading) {
-    return <LoadingState />;
+    return (
+      <div className="space-y-6">
+        <TableSkeleton rows={5} />
+      </div>
+    );
   }
 
   // Error state

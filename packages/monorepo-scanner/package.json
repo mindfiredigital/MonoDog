@@ -1,5 +1,5 @@
 {
-  "name": "@monodog/monorepo-scanner",
+  "name": "@mindfiredigital/monorepo-scanner",
   "version": "1.0.9",
   "description": "Monorepo scanner for analyzing packages, dependencies, and health",
   "main": "dist/index.js",
@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@prisma/client": "^5.7.0",
-    "@monodog/utils": "1.0.2"
+    "@mindfiredigital/utils": "1.0.2"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",

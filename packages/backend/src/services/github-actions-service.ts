@@ -173,34 +173,21 @@ export async function getWorkflowRuns(
   const params = new URLSearchParams();
 
   // Determine which workflow to filter by
-  let workflowToFilter: string | null = null;
+  let workflowIdToFetch: string | null = null;
 
-  // Prioritize numeric workflow ID - it's the most reliable GitHub API parameter
   if (options?.workflowId && Number(options.workflowId) !== 1) {
-    params.append('workflow_id', String(options.workflowId));
+    workflowIdToFetch = String(options.workflowId);
     AppLogger.info(
-      `getWorkflowRuns: Using numeric workflow_id=${options.workflowId} (most reliable)`
+      `getWorkflowRuns: Requesting specific numeric workflow_id=${options.workflowId}`
     );
   } else if (options?.workflowPath) {
-    // Fall back to full workflow path if numeric ID is not valid
-    // Use the full path (.github/workflows/release.yml) not just the filename
-    workflowToFilter = options.workflowPath;
+    workflowIdToFetch = options.workflowPath.split('/').pop() || null;
     AppLogger.info(
-      `getWorkflowRuns: Using full workflowPath=${options.workflowPath}`
+      `getWorkflowRuns: Requesting specific workflow filename=${workflowIdToFetch}`
     );
   } else {
-    // Last resort: default to release.yml workflow
-    workflowToFilter = '.github/workflows/release.yml';
-    AppLogger.warn(
-      `getWorkflowRuns: Using default workflow path (no valid ID or path provided)`
-    );
-  }
-
-  // Add the workflow filter if we have one and didn't already use workflow_id
-  if (workflowToFilter && !params.has('workflow_id')) {
-    params.append('workflow', workflowToFilter);
     AppLogger.info(
-      `getWorkflowRuns: Added workflow filter=${workflowToFilter} (using path parameter)`
+      `getWorkflowRuns: No specific workflow requested, will fetch all runs for the repository`
     );
   }
 
@@ -214,8 +201,11 @@ export async function getWorkflowRuns(
   params.append('page', String(options?.page || 1));
   params.append('per_page', String(options?.per_page || 30));
 
-  const basePath = GITHUB_ACTIONS.WORKFLOW_RUNS_ENDPOINT(owner, repo, '');
-  const path = `${basePath.replace('/workflows//runs', '/runs')}?${params.toString()}`;
+  const basePath = workflowIdToFetch
+    ? GITHUB_ACTIONS.WORKFLOW_RUNS_ENDPOINT(owner, repo, workflowIdToFetch)
+    : GITHUB_ACTIONS.ALL_RUNS_ENDPOINT(owner, repo);
+
+  const path = `${basePath}?${params.toString()}`;
 
   try {
     const fullUrl = `https://${GITHUB_API_BASE}${path}`;
@@ -228,14 +218,9 @@ export async function getWorkflowRuns(
     AppLogger.info(
       `GitHub API Response: total_count=${data.total_count}, returned ${data.workflow_runs.length} runs`
     );
-    if (
-      workflowToFilter ||
-      (options?.workflowId && Number(options.workflowId) !== 1)
-    ) {
-      AppLogger.info(
-        `Filtered request returned ${data.workflow_runs.length} runs (workflow=${workflowToFilter})`
-      );
-    }
+    AppLogger.info(
+      `Filtered request returned ${data.workflow_runs.length} runs (workflow=${workflowIdToFetch})`
+    );
     return {
       runs: data.workflow_runs,
       totalCount: data.total_count,

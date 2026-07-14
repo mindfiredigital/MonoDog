@@ -37,3 +37,7 @@ export interface PublishControlState {
   loading: boolean;
   error: string | null;
 }
+
+export interface ChangelogViewerProps {
+  packageName: string;
+}

@@ -12,7 +12,9 @@ Access health metrics via REST API.
 ```bash
 GET /api/health/packages
 ```
+
 Response:
+
 ```json
 {
     "packages": [
@@ -43,7 +45,9 @@ Response:
 ```bash
 POST /api/health/refresh
 ```
+
 Response:
+
 ```json
 {
     "packages": [

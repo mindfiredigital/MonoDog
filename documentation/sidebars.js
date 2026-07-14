@@ -38,6 +38,8 @@ const sidebars = {
         'features/health-monitoring',
         'features/dependency-analysis',
         'features/git-integration',
+        'features/release-publishing',
+        'features/version-history',
       ],
     },
     {

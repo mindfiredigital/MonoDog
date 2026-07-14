@@ -1,4 +1,4 @@
-import { scanMonorepo } from '@monodog/utils/helpers';
+import { scanMonorepo } from '@mindfiredigital/utils/helpers';
 
 const getRandomActivityType = () => {
   const activityTypes = [

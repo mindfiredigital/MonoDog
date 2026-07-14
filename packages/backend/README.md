@@ -3,7 +3,8 @@
 ## 🎯 Overview
 
 This is the backend service designed to provide comprehensive analytics, health monitoring, and dependency tracking for a large **JavaScript/TypeScript monorepo**.
-It leverages specialized **@monodog** tools and a database layer (via **Prisma**) to efficiently manage, persist, and expose data about all packages within the repository.
+
+It leverages specialized **@mindfiredigital/monodog** tools and a database layer (via **Prisma**) to efficiently manage, persist, and expose data about all packages within the repository.
 
 This service is typically run locally or on a central server to power a dedicated frontend dashboard.
 
@@ -11,14 +12,14 @@ This service is typically run locally or on a central server to power a dedicate
 
 ## 🛠 Technology Stack
 
-| Component      | Technology                | Description                                                          |
-| -------------- | ------------------------- | -------------------------------------------------------------------- |
-| **Language**   | TypeScript & Node.js      | Core language for runtime execution.                                 |
-| **Framework**  | Express.js                | Handles all API routing and middleware.                              |
-| **ORM**        | Prisma                    | Database layer for managing package and health status records.       |
-| **Scanning**   | @monodog/monorepo-scanner | Core logic for file system scanning and package metadata extraction. |
-| **VCS**        | GitService                | Used to fetch and analyze commit history per package path.           |
-| **Networking** | cors, body-parser         | Essential middleware for API connectivity.                           |
+| Component      | Technology                        | Description                                                          |
+| -------------- | --------------------------------- | -------------------------------------------------------------------- |
+| **Language**   | TypeScript & Node.js              | Core language for runtime execution.                                 |
+| **Framework**  | Express.js                        | Handles all API routing and middleware.                              |
+| **ORM**        | Prisma                            | Database layer for managing package and health status records.       |
+| **Scanning**   | @mindfiredigital/monorepo-scanner | Core logic for file system scanning and package metadata extraction. |
+| **VCS**        | GitService                        | Used to fetch and analyze commit history per package path.           |
+| **Networking** | cors, body-parser                 | Essential middleware for API connectivity.                           |
 
 ---
 

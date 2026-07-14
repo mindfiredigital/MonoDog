@@ -10,7 +10,7 @@ import { AuditSidebar } from './components/AuditSidebar';
 
 export default function ReleasePipeline() {
   const { hasPermission } = useAuth();
-  
+
   const {
     pipelines,
     auditLogs,
@@ -66,16 +66,16 @@ export default function ReleasePipeline() {
         </div>
       )}
 
-      <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)_320px]">
+      <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)_320px] max-h-[800px]">
         <PipelineSidebar
           pipelines={pipelines}
           selectedPipelineId={selectedPipelineId}
           setSelectedPipelineId={setSelectedPipelineId}
         />
 
-        <section className="space-y-6">
+        <section className="flex flex-col gap-4">
           {!selectedPipeline && (
-            <div className="rounded-3xl border border-dashed border-neutral-300 bg-white p-8 text-sm text-neutral-500">
+            <div className="rounded-3xl border border-dashed border-neutral-300 bg-white p-8 text-sm text-neutral-500 h-full">
               Select a release pipeline to inspect workflow runs and logs.
             </div>
           )}
@@ -89,8 +89,10 @@ export default function ReleasePipeline() {
                   handleRunAction={handleRunAction}
                   hasPermission={hasPermission}
                 />
+              </div>
 
-                {hasPermission('maintain') && (
+              {hasPermission('maintain') && (
+                <div className="rounded-3xl border border-neutral-200 bg-white p-6 shadow-soft h-[398px] overflow-y-auto">
                   <ManualDispatch
                     workflows={workflows}
                     selectedWorkflowId={selectedWorkflowId}
@@ -102,41 +104,45 @@ export default function ReleasePipeline() {
                     handleTriggerWorkflow={handleTriggerWorkflow}
                     actionLoading={actionLoading}
                   />
-                )}
-              </div>
-
-              <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
-                <JobList
-                  jobs={selectedPipeline.jobs}
-                  selectedJobId={selectedJobId}
-                  setSelectedJobId={setSelectedJobId}
-                />
-
-                <div className="rounded-3xl border border-neutral-200 bg-white p-4 shadow-soft">
-                  {!selectedJob && (
-                    <div className="rounded-2xl border border-dashed border-neutral-300 p-6 text-sm text-neutral-500">
-                      Select a job to inspect step-level logs.
-                    </div>
-                  )}
-
-                  {selectedJob && (
-                    <JobLogs
-                      selectedJob={selectedJob}
-                      selectedLogs={selectedLogs}
-                      expandedSteps={expandedSteps}
-                      setExpandedSteps={setExpandedSteps}
-                      fetchJobLogs={fetchJobLogs}
-                      logsLoading={logsLoading}
-                    />
-                  )}
                 </div>
-              </div>
+              )}
             </>
           )}
         </section>
 
         <AuditSidebar auditLogs={auditLogs} />
       </div>
+
+      {selectedPipeline && (
+        <div className="flex flex-col gap-6 lg:flex-row">
+          <div className="w-full lg:w-[320px] flex flex-col">
+            <JobList
+              jobs={selectedPipeline.jobs}
+              selectedJobId={selectedJobId}
+              setSelectedJobId={setSelectedJobId}
+            />
+          </div>
+
+          <div className="w-full min-w-0 rounded-3xl border border-neutral-200 bg-white p-4 shadow-soft">
+            {!selectedJob && (
+              <div className="rounded-2xl border border-dashed border-neutral-300 p-6 text-sm text-neutral-500">
+                Select a job to inspect step-level logs.
+              </div>
+            )}
+
+            {selectedJob && (
+              <JobLogs
+                selectedJob={selectedJob}
+                selectedLogs={selectedLogs}
+                expandedSteps={expandedSteps}
+                setExpandedSteps={setExpandedSteps}
+                fetchJobLogs={fetchJobLogs}
+                logsLoading={logsLoading}
+              />
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

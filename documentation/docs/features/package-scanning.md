@@ -16,7 +16,7 @@ Package scanning is the core of Monodog. It:
 - Maps dependencies between packages.
 - Identifies configuration files.
 
-![Screenshot of the package scan](/img/package-scan.png "Package Scan Screen(Dashboard)")
+![Screenshot of the package scan](/img/package-scan.png 'Package Scan Screen(Dashboard)')
 
 ## How it Works
 
@@ -56,7 +56,7 @@ For each package found, Monodog gathers:
   },
   "devDependencies": {
     "@vue/test-utils": "^2.4.0",
-    "@vitest/coverage-v8": "^0.34.0",
+    "@vitest/coverage-v8": "^0.34.0"
   },
   "peerDependencies": {
     "vue": ">=3.0.0"

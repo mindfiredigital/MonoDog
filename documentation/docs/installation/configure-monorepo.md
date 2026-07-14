@@ -14,6 +14,7 @@ Once Monodog is installed, configure it for your monorepo setup.
 If using pnpm workspaces, Monodog will auto-detect:
 
 **pnpm-workspace.yaml**:
+
 ```yaml
 packages:
   - 'packages/*'
@@ -58,14 +59,13 @@ Each package **must** have a `package.json`:
   },
   "devDependencies": {
     "@vue/test-utils": "^2.4.0",
-    "@vitest/coverage-v8": "^0.34.0",
+    "@vitest/coverage-v8": "^0.34.0"
   },
   "peerDependencies": {
     "vue": ">=3.0.0"
   }
 }
 ```
-
 
 ## Configuring Package Metadata
 
@@ -112,24 +112,20 @@ Monodog uses these common scripts (optional but recommended):
 ### Custom Workspace Paths
 
 In order to install node packages in non-default locations, you will then need to configure the `package.json` file accordingly:
+
 ```json
 {
-  "workspaces": [
-    "apps/*",
-    "packages/*",
-    "libs/*"
-  ],
+  "workspaces": ["apps/*", "packages/*", "libs/*"]
 }
 ```
+
 ### Configure Workspaces Scanning
 
 In order to scan only limited workspaces, you will then need to configure the `monodog-config.json` file accordingly:
+
 ```json
 {
-  "workspaces": [
-    "packages/*",
-    "libs/*"
-  ],
+  "workspaces": ["packages/*", "libs/*"]
 }
 ```
 
@@ -158,7 +154,8 @@ You will see all the packages you have listed along with their metadata.
 ### Packages Not Detected
 
 Check your workspace configuration:
-```bash
+
+````bash
 # For pnpm
 cat pnpm-workspace.yaml
 
@@ -170,11 +167,12 @@ Verify package structure:
 # Check if each package has package.json
 find packages -name "package.json" -type f
 
-```
+````
 
 ## Next Steps
 
 Once configured, proceed to:
+
 1. [Environment Setup](/installation/environment-setup)
 2. [First Run](/installation/first-run)
 3. [Quick Start](/getting-started/quick-start)

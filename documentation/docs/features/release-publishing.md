@@ -15,7 +15,6 @@ Release Publishing helps you manage the entire package release lifecycle:
 - Preview version bumps and potential breaking changes.
 - Trigger automated publishing workflows.
 
-
 ## Key Features
 
 ### Changeset Management

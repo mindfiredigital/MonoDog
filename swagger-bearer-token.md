@@ -1,11 +1,13 @@
 # Using Bearer Token in Swagger UI
 
 ## Overview
+
 The MonoDog API includes protected endpoints that require authentication. The Swagger UI now provides an easy way to add your session token for testing authenticated endpoints.
 
 ## Protected Endpoints
 
 The following endpoints require a Bearer token:
+
 - **GET /auth/me** - Get current user session
 - **POST /auth/validate** - Validate session
 - **POST /auth/refresh** - Refresh session
@@ -32,6 +34,7 @@ curl "http://localhost:8999/api/auth/callback?code=CODE&state=STATE"
 ### Step 2: Open Swagger UI
 
 Navigate to:
+
 ```
 http://localhost:8999/api-docs/
 ```
@@ -42,9 +45,11 @@ http://localhost:8999/api-docs/
 2. Click the **"Authorize"** button
 3. In the dialog, you'll see "BearerAuth" section
 4. In the "Value" field, enter your session token:
+
    ```
    YOUR_SESSION_TOKEN
    ```
+
    (Just the token itself, NOT "Bearer YOUR_TOKEN" - Swagger handles the "Bearer" prefix automatically)
 
 5. Click **"Authorize"**
@@ -70,67 +75,83 @@ curl -H "Authorization: Bearer YOUR_SESSION_TOKEN" \
 ## Example Workflow
 
 ### 1. Initiate Login (Unprotected)
+
 ```
 GET /auth/login
 ```
+
 Response includes `authUrl`
 
 ### 2. Handle Callback (Unprotected)
+
 ```
 GET /auth/callback?code=...&state=...
 ```
+
 Response includes `sessionToken`
 
 ### 3. Get User Session (Protected )
+
 ```
 GET /auth/me
 ```
+
 **Now requires Bearer token in Swagger Authorize**
 
 ### 4. Validate Session (Protected )
+
 ```
 POST /auth/validate
 ```
+
 **Now requires Bearer token in Swagger Authorize**
 
 ### 5. Refresh Session (Protected )
+
 ```
 POST /auth/refresh
 ```
+
 **Now requires Bearer token in Swagger Authorize**
 
 ### 6. Logout (Optional Authentication)
+
 ```
 POST /auth/logout
 ```
+
 Works with or without Bearer token
 
 ## Swagger UI Security Features
 
- **Authorization Button** - Click to add your token once, applies to all protected endpoints
- **Bearer Scheme** - Uses standard HTTP Bearer authentication
- **Secure Testing** - Test protected endpoints without manual header manipulation
- **Clear Indicators** - Protected endpoints show lock icon in Swagger UI
+**Authorization Button** - Click to add your token once, applies to all protected endpoints
+**Bearer Scheme** - Uses standard HTTP Bearer authentication
+**Secure Testing** - Test protected endpoints without manual header manipulation
+**Clear Indicators** - Protected endpoints show lock icon in Swagger UI
 
 ## Troubleshooting
 
 ### "Unauthorized" Error
+
 - Make sure you've clicked "Authorize" and added a valid token
 - Check that your session token is correct
 - The token might be expired - get a new one using /auth/callback
 
 ### Token Not Being Sent
+
 - Verify you clicked "Authorize" successfully
 - Look at the request in browser DevTools to see if Authorization header is present
 - Try refreshing the Swagger UI page
 
 ### "Authentication token required" Error
+
 - This means the Authorize button wasn't activated
 - Click the Authorize button again and confirm it shows "Logout" option
 
 ## Security Notes
 
 **Important:**
+
 - Never share your session token
 - The token is tied to your GitHub account
 - Use `POST /auth/logout` to invalidate the token when done

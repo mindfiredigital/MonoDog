@@ -45,7 +45,6 @@ export type {
   RecentCommitsTabProps,
   PackagesTableProps,
   DependencyGraphHeaderProps,
-  LoadingStateProps,
   ErrorStateProps,
   HealthMetricsTabProps,
   PackageDetailHeaderProps,

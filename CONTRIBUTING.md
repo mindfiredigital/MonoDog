@@ -85,15 +85,12 @@ type(scope): subject
 Commit messages directly influence our automated release process:
 
 1. MAJOR version (1.0.0 → 2.0.0)
-
    - Any commit with a breaking change (`!` or `BREAKING CHANGE` in body)
 
 2. MINOR version (1.1.0 → 1.2.0)
-
    - Commits with `feat` type
 
 3. PATCH version (1.1.1 → 1.1.2)
-
    - Commits with `fix` or `perf` type
 
 4. No version change

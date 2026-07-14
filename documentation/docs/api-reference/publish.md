@@ -14,6 +14,7 @@ GET /api/publish/packages
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -38,6 +39,7 @@ GET /api/publish/changesets
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -61,6 +63,7 @@ POST /api/publish/changesets
 ```
 
 Request:
+
 ```json
 {
   "packages": ["@org/package-a", "@org/package-b"],
@@ -73,6 +76,7 @@ Request:
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -94,17 +98,17 @@ POST /api/publish/preview
 ```
 
 Request:
+
 ```json
 {
   "packages": ["@org/package-a"],
-  "bumps": [
-    { "package": "@org/package-a", "bumpType": "minor" }
-  ],
+  "bumps": [{ "package": "@org/package-a", "bumpType": "minor" }],
   "summary": "changeset description"
 }
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -140,6 +144,7 @@ GET /api/publish/status
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -159,6 +164,7 @@ POST /api/publish/trigger
 ```
 
 Request (optional):
+
 ```json
 {
   "packages": [
@@ -172,12 +178,13 @@ Request (optional):
 ```
 
 Response:
+
 ```json
 {
   "success": true,
   "message": "Publishing workflow has been initiated",
   "result": {
-      "timestamp": "2026-02-27T20:52:25.704Z"
+    "timestamp": "2026-02-27T20:52:25.704Z"
   }
 }
 ```

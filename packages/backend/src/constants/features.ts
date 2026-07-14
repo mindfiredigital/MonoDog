@@ -12,6 +12,8 @@ export const GITHUB_ACTIONS = {
     `/repos/${owner}/${repo}/actions/workflows`,
   WORKFLOW_RUNS_ENDPOINT: (owner: string, repo: string, workflowId: string) =>
     `/repos/${owner}/${repo}/actions/workflows/${workflowId}/runs`,
+  ALL_RUNS_ENDPOINT: (owner: string, repo: string) =>
+    `/repos/${owner}/${repo}/actions/runs`,
   WORKFLOW_RUN_ENDPOINT: (owner: string, repo: string, runId: number) =>
     `/repos/${owner}/${repo}/actions/runs/${runId}`,
   JOBS_ENDPOINT: (owner: string, repo: string, runId: number) =>

@@ -9,10 +9,11 @@ title: Introduction
 Monodog is a package available on npm. You can install it in your monorepo, and it will automatically:
 
 - Scan and analyze all packages in your monorepo.
-- Monitor package health metrics, such as <!-- tests, --> linting, and security.  <!-- - Integrate into CI/CD pipelines.  -->
+- Monitor package health metrics, such as <!-- tests, --> linting, and security. <!-- - Integrate into CI/CD pipelines.  -->
 - Analyze dependencies and relationships.
 
 Monodog provides a REST API for access to all its features. It is already integrated directly into the Monodog dashboard for visual insights.
+
 ## Key Features
 
 - **Automatically Discover and Analyze Packages** in Your Monorepo.
@@ -24,13 +25,13 @@ Monodog provides a REST API for access to all its features. It is already integr
 
 ## Technology Stack
 
-| Component     | Technology           |
-|---|---|
+| Component     | Technology             |
+| ------------- | ---------------------- |
 | **Language**  | TypeScript and Node.js |
-| **Framework** | Express.js           |
-| **Database**  | Prisma ORM          |
-| **Styling**   | Tailwind CSS         |
-| **Frontend**  | React                |
+| **Framework** | Express.js             |
+| **Database**  | Prisma ORM             |
+| **Styling**   | Tailwind CSS           |
+| **Frontend**  | React                  |
 
 ## Requirements
 
@@ -45,6 +46,7 @@ Install Monodog in your monorepo:
 ```bash
 pnpm dlx @mindfiredigital/monodog
 ```
+
 Go to the monodog directory that was created after the installation.
 
 ```bash

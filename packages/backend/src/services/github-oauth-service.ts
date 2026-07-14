@@ -28,7 +28,7 @@ const requestOptions = (
   return {
     hostname: hostname ?? GITHUB_API_BASE,
     path,
-    method: 'GET',
+    method,
     headers: {
       ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
       'User-Agent': 'MonoDog',

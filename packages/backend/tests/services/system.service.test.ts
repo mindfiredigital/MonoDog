@@ -4,7 +4,7 @@ import {
   getMonorepoStats,
 } from '../../src/services/system.service';
 
-vi.mock('@monodog/utils/helpers', () => ({
+vi.mock('@mindfiredigital/utils/helpers', () => ({
   scanMonorepo: vi.fn(() => []),
   generateMonorepoStats: vi.fn(() => ({
     totalPackages: 5,

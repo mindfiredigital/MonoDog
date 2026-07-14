@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { RocketLaunchIcon } from '../../../icons/heroicons';
 // Import sub-components
 import {
-  LoadingState,
   ErrorState,
   CIIntegrationHeader,
   BuildOverview,
@@ -10,6 +9,7 @@ import {
   PipelineStatus,
   BuildDetails,
 } from './components';
+import { TableSkeleton } from '../../skeletons';
 
 // Import types and utilities
 import { Build, Pipeline, CIFilters } from './types/ci.types';
@@ -22,48 +22,12 @@ import { DASHBOARD_ERROR_MESSAGES } from '../../../constants/messages';
 // Re-export types for backward compatibility
 export type { Build, Pipeline, CIFilters } from './types/ci.types';
 
-// Mock pipelines data (since not included in service yet)
-const mockPipelines: Pipeline[] = [
-  {
-    id: '1',
-    name: 'Dashboard CI',
-    packageName: 'dashboard',
-    status: 'active',
-    lastRun: '2024-01-16T09:00:00Z',
-    nextRun: '2024-01-16T10:00:00Z',
-    successRate: 95,
-    avgDuration: 420,
-    triggers: ['push', 'pull_request'],
-  },
-  {
-    id: '2',
-    name: 'Backend CI',
-    packageName: 'backend',
-    status: 'active',
-    lastRun: '2024-01-16T08:30:00Z',
-    nextRun: '2024-01-16T09:30:00Z',
-    successRate: 88,
-    avgDuration: 900,
-    triggers: ['push', 'pull_request', 'tag'],
-  },
-  {
-    id: '3',
-    name: 'Utils CI',
-    packageName: 'utils',
-    status: 'paused',
-    lastRun: '2024-01-16T08:00:00Z',
-    successRate: 75,
-    avgDuration: 600,
-    triggers: ['push', 'pull_request'],
-  },
-];
-
 export default function CIIntegration() {
   // State management
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [builds, setBuilds] = useState<Build[]>([]);
-  const [pipelines] = useState<Pipeline[]>(mockPipelines);
+  const [pipelines, setPipelines] = useState<Pipeline[]>([]);
 
   // Selection state
   const [selectedBuild, setSelectedBuild] = useState<string | null>(null);
@@ -103,6 +67,24 @@ export default function CIIntegration() {
           })
         );
 
+        // get pipelines from the unique workflow names in the runs
+        const uniqueWorkflowNames = Array.from(
+          new Set(data.map((b: any) => b.name).filter(Boolean))
+        );
+        const derivedPipelines: Pipeline[] = uniqueWorkflowNames.map(
+          (name: any, index) => ({
+            id: String(index),
+            name: name as string,
+            packageName: 'monorepo',
+            status: 'active',
+            lastRun: new Date().toISOString(),
+            successRate: 100,
+            avgDuration: 0,
+            triggers: ['github_actions'],
+          })
+        );
+
+        setPipelines(derivedPipelines);
         setBuilds(transformedData);
         setError(null);
       } catch (err) {
@@ -170,7 +152,11 @@ export default function CIIntegration() {
 
   // Loading state
   if (loading) {
-    return <LoadingState />;
+    return (
+      <div className="space-y-6">
+        <TableSkeleton rows={6} />
+      </div>
+    );
   }
 
   // Error state

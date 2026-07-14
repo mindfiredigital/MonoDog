@@ -1,5 +1,5 @@
 // Export all dependency graph components for easier imports
-export { default as LoadingState } from './LoadingState';
+
 export { default as ErrorState } from './ErrorState';
 export { default as DependencyGraphHeader } from './DependencyGraphHeader';
 export { default as GraphToolbar } from './GraphToolbar';

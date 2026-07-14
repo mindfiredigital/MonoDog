@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { getRecentActivity } from '../../src/services/activity.service';
 
-vi.mock('@monodog/utils/helpers', () => ({
+vi.mock('@mindfiredigital/utils/helpers', () => ({
   scanMonorepo: vi.fn(() => [
     { name: 'pkg-a', version: '1.0.0', type: 'library' },
     { name: 'pkg-b', version: '2.0.0', type: 'app' },

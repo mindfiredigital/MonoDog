@@ -255,7 +255,7 @@ export async function triggerPublishPipeline(
           );
           const currentBranch = branch.trim();
 
-          await execPromise(`git push origin ${currentBranch}`, {
+          await execPromise(`git push origin ${currentBranch} --no-verify`, {
             cwd: rootPath,
           });
 
