@@ -153,12 +153,6 @@ export const refreshPackagesHealth = async (rootPath?: string) => {
             packageSecurity: securityAudit,
             packageDependencies: '',
             updatedAt: new Date(),
-            package: {
-              update: {
-                where: { name: pkg.name },
-                data: { status: packageStatus },
-              },
-            },
           },
           create: {
             packageName: pkg.name,
@@ -169,6 +163,11 @@ export const refreshPackagesHealth = async (rootPath?: string) => {
             packageSecurity: securityAudit,
             packageDependencies: '',
           },
+        });
+
+        await prisma.package.update({
+          where: { name: pkg.name },
+          data: { status: packageStatus },
         });
 
         return {
