@@ -69,6 +69,51 @@ export async function getExistingChangesets(
 }
 
 /**
+ * Get bump types from existing changesets
+ */
+export async function getPackageBumpTypes(
+  rootPath: string
+): Promise<Record<string, string>> {
+  const bumpTypes: Record<string, string> = {};
+  try {
+    const changesetsDir = path.join(rootPath, '.changeset');
+    const files = await fs.readdir(changesetsDir);
+
+    for (const file of files) {
+      if (file.endsWith('.md') && file !== 'README.md') {
+        try {
+          const content = await fs.readFile(
+            path.join(changesetsDir, file),
+            'utf-8'
+          );
+          const matches = content.matchAll(/"([^"]+)":\s*(major|minor|patch)/g);
+          for (const match of matches) {
+            const pkgName = match[1];
+            const bumpType = match[2];
+
+            // If multiple changesets for same package, keep highest bump
+            const priority: Record<string, number> = {
+              patch: 1,
+              minor: 2,
+              major: 3,
+            };
+            const existingBump = bumpTypes[pkgName];
+            if (!existingBump || priority[bumpType] > priority[existingBump]) {
+              bumpTypes[pkgName] = bumpType;
+            }
+          }
+        } catch {
+          // no changeset markdown file
+        }
+      }
+    }
+  } catch {
+    // no changeset directory
+  }
+  return bumpTypes;
+}
+
+/**
  * Calculate new versions for selected packages
  */
 export function calculateNewVersions(
