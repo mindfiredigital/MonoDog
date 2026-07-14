@@ -7,6 +7,7 @@ import type { ReleasePipeline } from '../types/github-actions';
 import { AppLogger } from '../middleware/logger';
 import { ReleasePipelineRepository } from '../repositories/release-pipeline-repository';
 import { PipelineAuditLogRepository } from '../repositories/pipeline-audit-log-repository';
+import { prisma } from '../db/prisma';
 
 /**
  * Create or update a release pipeline
@@ -148,6 +149,67 @@ export async function deleteOldPipelines(
     return count;
   } catch (error) {
     AppLogger.error(`Failed to delete old pipelines: ${error}`);
+    throw error;
+  }
+}
+
+/**
+ * Schedule a new release
+ */
+export async function scheduleRelease(
+  releaseVersion: string,
+  packageName: string,
+  scheduledAt: Date,
+  triggeredBy: string
+) {
+  try {
+    const scheduledRelease = await prisma.scheduledRelease.create({
+      data: {
+        releaseVersion,
+        packageName,
+        scheduledAt,
+        status: 'pending',
+        triggeredBy,
+      },
+    });
+    AppLogger.info(
+      `Scheduled release ${releaseVersion} for ${packageName} at ${scheduledAt}`
+    );
+    return scheduledRelease;
+  } catch (error) {
+    AppLogger.error(`Failed to schedule release: ${error}`);
+    throw error;
+  }
+}
+
+/**
+ * Get pending scheduled releases
+ */
+export async function getPendingScheduledReleases(limit = 20) {
+  try {
+    return await prisma.scheduledRelease.findMany({
+      where: { status: 'pending' },
+      orderBy: { scheduledAt: 'asc' },
+      take: limit,
+      include: { package: true },
+    });
+  } catch (error) {
+    AppLogger.error(`Failed to get scheduled releases: ${error}`);
+    throw error;
+  }
+}
+
+/**
+ * Update scheduled release status
+ */
+export async function updateScheduledReleaseStatus(id: string, status: string) {
+  try {
+    return await prisma.scheduledRelease.update({
+      where: { id },
+      data: { status },
+    });
+  } catch (error) {
+    AppLogger.error(`Failed to update scheduled release status: ${error}`);
     throw error;
   }
 }

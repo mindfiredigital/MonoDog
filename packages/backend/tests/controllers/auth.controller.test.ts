@@ -36,7 +36,7 @@ describe('Auth Controller', () => {
   });
 
   describe('getMe', () => {
-    it('should return user info if authenticated', () => {
+    it('should return user info if authenticated', async () => {
       req.headers.authorization = 'Bearer valid-token';
       vi.mocked(authService.decodeSessionToken).mockReturnValue({
         userId: 1,
@@ -44,7 +44,7 @@ describe('Auth Controller', () => {
         issuedAt: 12345,
       } as any);
 
-      getMe(req, res);
+      await getMe(req, res);
 
       expect(res.json).toHaveBeenCalledWith({
         success: true,

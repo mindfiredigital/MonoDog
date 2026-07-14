@@ -5,6 +5,8 @@ import {
   getRecentPipelines,
   refreshPipelineFromRun,
   updatePipelineStatus,
+  scheduleRelease,
+  getPendingScheduledReleases,
 } from '../controllers/pipeline.controller';
 import {
   authenticationMiddleware,
@@ -14,6 +16,13 @@ import {
 const router = Router();
 
 router.get('/', authenticationMiddleware, getRecentPipelines);
+router.get('/scheduled', authenticationMiddleware, getPendingScheduledReleases);
+router.post(
+  '/schedule',
+  authenticationMiddleware,
+  repositoryPermissionMiddleware('write'),
+  scheduleRelease
+);
 router.get('/:pipelineId', authenticationMiddleware, getPipelineDetails);
 router.put(
   '/:pipelineId/status',

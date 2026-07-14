@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { monorepoService } from '../../services/monorepoService';
 import { DASHBOARD_ERROR_MESSAGES } from '../../constants/messages';
 
@@ -8,7 +9,6 @@ import {
   QuickActionCards,
   PackageReleaseTable,
   ReleaseSchedule,
-  ChangelogViewer,
   ErrorState,
 } from './components';
 import { TableSkeleton } from '../skeletons';
@@ -24,9 +24,11 @@ import {
 export type { Package, Release } from './types/publish.types';
 
 export default function PublishControl() {
+  const navigate = useNavigate();
   const [selectedPackage, setSelectedPackage] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [packages, setPackages] = useState<Package[]>([]);
+  const [scheduledReleases, setScheduledReleases] = useState<Release[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -43,11 +45,27 @@ export default function PublishControl() {
           status: getPublishStatus(pkg.status),
           lastPublished: pkg.lastUpdated,
           changelog: pkg.description || 'No changelog available',
-          commits: Math.floor(Math.random() * 20) + 1,
+          commits: pkg.commits || 0,
           dependencies: pkg.dependencies || [],
-          publishType: getPublishType(),
+          publishType: 'patch',
         }));
         setPackages(publishPackages);
+
+        const scheduledData = await monorepoService.getScheduledReleases();
+
+        // Map database schema to frontend Release interface
+        const mappedReleases = scheduledData.map((rel: any) => ({
+          id: rel.id,
+          packageName: rel.packageName,
+          version: rel.releaseVersion,
+          status: rel.status,
+          scheduledFor: new Date(rel.scheduledAt).toLocaleString(),
+          changelog: 'Scheduled via dashboard',
+          author: rel.triggeredBy,
+        }));
+
+        setScheduledReleases(mappedReleases);
+
         setError(null);
       } catch (err) {
         setError(DASHBOARD_ERROR_MESSAGES.FAILED_TO_FETCH_PACKAGES);
@@ -84,19 +102,9 @@ export default function PublishControl() {
     }
   };
 
-  const getPublishType = (): 'patch' | 'minor' | 'major' | 'prerelease' => {
-    const types: ('patch' | 'minor' | 'major' | 'prerelease')[] = [
-      'patch',
-      'minor',
-      'major',
-      'prerelease',
-    ];
-    return types[Math.floor(Math.random() * types.length)];
-  };
-
   // Handle actions
   const handleNewRelease = () => {
-    // console.log('Creating new release...');
+    navigate('/release');
   };
 
   const handleRetry = () => {
@@ -139,13 +147,10 @@ export default function PublishControl() {
 
       {/* Release Schedule */}
       <ReleaseSchedule
-        releases={[]}
+        releases={scheduledReleases}
         selectedStatus={selectedStatus}
         onStatusChange={setSelectedStatus}
       />
-
-      {/* Changelog Viewer */}
-      <ChangelogViewer />
     </div>
   );
 }

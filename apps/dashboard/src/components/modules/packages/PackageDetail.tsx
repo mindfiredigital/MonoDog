@@ -160,13 +160,8 @@ export default function PackageDetail() {
         <div className="px-6">{renderTabContent()}</div>
       </div>
 
-      <div className="card mt-8 mb-8 overflow-hidden">
-        <div className="bg-neutral-50 px-6 py-5 border-b border-neutral-200">
-          <h2 className="text-heading text-xl">Version History</h2>
-        </div>
-        <div className="p-6">
-          {name && <ChangelogViewer packageName={name} />}
-        </div>
+      <div className="mt-8 mb-8 w-full">
+        {name && <ChangelogViewer packageName={name} />}
       </div>
     </div>
   );
