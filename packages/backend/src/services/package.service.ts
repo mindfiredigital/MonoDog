@@ -4,7 +4,6 @@ import { prisma } from '../db/prisma';
 import { scanMonorepo } from '@mindfiredigital/utils/helpers';
 import { storePackage } from '../utils/helpers';
 import { MonorepoScanner } from '@mindfiredigital/monorepo-scanner';
-import { ciStatusManager } from '@mindfiredigital/ci-status';
 import { PackageRepository } from '../repositories';
 import { AppLogger } from '../middleware';
 import type { PackageModel } from '../types/database';
@@ -133,7 +132,6 @@ export const getPackageByName = async (name: string) => {
   return {
     ...transformedPkg,
     report: packageReport,
-    ciStatus: await ciStatusManager.getPackageStatus(name),
   };
 };
 

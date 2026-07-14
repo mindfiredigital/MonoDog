@@ -9,7 +9,9 @@ import {
 
 export const getMonorepoCIStatus = async (req: Request, res: Response) => {
   try {
-    const ciStatus = await getMonorepoCIStatusService();
+    const accessToken = (req as any).accessToken as string | undefined;
+    const rootPath = req.app.locals.rootPath;
+    const ciStatus = await getMonorepoCIStatusService(rootPath, accessToken);
 
     res.json(ciStatus);
   } catch (error) {
@@ -24,8 +26,10 @@ export const getMonorepoCIStatus = async (req: Request, res: Response) => {
 export const getPackageCIStatus = async (req: Request, res: Response) => {
   try {
     const { name } = req.params;
+    const accessToken = (req as any).accessToken as string | undefined;
+    const rootPath = req.app.locals.rootPath;
 
-    const status = await getPackageCIStatusService(name);
+    const status = await getPackageCIStatusService(rootPath, name, accessToken);
 
     res.json(status);
   } catch (error) {
@@ -48,11 +52,15 @@ export const getPackageCIStatus = async (req: Request, res: Response) => {
 export const triggerCIBuild = async (req: Request, res: Response) => {
   try {
     const { packageName, providerName, branch } = req.body;
+    const accessToken = (req as any).accessToken as string | undefined;
+    const rootPath = req.app.locals.rootPath;
 
     const result = await triggerCIBuildService(
+      rootPath,
       packageName,
       providerName,
-      branch
+      branch,
+      accessToken
     );
 
     res.json(result);
@@ -68,8 +76,15 @@ export const getBuildLogs = async (req: Request, res: Response) => {
   try {
     const { buildId } = req.params;
     const { provider } = req.query;
+    const accessToken = (req as any).accessToken as string | undefined;
+    const rootPath = req.app.locals.rootPath;
 
-    const result = await getBuildLogsService(buildId, provider as string);
+    const result = await getBuildLogsService(
+      rootPath,
+      buildId,
+      provider as string,
+      accessToken
+    );
 
     res.json(result);
   } catch (error) {
@@ -84,8 +99,13 @@ export const getBuildArtifacts = async (req: Request, res: Response) => {
   try {
     const { buildId } = req.params;
     const { provider } = req.query;
+    const accessToken = (req as any).accessToken as string | undefined;
 
-    const result = await getBuildArtifactsService(buildId, provider as string);
+    const result = await getBuildArtifactsService(
+      buildId,
+      provider as string,
+      accessToken
+    );
 
     res.json(result);
   } catch (error) {

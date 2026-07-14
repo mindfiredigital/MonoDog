@@ -1,7 +1,6 @@
 ---
 '@mindfiredigital/monodog': minor
 '@mindfiredigital/monorepo-scanner': patch
-'@mindfiredigital/ci-status': patch
 '@mindfiredigital/dashboard': patch
 '@mindfiredigital/docs': patch
 '@mindfiredigital/utils': patch

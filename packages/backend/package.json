@@ -25,7 +25,6 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@mindfiredigital/ci-status": "1.1.5",
     "@mindfiredigital/monorepo-scanner": "1.0.9",
     "@mindfiredigital/utils": "1.0.2",
     "@prisma/client": "^5.7.0",

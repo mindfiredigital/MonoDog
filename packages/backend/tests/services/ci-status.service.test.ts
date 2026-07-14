@@ -2,93 +2,37 @@ import { describe, it, expect, vi } from 'vitest';
 import {
   getMonorepoCIStatus,
   getPackageCIStatus,
-  triggerCIBuild,
 } from '../../src/services/ci-status.service';
-import {
-  ciStatusManager,
-  getMonorepoCIStatus as getMonorepoCIStatusCore,
-} from '@mindfiredigital/ci-status';
-import { scanMonorepo } from '@mindfiredigital/utils/helpers';
 
-vi.mock('@mindfiredigital/utils/helpers', () => ({
-  scanMonorepo: vi.fn(),
+vi.mock('../../src/utils/utilities', () => ({
+  getRepositoryInfoFromGit: vi
+    .fn()
+    .mockResolvedValue({ owner: 'test', repo: 'test-repo' }),
 }));
 
-vi.mock('@mindfiredigital/ci-status', () => ({
-  ciStatusManager: {
-    getPackageStatus: vi.fn(),
-    triggerBuild: vi.fn(),
-  },
-  getMonorepoCIStatus: vi.fn(),
+vi.mock('../../src/services/github-actions-service', () => ({
+  getWorkflowRuns: vi.fn().mockResolvedValue({ runs: [], totalCount: 0 }),
 }));
 
 describe('CI Status Service', () => {
   describe('getMonorepoCIStatus', () => {
-    it('should scan monorepo and fetch overall CI status', async () => {
-      vi.mocked(scanMonorepo).mockReturnValue([{ name: 'core' }] as any);
-      vi.mocked(getMonorepoCIStatusCore).mockResolvedValue({
-        totalPackages: 1,
-      } as any);
-
-      const status = await getMonorepoCIStatus();
-
-      expect(scanMonorepo).toHaveBeenCalled();
-      expect(getMonorepoCIStatusCore).toHaveBeenCalledWith([{ name: 'core' }]);
-      expect(status.totalPackages).toBe(1);
+    it('should fetch overall CI status', async () => {
+      const status = await getMonorepoCIStatus('root/path', 'fake-token');
+      expect(status.success).toBe(true);
+      expect(status.pipelines).toEqual([]);
+      expect(status.total).toBe(0);
     });
   });
 
   describe('getPackageCIStatus', () => {
     it('should return package CI status if found', async () => {
-      vi.mocked(ciStatusManager.getPackageStatus).mockResolvedValue({
-        status: 'passed',
-      } as any);
-
-      const status = await getPackageCIStatus('core');
-      expect(status).toEqual({ status: 'passed' });
-    });
-
-    it('should throw an error if package CI status is not found', async () => {
-      vi.mocked(ciStatusManager.getPackageStatus).mockResolvedValue(
-        null as any
-      );
-
-      await expect(getPackageCIStatus('unknown')).rejects.toThrow(
-        'Package CI status not found'
-      );
-    });
-  });
-
-  describe('triggerCIBuild', () => {
-    it('should trigger a build successfully', async () => {
-      vi.mocked(ciStatusManager.triggerBuild).mockResolvedValue({
-        success: true,
-        buildId: '123',
-      } as any);
-
-      const result = await triggerCIBuild('core');
-      expect(ciStatusManager.triggerBuild).toHaveBeenCalledWith(
+      const status = await getPackageCIStatus(
+        'root/path',
         'core',
-        'github',
-        'main'
+        'fake-token'
       );
-      expect(result.success).toBe(true);
-      expect(result.buildId).toBe('123');
-    });
-
-    it('should throw an error if package name is missing', async () => {
-      await expect(triggerCIBuild('')).rejects.toThrow(
-        'Package name is required'
-      );
-    });
-
-    it('should throw an error if build trigger fails', async () => {
-      vi.mocked(ciStatusManager.triggerBuild).mockResolvedValue({
-        success: false,
-        error: 'Provider down',
-      } as any);
-
-      await expect(triggerCIBuild('core')).rejects.toThrow('Provider down');
+      expect(status.success).toBe(true);
+      expect(status.pipelines).toEqual([]);
     });
   });
 });

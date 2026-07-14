@@ -6,13 +6,18 @@ import {
   getBuildLogs,
   getBuildArtifacts,
 } from '../controllers/ci.controller';
+import { authenticationMiddleware } from '../middleware/auth-middleware';
 
 const router = Router();
 
-router.get('/status', getMonorepoCIStatus);
-router.get('/packages/:name', getPackageCIStatus);
-router.post('/trigger', triggerCIBuild);
-router.get('/builds/:buildId/logs', getBuildLogs);
-router.get('/builds/:buildId/artifacts', getBuildArtifacts);
+router.get('/status', authenticationMiddleware, getMonorepoCIStatus);
+router.get('/packages/:name', authenticationMiddleware, getPackageCIStatus);
+router.post('/trigger', authenticationMiddleware, triggerCIBuild);
+router.get('/builds/:buildId/logs', authenticationMiddleware, getBuildLogs);
+router.get(
+  '/builds/:buildId/artifacts',
+  authenticationMiddleware,
+  getBuildArtifacts
+);
 
 export default router;
