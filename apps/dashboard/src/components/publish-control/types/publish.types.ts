@@ -41,3 +41,17 @@ export interface PublishControlState {
 export interface ChangelogViewerProps {
   packageName: string;
 }
+
+export interface ScheduleReleaseData {
+  packageName: string;
+  releaseVersion: string;
+  scheduledAt: string;
+}
+
+export interface ReleaseScheduleProps {
+  releases: Release[];
+  selectedStatus: string;
+  onStatusChange: (status: string) => void;
+  packages: Package[];
+  onSchedule: (data: ScheduleReleaseData) => Promise<void>;
+}
