@@ -5,6 +5,7 @@ import rehypeSanitize from 'rehype-sanitize';
 import { ReleaseData } from '../../../../../../packages/backend/src/types/changelog.types';
 import apiClient from '../../../services/api';
 import { ChangelogViewerProps } from '../types/publish.types';
+import { PlayIcon } from '../../../icons/heroicons';
 
 const ChangelogViewer: React.FC<ChangelogViewerProps> = ({ packageName }) => {
   const [releases, setReleases] = useState<ReleaseData[]>([]);
@@ -54,10 +55,30 @@ const ChangelogViewer: React.FC<ChangelogViewerProps> = ({ packageName }) => {
 
   if (loading)
     return (
-      <div className="p-4 text-gray-500 animate-pulse">
-        Loading release history...
+      <div className="p-6 animate-pulse space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="h-6 w-40 rounded bg-neutral-200" />
+          <div className="h-8 w-32 rounded bg-neutral-200" />
+        </div>
+        {Array.from({ length: 3 }).map((_, index) => (
+          <div key={index} className="card overflow-hidden">
+            <div className="bg-neutral-50 px-6 py-4 border-b border-neutral-200 flex justify-between items-center">
+              <div className="flex items-center gap-3">
+                <div className="h-5 w-16 rounded bg-neutral-200" />
+                <div className="h-4 w-24 rounded bg-neutral-100" />
+              </div>
+              <div className="h-5 w-14 rounded-full bg-neutral-100" />
+            </div>
+            <div className="p-6 space-y-3">
+              <div className="h-4 w-full rounded bg-neutral-100" />
+              <div className="h-4 w-3/4 rounded bg-neutral-100" />
+              <div className="h-4 w-1/2 rounded bg-neutral-100" />
+            </div>
+          </div>
+        ))}
       </div>
     );
+
   if (error)
     return (
       <div className="p-4 text-red-500 bg-red-50 rounded-lg">
@@ -131,16 +152,14 @@ const ChangelogViewer: React.FC<ChangelogViewerProps> = ({ packageName }) => {
                   className="w-full bg-neutral-50 px-6 py-3 flex items-center justify-between hover:bg-neutral-100 transition-colors cursor-pointer"
                 >
                   <span className="text-caption font-semibold tracking-wider flex items-center gap-2">
-                    <span
-                      className="inline-block transition-transform duration-200"
-                      style={{
-                        transform: showCommits.has(release.version)
-                          ? 'rotate(90deg)'
-                          : 'rotate(0deg)',
-                      }}
-                    >
-                      ▶
-                    </span>
+                    <PlayIcon
+                      variant="solid"
+                      className={`w-4 h-4 text-primary-600 transition-transform duration-200 ${
+                        showCommits.has(release.version)
+                          ? 'rotate-90'
+                          : 'rotate-0'
+                      }`}
+                    />
                     Associated Commits ({release.commits.length})
                   </span>
                 </button>

@@ -38,10 +38,6 @@ export interface DependencyGraphHeaderProps {
   loading?: boolean;
 }
 
-export interface LoadingStateProps {
-  message?: string;
-}
-
 export interface ErrorStateProps {
   error: Error | string;
   onRetry?: () => void;
