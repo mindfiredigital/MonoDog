@@ -12,8 +12,7 @@ import {
   HTTP_STATUS_FORBIDDEN,
 } from '../constants/http';
 import { chars, sessionTimeout } from '../constants';
-
-const sessionStore = new Map<string, AuthSession>();
+import { prisma } from '../db/prisma';
 
 function decodeLegacySessionToken(token: string): AuthSession | null {
   try {
@@ -74,15 +73,22 @@ export function generateSessionToken(length: number = 32): string {
 /**
  * Store session
  */
-export function storeSession(session: AuthSession): string {
+export async function storeSession(session: AuthSession): Promise<string> {
   const token = generateSessionToken();
-  sessionStore.set(token, session);
 
-  // Set expiration timeout
-  setTimeout(() => {
-    sessionStore.delete(token);
-    AppLogger.debug(`Session expired: ${session.user.login}`);
-  }, sessionTimeout);
+  await prisma.session.create({
+    data: {
+      sessionToken: token,
+      userId: session.user.id,
+      login: session.user.login,
+      accessToken: session.accessToken,
+      userData: JSON.stringify(session.user),
+      permission: session.permission
+        ? JSON.stringify(session.permission)
+        : null,
+      expiresAt: new Date(session.expiresAt),
+    },
+  });
 
   AppLogger.debug(`Session stored for user: ${session.user.login}`);
   return token;
@@ -91,18 +97,33 @@ export function storeSession(session: AuthSession): string {
 /**
  * Get session by token
  */
-export function getSession(token: string): AuthSession | null {
-  const session = sessionStore.get(token);
-  if (!session) {
+export async function getSession(token: string): Promise<AuthSession | null> {
+  const sessionRecord = await prisma.session.findUnique({
+    where: { sessionToken: token },
+  });
+
+  if (!sessionRecord) {
     return decodeLegacySessionToken(token);
   }
 
   // Check if session has expired based on expiresAt
-  if (Date.now() > session.expiresAt) {
-    sessionStore.delete(token);
+  if (Date.now() > sessionRecord.expiresAt.getTime()) {
+    await prisma.session.delete({ where: { sessionToken: token } });
     AppLogger.warn(`Session token expired: ${token.substring(0, 10)}...`);
     return null;
   }
+
+  // Reconstruct AuthSession
+  const session: AuthSession = {
+    accessToken: sessionRecord.accessToken,
+    expiresIn: 3600,
+    expiresAt: sessionRecord.expiresAt.getTime(),
+    user: JSON.parse(sessionRecord.userData),
+    scopes: ['user:email', 'read:user', 'repo'],
+    permission: sessionRecord.permission
+      ? JSON.parse(sessionRecord.permission)
+      : null,
+  };
 
   return session;
 }
@@ -110,19 +131,23 @@ export function getSession(token: string): AuthSession | null {
 /**
  * Invalidate session
  */
-export function invalidateSession(token: string): void {
-  sessionStore.delete(token);
-  AppLogger.debug(`Session invalidated: ${token.substring(0, 10)}...`);
+export async function invalidateSession(token: string): Promise<void> {
+  try {
+    await prisma.session.delete({ where: { sessionToken: token } });
+    AppLogger.debug(`Session invalidated: ${token.substring(0, 10)}...`);
+  } catch (error) {
+    AppLogger.warn(`Failed to invalidate session (might not exist): ${error}`);
+  }
 }
 
 /**
  * Middleware to verify authentication
  */
-export function authenticationMiddleware(
+export const authenticationMiddleware = async (
   req: Request,
   res: Response,
   next: NextFunction
-): void {
+): Promise<void> => {
   const token =
     req.headers.authorization?.replace('Bearer ', '') ||
     req.cookies?.['auth-token'];
@@ -136,7 +161,7 @@ export function authenticationMiddleware(
     return;
   }
 
-  const session = getSession(token);
+  const session = await getSession(token);
 
   if (!session) {
     AppLogger.warn(`Unauthorized request to ${req.path}: invalid session`);
@@ -176,7 +201,7 @@ export function authenticationMiddleware(
     `Authenticated request from user: ${session.user.login} with permission: ${(req as any).permission?.permission || 'unknown'}`
   );
   next();
-}
+};
 
 /**
  * Middleware to verify repository permission
@@ -252,31 +277,30 @@ export function isAuthenticated(req: Request): boolean {
 /**
  * Clear expired sessions (should be called periodically)
  */
-export function clearExpiredSessions(): void {
-  const now = Date.now();
-  let clearedCount = 0;
+export async function clearExpiredSessions(): Promise<void> {
+  const result = await prisma.session.deleteMany({
+    where: {
+      expiresAt: {
+        lt: new Date(),
+      },
+    },
+  });
 
-  for (const [token, session] of sessionStore.entries()) {
-    if (now > session.expiresAt) {
-      sessionStore.delete(token);
-      clearedCount++;
-    }
-  }
-
-  if (clearedCount > 0) {
-    AppLogger.debug(`Cleared ${clearedCount} expired sessions`);
+  if (result.count > 0) {
+    AppLogger.debug(`Cleared ${result.count} expired sessions`);
   }
 }
 
 /**
  * Get session statistics
  */
-export function getSessionStats(): {
+export async function getSessionStats(): Promise<{
   activeSessions: number;
   maxSessions: number;
-} {
+}> {
+  const count = await prisma.session.count();
   return {
-    activeSessions: sessionStore.size,
+    activeSessions: count,
     maxSessions: 10000,
   };
 }
@@ -287,7 +311,9 @@ export function getSessionStats(): {
 export function initializeAuthentication(): void {
   // Periodically clear expired sessions
   setInterval(() => {
-    clearExpiredSessions();
+    clearExpiredSessions().catch((err: any) =>
+      AppLogger.error(`Failed to clear expired sessions: ${err}`)
+    );
   }, 60 * 1000); // Every minute
 
   AppLogger.info('Authentication system initialized');

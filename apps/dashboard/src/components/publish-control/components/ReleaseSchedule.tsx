@@ -13,28 +13,6 @@ export default function ReleaseSchedule({
   selectedStatus,
   onStatusChange,
 }: ReleaseScheduleProps) {
-  const mockReleases: Release[] = [
-    {
-      id: '1',
-      packageName: 'dashboard',
-      version: '1.0.1',
-      status: 'scheduled',
-      scheduledFor: '2024-01-16 10:00 AM',
-      changelog: 'Bug fixes and performance improvements',
-      author: 'team-frontend',
-    },
-    {
-      id: '2',
-      packageName: 'backend',
-      version: '1.3.0',
-      status: 'in-progress',
-      scheduledFor: '2024-01-16 11:00 AM',
-      startedAt: '2024-01-16 11:05 AM',
-      changelog: 'New API endpoints and enhanced security',
-      author: 'team-backend',
-    },
-  ];
-
   return (
     <div className="bg-white rounded-lg shadow border overflow-hidden">
       <div className="px-6 py-4 border-b border-gray-200">
@@ -61,7 +39,7 @@ export default function ReleaseSchedule({
 
       <div className="p-6">
         <div className="space-y-4">
-          {mockReleases.map(release => (
+          {releases.map(release => (
             <div
               key={release.id}
               className="border rounded-lg p-4 hover:bg-gray-50"
@@ -97,6 +75,11 @@ export default function ReleaseSchedule({
               </div>
             </div>
           ))}
+          {releases.length === 0 && (
+            <div className="text-center py-6 text-gray-500">
+              No releases scheduled.
+            </div>
+          )}
         </div>
       </div>
     </div>

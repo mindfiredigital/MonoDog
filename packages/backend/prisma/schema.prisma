@@ -51,6 +51,8 @@ model Package {
   dependenciesInfo DependencyInfo[]
   commits          Commit[]
   packageHealth    PackageHealth?
+  activityLogs      ActivityLog[]
+  scheduledReleases ScheduledRelease[]
 }
 
 model DependencyInfo {
@@ -158,3 +160,44 @@ model PipelineAuditLog {
   @@map("pipeline_audit_log")
 }
 
+model Session {
+  id           String          @id @default(cuid())
+  sessionToken String          @unique
+  userId       Int
+  login        String
+  accessToken  String
+  userData     String   
+  permission   String?  
+  expiresAt    DateTime
+  createdAt    DateTime         @default(now())
+
+  @@map("session")
+}
+
+model ActivityLog {
+  id          String            @id @default(cuid())
+  type        String
+  packageName String
+  message     String
+  timestamp   DateTime          @default(now())
+  metadata    String? 
+  package     Package           @relation(fields: [packageName], references: [name], onDelete: Cascade)
+
+  @@index([packageName, timestamp])
+  @@map("activity_log")
+}
+
+model ScheduledRelease {
+  id              String        @id @default(cuid())
+  releaseVersion  String
+  packageName     String
+  scheduledAt     DateTime
+  status          String        @default("pending")
+  triggeredBy     String
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  package         Package       @relation(fields: [packageName], references: [name], onDelete: Cascade)
+
+  @@index([packageName, status])
+  @@map("scheduled_release")
+}

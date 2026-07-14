@@ -40,6 +40,12 @@ export const DASHBOARD_API_ENDPOINTS = {
     STATUS: (pipelineId: string) => `/pipelines/${pipelineId}/status`,
     AUDIT_LOGS: (pipelineId: string) => `/pipelines/${pipelineId}/audit-logs`,
     RUN_STATUS: (pipelineId: string) => `/pipelines/${pipelineId}/run-status`,
+    SCHEDULED: '/pipelines/scheduled',
+  },
+
+  // CI endpoints
+  CI: {
+    STATUS: '/ci/status',
   },
 
   // Publish endpoints

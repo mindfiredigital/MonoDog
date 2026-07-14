@@ -47,23 +47,35 @@ export default function CIIntegration() {
         setLoading(true);
         const data = await monorepoService.getBuildStatus();
 
-        // Transform the data to match our Build interface
+        // map GitHub's split status/conclusion to single UI status
+        const mapGitHubStatus = (
+          status: any,
+          conclusion: any
+        ): Build['status'] => {
+          if (status === 'completed') {
+            if (conclusion === 'success') return 'success';
+            if (conclusion === 'failure') return 'failed';
+            if (conclusion === 'cancelled') return 'cancelled';
+            return 'failed';
+          }
+          if (status === 'in_progress') return 'running';
+          return 'pending'; // queued, requested, etc.
+        };
+
+        // Transform the GitHub data to match our Build interface precisely
         const transformedData: Build[] = data.map(
           (build: Record<string, unknown>) => ({
-            id: (build.id as string) || Math.random().toString(36).substr(2, 9),
-            packageName:
-              (build.package as string) ||
-              (build.packageName as string) ||
-              'unknown',
-            branch: (build.branch as string) || 'main',
-            commit: (build.commit as string) || 'unknown',
-            status: (build.status as string) || 'pending',
-            startTime: (build.startTime as string) || new Date().toISOString(),
-            endTime: build.endTime as string | undefined,
-            duration: build.duration as number | undefined,
-            stages: build.stages || [],
-            triggeredBy: build.triggeredBy || 'system',
-            artifacts: build.artifacts || [],
+            id: String(build.id) || Math.random().toString(36).substr(2, 9),
+            packageName: (build.name as string) || 'unknown',
+            branch: (build.head_branch as string) || 'main',
+            commit: (build.head_sha as string) || 'unknown',
+            status: mapGitHubStatus(build.status, build.conclusion),
+            startTime: (build.created_at as string) || new Date().toISOString(),
+            endTime: build.updated_at as string | undefined,
+            duration: (build.duration as number) || undefined,
+            stages: (build.stages as Build['stages']) || [],
+            triggeredBy: build.actor ? (build.actor as any).login : 'system',
+            artifacts: (build.artifacts as Build['artifacts']) || [],
           })
         );
 

@@ -195,19 +195,39 @@ class MonorepoService {
 
   async getBuildStatus(): Promise<any[]> {
     try {
-      const response = await apiClient.get<any>('/ci/status');
+      const response = await apiClient.get<any>(
+        DASHBOARD_API_ENDPOINTS.CI.STATUS
+      );
 
       if (!response.success) {
-        console.error(
+        throw new Error(
           `getBuildStatus: fetch failed with status ${response.error?.status}`
         );
-        return [];
       }
 
       return response.data?.pipelines || [];
     } catch (error) {
-      console.error('getBuildStatus: unexpected error', error);
-      return [];
+      console.error('getBuildStatus: ', error);
+      throw error;
+    }
+  }
+
+  async getScheduledReleases(): Promise<any[]> {
+    try {
+      const response = await apiClient.get<any>(
+        DASHBOARD_API_ENDPOINTS.PIPELINES.SCHEDULED
+      );
+
+      if (!response.success) {
+        throw new Error(
+          `getScheduledReleases: fetch failed with status ${response.error?.status}`
+        );
+      }
+
+      return response.data?.releases || [];
+    } catch (error) {
+      console.error('getScheduledReleases: ', error);
+      throw error;
     }
   }
 

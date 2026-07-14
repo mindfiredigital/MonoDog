@@ -1,42 +1,26 @@
-import { scanMonorepo } from '@mindfiredigital/utils/helpers';
-
-const getRandomActivityType = () => {
-  const activityTypes = [
-    'package_updated',
-    'build_success',
-    'test_passed',
-    'dependency_updated',
-  ];
-  return activityTypes[Math.floor(Math.random() * activityTypes.length)];
-};
-
-const getRandomRecentTimestamp = () => {
-  const oneWeekInMs = 7 * 24 * 60 * 60 * 1000;
-
-  return new Date(Date.now() - Math.random() * oneWeekInMs);
-};
+import { prisma } from '../db/prisma';
 
 export const getRecentActivity = async (limit = 20) => {
-  const packages = scanMonorepo(process.cwd());
+  const activities = await prisma.activityLog.findMany({
+    orderBy: {
+      timestamp: 'desc',
+    },
+    take: limit,
+  });
 
-  const activities = packages
-    .slice(0, Math.min(limit, packages.length))
-    .map((pkg, index) => ({
-      id: `activity-${Date.now()}-${index}`,
-      type: getRandomActivityType(),
-      packageName: pkg.name,
-      message: `Activity for ${pkg.name}`,
-      timestamp: getRandomRecentTimestamp(),
-      metadata: {
-        version: pkg.version,
-        type: pkg.type,
-      },
-    }));
+  const total = await prisma.activityLog.count();
 
-  activities.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+  const formattedActivities = activities.map((act: any) => ({
+    id: act.id,
+    type: act.type,
+    packageName: act.packageName,
+    message: act.message,
+    timestamp: act.timestamp,
+    metadata: act.metadata ? JSON.parse(act.metadata) : null,
+  }));
 
   return {
-    activities: activities.slice(0, limit),
-    total: activities.length,
+    activities: formattedActivities,
+    total,
   };
 };

@@ -230,7 +230,7 @@ export async function handleOAuthCallback(
       }
     : null;
 
-  const sessionToken = storeSession(session);
+  const sessionToken = await storeSession(session);
 
   // Get redirect URL
   const redirectUrl = getRedirectUrl(state) || '/';
