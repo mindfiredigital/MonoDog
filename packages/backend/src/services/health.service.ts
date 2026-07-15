@@ -24,7 +24,7 @@ export const getSystemHealth = () => {
   };
 };
 export const getPackageHealthMetrics = async (name: string) => {
-  const packages = scanMonorepo(process.cwd());
+  const packages = await scanMonorepo(process.cwd());
 
   const pkg = packages.find(p => p.name === name);
 
@@ -109,7 +109,7 @@ export const refreshPackagesHealth = async (rootPath?: string) => {
   const resolvedRootPath = rootPath || process.cwd();
   const rootDir = path.resolve(resolvedRootPath);
 
-  const packages = scanMonorepo(rootDir);
+  const packages = await scanMonorepo(rootDir);
 
   const healthMetrics = await Promise.all(
     packages.map(async (pkg: any) => {
