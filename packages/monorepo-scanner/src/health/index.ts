@@ -125,11 +125,13 @@ export async function assessPackageHealth(
   );
 }
 
-export function findOutdatedPackages(packages: PackageInfo[]): string[] {
+export async function findOutdatedPackages(
+  packages: PackageInfo[]
+): Promise<string[]> {
   const outdated: string[] = [];
 
   for (const pkg of packages) {
-    const outdatedDeps = checkOutdatedDependencies(pkg);
+    const outdatedDeps = await checkOutdatedDependencies(pkg);
     if (outdatedDeps.length > 0) {
       outdated.push(pkg.name);
     }
