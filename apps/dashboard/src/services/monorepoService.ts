@@ -39,6 +39,10 @@ class MonorepoService {
     }
   }
 
+  async syncNpmData(): Promise<void> {
+    await apiClient.post(DASHBOARD_API_ENDPOINTS.PACKAGES.SYNC_NPM, {});
+  }
+
   async getPackage(name: string): Promise<Package[]> {
     const response = await apiClient.get<Package[]>(
       DASHBOARD_API_ENDPOINTS.PACKAGES.DETAILS(name)
@@ -52,24 +56,19 @@ class MonorepoService {
   }
 
   async getDependencies(): Promise<DependencyInfo[]> {
-    const allDeps = new Set<string>();
+    const depsMap = new Map<string, DependencyInfo>();
     try {
       const packages = await this.getPackages();
 
       packages.forEach(pkg => {
-        pkg.dependencies?.forEach(dep => allDeps.add(dep));
+        if (pkg.dependenciesInfo) {
+          pkg.dependenciesInfo.forEach(dep => {
+            depsMap.set(dep.name, dep);
+          });
+        }
       });
 
-      const dependencyInfoArray: DependencyInfo[] = Array.from(allDeps).map(
-        dep => ({
-          name: dep,
-          version: 'unknown',
-          type: 'dependency',
-          status: 'active',
-        })
-      );
-
-      return dependencyInfoArray;
+      return Array.from(depsMap.values());
     } catch (error) {
       console.error('Error fetching dependencies:', error);
       return [];

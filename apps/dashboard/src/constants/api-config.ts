@@ -27,6 +27,7 @@ export const DASHBOARD_API_ENDPOINTS = {
   // Packages endpoints
   PACKAGES: {
     REFRESH: '/packages/refresh',
+    SYNC_NPM: '/packages/sync-npm',
     UPDATE_CONFIG: '/packages/update-config',
     LIST: '/packages',
     DETAILS: (packageName: string) =>
