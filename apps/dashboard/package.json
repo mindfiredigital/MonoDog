@@ -11,8 +11,8 @@
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "clean": "rimraf dist node_modules/.vite",
-    "test": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test": "vitest run --fileParallelism=false",
+    "test:coverage": "vitest run --coverage --fileParallelism=false"
   },
   "dependencies": {
     "@xyflow/react": "^12.11.1",
