@@ -91,9 +91,9 @@ export const getAllPackagesHealthMetrics = async () => {
   const averageScore =
     packages.length > 0
       ? packages.reduce(
-        (sum: number, pkg: any) => sum + pkg.health.overallScore,
-        0
-      ) / packages.length
+          (sum: number, pkg: any) => sum + pkg.health.overallScore,
+          0
+        ) / packages.length
       : 0;
 
   return {
@@ -200,9 +200,9 @@ export const refreshPackagesHealth = async (rootPath?: string) => {
       averageScore:
         healthMetrics.filter(h => h.health).length > 0
           ? healthMetrics
-            .filter(h => h.health)
-            .reduce((sum, h) => sum + h.health!.overallScore, 0) /
-          healthMetrics.filter(h => h.health).length
+              .filter(h => h.health)
+              .reduce((sum, h) => sum + h.health!.overallScore, 0) /
+            healthMetrics.filter(h => h.health).length
           : 0,
     },
   };

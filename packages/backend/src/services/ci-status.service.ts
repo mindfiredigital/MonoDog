@@ -210,17 +210,17 @@ export const togglePipeline = async (
 
   const result = active
     ? await enableWorkflow(
-      repoInfo.owner,
-      repoInfo.repo,
-      pipelineId,
-      accessToken
-    )
+        repoInfo.owner,
+        repoInfo.repo,
+        pipelineId,
+        accessToken
+      )
     : await disableWorkflow(
-      repoInfo.owner,
-      repoInfo.repo,
-      pipelineId,
-      accessToken
-    );
+        repoInfo.owner,
+        repoInfo.repo,
+        pipelineId,
+        accessToken
+      );
 
   if (!result.success)
     throw new Error(

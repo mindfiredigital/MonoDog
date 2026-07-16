@@ -65,8 +65,8 @@ function getWorkspacesFromPnpmYaml(rootDir: string): string[] | undefined {
       // Filter out exclusion patterns (lines starting with '!')
       const packages = Array.isArray(yamlData.packages)
         ? yamlData.packages.filter(
-          pkg => typeof pkg === 'string' && !pkg.startsWith('!')
-        )
+            pkg => typeof pkg === 'string' && !pkg.startsWith('!')
+          )
         : [];
 
       if (packages.length > 0) {
