@@ -1,3 +1,6 @@
+import * as path from 'path';
+import * as fs from 'fs';
+import * as yaml from 'js-yaml';
 import { getRepositoryInfoFromGit } from '../utils/utilities';
 import {
   getWorkflowRuns,
@@ -74,10 +77,6 @@ export const triggerCIBuild = async (
 
   let inputs: Record<string, string> = {};
   try {
-    const fs = require('fs');
-    const path = require('path');
-    const yaml = require('js-yaml');
-
     const workflowPath = path.join(
       monorepoRoot,
       '.github',
@@ -86,7 +85,7 @@ export const triggerCIBuild = async (
     );
     if (fs.existsSync(workflowPath)) {
       const fileContents = fs.readFileSync(workflowPath, 'utf8');
-      const workflowData = yaml.load(fileContents);
+      const workflowData = yaml.load(fileContents) as any;
 
       // Check if the workflow defines a workflow_dispatch event with inputs
       const dispatchInputs = workflowData?.on?.workflow_dispatch?.inputs || {};
@@ -211,17 +210,17 @@ export const togglePipeline = async (
 
   const result = active
     ? await enableWorkflow(
-        repoInfo.owner,
-        repoInfo.repo,
-        pipelineId,
-        accessToken
-      )
+      repoInfo.owner,
+      repoInfo.repo,
+      pipelineId,
+      accessToken
+    )
     : await disableWorkflow(
-        repoInfo.owner,
-        repoInfo.repo,
-        pipelineId,
-        accessToken
-      );
+      repoInfo.owner,
+      repoInfo.repo,
+      pipelineId,
+      accessToken
+    );
 
   if (!result.success)
     throw new Error(
