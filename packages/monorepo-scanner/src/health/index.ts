@@ -28,7 +28,10 @@ export async function checkBuildStatus(
   }
 }
 
-export async function checkTestCoverage(pkg: PackageInfo): Promise<number> {
+export async function checkTestCoverage(
+  pkg: PackageInfo,
+  coverageOverridePath?: string
+): Promise<number> {
   try {
     const coveragePaths = [
       path.join(pkg.path, 'coverage', 'coverage-summary.json'),
@@ -36,6 +39,10 @@ export async function checkTestCoverage(pkg: PackageInfo): Promise<number> {
       path.join(pkg.path, 'coverage', 'clover.xml'),
       path.join(pkg.path, 'coverage.json'),
     ];
+
+    if (coverageOverridePath) {
+      coveragePaths.unshift(path.join(pkg.path, coverageOverridePath));
+    }
 
     for (const coveragePath of coveragePaths) {
       if (fs.existsSync(coveragePath)) {

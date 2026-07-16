@@ -113,8 +113,11 @@ export class MonorepoScanner {
     return checkBuildStatus(pkg);
   }
 
-  async checkTestCoverage(pkg: PackageInfo): Promise<number> {
-    return checkTestCoverage(pkg);
+  async checkTestCoverage(
+    pkg: PackageInfo,
+    coverageOverridePath?: string
+  ): Promise<number> {
+    return checkTestCoverage(pkg, coverageOverridePath);
   }
 
   async checkLintStatus(
@@ -168,8 +171,11 @@ export async function funCheckBuildStatus(
   return scanner.checkBuildStatus(pkg);
 }
 
-export async function funCheckTestCoverage(pkg: PackageInfo): Promise<number> {
-  return scanner.checkTestCoverage(pkg);
+export async function funCheckTestCoverage(
+  pkg: PackageInfo,
+  coverageOverridePath?: string
+): Promise<number> {
+  return scanner.checkTestCoverage(pkg, coverageOverridePath);
 }
 
 export async function funCheckLintStatus(
