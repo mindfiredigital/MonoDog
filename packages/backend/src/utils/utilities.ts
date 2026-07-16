@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import path from 'path';
 import { appConfig } from '../config-loader';
 import { AppLogger } from '../middleware/logger';
-import { calculatePackageHealth } from './health-utils';
+import { calculatePackageHealth } from '@mindfiredigital/utils/helpers';
 import * as yaml from 'js-yaml';
 
 import type { PackageInfo, DependencyInfo, MonorepoStats } from '../types';
@@ -65,8 +65,8 @@ function getWorkspacesFromPnpmYaml(rootDir: string): string[] | undefined {
       // Filter out exclusion patterns (lines starting with '!')
       const packages = Array.isArray(yamlData.packages)
         ? yamlData.packages.filter(
-            pkg => typeof pkg === 'string' && !pkg.startsWith('!')
-          )
+          pkg => typeof pkg === 'string' && !pkg.startsWith('!')
+        )
         : [];
 
       if (packages.length > 0) {

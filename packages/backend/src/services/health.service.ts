@@ -1,15 +1,14 @@
 import path from 'path';
 import { prisma } from '../db/prisma';
-import {
-  scanMonorepo,
-  calculatePackageHealth,
-} from '@mindfiredigital/utils/helpers';
+import { calculatePackageHealth } from '@mindfiredigital/utils/helpers';
+import { scanMonorepo } from '../utils/utilities';
 import {
   funCheckBuildStatus,
   funCheckTestCoverage,
   funCheckLintStatus,
   funCheckSecurityAudit,
 } from '@mindfiredigital/monorepo-scanner';
+import { appConfig } from '../config-loader';
 
 export const getSystemHealth = () => {
   return {
@@ -33,7 +32,10 @@ export const getPackageHealthMetrics = async (name: string) => {
   }
 
   const buildStatus = await funCheckBuildStatus(pkg);
-  const testCoverage = await funCheckTestCoverage(pkg);
+  const testCoverage = await funCheckTestCoverage(
+    pkg,
+    appConfig.health?.testCoveragePath
+  );
   const lintStatus = await funCheckLintStatus(pkg);
   const securityAudit = await funCheckSecurityAudit(pkg);
 
@@ -89,9 +91,9 @@ export const getAllPackagesHealthMetrics = async () => {
   const averageScore =
     packages.length > 0
       ? packages.reduce(
-          (sum: number, pkg: any) => sum + pkg.health.overallScore,
-          0
-        ) / packages.length
+        (sum: number, pkg: any) => sum + pkg.health.overallScore,
+        0
+      ) / packages.length
       : 0;
 
   return {
@@ -115,7 +117,10 @@ export const refreshPackagesHealth = async (rootPath?: string) => {
     packages.map(async (pkg: any) => {
       try {
         const buildStatus = await funCheckBuildStatus(pkg);
-        const testCoverage = await funCheckTestCoverage(pkg);
+        const testCoverage = await funCheckTestCoverage(
+          pkg,
+          appConfig.health?.testCoveragePath
+        );
         const lintStatus = await funCheckLintStatus(pkg);
         const securityAudit = await funCheckSecurityAudit(pkg);
 
@@ -195,9 +200,9 @@ export const refreshPackagesHealth = async (rootPath?: string) => {
       averageScore:
         healthMetrics.filter(h => h.health).length > 0
           ? healthMetrics
-              .filter(h => h.health)
-              .reduce((sum, h) => sum + h.health!.overallScore, 0) /
-            healthMetrics.filter(h => h.health).length
+            .filter(h => h.health)
+            .reduce((sum, h) => sum + h.health!.overallScore, 0) /
+          healthMetrics.filter(h => h.health).length
           : 0,
     },
   };
