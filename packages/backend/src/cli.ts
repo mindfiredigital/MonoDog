@@ -75,7 +75,7 @@ Example:
 
 const createConfigFileIfMissing = (rootPath: string): void => {
   // --- CONFIGURATION ---
-  const configFileName = 'monodog-conf.json';
+  const configFileName = 'monodog-config.json';
   const configFilePath = path.resolve(rootPath, configFileName);
 
   // The default content for the configuration file
