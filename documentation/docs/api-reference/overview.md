@@ -10,7 +10,7 @@ Monodog has a complete REST API that lets developers access all monorepo data us
 ## Base URL
 
 ```
-http://localhost:8999/api
+http://localhost:4000/api
 ```
 
 ## Endpoints
