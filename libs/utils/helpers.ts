@@ -140,20 +140,7 @@ async function parsePackageInfo(
   }
 }
 
-/**
- * Analyzes dependencies and determines their status
- */
-// function analyzeDependencies(
-//   dependencies: Record<string, string>,
-//   type: 'production' | 'development' = 'production'
-// ): DependencyInfo[] {
-//   return Object.entries(dependencies).map(([name, version]) => ({
-//     name,
-//     currentVersion: version,
-//     status: 'unknown', // Would be determined by npm registry check
-//     type,
-//   }));
-// }
+
 
 /**
  * Calculates package health score based on various metrics
@@ -402,33 +389,7 @@ async function checkOutdatedDependencies(
   return outdated;
 }
 
-/**
- * Formats version numbers for comparison
- */
-// function parseVersion(version: string): number[] {
-//   return version
-//     .replace(/^[^0-9]*/, '')
-//     .split('.')
-//     .map(Number);
-// }
 
-/**
- * Compares two version strings
- */
-// function compareVersions(v1: string, v2: string): number {
-//   const parsed1 = parseVersion(v1);
-//   const parsed2 = parseVersion(v2);
-
-//   for (let i = 0; i < Math.max(parsed1.length, parsed2.length); i++) {
-//     const num1 = parsed1[i] || 0;
-//     const num2 = parsed2[i] || 0;
-
-//     if (num1 > num2) return 1;
-//     if (num1 < num2) return -1;
-//   }
-
-//   return 0;
-// }
 
 /**
  * Gets package size information
