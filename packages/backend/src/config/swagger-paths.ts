@@ -20,6 +20,13 @@ import {
 import { publishPaths } from './swagger-paths-publish';
 import { pipelinesPaths } from './swagger-paths-pipelines';
 import { workflowsPaths } from './swagger-paths-workflows';
+import { scanPaths } from './swagger-paths-scan';
+import { searchPaths } from './swagger-paths-search';
+import { activityPaths } from './swagger-paths-activity';
+import { changelogPaths } from './swagger-paths-changelog';
+import { systemPaths } from './swagger-paths-system';
+import { ciPaths } from './swagger-paths-ci';
+import { permissionsPaths } from './swagger-paths-permissions';
 
 export const swaggerPaths = {
   ...authPaths,
@@ -30,6 +37,13 @@ export const swaggerPaths = {
   ...publishPaths,
   ...pipelinesPaths,
   ...workflowsPaths,
+  ...scanPaths,
+  ...searchPaths,
+  ...activityPaths,
+  ...changelogPaths,
+  ...systemPaths,
+  ...ciPaths,
+  ...permissionsPaths,
 };
 
 // API tags for grouping endpoints in documentation
@@ -66,6 +80,34 @@ export const swaggerTags = [
     name: 'Workflows',
     description: 'GitHub Actions workflow runs and job management endpoints',
   },
+  {
+    name: 'Scan',
+    description: 'Monorepo scanning and export endpoints',
+  },
+  {
+    name: 'Search',
+    description: 'Package search and filtering endpoints',
+  },
+  {
+    name: 'Activity',
+    description: 'Activity log and recent changes endpoints',
+  },
+  {
+    name: 'Changelog',
+    description: 'Package changelog and release history endpoints',
+  },
+  {
+    name: 'System',
+    description: 'System information and monorepo statistics endpoints',
+  },
+  {
+    name: 'CI',
+    description: 'Continuous Integration build and job endpoints',
+  },
+  {
+    name: 'Permissions',
+    description: 'Repository access permission and authorization endpoints',
+  },
 ];
 
 // Re-export individual path groups for granular imports if needed
@@ -78,4 +120,11 @@ export {
   publishPaths,
   pipelinesPaths,
   workflowsPaths,
+  scanPaths,
+  searchPaths,
+  activityPaths,
+  changelogPaths,
+  systemPaths,
+  ciPaths,
+  permissionsPaths,
 };
