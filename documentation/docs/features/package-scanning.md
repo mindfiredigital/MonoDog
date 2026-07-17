@@ -80,7 +80,7 @@ Monodog examines:
 Start a scan via API:
 
 ```bash
-curl -X POST http://localhost:8999/api/packages/refresh
+curl -X POST http://localhost:4000/api/packages/refresh
 ```
 
 ## Accessing Scan Results
@@ -89,10 +89,10 @@ curl -X POST http://localhost:8999/api/packages/refresh
 
 ```bash
 # Get all packages
-curl http://localhost:8999/api/packages
+curl http://localhost:4000/api/packages
 
 # Get specific package
-curl http://localhost:8999/api/packages/{packagename}
+curl http://localhost:4000/api/packages/{packagename}
 ```
 
 ### Via Dashboard
