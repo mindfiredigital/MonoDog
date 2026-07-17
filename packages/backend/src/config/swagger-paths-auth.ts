@@ -215,41 +215,4 @@ export const authPaths = {
       },
     },
   },
-  '/auth/refresh': {
-    post: {
-      tags: ['Authentication'],
-      summary: 'Refresh user session',
-      operationId: 'refreshSession',
-      description:
-        'Refreshes the current user session and extends the expiration time',
-      security: [{ BearerAuth: [] }],
-      responses: {
-        '200': {
-          description: 'Session refreshed successfully',
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                properties: {
-                  success: { type: 'boolean' },
-                  sessionToken: {
-                    type: 'string',
-                    description: 'New session token',
-                  },
-                  expiresAt: {
-                    type: 'string',
-                    format: 'date-time',
-                    description: 'Session expiration time',
-                  },
-                  message: { type: 'string' },
-                },
-              },
-            },
-          },
-        },
-        '401': { description: 'Unauthorized - session invalid or expired' },
-        '500': { description: 'Internal server error' },
-      },
-    },
-  },
 };
