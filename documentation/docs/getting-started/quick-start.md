@@ -40,7 +40,7 @@ Analyzing monorepo at root:
 Serving static files from:
 App listening on localhost:3010
 [Database] Total packages found: 15
-Backend server running on http://localhost:8999
+Backend server running on http://localhost:4000
 ```
 
 ## Step 3: Access the Dashboard
@@ -60,22 +60,22 @@ You should see the Monodog dashboard with:
 
 ## Step 4: Explore the API
 
-The REST API is available at `http://localhost:8999/api`
+The REST API is available at `http://localhost:4000/api`
 
 Try these endpoints:
 
 ```bash
 # Get all packages
-curl http://localhost:8999/api/packages
+curl http://localhost:4000/api/packages
 
 # Get package health metrics
-curl http://localhost:8999/api/health/packages
+curl http://localhost:4000/api/health/packages
 
 # Refresh package data
-curl http://localhost:8999/api/packages/refresh
+curl http://localhost:4000/api/packages/refresh
 
 # Get package details
-curl http://localhost:8999/api/packages/{packageName}
+curl http://localhost:4000/api/packages/{packageName}
 ```
 
 ## What's Next?
@@ -111,7 +111,7 @@ If port 3010 is already in use, specify a different port in monodog-config.json:
   }
 ```
 
-If port 8999 is already in use, specify a different port in monodog-config.json:
+If port 4000 is already in use, specify a different port in monodog-config.json:
 
 ```
   "server": {
