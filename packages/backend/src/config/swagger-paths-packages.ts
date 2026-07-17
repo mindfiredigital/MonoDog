@@ -52,7 +52,7 @@ export const packagesPaths = {
     },
   },
   '/packages/refresh': {
-    post: {
+    get: {
       tags: ['Packages'],
       summary: 'Refresh packages',
       operationId: 'refreshPackages',
@@ -61,7 +61,18 @@ export const packagesPaths = {
       },
     },
   },
-  '/packages/update-config': {
+  '/packages/sync-npm': {
+    post: {
+      tags: ['Packages'],
+      summary: 'Sync NPM data for packages',
+      operationId: 'syncNpmData',
+      responses: {
+        '200': { description: 'NPM data synced successfully' },
+        '500': { description: 'Internal server error' },
+      },
+    },
+  },
+  '/packages/update': {
     put: {
       tags: ['Packages'],
       summary: 'Update package configuration',
@@ -131,6 +142,26 @@ export const packagesPaths = {
 };
 
 export const healthPaths = {
+  '/health': {
+    get: {
+      tags: ['Health'],
+      summary: 'Get backend health status',
+      operationId: 'getHealth',
+      responses: {
+        '200': { description: 'Backend is healthy' },
+      },
+    },
+  },
+  '/health/live': {
+    get: {
+      tags: ['Health'],
+      summary: 'Get backend live status',
+      operationId: 'getLiveStatus',
+      responses: {
+        '200': { description: 'Backend is live' },
+      },
+    },
+  },
   '/health/packages': {
     get: {
       tags: ['Health'],
@@ -158,6 +189,25 @@ export const healthPaths = {
       operationId: 'refreshHealth',
       responses: {
         '200': { description: 'Health status refreshed successfully' },
+      },
+    },
+  },
+  '/health/packages/{name}': {
+    get: {
+      tags: ['Health'],
+      summary: 'Get specific package health status',
+      operationId: 'getPackageHealth',
+      parameters: [
+        {
+          name: 'name',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+        },
+      ],
+      responses: {
+        '200': { description: 'Package health status' },
+        '404': { description: 'Package not found' },
       },
     },
   },
