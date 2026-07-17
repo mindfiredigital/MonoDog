@@ -73,8 +73,8 @@ The scheduled release worker starts automatically when the MonoDog server boots
 
 ## Release Statuses
 
-| Status | Description |
-|--------|-------------|
-| `pending` | Release is scheduled but not yet executed |
-| `completed` | Release executed successfully |
-| `failed` | Release execution encountered an error |
+| Status      | Description                               |
+| ----------- | ----------------------------------------- |
+| `pending`   | Release is scheduled but not yet executed |
+| `completed` | Release executed successfully             |
+| `failed`    | Release execution encountered an error    |

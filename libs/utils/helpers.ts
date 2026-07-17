@@ -140,8 +140,6 @@ async function parsePackageInfo(
   }
 }
 
-
-
 /**
  * Calculates package health score based on various metrics
  */
@@ -388,8 +386,6 @@ async function checkOutdatedDependencies(
 
   return outdated;
 }
-
-
 
 /**
  * Gets package size information

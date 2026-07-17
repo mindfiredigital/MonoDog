@@ -22,6 +22,7 @@ CORS_ORIGINS=http://localhost:3010
 ```
 
 ### Obtaining GitHub OAuth Credentials
+
 1. Go to your GitHub account **Settings** > **Developer Settings** > **OAuth Apps**.
 2. Click **New OAuth App**.
 3. Set the **Homepage URL** to `http://localhost:3010`.

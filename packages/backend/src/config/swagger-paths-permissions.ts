@@ -9,7 +9,8 @@ export const permissionsPaths = {
       tags: ['Permissions'],
       summary: 'Get repository permissions',
       operationId: 'getRepositoryPermission',
-      description: "Retrieves the authenticated user's permission level (admin, write, read, etc.) for a specific repository",
+      description:
+        "Retrieves the authenticated user's permission level (admin, write, read, etc.) for a specific repository",
       security: [{ BearerAuth: [] }],
       parameters: [
         {
@@ -49,7 +50,8 @@ export const permissionsPaths = {
       tags: ['Permissions'],
       summary: 'Check specific action permission',
       operationId: 'checkActionPermission',
-      description: 'Checks if the user has sufficient permission to perform a specific action (e.g., publish, trigger_workflow)',
+      description:
+        'Checks if the user has sufficient permission to perform a specific action (e.g., publish, trigger_workflow)',
       security: [{ BearerAuth: [] }],
       parameters: [
         {
@@ -102,7 +104,8 @@ export const permissionsPaths = {
       tags: ['Permissions'],
       summary: 'Invalidate permission cache',
       operationId: 'invalidateCache',
-      description: 'Forces a refresh of the cached repository permissions for the current user',
+      description:
+        'Forces a refresh of the cached repository permissions for the current user',
       security: [{ BearerAuth: [] }],
       parameters: [
         {

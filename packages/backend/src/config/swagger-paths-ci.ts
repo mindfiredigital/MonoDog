@@ -203,7 +203,8 @@ export const ciPaths = {
       tags: ['CI'],
       summary: 'Get available CI workflows',
       operationId: 'getAvailableCIWorkflows',
-      description: 'Retrieves a list of available CI workflows in the repository',
+      description:
+        'Retrieves a list of available CI workflows in the repository',
       security: [{ BearerAuth: [] }],
       responses: {
         '200': { description: 'Available workflows retrieved successfully' },

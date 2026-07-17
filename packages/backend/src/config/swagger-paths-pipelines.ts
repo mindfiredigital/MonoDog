@@ -136,7 +136,8 @@ export const pipelinesPaths = {
       tags: ['Pipelines'],
       summary: 'Refresh pipeline from GitHub Actions run',
       operationId: 'refreshPipelineFromRun',
-      description: 'Refreshes the pipeline status by fetching the latest workflow run details from GitHub',
+      description:
+        'Refreshes the pipeline status by fetching the latest workflow run details from GitHub',
       security: [{ BearerAuth: [] }],
       parameters: [
         {
@@ -159,7 +160,8 @@ export const pipelinesPaths = {
       tags: ['Pipelines'],
       summary: 'Get pipeline run status',
       operationId: 'getPipelineRunStatus',
-      description: 'Gets the current status of the pipeline (aliases to refresh)',
+      description:
+        'Gets the current status of the pipeline (aliases to refresh)',
       security: [{ BearerAuth: [] }],
       parameters: [
         {
