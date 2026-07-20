@@ -8,7 +8,7 @@ vi.mock('../../src/services/auth.service', () => ({
 }));
 
 vi.mock('../../src/middleware/auth-middleware', () => ({
-  getSession: vi.fn().mockResolvedValue(null)
+  getSession: vi.fn().mockResolvedValue(null),
 }));
 
 describe('Auth Controller', () => {
