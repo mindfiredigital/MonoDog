@@ -440,6 +440,5 @@ export {
   generateDependencyGraph,
   checkOutdatedDependencies,
   getPackageSize,
-  // analyzeDependencies,
   calculatePackageHealth,
 };

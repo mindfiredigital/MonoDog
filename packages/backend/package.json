@@ -2,7 +2,6 @@
   "name": "@mindfiredigital/monodog",
   "version": "1.5.8",
   "description": "Backend API server for monodog monorepo dashboard",
-  "private": true,
   "license": "MIT",
   "bin": {
     "monodog-cli": "dist/cli.js"
@@ -10,7 +9,7 @@
   "scripts": {
     "dev": "tsx src/run-db.ts tsx watch --exclude \"../../.changeset/**\" src/serve-dev.ts",
     "start": "tsx index.ts",
-    "prepublishOnly": "pnpm run build && pnpm --dir apps/dashboard run build",
+    "prepublishOnly": "pnpm run build",
     "build": "rimraf dist && tsc -p tsconfig.json",
     "prestart": "npm run build",
     "cli": "pnpm run build && node dist/cli.js",
