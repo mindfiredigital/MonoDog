@@ -7,6 +7,10 @@ vi.mock('../../src/services/auth.service', () => ({
   decodeSessionToken: vi.fn(),
 }));
 
+vi.mock('../../src/middleware/auth-middleware', () => ({
+  getSession: vi.fn().mockResolvedValue(null)
+}));
+
 describe('Auth Controller', () => {
   let req: any, res: any;
 
