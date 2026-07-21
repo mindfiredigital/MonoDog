@@ -12,15 +12,60 @@ import {
 import { useAuth } from '../../services/auth-context';
 
 const navigation = [
-  { name: 'Dashboard', href: '/', icon: HomeIcon },
-  { name: 'Packages', href: '/packages', icon: CubeIcon },
-  { name: 'Dependencies', href: '/dependencies', icon: ChartBarIcon },
-  { name: 'Health Status', href: '/health', icon: HeartIcon },
-  { name: 'Release', href: '/release', icon: CloudArrowUpIcon },
-  { name: 'Pipeline', href: '/pipeline', icon: RocketLaunchIcon },
-  { name: 'Publish Control', href: '/publish', icon: CloudArrowUpIcon },
-  { name: 'Changelog', href: '/changelog', icon: ChartBarIcon },
-  { name: 'Configuration', href: '/config', icon: Cog6ToothIcon },
+  {
+    name: 'Dashboard',
+    href: '/',
+    icon: HomeIcon,
+    allowedRoles: ['Admin', 'Maintainer', 'Collaborator', 'Viewer'],
+  },
+  {
+    name: 'Packages',
+    href: '/packages',
+    icon: CubeIcon,
+    allowedRoles: ['Admin', 'Maintainer', 'Collaborator', 'Viewer'],
+  },
+  {
+    name: 'Dependencies',
+    href: '/dependencies',
+    icon: ChartBarIcon,
+    allowedRoles: ['Admin', 'Maintainer', 'Collaborator', 'Viewer'],
+  },
+  {
+    name: 'Health Status',
+    href: '/health',
+    icon: HeartIcon,
+    allowedRoles: ['Admin', 'Maintainer', 'Collaborator', 'Viewer'],
+  },
+  {
+    name: 'Release',
+    href: '/release',
+    icon: CloudArrowUpIcon,
+    allowedRoles: ['Admin', 'Maintainer'],
+  },
+  {
+    name: 'Pipeline',
+    href: '/pipeline',
+    icon: RocketLaunchIcon,
+    allowedRoles: ['Admin', 'Maintainer', 'Collaborator', 'Viewer'],
+  },
+  {
+    name: 'Publish Control',
+    href: '/publish',
+    icon: CloudArrowUpIcon,
+    allowedRoles: ['Admin', 'Maintainer'],
+  },
+  {
+    name: 'Changelog',
+    href: '/changelog',
+    icon: ChartBarIcon,
+    allowedRoles: ['Admin', 'Maintainer', 'Collaborator', 'Viewer'],
+  },
+  {
+    name: 'Configuration',
+    href: '/config',
+    icon: Cog6ToothIcon,
+    allowedRoles: ['Admin'],
+  },
 ];
 
 interface LayoutProps {
@@ -40,25 +85,39 @@ export default function Layout({ children }: LayoutProps) {
         </div>
         <nav className="mt-8 px-4">
           <ul className="space-y-2">
-            {navigation.map(item => {
-              const isActive =
-                location.pathname === item.href ||
-                (item.href !== '/' &&
-                  location.pathname.startsWith(`${item.href}/`));
-              return (
-                <li key={item.name}>
-                  <Link
-                    to={item.href}
-                    className={`nav-link ${
-                      isActive ? 'nav-link-active' : 'nav-link-inactive'
-                    }`}
-                  >
-                    <item.icon className="mr-3 h-5 w-5" />
-                    {item.name}
-                  </Link>
-                </li>
-              );
-            })}
+            {navigation
+              .filter(item => {
+                const userRole = session?.permission?.role || 'Denied';
+                return item.allowedRoles.includes(userRole);
+              })
+              .map(item => {
+                const isActive =
+                  location.pathname === item.href ||
+                  (item.href !== '/' &&
+                    location.pathname.startsWith(`${item.href}/`));
+                return (
+                  <li key={item.name}>
+                    <Link
+                      to={item.href}
+                      className={`group flex items-center rounded-r-full px-4 py-3 text-sm font-medium transition-colors ${
+                        isActive
+                          ? 'bg-primary-50 text-primary-700'
+                          : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900'
+                      }`}
+                    >
+                      <item.icon
+                        className={`mr-3 h-5 w-5 flex-shrink-0 transition-colors ${
+                          isActive
+                            ? 'text-primary-700'
+                            : 'text-neutral-400 group-hover:text-neutral-600'
+                        }`}
+                        aria-hidden="true"
+                      />
+                      {item.name}
+                    </Link>
+                  </li>
+                );
+              })}
           </ul>
         </nav>
       </div>
