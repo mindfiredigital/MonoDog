@@ -16,7 +16,7 @@ export async function checkBuildStatus(
 ): Promise<PackageHealth['buildStatus']> {
   try {
     if (pkg.scripts && pkg.scripts.build) {
-      await execAsync('npm run build', {
+      await execAsync('pnpm run build', {
         cwd: pkg.path,
         timeout: 30000,
       });
@@ -84,7 +84,7 @@ export async function checkLintStatus(
 ): Promise<PackageHealth['lintStatus']> {
   try {
     if (pkg.scripts && pkg.scripts.lint) {
-      await execAsync('npm run lint', {
+      await execAsync('pnpm run lint', {
         cwd: pkg.path,
         timeout: 10000,
       });
@@ -100,17 +100,38 @@ export async function checkSecurityAudit(
   pkg: PackageInfo
 ): Promise<PackageHealth['securityAudit']> {
   try {
-    const { stdout } = await execAsync('npm audit --json', {
-      cwd: pkg.path,
-      timeout: 15000,
-    });
+    let stdoutData;
+    try {
+      const { stdout } = await execAsync('pnpm audit --json', {
+        cwd: pkg.path,
+        timeout: 30000,
+      });
+      stdoutData = stdout;
+    } catch (execError: any) {
+      if (execError.stdout) {
+        stdoutData = execError.stdout;
+      } else {
+        throw execError;
+      }
+    }
 
-    const audit = JSON.parse(stdout.toString());
-    return audit.metadata &&
-      audit.metadata.vulnerabilities &&
-      audit.metadata.vulnerabilities.total === 0
-      ? 'pass'
-      : 'fail';
+    const audit = JSON.parse(stdoutData.toString());
+
+    // Check if metadata.vulnerabilities exists
+    if (audit && audit.metadata && audit.metadata.vulnerabilities) {
+      const vulns = audit.metadata.vulnerabilities;
+
+      const totalVulns =
+        (vulns.low || 0) +
+        (vulns.moderate || 0) +
+        (vulns.high || 0) +
+        (vulns.critical || 0) +
+        (vulns.total || 0);
+
+      return totalVulns === 0 ? 'pass' : 'fail';
+    }
+
+    return 'unknown';
   } catch (error) {
     return 'unknown';
   }
