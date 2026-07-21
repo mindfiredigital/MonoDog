@@ -23,6 +23,7 @@ export default function TriggerBuildModal({
   const [packages, setPackages] = useState<Package[]>([]);
   const [selectedPackage, setSelectedPackage] = useState<string>('');
   const [branch, setBranch] = useState<string>('main');
+  const [availableBranches, setAvailableBranches] = useState<string[]>([]);
   const [workflows, setWorkflows] = useState<any[]>([]);
   const [selectedWorkflow, setSelectedWorkflow] = useState<string>('');
   const [loadingData, setLoadingData] = useState<boolean>(true);
@@ -32,9 +33,10 @@ export default function TriggerBuildModal({
       const fetchData = async () => {
         setLoadingData(true);
         try {
-          const [pkgs, wfs] = await Promise.all([
+          const [pkgs, wfs, brs] = await Promise.all([
             monorepoService.getPackages(),
             monorepoService.getAvailableWorkflows(),
+            monorepoService.getBranches(),
           ]);
           setPackages(pkgs);
           if (pkgs.length > 0) {
@@ -43,6 +45,12 @@ export default function TriggerBuildModal({
           setWorkflows(wfs);
           if (wfs.length > 0) {
             setSelectedWorkflow(wfs[0].path.split('/').pop() || wfs[0].name);
+          }
+          setAvailableBranches(brs);
+          if (brs.length > 0) {
+            if (brs.includes('main')) setBranch('main');
+            else if (brs.includes('master')) setBranch('master');
+            else setBranch(brs[0]);
           }
         } catch (error) {
           console.error('Failed to load data:', error);
@@ -135,15 +143,25 @@ export default function TriggerBuildModal({
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Target Branch
               </label>
-              <input
-                type="text"
+              <select
                 value={branch}
                 onChange={e => setBranch(e.target.value)}
-                disabled={isLoading}
-                placeholder="e.g. main, develop"
+                disabled={loadingData || isLoading}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
                 required
-              />
+              >
+                {loadingData ? (
+                  <option value="">Loading branches...</option>
+                ) : availableBranches.length === 0 ? (
+                  <option value={branch}>{branch}</option>
+                ) : (
+                  availableBranches.map(b => (
+                    <option key={b} value={b}>
+                      {b}
+                    </option>
+                  ))
+                )}
+              </select>
             </div>
           </div>
 
