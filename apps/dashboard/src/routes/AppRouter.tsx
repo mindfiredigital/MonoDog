@@ -14,6 +14,7 @@ import {
   Pipeline,
   ChangelogPage,
 } from '../pages';
+import { RoleGuard } from '../components/RoleGuard';
 
 // Component mapping for dynamic routing
 const componentMap = {
@@ -57,13 +58,25 @@ const RouteComponent = ({ componentName }: { componentName: string }) => {
 export default function AppRouter() {
   return (
     <Routes>
-      {routes.map(route => (
-        <Route
-          key={route.path}
-          path={route.path}
-          element={<RouteComponent componentName={route.component} />}
-        />
-      ))}
+      {routes.map(route => {
+        const element = <RouteComponent componentName={route.component} />;
+
+        return (
+          <Route
+            key={route.path}
+            path={route.path}
+            element={
+              route.allowedRoles ? (
+                <RoleGuard allowedRoles={route.allowedRoles}>
+                  {element}
+                </RoleGuard>
+              ) : (
+                element
+              )
+            }
+          />
+        );
+      })}
 
       {/* Catch-all route for 404 */}
       <Route

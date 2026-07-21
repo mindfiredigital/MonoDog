@@ -10,25 +10,87 @@ import {
   ScheduledReleasesPage,
   CreateSchedulePage,
 } from '../pages';
+import { RoleGuard } from '../components/RoleGuard';
 
 // Alternative AppRouter using dedicated page components
 export default function AppRouterPages() {
+  const readOnlyRoles = ['Admin', 'Maintainer', 'Collaborator', 'Viewer'];
+  const writeRoles = ['Admin', 'Maintainer', 'Collaborator'];
+  const maintainerRoles = ['Admin', 'Maintainer'];
+  const adminRoles = ['Admin'];
+
   return (
     <Routes>
       {/* Main Dashboard */}
-      <Route path="/" element={<DashboardPage />} />
+      <Route
+        path="/"
+        element={
+          <RoleGuard allowedRoles={readOnlyRoles}>
+            <DashboardPage />
+          </RoleGuard>
+        }
+      />
 
       {/* Packages */}
-      <Route path="/packages" element={<PackagesPage />} />
-      <Route path="/packages/:name" element={<PackageDetailPage />} />
+      <Route
+        path="/packages"
+        element={
+          <RoleGuard allowedRoles={readOnlyRoles}>
+            <PackagesPage />
+          </RoleGuard>
+        }
+      />
+      <Route
+        path="/packages/:name"
+        element={
+          <RoleGuard allowedRoles={readOnlyRoles}>
+            <PackageDetailPage />
+          </RoleGuard>
+        }
+      />
 
       {/* Other Pages */}
-      <Route path="/dependencies" element={<DependenciesPage />} />
-      <Route path="/health" element={<HealthPage />} />
-      <Route path="/release/scheduled" element={<ScheduledReleasesPage />} />
-      <Route path="/release/schedule/new" element={<CreateSchedulePage />} />
-      {/* <Route path="/publish" element={<PublishPage />} /> */}
-      <Route path="/config" element={<ConfigPage />} />
+      <Route
+        path="/dependencies"
+        element={
+          <RoleGuard allowedRoles={readOnlyRoles}>
+            <DependenciesPage />
+          </RoleGuard>
+        }
+      />
+      <Route
+        path="/health"
+        element={
+          <RoleGuard allowedRoles={readOnlyRoles}>
+            <HealthPage />
+          </RoleGuard>
+        }
+      />
+      <Route
+        path="/release/scheduled"
+        element={
+          <RoleGuard allowedRoles={maintainerRoles}>
+            <ScheduledReleasesPage />
+          </RoleGuard>
+        }
+      />
+      <Route
+        path="/release/schedule/new"
+        element={
+          <RoleGuard allowedRoles={maintainerRoles}>
+            <CreateSchedulePage />
+          </RoleGuard>
+        }
+      />
+      {/* <Route path="/publish" element={<RoleGuard allowedRoles={maintainerRoles}><PublishPage /></RoleGuard>} /> */}
+      <Route
+        path="/config"
+        element={
+          <RoleGuard allowedRoles={adminRoles}>
+            <ConfigPage />
+          </RoleGuard>
+        }
+      />
 
       {/* 404 Page */}
       <Route
