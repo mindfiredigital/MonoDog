@@ -1,6 +1,9 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import * as yaml from 'js-yaml';
+import { exec } from 'child_process';
+import util from 'util';
+const execAsync = util.promisify(exec);
 import { getRepositoryInfoFromGit } from '../utils/utilities';
 import {
   getWorkflowRuns,
@@ -11,6 +14,8 @@ import {
   enableWorkflow,
   disableWorkflow,
   listWorkflows,
+  makeGitHubRequest,
+  requestOptions,
 } from './github-actions-service';
 
 export const getMonorepoCIStatus = async (
@@ -256,4 +261,34 @@ export const getAvailableWorkflows = async (
     workflows: result.workflows,
     rateLimit: result.rateLimit,
   };
+};
+
+export const getRepoBranches = async (
+  monorepoRoot: string,
+  accessToken?: string
+) => {
+  if (!accessToken) throw new Error('GitHub access token is required');
+
+  const repoInfo = await getRepositoryInfoFromGit(monorepoRoot);
+  if (!repoInfo) throw new Error('Could not determine GitHub repository info');
+
+  try {
+    const { data: branchesData } = await makeGitHubRequest<any[]>(
+      requestOptions(
+        'GET',
+        `/repos/${repoInfo.owner}/${repoInfo.repo}/branches`,
+        accessToken
+      )
+    );
+
+    const branches = branchesData.map((b: any) => b.name);
+
+    return {
+      success: true,
+      branches,
+    };
+  } catch (error) {
+    console.error('Error fetching branches from GitHub:', error);
+    throw new Error('Failed to fetch branches from GitHub repository');
+  }
 };
