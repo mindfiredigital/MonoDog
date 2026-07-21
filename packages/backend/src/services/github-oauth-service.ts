@@ -200,7 +200,31 @@ export async function getRepositoryPermission(
     AppLogger.warn(
       `Failed to get repository permission for ${username} in ${owner}/${repo}: ${error}`
     );
-    // If error (likely 404 or no access), return 'none' permission
+
+    // Check if the repository is public
+    try {
+      const repoResponse = await makeGitHubRequest<any>(
+        requestOptions(
+          'GET',
+          `https://api.github.com/repos/${owner}/${repo}`,
+          accessToken
+        )
+      );
+
+      // If it's a public repository, the user inherently has read access
+      if (repoResponse && !repoResponse.private) {
+        AppLogger.info(
+          `Repository ${owner}/${repo} is public. Granting 'read' permission as fallback for ${username}.`
+        );
+        return { permission: 'read' };
+      }
+    } catch (repoError) {
+      AppLogger.debug(
+        `Fallback public repo check failed (likely private and unauthorized): ${repoError}`
+      );
+    }
+
+    // If error (404 or no access) and not public, return 'none' permission
     return { permission: 'none' };
   }
 }
@@ -217,8 +241,9 @@ export function mapPermissionToRole(
     case 'maintain':
       return 'Maintainer';
     case 'write':
-    case 'read':
       return 'Collaborator';
+    case 'read':
+      return 'Viewer';
     case 'none':
     default:
       return 'Denied';
