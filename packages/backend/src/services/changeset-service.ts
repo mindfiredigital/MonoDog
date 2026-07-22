@@ -235,6 +235,19 @@ export async function generateChangeset(
     // Write changeset file
     await fs.writeFile(changesetPath, content, 'utf-8');
 
+    try {
+      await execPromise('git add .changeset', { cwd: rootPath });
+      await execPromise(
+        'git commit --no-verify -m "chore: add release changeset"',
+        {
+          cwd: rootPath,
+        }
+      );
+      AppLogger.info('Automatically committed the new changeset file');
+    } catch (gitError) {
+      AppLogger.warn(`Failed to auto-commit changeset: ${gitError}`);
+    }
+
     AppLogger.info(
       `Changeset created: ${changesetName} by user: ${createdBy || 'unknown'}`
     );
