@@ -143,7 +143,7 @@ async function fileExists(filePath: string): Promise<boolean> {
 async function scanMonorepo(rootDir: string): Promise<PackageInfo[]> {
   const packages: PackageInfo[] = [];
   AppLogger.debug('rootDir: ' + rootDir);
-  const workspacesGlobs = appConfig.workspace.globs;
+  const workspacesGlobs = appConfig.workspace?.globs || [];
   // Use provided workspaces globs if given, otherwise attempt to detect from root package.json or pnpm-workspace.yaml
   const detectedWorkspacesGlobs =
     workspacesGlobs.length > 0
