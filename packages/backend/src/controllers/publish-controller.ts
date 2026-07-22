@@ -434,7 +434,8 @@ export async function triggerPublish(req: Request, res: Response) {
     const result = await triggerPublishPipeline(
       rootPath,
       authUser?.login,
-      selectedPackages
+      selectedPackages,
+      (req as any).accessToken
     );
 
     if (!result.success) {
@@ -510,32 +511,6 @@ export async function triggerPublish(req: Request, res: Response) {
             }
           } else {
             AppLogger.warn('No access token available to fetch workflows');
-          }
-
-          if (accessToken && realWorkflowId !== '1') {
-            try {
-              const { stdout: branch } = await execPromise(
-                'git rev-parse --abbrev-ref HEAD',
-                { cwd: rootPath }
-              );
-              const currentBranch = branch.trim();
-
-              AppLogger.info(
-                `Dispatching workflow ${realWorkflowId} on branch: ${currentBranch}...`
-              );
-
-              await triggerWorkflow(accessToken, {
-                repo,
-                owner,
-                workflow: realWorkflowId,
-                ref: currentBranch,
-                inputs: {
-                  source: 'monodog',
-                },
-              });
-            } catch (dispatchError) {
-              AppLogger.warn(`Failed to dispatch workflow: ${dispatchError}`);
-            }
           }
 
           for (const pkg of selectedPackages) {
