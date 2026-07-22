@@ -12,7 +12,8 @@ import { AppLogger } from '../middleware/logger';
 
 export const getConfigFiles = async (req: Request, res: Response) => {
   try {
-    const rootDir = findMonorepoRoot();
+    const rootPath = req.app.locals.rootPath;
+    const rootDir = findMonorepoRoot(rootPath);
 
     const configFiles = await scanConfigFiles(rootDir);
 
