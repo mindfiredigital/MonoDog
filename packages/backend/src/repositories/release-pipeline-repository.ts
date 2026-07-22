@@ -92,9 +92,16 @@ export class ReleasePipelineRepository {
    */
   static async getRecent(
     limit: number = 20,
-    offset: number = 0
+    offset: number = 0,
+    owner?: string,
+    repo?: string
   ): Promise<any[]> {
+    const whereClause: any = {};
+    if (owner) whereClause.owner = owner;
+    if (repo) whereClause.repo = repo;
+
     const pipelines = await prisma.releasePipeline.findMany({
+      where: whereClause,
       orderBy: { triggeredAt: 'desc' },
       take: limit,
       skip: offset,
