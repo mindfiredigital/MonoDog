@@ -10,7 +10,11 @@ describe('Commits Controller', () => {
   let req: any, res: any;
 
   beforeEach(() => {
-    req = { query: {}, params: {} };
+    req = {
+      query: {},
+      params: {},
+      app: { locals: { rootPath: '/mock/root' } },
+    };
     res = { json: vi.fn(), status: vi.fn().mockReturnThis() };
     vi.clearAllMocks();
   });
@@ -25,7 +29,10 @@ describe('Commits Controller', () => {
 
       await getCommits(req, res);
 
-      expect(commitsService.getPackageCommits).toHaveBeenCalledWith('core');
+      expect(commitsService.getPackageCommits).toHaveBeenCalledWith(
+        'core',
+        '/mock/root'
+      );
       expect(res.json).toHaveBeenCalledWith(mockCommits);
     });
 

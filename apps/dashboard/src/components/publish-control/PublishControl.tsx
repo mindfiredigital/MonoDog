@@ -8,7 +8,6 @@ import {
   PublishHeader,
   QuickActionCards,
   PackageReleaseTable,
-  ReleaseSchedule,
   ErrorState,
 } from './components';
 import { TableSkeleton } from '../skeletons';
@@ -26,29 +25,9 @@ export type { Package, Release } from './types/publish.types';
 export default function PublishControl() {
   const navigate = useNavigate();
   const [selectedPackage, setSelectedPackage] = useState<string>('all');
-  const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [packages, setPackages] = useState<Package[]>([]);
-  const [scheduledReleases, setScheduledReleases] = useState<Release[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const fetchScheduledData = async () => {
-    try {
-      const scheduledData = await monorepoService.getScheduledReleases();
-      const mappedReleases = scheduledData.map((rel: any) => ({
-        id: rel.id,
-        packageName: rel.packageName,
-        version: rel.releaseVersion,
-        author: rel.triggeredBy || 'System',
-        status: rel.status,
-        scheduledFor: new Date(rel.scheduledAt).toLocaleString(),
-        changelog: 'Scheduled release',
-      }));
-      setScheduledReleases(mappedReleases);
-    } catch (err) {
-      console.error('Failed to fetch scheduled releases', err);
-    }
-  };
 
   useEffect(() => {
     const fetchPackageData = async () => {
@@ -68,8 +47,6 @@ export default function PublishControl() {
           publishType: pkg.publishType || 'patch',
         }));
         setPackages(publishPackages);
-
-        await fetchScheduledData();
 
         setError(null);
       } catch (err) {
@@ -116,15 +93,6 @@ export default function PublishControl() {
     window.location.reload();
   };
 
-  const handleScheduleSubmit = async (data: {
-    packageName: string;
-    releaseVersion: string;
-    scheduledAt: string;
-  }) => {
-    await monorepoService.scheduleRelease(data);
-    await fetchScheduledData(); // Refresh the list
-  };
-
   // Calculate derived data using utility functions
   const filteredPackages = filterPackagesByName(packages, selectedPackage);
   const stats = calculatePublishStats(packages);
@@ -147,6 +115,7 @@ export default function PublishControl() {
       <PublishHeader
         packageCount={packages.length}
         onNewRelease={handleNewRelease}
+        onRefresh={() => window.location.reload()}
       />
 
       {/* Quick Action Cards */}
@@ -157,15 +126,6 @@ export default function PublishControl() {
         packages={filteredPackages}
         selectedPackage={selectedPackage}
         onPackageChange={setSelectedPackage}
-      />
-
-      {/* Release Schedule */}
-      <ReleaseSchedule
-        releases={scheduledReleases}
-        selectedStatus={selectedStatus}
-        onStatusChange={setSelectedStatus}
-        packages={packages}
-        onSchedule={handleScheduleSubmit}
       />
     </div>
   );

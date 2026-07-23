@@ -2,13 +2,17 @@ import fs from 'fs';
 import path from 'path';
 import { GitService } from '../gitService';
 
-export const getPackageCommits = async (packagePath: string) => {
+export const getPackageCommits = async (
+  packagePath: string,
+  rootPath?: string
+) => {
   const decodedPath = decodeURIComponent(packagePath);
 
-  const gitService = new GitService();
+  const projectRoot = rootPath || process.cwd();
+
+  const gitService = new GitService(projectRoot);
 
   let relativePath = decodedPath;
-  const projectRoot = process.cwd();
 
   if (path.isAbsolute(decodedPath)) {
     relativePath = path.relative(projectRoot, decodedPath);

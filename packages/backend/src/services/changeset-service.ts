@@ -10,7 +10,8 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import { AppLogger } from '../middleware/logger';
 import { getPackagesService } from './package.service';
-import { getWorkflowRuns } from './github-actions-service';
+import { getWorkflowRuns, triggerWorkflow } from './github-actions-service';
+import { getRepositoryInfoFromGit } from '../utils/utilities';
 import { CHANGESET_MESSAGES } from '../constants/api-messages';
 import type {
   VersionBump,
@@ -269,50 +270,74 @@ export async function isWorkingTreeClean(rootPath: string): Promise<boolean> {
 export async function triggerPublishPipeline(
   rootPath: string,
   publishedBy?: string,
-  selectedPackages?: object[]
+  selectedPackages?: object[],
+  accessToken?: string | null
 ): Promise<{ success: boolean; message: string; result?: unknown }> {
   try {
     AppLogger.info(
       `Publishing workflow triggered by user: ${publishedBy || 'unknown'}`
     );
 
-    // Commit the changeset if there are any changes
+    // Get current branch for workflow trigger
+    let currentBranch = 'main';
     try {
-      const { stdout: status } = await execPromise('git status --porcelain', {
-        cwd: rootPath,
-      });
-
-      if (status.trim()) {
-        // Add changeset files
-        await execPromise('git add .changeset/', { cwd: rootPath });
-
-        // Commit with proper message
-        await execPromise(
-          'git commit -m "chore: publish changeset" --no-verify',
-          { cwd: rootPath }
-        );
-
-        // Push to the current branch
-        try {
-          const { stdout: branch } = await execPromise(
-            'git rev-parse --abbrev-ref HEAD',
-            { cwd: rootPath }
-          );
-          const currentBranch = branch.trim();
-
-          await execPromise(`git push origin ${currentBranch} --no-verify`, {
-            cwd: rootPath,
-          });
-
-          AppLogger.info(`Pushed changeset to ${currentBranch}`);
-        } catch (pushError) {
-          // If push fails, still continue - the workflow might be triggered manually
-          AppLogger.warn(`Failed to push: ${pushError}`);
-        }
-      }
+      const { stdout: branch } = await execPromise(
+        'git rev-parse --abbrev-ref HEAD',
+        { cwd: rootPath }
+      );
+      currentBranch = branch.trim();
     } catch (gitError) {
-      AppLogger.warn(`Git operations failed: ${gitError}`);
-      // Continue anyway - changesets might already be committed
+      AppLogger.warn(`Git branch retrieval failed: ${gitError}`);
+    }
+
+    if (accessToken) {
+      try {
+        const repoInfo = await getRepositoryInfoFromGit(rootPath);
+        if (repoInfo) {
+          let inputs: Record<string, string> = {};
+          try {
+            const fs = require('fs');
+            const path = require('path');
+            const yaml = require('js-yaml');
+
+            const workflowPath = path.join(
+              rootPath,
+              '.github',
+              'workflows',
+              'release.yml'
+            );
+            if (fs.existsSync(workflowPath)) {
+              const fileContents = fs.readFileSync(workflowPath, 'utf8');
+              const workflowData = yaml.load(fileContents);
+              const dispatchInputs =
+                workflowData?.on?.workflow_dispatch?.inputs || {};
+
+              if (dispatchInputs.source) {
+                inputs.source = 'monodog';
+              }
+            }
+          } catch (err) {
+            AppLogger.warn(`Failed to parse release.yml inputs: ${err}`);
+          }
+
+          AppLogger.info(
+            `Triggering workflow release.yml on ${repoInfo.owner}/${repoInfo.repo} branch: ${currentBranch}`
+          );
+          await triggerWorkflow(accessToken, {
+            owner: repoInfo.owner,
+            repo: repoInfo.repo,
+            workflow: 'release.yml',
+            ref: currentBranch,
+            inputs,
+          });
+        }
+      } catch (triggerError) {
+        AppLogger.error(`Failed to trigger GitHub workflow: ${triggerError}`);
+      }
+    } else {
+      AppLogger.warn(
+        'No access token provided to triggerPublishPipeline; cannot trigger GitHub workflow'
+      );
     }
 
     AppLogger.info('Publish pipeline initiated');

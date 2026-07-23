@@ -7,6 +7,8 @@ import {
 } from '../services/config.service';
 import fs from 'fs';
 import path from 'path';
+import { prisma } from '../db/prisma';
+import { AppLogger } from '../middleware/logger';
 
 export const getConfigFiles = async (req: Request, res: Response) => {
   try {
@@ -87,6 +89,20 @@ export const updateConfigFile = async (req: Request, res: Response) => {
       hasSecrets: containsSecrets(content, filename),
       isEditable: true,
     };
+
+    // Log activity
+    try {
+      await prisma.activityLog.create({
+        data: {
+          type: 'config_update',
+          packageName: filename,
+          message: `Updated configuration file: ${filename}`,
+          metadata: JSON.stringify({ filePath: id, size: stats.size }),
+        },
+      });
+    } catch (logError) {
+      AppLogger.warn(`Failed to log config update activity: ${logError}`);
+    }
 
     res.json({
       success: true,
