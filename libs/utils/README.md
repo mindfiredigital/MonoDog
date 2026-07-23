@@ -13,15 +13,15 @@
 
 ## Exported Functions
 
-| Function | Description |
-| --- | --- |
-| `scanMonorepo(rootDir)` | Discovers all packages inside `packages/`, `apps/`, and `libs/` directories |
-| `generateMonorepoStats(packages)` | Computes aggregate statistics from an array of `PackageInfo` objects |
-| `findCircularDependencies(packages)` | Detects circular dependency chains using DFS traversal |
-| `generateDependencyGraph(packages)` | Builds a `{ nodes, edges }` graph structure for visualization |
-| `checkOutdatedDependencies(pkg)` | Returns dependencies with range-based version specifiers |
-| `getPackageSize(packagePath)` | Calculates total disk size and file count of a package |
-| `calculatePackageHealth(build, coverage, lint, audit)` | Computes weighted health score (0-100) |
+| Function                                               | Description                                                                 |
+| ------------------------------------------------------ | --------------------------------------------------------------------------- |
+| `scanMonorepo(rootDir)`                                | Discovers all packages inside `packages/`, `apps/`, and `libs/` directories |
+| `generateMonorepoStats(packages)`                      | Computes aggregate statistics from an array of `PackageInfo` objects        |
+| `findCircularDependencies(packages)`                   | Detects circular dependency chains using DFS traversal                      |
+| `generateDependencyGraph(packages)`                    | Builds a `{ nodes, edges }` graph structure for visualization               |
+| `checkOutdatedDependencies(pkg)`                       | Returns dependencies with range-based version specifiers                    |
+| `getPackageSize(packagePath)`                          | Calculates total disk size and file count of a package                      |
+| `calculatePackageHealth(build, coverage, lint, audit)` | Computes weighted health score (0-100)                                      |
 
 ---
 
@@ -47,6 +47,7 @@
 ```bash
 pnpm add @mindfiredigital/utils
 ```
+
 ```bash
 npm install @mindfiredigital/utils
 ```
@@ -72,7 +73,9 @@ console.log(`Found ${packages.length} packages`);
 
 // Generate aggregate statistics
 const stats = generateMonorepoStats(packages);
-console.log(`Apps: ${stats.apps}, Libraries: ${stats.libraries}, Tools: ${stats.tools}`);
+console.log(
+  `Apps: ${stats.apps}, Libraries: ${stats.libraries}, Tools: ${stats.tools}`
+);
 
 // Build dependency graph for visualization
 const graph = generateDependencyGraph(packages);
@@ -101,11 +104,11 @@ console.log(`Outdated dependencies: ${outdated.length}`);
 
 ## Exported Types
 
-| Type | Description |
-| --- | --- |
-| `PackageInfo` | Complete metadata for a discovered package (name, version, type, path, dependencies, scripts, etc.) |
-| `DependencyInfo` | Information about a single dependency (name, version, type, outdated status) |
-| `PackageHealth` | Health assessment result (buildStatus, testCoverage, lintStatus, securityAudit, overallScore) |
-| `MonorepoStats` | Aggregate monorepo statistics (totalPackages, apps, libraries, tools, dependency counts) |
+| Type             | Description                                                                                         |
+| ---------------- | --------------------------------------------------------------------------------------------------- |
+| `PackageInfo`    | Complete metadata for a discovered package (name, version, type, path, dependencies, scripts, etc.) |
+| `DependencyInfo` | Information about a single dependency (name, version, type, outdated status)                        |
+| `PackageHealth`  | Health assessment result (buildStatus, testCoverage, lintStatus, securityAudit, overallScore)       |
+| `MonorepoStats`  | Aggregate monorepo statistics (totalPackages, apps, libraries, tools, dependency counts)            |
 
 ---
