@@ -9,6 +9,7 @@ import {
   retryPipeline,
   togglePipeline,
   getAvailableWorkflows,
+  getAvailableBranches,
 } from '../controllers/ci.controller';
 import { authenticationMiddleware } from '../middleware/auth-middleware';
 
@@ -19,6 +20,7 @@ router.get(
   authenticationMiddleware,
   getAvailableWorkflows
 );
+router.get('/branches', authenticationMiddleware, getAvailableBranches);
 router.get('/status', authenticationMiddleware, getMonorepoCIStatus);
 router.get('/packages/:name', authenticationMiddleware, getPackageCIStatus);
 router.post('/trigger', authenticationMiddleware, triggerCIBuild);

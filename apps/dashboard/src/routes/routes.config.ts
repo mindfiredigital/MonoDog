@@ -9,6 +9,7 @@ export const routes: RouteConfig[] = [
     title: 'Dashboard',
     description: 'Main dashboard overview',
     exact: true,
+    allowedRoles: ['Admin', 'Maintainer', 'Collaborator', 'Viewer'],
   },
   {
     path: '/packages',
@@ -17,6 +18,7 @@ export const routes: RouteConfig[] = [
     title: 'Packages',
     description: 'Package management and overview',
     exact: true,
+    allowedRoles: ['Admin', 'Maintainer', 'Collaborator', 'Viewer'],
   },
   {
     path: '/packages/:name',
@@ -24,6 +26,7 @@ export const routes: RouteConfig[] = [
     component: 'PackageDetail',
     title: 'Package Details',
     description: 'Detailed view of a specific package',
+    allowedRoles: ['Admin', 'Maintainer', 'Collaborator', 'Viewer'],
   },
   {
     path: '/dependencies',
@@ -31,6 +34,7 @@ export const routes: RouteConfig[] = [
     component: 'DependencyGraph',
     title: 'Dependencies',
     description: 'Dependency graph visualization',
+    allowedRoles: ['Admin', 'Maintainer', 'Collaborator', 'Viewer'],
   },
   {
     path: '/health',
@@ -38,6 +42,7 @@ export const routes: RouteConfig[] = [
     component: 'HealthStatus',
     title: 'Health Status',
     description: 'Monorepo health monitoring',
+    allowedRoles: ['Admin', 'Maintainer', 'Collaborator', 'Viewer'],
   },
   {
     path: '/publish',
@@ -45,6 +50,7 @@ export const routes: RouteConfig[] = [
     component: 'PublishControl',
     title: 'Publish Control',
     description: 'Package publishing and versioning',
+    allowedRoles: ['Admin', 'Maintainer'],
   },
   {
     path: '/release',
@@ -54,14 +60,16 @@ export const routes: RouteConfig[] = [
     description: 'Comprehensive release management with Changesets',
     protected: true,
     exact: true,
+    allowedRoles: ['Admin', 'Maintainer'],
   },
   {
     path: '/release/scheduled',
     name: 'scheduled-releases',
     component: 'ScheduledReleasesPage',
     title: 'Scheduled Releases',
-    description: 'View scheduled releases',
+    description: 'View previously scheduled releases',
     protected: true,
+    allowedRoles: ['Admin', 'Maintainer'],
   },
   {
     path: '/release/schedule/new',
@@ -70,28 +78,32 @@ export const routes: RouteConfig[] = [
     title: 'Schedule Release',
     description: 'Create a new scheduled release',
     protected: true,
+    allowedRoles: ['Admin', 'Maintainer'],
   },
   {
     path: '/pipeline',
     name: 'pipeline',
     component: 'Pipeline',
-    title: 'Release Pipeline',
-    description: 'Real-time release pipeline monitoring and management',
+    title: 'Pipeline Manager',
+    description: 'Real-time monitoring of CI/CD pipelines',
     protected: true,
+    allowedRoles: ['Admin', 'Maintainer', 'Collaborator', 'Viewer'],
   },
   {
     path: '/config',
     name: 'config',
     component: 'ConfigInspector',
-    title: 'Configuration',
-    description: 'Configuration file inspector',
+    title: 'Configuration Explorer',
+    description: 'Inspect Monodog workspace configuration',
+    allowedRoles: ['Admin'],
   },
   {
     path: '/changelog',
     name: 'changelog',
     component: 'ChangelogPage',
     title: 'Changelog',
-    description: 'View release changelogs for all packages',
+    description: 'View package changelogs and version history',
+    allowedRoles: ['Admin', 'Maintainer', 'Collaborator', 'Viewer'],
   },
 ];
 

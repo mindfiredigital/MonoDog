@@ -84,7 +84,12 @@ describe('Pipeline Service', () => {
       ] as any);
 
       const result = await getRecentPipelines(10, 0);
-      expect(ReleasePipelineRepository.getRecent).toHaveBeenCalledWith(10, 0);
+      expect(ReleasePipelineRepository.getRecent).toHaveBeenCalledWith(
+        10,
+        0,
+        undefined,
+        undefined
+      );
       expect(result.length).toBe(1);
     });
   });

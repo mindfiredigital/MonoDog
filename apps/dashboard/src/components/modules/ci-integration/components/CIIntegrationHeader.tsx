@@ -1,4 +1,5 @@
 import { PlayIcon } from '../../../../icons/heroicons';
+import { useAuth } from '../../../../services/auth-context';
 
 interface CIIntegrationHeaderProps {
   onTriggerBuild: () => void;
@@ -7,6 +8,8 @@ interface CIIntegrationHeaderProps {
 export default function CIIntegrationHeader({
   onTriggerBuild,
 }: CIIntegrationHeaderProps) {
+  const { session } = useAuth();
+
   return (
     <div className="flex items-center justify-between">
       <div>
@@ -16,13 +19,15 @@ export default function CIIntegrationHeader({
         </p>
       </div>
       <div className="flex space-x-2">
-        <button
-          onClick={onTriggerBuild}
-          className="btn-secondary flex items-center space-x-2"
-        >
-          <PlayIcon className="w-5 h-5" />
-          <span>Trigger Build</span>
-        </button>
+        {session?.permission?.role !== 'Viewer' && (
+          <button
+            onClick={onTriggerBuild}
+            className="btn-secondary flex items-center space-x-2"
+          >
+            <PlayIcon className="w-5 h-5" />
+            <span>Trigger Build</span>
+          </button>
+        )}
       </div>
     </div>
   );

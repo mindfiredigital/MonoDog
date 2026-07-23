@@ -153,7 +153,8 @@ function clearState(state: string): void {
 
 export async function handleOAuthCallback(
   code: string,
-  state: string
+  state: string,
+  rootPath?: string
 ): Promise<OAuthCallbackResponse> {
   // Validate code and state
   if (!code || !state) {
@@ -186,8 +187,9 @@ export async function handleOAuthCallback(
   let permission = null;
   try {
     // Extract repository info from git remote
-    const rootPath = process.env.MONODOG_TARGET_ROOT || process.cwd();
-    const repoInfo = await getRepositoryInfoFromGit(rootPath);
+    const resolvedRootPath =
+      rootPath || process.env.MONODOG_TARGET_ROOT || process.cwd();
+    const repoInfo = await getRepositoryInfoFromGit(resolvedRootPath);
 
     if (!repoInfo) {
       AppLogger.warn(

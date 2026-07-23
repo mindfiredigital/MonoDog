@@ -203,6 +203,12 @@ class MonorepoService {
       );
 
       if (!response.success) {
+        if (
+          response.error?.code === 'UNAUTHORIZED' ||
+          response.error?.status === 401
+        ) {
+          throw new Error('UNAUTHORIZED');
+        }
         throw new Error(
           `getBuildStatus: fetch failed with status ${response.error?.status}`
         );
@@ -291,6 +297,19 @@ class MonorepoService {
     } catch (error) {
       console.error('Error retrying pipeline:', error);
       throw error;
+    }
+  }
+
+  async getBranches(): Promise<string[]> {
+    try {
+      const res = await apiClient.get(DASHBOARD_API_ENDPOINTS.CI.BRANCHES);
+      if (!res.success) {
+        throw new Error(res.error?.message || 'Failed to fetch branches');
+      }
+      return res.data?.branches || [];
+    } catch (error) {
+      console.error('Error fetching branches:', error);
+      return [];
     }
   }
 

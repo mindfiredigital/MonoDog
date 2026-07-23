@@ -13,6 +13,7 @@ export type MonoDogPermissionRole =
   | 'Admin'
   | 'Maintainer'
   | 'Collaborator'
+  | 'Viewer'
   | 'Denied';
 
 export interface PermissionCheckResponse {
