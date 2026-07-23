@@ -113,6 +113,40 @@ export const refreshAllPackages = async (rootPath?: string) => {
   const rootDir = path.resolve(resolvedRootPath);
 
   const packages = scanMonorepo(rootDir);
+  const packageNames = packages.map(p => p.name);
+
+  const packagesToDelete = await prisma.package.findMany({
+    where: {
+      name: { notIn: packageNames },
+    },
+    select: { name: true },
+  });
+
+  const packageNamesToDelete = packagesToDelete.map(
+    (p: { name: string }) => p.name
+  );
+
+  if (packageNamesToDelete.length > 0) {
+    // Manually delete related records that lack onDelete: Cascade in the schema
+    await prisma.dependencyInfo.deleteMany({
+      where: { packageName: { in: packageNamesToDelete } },
+    });
+
+    await prisma.commit.deleteMany({
+      where: { packageName: { in: packageNamesToDelete } },
+    });
+
+    await prisma.packageHealth.deleteMany({
+      where: { packageName: { in: packageNamesToDelete } },
+    });
+
+    // Clean up old packages that belong to previous repositories or deleted folders
+    await prisma.package.deleteMany({
+      where: {
+        name: { in: packageNamesToDelete },
+      },
+    });
+  }
 
   for (const pkg of packages) {
     await storePackage(pkg);

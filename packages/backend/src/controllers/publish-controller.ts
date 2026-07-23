@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import '../types/controllers';
+import { prisma } from '../db/prisma';
 import { AppLogger } from '../middleware/logger';
 import {
   getWorkspacePackages,
@@ -145,7 +146,8 @@ export async function previewPublish(req: Request, res: Response) {
     // Check 3: CI passing - Check if most recent workflow run passed
     let ciPassing = false;
     try {
-      const repoInfo = await getRepositoryInfoFromGit();
+      const rootPath = req.app.locals.rootPath || process.cwd();
+      const repoInfo = await getRepositoryInfoFromGit(rootPath);
       if (repoInfo && accessToken) {
         const { owner, repo } = repoInfo;
 
@@ -454,7 +456,8 @@ export async function triggerPublish(req: Request, res: Response) {
         `Creating pipelines for ${selectedPackages.length} packages`
       );
       try {
-        const repoInfo = await getRepositoryInfoFromGit();
+        const rootPath = req.app.locals.rootPath || process.cwd();
+        const repoInfo = await getRepositoryInfoFromGit(rootPath);
 
         if (!repoInfo) {
           AppLogger.warn(
@@ -584,6 +587,27 @@ export async function triggerPublish(req: Request, res: Response) {
       AppLogger.warn(
         `Skipping pipeline creation: selectedPackageNames is ${selectedPackageNames}`
       );
+    }
+
+    // Log activity for each published package
+    if (selectedPackages && Array.isArray(selectedPackages)) {
+      for (const pkg of selectedPackages) {
+        try {
+          await prisma.activityLog.create({
+            data: {
+              type: 'publish',
+              packageName: pkg.name,
+              message: `Published ${pkg.name}@${pkg.newVersion}`,
+              metadata: JSON.stringify({
+                version: pkg.newVersion,
+                triggeredBy: authUser?.login,
+              }),
+            },
+          });
+        } catch (logError) {
+          AppLogger.warn(`Failed to log activity for ${pkg.name}: ${logError}`);
+        }
+      }
     }
 
     res.json({

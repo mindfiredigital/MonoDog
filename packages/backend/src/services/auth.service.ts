@@ -186,7 +186,8 @@ export async function handleOAuthCallback(
   let permission = null;
   try {
     // Extract repository info from git remote
-    const repoInfo = await getRepositoryInfoFromGit();
+    const rootPath = process.env.MONODOG_TARGET_ROOT || process.cwd();
+    const repoInfo = await getRepositoryInfoFromGit(rootPath);
 
     if (!repoInfo) {
       AppLogger.warn(

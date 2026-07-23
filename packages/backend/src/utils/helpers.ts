@@ -24,12 +24,14 @@ const port = appConfig.server.port ?? DEFAULT_PORT; //Default port
 const host = appConfig.server.host ?? 'localhost'; //Default host
 
 const prisma = new PrismaClient();
-const API_BASE = `http://${host}:${port}/api`;
+// const API_BASE = `http://${host}:${port}/api`;
+
+import { getPackageCommits } from '../services/commits.service';
 
 async function getCommits(path: string): Promise<Commit[]> {
-  const res = await fetch(API_BASE + `/commits/` + encodeURIComponent(path));
-  if (!res.ok) throw new Error('Failed to fetch commits');
-  return (await res.json()) as Commit[];
+  const rootPath = process.env.MONODOG_TARGET_ROOT || process.cwd();
+  const commits = await getPackageCommits(path, rootPath);
+  return commits as unknown as Commit[];
 }
 // Commit type used by getCommits/storeCommits
 export interface Commit {
