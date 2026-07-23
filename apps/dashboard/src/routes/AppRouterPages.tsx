@@ -6,8 +6,9 @@ import {
   DependenciesPage,
   HealthPage,
   PublishPage,
-  CIPage,
   ConfigPage,
+  ScheduledReleasesPage,
+  CreateSchedulePage,
 } from '../pages';
 
 // Alternative AppRouter using dedicated page components
@@ -24,8 +25,9 @@ export default function AppRouterPages() {
       {/* Other Pages */}
       <Route path="/dependencies" element={<DependenciesPage />} />
       <Route path="/health" element={<HealthPage />} />
-      {/* <Route path="/publish" element={<PublishPage />} />
-      <Route path="/ci" element={<CIPage />} /> */}
+      <Route path="/release/scheduled" element={<ScheduledReleasesPage />} />
+      <Route path="/release/schedule/new" element={<CreateSchedulePage />} />
+      {/* <Route path="/publish" element={<PublishPage />} /> */}
       <Route path="/config" element={<ConfigPage />} />
 
       {/* 404 Page */}

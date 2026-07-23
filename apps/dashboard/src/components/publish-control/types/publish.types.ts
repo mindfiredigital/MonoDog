@@ -50,8 +50,10 @@ export interface ScheduleReleaseData {
 
 export interface ReleaseScheduleProps {
   releases: Release[];
-  selectedStatus: string;
-  onStatusChange: (status: string) => void;
   packages: Package[];
-  onSchedule: (data: ScheduleReleaseData) => Promise<void>;
+  onSchedule: (releaseData: {
+    packageName: string;
+    releaseVersion: string;
+    scheduledAt: string;
+  }) => Promise<void>;
 }

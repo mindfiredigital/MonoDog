@@ -21,7 +21,7 @@ import { PIPELINE_MESSAGES } from '../constants/api-messages';
 
 const GITHUB_API_BASE = 'api.github.com';
 
-const requestOptions = (
+export const requestOptions = (
   method: string,
   path: string,
   accessToken?: string,
@@ -57,7 +57,7 @@ const redirectOptions = (url: URL): GitHubRequestOptions => ({
 /**
  * Make an HTTPS request to GitHub API
  */
-function makeGitHubRequest<T>(
+export function makeGitHubRequest<T>(
   options: GitHubRequestOptions,
   data?: string
 ): Promise<{ data: T; rateLimit: RateLimitInfo }> {

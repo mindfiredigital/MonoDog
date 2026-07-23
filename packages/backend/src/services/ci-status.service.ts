@@ -72,12 +72,45 @@ export const triggerCIBuild = async (
   const repoInfo = await getRepositoryInfoFromGit(monorepoRoot);
   if (!repoInfo) throw new Error('Could not determine GitHub repository info');
 
+  let inputs: Record<string, string> = {};
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    const yaml = require('js-yaml');
+
+    const workflowPath = path.join(
+      monorepoRoot,
+      '.github',
+      'workflows',
+      workflowFileName
+    );
+    if (fs.existsSync(workflowPath)) {
+      const fileContents = fs.readFileSync(workflowPath, 'utf8');
+      const workflowData = yaml.load(fileContents);
+
+      // Check if the workflow defines a workflow_dispatch event with inputs
+      const dispatchInputs = workflowData?.on?.workflow_dispatch?.inputs || {};
+
+      if (dispatchInputs.package) {
+        inputs.package = packageName;
+      }
+      if (dispatchInputs.source) {
+        inputs.source = 'monodog';
+      }
+    }
+  } catch (error) {
+    console.warn(
+      `Could not parse workflow ${workflowFileName} to determine inputs`,
+      error
+    );
+  }
+
   const request = {
     owner: repoInfo.owner,
     repo: repoInfo.repo,
     workflow: workflowFileName,
     ref: branch,
-    inputs: { package: packageName },
+    inputs,
   };
 
   const result = await triggerWorkflow(accessToken, request);

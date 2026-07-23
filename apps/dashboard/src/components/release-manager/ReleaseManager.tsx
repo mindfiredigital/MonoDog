@@ -10,6 +10,8 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ClockIcon } from '../../icons/heroicons';
 import { useAuth } from '../../services/auth-context';
 import apiClient from '../../services/api';
 import PackageSelector from './components/PackageSelector';
@@ -19,6 +21,8 @@ import ReleaseValidation from './components/ReleaseValidation';
 import PublishConfirmation from './components/PublishConfirmation';
 import ErrorState from './components/ErrorState';
 import { TableSkeleton } from '../skeletons';
+import { monorepoService } from '../../services/monorepoService';
+import type { Release } from '../publish-control/types/publish.types';
 import { DASHBOARD_ERROR_MESSAGES } from '../../constants/messages';
 import { DASHBOARD_API_ENDPOINTS } from '../../constants/api-config';
 import type { SelectedPackage, ChangesetData, ValidationResult } from './types';
@@ -28,6 +32,7 @@ export type { SelectedPackage, ChangesetData, ValidationResult };
 
 export default function ReleaseManager() {
   const { isAuthenticated, hasPermission } = useAuth();
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState<
     'select' | 'bump' | 'preview' | 'validate' | 'confirm'
   >('select');
@@ -45,11 +50,30 @@ export default function ReleaseManager() {
   const [existingChangesets, setExistingChangesets] = useState<
     Array<{ id: string; summary: string }>
   >([]);
+  const [scheduledReleases, setScheduledReleases] = useState<Release[]>([]);
 
   // Fetch workspace packages on mount
   useEffect(() => {
     fetchWorkspaceData();
   }, []);
+
+  const fetchScheduledData = async () => {
+    try {
+      const scheduledData = await monorepoService.getScheduledReleases();
+      const mappedReleases = scheduledData.map((rel: any) => ({
+        id: rel.id,
+        packageName: rel.packageName,
+        version: rel.releaseVersion,
+        author: rel.triggeredBy || 'System',
+        status: rel.status,
+        scheduledFor: new Date(rel.scheduledAt).toLocaleString(),
+        changelog: 'Scheduled release',
+      }));
+      setScheduledReleases(mappedReleases);
+    } catch (err) {
+      console.error('Failed to fetch scheduled releases', err);
+    }
+  };
 
   const fetchWorkspaceData = async () => {
     try {
@@ -60,7 +84,7 @@ export default function ReleaseManager() {
         DASHBOARD_API_ENDPOINTS.PUBLISH.PACKAGES
       );
       if (packagesRes.success) {
-        setAllPackages(packagesRes.data.packages || []);
+        setAllPackages((packagesRes.data as any)?.packages || []);
       } else {
         console.warn('Failed to fetch packages:', packagesRes.error?.message);
         // Fallback to regular packages endpoint
@@ -68,26 +92,19 @@ export default function ReleaseManager() {
           DASHBOARD_API_ENDPOINTS.PACKAGES.LIST
         );
         if (fallbackRes.success) {
-          setAllPackages(fallbackRes.data || []);
+          setAllPackages((fallbackRes.data as any) || []);
         }
       }
 
-      // Fetch existing changesets
+      // Fetch changesets
       const changesetsRes = await apiClient.get(
         DASHBOARD_API_ENDPOINTS.PUBLISH.CHANGESETS
       );
       if (changesetsRes.success) {
-        setExistingChangesets(changesetsRes.data.changesets || []);
-      } else {
-        if (
-          changesetsRes.error?.status === 401 ||
-          changesetsRes.error?.status === 403
-        ) {
-          window.location.href = '/login';
-        }
+        setExistingChangesets((changesetsRes.data as any)?.changesets || []);
       }
 
-      setError(null);
+      await fetchScheduledData();
     } catch (err) {
       const message =
         err instanceof Error
@@ -261,20 +278,22 @@ export default function ReleaseManager() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Release Manager</h1>
           <p className="text-gray-600 mt-1">
             Manage package versions and publish releases with Changesets
           </p>
         </div>
-        <div className="text-sm text-gray-500">
-          Step{' '}
-          {['select', 'bump', 'preview', 'validate', 'confirm'].indexOf(
-            currentStep
-          ) + 1}{' '}
-          of 5
-        </div>
+        {hasPermission('write') && (
+          <button
+            onClick={() => navigate('/release/scheduled')}
+            className="flex items-center space-x-2 bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 shadow-sm"
+          >
+            <ClockIcon className="h-5 w-5 text-gray-500" />
+            <span>Scheduled Releases</span>
+          </button>
+        )}
       </div>
 
       {/* Permission Check */}
