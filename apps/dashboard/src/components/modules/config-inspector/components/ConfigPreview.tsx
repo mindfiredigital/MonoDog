@@ -28,8 +28,6 @@ export default function ConfigPreview({
   };
 
   const getSyntaxHighlightClass = (lang: string) => {
-    // In a real implementation, you might use a syntax highlighting library
-    // like Prism.js or highlight.js
     return `language-${lang}`;
   };
 

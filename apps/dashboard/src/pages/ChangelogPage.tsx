@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { monorepoService } from '../services/monorepoService';
 import { ChangelogViewer } from '../components/publish-control/components';
+import { ArrowPathIcon } from '../icons/heroicons';
 
 export default function ChangelogPage() {
   const [packages, setPackages] = useState<any[]>([]);
@@ -47,6 +48,13 @@ export default function ChangelogPage() {
             View release history and changelogs for all packages
           </p>
         </div>
+        <button
+          onClick={() => window.location.reload()}
+          className="btn-primary flex items-center space-x-2 transition-colors"
+        >
+          <ArrowPathIcon className="w-5 h-5" />
+          <span>Refresh</span>
+        </button>
       </div>
 
       <div className="flex items-center gap-4">

@@ -12,7 +12,10 @@ import { json } from 'body-parser';
 import apiRouter from './routes';
 import { prisma } from './db/prisma';
 import { setupSwaggerDocs } from './middleware/swagger-middleware';
-import { startScheduledReleaseWorker } from './workers/scheduled-release-worker';
+import {
+  startScheduledReleaseWorker,
+  stopScheduledReleaseWorker,
+} from './workers/scheduled-release-worker';
 import { refreshAllPackages } from './services/package.service';
 
 export { scanner } from './services/scan.service';
@@ -87,7 +90,7 @@ export function startServer(
 
   const PORT = parseInt(port ? port.toString() : '4000');
 
-  app
+  const server = app
     .listen(PORT, host, async () => {
       await refreshAllPackages(rootPath);
 
@@ -112,6 +115,32 @@ export function startServer(
         process.exit(1);
       }
     });
+
+  // Graceful shutdown handler
+  const gracefulShutdown = async (signal: string) => {
+    console.log(`\n[Server] Received ${signal}. Shutting down gracefully...`);
+
+    // Stop the background worker
+    stopScheduledReleaseWorker();
+
+    // Close the HTTP server (stop accepting new connections)
+    server.close(() => {
+      console.log('[Server] HTTP server closed.');
+    });
+
+    // Disconnect Prisma
+    try {
+      await prisma.$disconnect();
+      console.log('[Server] Database connection closed.');
+    } catch (err) {
+      console.error('[Server] Error disconnecting database:', err);
+    }
+
+    process.exit(0);
+  };
+
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 }
 
 export function serveDashboard(

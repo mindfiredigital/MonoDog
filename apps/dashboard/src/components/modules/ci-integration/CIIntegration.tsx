@@ -9,7 +9,6 @@ import {
   PipelineStatus,
   BuildDetails,
   TriggerBuildModal,
-  CreatePipelineModal,
 } from './components';
 import { TableSkeleton } from '../../skeletons';
 
@@ -45,13 +44,12 @@ export default function CIIntegration() {
   // Modal states
   const [isTriggerModalOpen, setIsTriggerModalOpen] = useState(false);
   const [isTriggering, setIsTriggering] = useState(false);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   // Fetch build data
   useEffect(() => {
-    const fetchBuildData = async () => {
+    const fetchBuildData = async (isPolling = false) => {
       try {
-        setLoading(true);
+        if (!isPolling) setLoading(true);
         const data = await monorepoService.getBuildStatus();
 
         // map GitHub's split status/conclusion to single UI status
@@ -66,7 +64,7 @@ export default function CIIntegration() {
             return 'failed';
           }
           if (status === 'in_progress') return 'running';
-          return 'pending'; // queued, requested, etc.
+          return 'pending';
         };
 
         // Transform the GitHub data to match our Build interface precisely
@@ -79,7 +77,15 @@ export default function CIIntegration() {
             status: mapGitHubStatus(build.status, build.conclusion),
             startTime: (build.created_at as string) || new Date().toISOString(),
             endTime: build.updated_at as string | undefined,
-            duration: (build.duration as number) || undefined,
+            duration: build.created_at
+              ? Math.round(
+                  ((build.status === 'completed' && build.updated_at
+                    ? new Date(build.updated_at as string).getTime()
+                    : new Date().getTime()) -
+                    new Date(build.created_at as string).getTime()) /
+                    1000
+                )
+              : undefined,
             stages: (build.stages as Build['stages']) || [],
             triggeredBy: build.actor ? (build.actor as any).login : 'system',
             artifacts: (build.artifacts as Build['artifacts']) || [],
@@ -163,11 +169,18 @@ export default function CIIntegration() {
         setError(DASHBOARD_ERROR_MESSAGES.FAILED_TO_FETCH_PACKAGES);
         console.error('Error fetching build data:', err);
       } finally {
-        setLoading(false);
+        if (!isPolling) setLoading(false);
       }
     };
 
     fetchBuildData();
+
+    // Auto-refresh every 10 seconds for real-time updates
+    const interval = setInterval(() => {
+      fetchBuildData(true);
+    }, 10000);
+
+    return () => clearInterval(interval);
   }, []);
 
   // Get filtered builds and statistics
@@ -212,10 +225,6 @@ export default function CIIntegration() {
     } finally {
       setIsTriggering(false);
     }
-  };
-
-  const handleCreatePipeline = () => {
-    setIsCreateModalOpen(true);
   };
 
   const handleBuildSelect = (buildId: string | null) => {
@@ -289,10 +298,7 @@ export default function CIIntegration() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <CIIntegrationHeader
-        onTriggerBuild={() => setIsTriggerModalOpen(true)}
-        onCreatePipeline={handleCreatePipeline}
-      />
+      <CIIntegrationHeader onTriggerBuild={() => setIsTriggerModalOpen(true)} />
 
       {/* Build Overview */}
       <BuildOverview
@@ -339,11 +345,6 @@ export default function CIIntegration() {
         isLoading={isTriggering}
       />
 
-      <CreatePipelineModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-      />
-
       {/* Empty State */}
       {filteredBuilds.length === 0 && builds.length > 0 && (
         <div className="text-center py-12">
@@ -381,7 +382,7 @@ export default function CIIntegration() {
             No CI/CD data available
           </h3>
           <p className="text-gray-600 mb-4">
-            Get started by triggering your first build or setting up a pipeline.
+            Get started by triggering your first build.
           </p>
           <div className="flex justify-center space-x-4">
             <button
@@ -389,12 +390,6 @@ export default function CIIntegration() {
               className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
             >
               Trigger Build
-            </button>
-            <button
-              onClick={handleCreatePipeline}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Create Pipeline
             </button>
           </div>
         </div>

@@ -26,11 +26,6 @@ export default function ConfigToolbar({
 }: ConfigToolbarProps) {
   const [copied, setCopied] = useState(false);
 
-  // const copyToClipboard = () => {
-  //   // In a real implementation, this would copy the config content
-  //   navigator.clipboard.writeText('Config content copied');
-  // };
-
   const copyToClipboard = async () => {
     try {
       // Use the content prop that's passed from ConfigInspector

@@ -338,6 +338,10 @@ export async function triggerPublishPipeline(
       AppLogger.warn(
         'No access token provided to triggerPublishPipeline; cannot trigger GitHub workflow'
       );
+      return {
+        success: false,
+        message: 'Authentication Error',
+      };
     }
 
     AppLogger.info('Publish pipeline initiated');

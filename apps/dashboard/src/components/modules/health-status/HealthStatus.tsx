@@ -236,7 +236,7 @@ export default function HealthStatus() {
         <button
           onClick={refreshData}
           disabled={refreshing}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed flex items-center space-x-2 transition-colors"
+          className="btn-primary flex items-center space-x-2 transition-colors"
         >
           {refreshing ? (
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />

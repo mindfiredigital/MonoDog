@@ -114,29 +114,6 @@ export default function ConfigInspector() {
     }
   };
 
-  // const handleSaveEdit = () => {
-  //   if (selectedConfigData) {
-  //     // In a real implementation, this would save to the backend
-  //     console.log('Saving config:', selectedConfigData.name, editValue);
-
-  //     // Update local state
-  //     setConfigFiles(prev =>
-  //       prev.map(config =>
-  //         config.id === selectedConfig
-  //           ? {
-  //             ...config,
-  //             content: editValue,
-  //             validation: validateConfig(editValue, config.name),
-  //             lastModified: new Date().toISOString(),
-  //           }
-  //           : config
-  //       )
-  //     );
-
-  //     setIsEditing(false);
-  //     setEditValue('');
-  //   }
-  // };
   const handleSaveEdit = async () => {
     if (selectedConfigData && !saving) {
       try {

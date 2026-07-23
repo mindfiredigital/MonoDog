@@ -94,8 +94,7 @@ export default function DependencyGraph() {
 
   // Event handlers
   const handleRefresh = () => {
-    // In real implementation, this would refetch data
-    // console.log('Refreshing dependency graph...');
+    window.location.reload();
   };
 
   const handlePackageSelect = (packageId: string | null) => {
