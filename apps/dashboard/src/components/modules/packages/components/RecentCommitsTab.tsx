@@ -5,12 +5,16 @@ import { getCommitTypeColor, formatDate } from '../utils/packages.utils';
 export default function RecentCommitsTab({
   packageData,
 }: RecentCommitsTabProps) {
+  const commits = Array.isArray(packageData?.commits)
+    ? packageData.commits
+    : [];
+
   return (
     <div className="py-6">
       <h3 className="text-lg font-medium text-gray-900 mb-4">Recent Commits</h3>
 
       <div className="space-y-4">
-        {packageData.commits.map(commit => (
+        {commits.map(commit => (
           <div
             key={commit.hash}
             className="bg-white border rounded-lg p-4 hover:shadow-md transition-shadow"
@@ -48,7 +52,7 @@ export default function RecentCommitsTab({
         ))}
       </div>
 
-      {packageData.commits.length === 0 && (
+      {commits.length === 0 && (
         <div className="text-center py-8">
           <div className="text-gray-400 text-4xl mb-2">📝</div>
           <p className="text-gray-500">No recent commits found</p>
@@ -62,25 +66,25 @@ export default function RecentCommitsTab({
           <div>
             <span className="font-medium text-gray-800">Features:</span>
             <span className="ml-2 text-gray-600">
-              {packageData.commits.filter(c => c.type === 'feat').length}
+              {commits.filter(c => c.type === 'feat').length}
             </span>
           </div>
           <div>
             <span className="font-medium text-gray-800">Fixes:</span>
             <span className="ml-2 text-gray-600">
-              {packageData.commits.filter(c => c.type === 'fix').length}
+              {commits.filter(c => c.type === 'fix').length}
             </span>
           </div>
           <div>
             <span className="font-medium text-gray-800">Chores:</span>
             <span className="ml-2 text-gray-600">
-              {packageData.commits.filter(c => c.type === 'chore').length}
+              {commits.filter(c => c.type === 'chore').length}
             </span>
           </div>
           <div>
             <span className="font-medium text-gray-800">Breaking:</span>
             <span className="ml-2 text-gray-600">
-              {packageData.commits.filter(c => c.type === 'breaking').length}
+              {commits.filter(c => c.type === 'breaking').length}
             </span>
           </div>
         </div>

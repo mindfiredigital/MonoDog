@@ -7,32 +7,32 @@ import {
 import { BuildingLibraryIcon } from '../../../../icons/heroicons';
 import { RocketLaunchIcon } from '../../../../icons/heroicons';
 import { CubeIcon } from '../../../../icons/heroicons';
+import dagre from 'dagre';
+import { Node, Edge, Position } from '@xyflow/react';
 
-// Get status color classes
 export const getStatusColor = (status: string): string => {
   switch (status) {
     case 'healthy':
-      return 'text-green-600 bg-green-100';
+      return 'badge-success';
     case 'warning':
-      return 'text-yellow-600 bg-yellow-100';
+      return 'badge-warning';
     case 'error':
-      return 'text-red-600 bg-red-100';
+      return 'badge-error';
     default:
-      return 'text-gray-600 bg-gray-100';
+      return 'badge-neutral';
   }
 };
 
-// Get type color classes
 export const getTypeColor = (type: string): string => {
   switch (type) {
     case 'app':
-      return 'text-blue-600 bg-blue-100';
+      return 'badge-info';
     case 'lib':
-      return 'text-purple-600 bg-purple-100';
+      return 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800';
     case 'tool':
-      return 'text-orange-600 bg-orange-100';
+      return 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800';
     default:
-      return 'text-gray-600 bg-gray-100';
+      return 'badge-neutral';
   }
 };
 
@@ -214,157 +214,44 @@ export const sortPackages = (
   });
 };
 
-// Calculate layout positions for different algorithms
-export const calculateLayout = (
-  packages: PackageNode[],
-  layout: 'hierarchical' | 'circular' | 'force',
-  width: number = 800,
-  height: number = 600
-): PackageNode[] => {
-  switch (layout) {
-    case 'hierarchical':
-      return calculateHierarchicalLayout(packages, width, height);
-    case 'circular':
-      return calculateCircularLayout(packages, width, height);
-    case 'force':
-      return calculateForceLayout(packages, width, height);
-    default:
-      return packages;
-  }
-};
+// Standard dimensions for our PackageNode cards
+const nodeWidth = 320;
+const nodeHeight = 120;
 
-// Hierarchical layout algorithm
-const calculateHierarchicalLayout = (
-  packages: PackageNode[],
-  width: number,
-  height: number
-): PackageNode[] => {
-  const layers: string[][] = [];
-  const visited = new Set<string>();
+export const getNodeLayout = (
+  nodes: Node[],
+  edges: Edge[],
+  direction = 'LR'
+) => {
+  // React Flow + Dagre Layout Engine
+  const dagreGraph = new dagre.graphlib.Graph();
+  dagreGraph.setDefaultEdgeLabel(() => ({}));
 
-  // Group packages by dependency level
-  const assignLayers = (packageName: string, layer: number) => {
-    if (visited.has(packageName)) return;
-    visited.add(packageName);
+  const isHorizontal = direction === 'LR';
+  dagreGraph.setGraph({ rankdir: direction, nodesep: 150, ranksep: 200 });
 
-    if (!layers[layer]) layers[layer] = [];
-    layers[layer].push(packageName);
+  nodes.forEach(node => {
+    dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
+  });
 
-    const pkg = packages.find(p => p.name === packageName);
-    if (pkg) {
-      pkg.dependents.forEach(depName => assignLayers(depName, layer + 1));
-    }
-  };
-  // Start with packages that have no dependencies and build downwards with their dependents
-  packages
-    .filter(
-      pkg =>
-        Object.keys(pkg.dependencies).length === 0 && pkg.dependents.length > 0
-    )
-    .forEach(pkg => {
-      assignLayers(pkg.name, 0);
-    });
-  if (layers.length === 0) {
-    // In case there are no root packages with dependents, start with others
-    packages
-      .filter(
-        pkg =>
-          Object.keys(pkg.dependencies).length > 0 && pkg.dependents.length > 0
-      )
-      .forEach(pkg => {
-        assignLayers(pkg.name, 0);
-      });
-  }
+  edges.forEach(edge => {
+    dagreGraph.setEdge(edge.source, edge.target);
+  });
 
-  // Position packages
-  return packages.map(pkg => {
-    const layer = layers.findIndex(l => l.includes(pkg.name));
-    const positionInLayer = layers[layer]?.indexOf(pkg.name) || 0;
-    const layerSize = layers[layer]?.length || 1;
+  dagre.layout(dagreGraph);
 
-    return {
-      ...pkg,
-      x: (width / (layers.length + 1)) * (layer + 1) - 50,
-      y: (height / (layerSize + 1)) * (positionInLayer + 1) - 25,
+  nodes.forEach(node => {
+    const nodeWithPosition = dagreGraph.node(node.id);
+    node.targetPosition = isHorizontal ? Position.Left : Position.Top;
+    node.sourcePosition = isHorizontal ? Position.Right : Position.Bottom;
+
+    node.position = {
+      x: nodeWithPosition.x - nodeWidth / 2,
+      y: nodeWithPosition.y - nodeHeight / 2,
     };
   });
-};
 
-// Circular layout algorithm
-const calculateCircularLayout = (
-  packages: PackageNode[],
-  width: number,
-  height: number
-): PackageNode[] => {
-  const centerX = width / 2;
-  const centerY = height / 2;
-  const radius = Math.min(width, height) / 3;
-
-  return packages.map((pkg, index) => {
-    const angle = (2 * Math.PI * index) / packages.length;
-    return {
-      ...pkg,
-      x: centerX + radius * Math.cos(angle) - 50,
-      y: centerY + radius * Math.sin(angle) - 25,
-    };
-  });
-};
-
-// Force-directed layout algorithm (simplified)
-const calculateForceLayout = (
-  packages: PackageNode[],
-  width: number,
-  height: number
-): PackageNode[] => {
-  // This is a simplified version - in a real implementation you'd use a proper force simulation
-  const positioned = packages.map((pkg, index) => ({
-    ...pkg,
-    x: Math.random() * (width - 100),
-    y: Math.random() * (height - 50),
-  }));
-
-  // Apply simple force-based positioning
-  for (let iteration = 0; iteration < 50; iteration++) {
-    positioned.forEach(pkg => {
-      let forceX = 0;
-      let forceY = 0;
-
-      // Repulsion from other nodes
-      positioned.forEach(other => {
-        if (other.name !== pkg.name) {
-          const dx = pkg.x - other.x;
-          const dy = pkg.y - other.y;
-          const distance = Math.sqrt(dx * dx + dy * dy) || 1;
-          const force = 1000 / (distance * distance);
-          forceX += (dx / distance) * force;
-          forceY += (dy / distance) * force;
-        }
-      });
-
-      // Attraction to connected nodes
-      Object.keys(pkg.dependencies).forEach(depId => {
-        const dep = positioned.find(p => p.name === depId);
-        if (dep) {
-          const dx = dep.x - pkg.x;
-          const dy = dep.y - pkg.y;
-          const distance = Math.sqrt(dx * dx + dy * dy) || 1;
-          const force = distance * 0.01;
-          forceX += (dx / distance) * force;
-          forceY += (dy / distance) * force;
-        }
-      });
-
-      // Apply forces with damping
-      pkg.x += forceX * 0.1;
-      pkg.y += forceY * 0.1;
-
-      // Keep within bounds
-      pkg.x = Math.max(50, Math.min(width - 100, pkg.x));
-      pkg.y = Math.max(25, Math.min(height - 50, pkg.y));
-    });
-  }
-
-  return positioned;
+  return { nodes, edges };
 };
 
 // Get package type icon

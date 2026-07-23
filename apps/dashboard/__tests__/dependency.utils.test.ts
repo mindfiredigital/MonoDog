@@ -1,13 +1,4 @@
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeEach,
-  afterEach,
-  beforeAll,
-  afterAll,
-} from 'vitest';
+import { describe, it, expect } from 'vitest';
 /**
  * Tests for dependency graph utility functions
  */
@@ -23,44 +14,48 @@ describe('Dependency Graph Utils', () => {
   describe('getStatusColor', () => {
     it('should return green for healthy status', () => {
       const color = getStatusColor('healthy');
-      expect(color).toBe('text-green-600 bg-green-100');
+      expect(color).toBe('badge-success');
     });
 
     it('should return yellow for warning status', () => {
       const color = getStatusColor('warning');
-      expect(color).toBe('text-yellow-600 bg-yellow-100');
+      expect(color).toBe('badge-warning');
     });
 
     it('should return red for error status', () => {
       const color = getStatusColor('error');
-      expect(color).toBe('text-red-600 bg-red-100');
+      expect(color).toBe('badge-error');
     });
 
     it('should return gray for unknown status', () => {
       const color = getStatusColor('unknown');
-      expect(color).toBe('text-gray-600 bg-gray-100');
+      expect(color).toBe('badge-neutral');
     });
   });
 
   describe('getTypeColor', () => {
     it('should return blue for app type', () => {
       const color = getTypeColor('app');
-      expect(color).toBe('text-blue-600 bg-blue-100');
+      expect(color).toBe('badge-info');
     });
 
     it('should return purple for lib type', () => {
       const color = getTypeColor('lib');
-      expect(color).toBe('text-purple-600 bg-purple-100');
+      expect(color).toBe(
+        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800'
+      );
     });
 
     it('should return orange for tool type', () => {
       const color = getTypeColor('tool');
-      expect(color).toBe('text-orange-600 bg-orange-100');
+      expect(color).toBe(
+        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800'
+      );
     });
 
     it('should return gray for unknown type', () => {
       const color = getTypeColor('unknown');
-      expect(color).toBe('text-gray-600 bg-gray-100');
+      expect(color).toBe('badge-neutral');
     });
   });
 

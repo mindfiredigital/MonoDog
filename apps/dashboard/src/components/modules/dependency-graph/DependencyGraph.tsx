@@ -11,17 +11,16 @@ import {
   DependencyDetails,
   GraphStats,
   CircularDependencies,
-  GraphLegend,
 } from './components';
+import { InformationCircleIcon } from '../../../icons/heroicons';
 import { CardGridSkeleton } from '../../skeletons';
+import { PackageNode } from './types/dependency.types';
 
 // Import types and utilities
-import { PackageNode } from './types/dependency.types';
 import {
   calculateGraphStats,
   detectCircularDependencies,
   sortPackages,
-  calculateLayout,
   mapAllDependents,
 } from './utils/dependency.utils';
 export type { PackageNode } from './types/dependency.types';
@@ -65,12 +64,9 @@ export default function DependencyGraph() {
 
   // View state
   const [viewMode, setViewMode] = useState<'graph' | 'list'>('graph');
-  const [layout, setLayout] = useState<'hierarchical' | 'circular' | 'force'>(
-    'hierarchical'
-  );
+  const [layout, setLayout] = useState<'TB' | 'LR'>('TB');
   const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
   const [hoveredPackage, setHoveredPackage] = useState<string | null>(null);
-  const [showLegend, setShowLegend] = useState(true);
   const [zoomLevel, setZoomLevel] = useState(1);
 
   // List view state
@@ -80,10 +76,6 @@ export default function DependencyGraph() {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   // Computed values
-  const layoutedPackages = useMemo(() => {
-    return calculateLayout(packages ?? [], layout, 800, 600);
-  }, [packages, layout]);
-
   const sortedPackages = useMemo(() => {
     return sortPackages(packages, sortBy, sortOrder);
   }, [packages, sortBy, sortOrder]);
@@ -156,39 +148,26 @@ export default function DependencyGraph() {
         onViewModeChange={setViewMode}
         layout={layout}
         onLayoutChange={setLayout}
-        showLegend={showLegend}
-        onToggleLegend={() => setShowLegend(!showLegend)}
+        showLegend={false}
+        onToggleLegend={() => {}}
         zoomLevel={zoomLevel}
         onZoomChange={setZoomLevel}
       />
 
-      {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Graph/List View */}
-        <div className={`${showLegend ? 'lg:col-span-3' : 'lg:col-span-4'}`}>
+        <div
+          className={`${viewMode === 'graph' ? 'lg:col-span-3' : 'lg:col-span-4'}`}
+        >
           {viewMode === 'graph' ? (
-            <div className="relative">
-              <div
-                style={{
-                  transform: `scale(${zoomLevel})`,
-                  transformOrigin: 'top left',
-                }}
-              >
-                <GraphVisualization
-                  packages={layoutedPackages}
-                  selectedPackage={selectedPackage}
-                  hoveredPackage={hoveredPackage}
-                  onPackageSelect={handlePackageSelect}
-                  onPackageHover={setHoveredPackage}
-                  layout={layout}
-                />
-              </div>
-
-              {/* Package Details Overlay */}
-              <DependencyDetails
-                package={selectedPackageData}
+            <div className="relative h-[600px] w-full">
+              <GraphVisualization
                 packages={packages}
-                onClose={() => setSelectedPackage(null)}
+                selectedPackage={selectedPackage}
+                hoveredPackage={hoveredPackage}
+                onPackageSelect={handlePackageSelect}
+                onPackageHover={setHoveredPackage}
+                layout={layout}
               />
             </div>
           ) : (
@@ -203,10 +182,24 @@ export default function DependencyGraph() {
           )}
         </div>
 
-        {/* Legend */}
-        {showLegend && (
+        {/* Right Panel */}
+        {viewMode === 'graph' && (
           <div className="lg:col-span-1">
-            <GraphLegend show={showLegend} />
+            {selectedPackageData ? (
+              <DependencyDetails
+                package={selectedPackageData}
+                packages={packages}
+                onClose={() => setSelectedPackage(null)}
+              />
+            ) : (
+              <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 h-[600px] flex flex-col items-center justify-center text-gray-500">
+                <InformationCircleIcon className="w-12 h-12 text-gray-300 mb-4" />
+                <p className="text-sm font-medium">Please select a package</p>
+                <p className="text-xs text-gray-400 mt-2 text-center">
+                  Click any node on the graph to view its details.
+                </p>
+              </div>
+            )}
           </div>
         )}
       </div>

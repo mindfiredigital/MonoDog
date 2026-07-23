@@ -402,16 +402,16 @@ export async function triggerPublish(req: Request, res: Response) {
       return;
     }
 
-    // // Check if working tree is clean
-    // const isClean = await isWorkingTreeClean(rootPath);
-    // if (!isClean) {
-    //   res.status(HTTP_STATUS_BAD_REQUEST).json({
-    //     success: false,
-    //     error: VALIDATION_ERRORS.WORKING_TREE_NOT_CLEAN,
-    //     message: VALIDATION_ERRORS.WORKING_TREE_NOT_CLEAN,
-    //   });
-    //   return;
-    // }
+    // Check if working tree is clean
+    const isClean = await isWorkingTreeClean(rootPath);
+    if (!isClean) {
+      res.status(HTTP_STATUS_BAD_REQUEST).json({
+        success: false,
+        error: VALIDATION_ERRORS.WORKING_TREE_NOT_CLEAN,
+        message: VALIDATION_ERRORS.WORKING_TREE_NOT_CLEAN,
+      });
+      return;
+    }
 
     // Check if changesets exist
     const changesets = await getExistingChangesets(rootPath);

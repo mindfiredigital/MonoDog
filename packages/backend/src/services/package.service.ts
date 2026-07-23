@@ -12,7 +12,9 @@ import { getPackageBumpTypes } from './changeset-service';
 export const transformPackage = (pkg: any) => {
   return {
     ...pkg,
-    commits: pkg._count?.commits || 0,
+    commits: Array.isArray(pkg.commits)
+      ? pkg.commits
+      : pkg._count?.commits || 0,
     maintainers: pkg.maintainers ? JSON.parse(pkg.maintainers) : [],
     scripts: pkg.scripts ? JSON.parse(pkg.scripts) : {},
     repository: pkg.repository ? JSON.parse(pkg.repository) : {},

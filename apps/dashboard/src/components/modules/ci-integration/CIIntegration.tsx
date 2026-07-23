@@ -182,10 +182,18 @@ export default function CIIntegration() {
     window.location.reload();
   };
 
-  const handleTriggerBuild = async (packageName: string, branch: string) => {
+  const handleTriggerBuild = async (
+    packageName: string,
+    branch: string,
+    workflowFileName: string
+  ) => {
     setIsTriggering(true);
     try {
-      await monorepoService.triggerCIBuild(packageName, branch);
+      await monorepoService.triggerCIBuild(
+        packageName,
+        branch,
+        workflowFileName
+      );
 
       setIsTriggerModalOpen(false);
       alert(
