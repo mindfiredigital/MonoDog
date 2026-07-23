@@ -203,7 +203,10 @@ class MonorepoService {
       );
 
       if (!response.success) {
-        if (response.error === 'UNAUTHORIZED' || response.error?.error === 'UNAUTHORIZED' || (response as any).error === 'UNAUTHORIZED') {
+        if (
+          response.error?.code === 'UNAUTHORIZED' ||
+          response.error?.status === 401
+        ) {
           throw new Error('UNAUTHORIZED');
         }
         throw new Error(

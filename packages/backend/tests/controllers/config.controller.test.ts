@@ -13,7 +13,7 @@ describe('Config Controller', () => {
   let req: any, res: any;
 
   beforeEach(() => {
-    req = {};
+    req = { app: { locals: { rootPath: '/mock/rootPath' } } };
     res = { json: vi.fn(), status: vi.fn().mockReturnThis() };
     vi.clearAllMocks();
   });

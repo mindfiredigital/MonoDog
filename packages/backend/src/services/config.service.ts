@@ -4,8 +4,8 @@ import path from 'path';
 /**
  * Find the monorepo root by looking for package.json with workspaces or pnpm-workspace.yaml
  */
-export function findMonorepoRoot(): string {
-  let currentDir = __dirname;
+export function findMonorepoRoot(providedRoot?: string): string {
+  let currentDir = providedRoot || process.cwd();
 
   while (currentDir !== path.parse(currentDir).root) {
     const packageJsonPath = path.join(currentDir, 'package.json');

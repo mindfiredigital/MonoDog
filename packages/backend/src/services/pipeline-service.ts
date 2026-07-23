@@ -115,10 +115,17 @@ export async function getPipelineAuditLogs(
  */
 export async function getRecentPipelines(
   limit: number = 20,
-  offset: number = 0
+  offset: number = 0,
+  owner?: string,
+  repo?: string
 ): Promise<any[]> {
   try {
-    return await ReleasePipelineRepository.getRecent(limit, offset);
+    return await ReleasePipelineRepository.getRecent(
+      limit,
+      offset,
+      owner,
+      repo
+    );
   } catch (error) {
     AppLogger.error(`Failed to get recent pipelines: ${error}`);
     throw error;

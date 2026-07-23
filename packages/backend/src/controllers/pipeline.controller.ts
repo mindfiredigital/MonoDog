@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { getRepositoryInfoFromGit } from '../utils/utilities';
 import * as pipelineService from '../services/pipeline-service';
 import { prisma } from '../db/prisma';
 import {
@@ -121,10 +122,26 @@ export async function getRecentPipelines(req: Request, res: Response) {
     const limit = Number(req.query.limit || 20);
     const offset = Number(req.query.offset || 0);
     const accessToken = (req as any).accessToken as string | undefined;
+    const rootPath = req.app.locals.rootPath;
+
+    let owner: string | undefined;
+    let repo: string | undefined;
+
+    try {
+      const repoInfo = await getRepositoryInfoFromGit(rootPath);
+      if (repoInfo) {
+        owner = repoInfo.owner;
+        repo = repoInfo.repo;
+      }
+    } catch (e) {
+      // Ignore git errors, default to no owner/repo filtering
+    }
 
     const pipelines = (await pipelineService.getRecentPipelines(
       limit,
-      offset
+      offset,
+      owner,
+      repo
     )) as PipelineRecord[];
 
     const enrichedPipelines = await Promise.all(
