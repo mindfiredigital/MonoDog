@@ -4,10 +4,12 @@ import {
   getPackageHealth,
   getAllPackagesHealth,
   refreshHealth,
+  getLiveStatus,
 } from '../controllers/health.controller';
 
 const router = Router();
 
+router.get('/live', getLiveStatus);
 router.get('/', getHealth);
 router.post('/refresh', refreshHealth);
 router.get('/packages', getAllPackagesHealth);

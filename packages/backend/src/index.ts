@@ -9,6 +9,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import path from 'path';
 import { json } from 'body-parser';
+import { rateLimit } from 'express-rate-limit';
 import apiRouter from './routes';
 import { prisma } from './db/prisma';
 import { setupSwaggerDocs } from './middleware/swagger-middleware';
@@ -59,8 +60,20 @@ export function startServer(
   app.use(cookieParser());
   app.use(json());
 
+  // Rate Limiting Middleware
+  const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 1000,
+    standardHeaders: 'draft-7',
+    legacyHeaders: false,
+    message: {
+      success: false,
+      error: 'Too many requests!',
+    },
+  });
+
   // Mount API router
-  app.use('/api', apiRouter);
+  app.use('/api', apiLimiter, apiRouter);
   setupSwaggerDocs(app);
 
   // Error handling middleware

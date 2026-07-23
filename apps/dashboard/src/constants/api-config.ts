@@ -40,6 +40,8 @@ export const DASHBOARD_API_ENDPOINTS = {
     STATUS: (pipelineId: string) => `/pipelines/${pipelineId}/status`,
     AUDIT_LOGS: (pipelineId: string) => `/pipelines/${pipelineId}/audit-logs`,
     RUN_STATUS: (pipelineId: string) => `/pipelines/${pipelineId}/run-status`,
+    CANCEL_SCHEDULE: (pipelineId: string) =>
+      `/pipelines/scheduled/${pipelineId}`,
     SCHEDULED: '/pipelines/scheduled',
     SCHEDULE: '/pipelines/schedule',
   },
