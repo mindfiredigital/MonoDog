@@ -296,7 +296,7 @@ export async function triggerPublishPipeline(
       try {
         const repoInfo = await getRepositoryInfoFromGit(rootPath);
         if (repoInfo) {
-          let inputs: Record<string, string> = {};
+          const inputs: Record<string, string> = {};
           try {
             const workflowPath = path.join(
               rootPath,

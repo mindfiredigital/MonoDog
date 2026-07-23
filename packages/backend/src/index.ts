@@ -6,6 +6,7 @@ import express, {
   type NextFunction,
 } from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import path from 'path';
 import { json } from 'body-parser';
@@ -60,6 +61,9 @@ export function startServer(
     })
   );
 
+  // Security headers
+  app.use(helmet());
+
   // Cookie parser middleware
   app.use(cookieParser());
   app.use(json());
@@ -91,7 +95,10 @@ export function startServer(
       console.error('Error:', error);
       res.status(500).json({
         error: 'Internal server error',
-        message: error.message,
+        message:
+          process.env.NODE_ENV === 'production'
+            ? 'Something went wrong'
+            : error.message,
         timestamp: Date.now(),
       });
     }

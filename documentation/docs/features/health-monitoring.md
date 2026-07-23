@@ -9,21 +9,22 @@ Health Monitoring offers up-to-date information on the linting, security, and bu
 
 ## Overview
 
-Real-time insights into the package quality of your monorepo are provided by Health Monitoring including <!-- test coverage, --> linting, security, and build status.
+Real-time insights into the package quality of your monorepo are provided by Health Monitoring including test coverage, linting, security, and build status.
 
 ![Screenshot of the health metrics](/img/health-page.png 'Health Metrics Screen')
 
 ## Health Metrics
 
-<!-- ### Test Coverage
+### Test Coverage
 
-Measures what percentage of your code is covered by tests:
+Measures what percentage of your code is covered by tests. MonoDog expects a `coverage-summary.json` file to calculate exact scores, but it provides graceful fallbacks if your setup is incomplete.
 
-- **Excellent**: ≥ 80%
-- **Good**: 60-79%
-- **Fair**: 40-59%
-- **Poor**: < 40%
--->
+The maximum health score awarded for testing is **25 points**.
+
+- **Perfect Scenario(x% Coverage):** MonoDog reads **`coverage/coverage-summary.json`** and awards points based on the exact percentage (e.g. `x / 100 * 25` = **y Points**).
+- **Alternative files present but not `coverage-summary.json`:** If it finds `lcov.info`, `clover.xml`, or `coverage.json` instead, it provides a 50% coverage (`50 / 100 * 25` = **12.5 Points**).
+- **Testing configured but not run:** If no coverage files exist but your `package.json` contains test scripts or libraries like `jest`, it provides 30% coverage (`30 / 100 * 25` = **7.5 Points**).
+- **No tests:** If no tests are configured at all, you receive **0 Points**.
 
 ### Linting Status
 
@@ -51,13 +52,12 @@ Tracks build success rate:
 
 ## Health Score
 
-Each package receives an overall health score (0-100) based on:
+Each package receives an overall health score (0-100) based on a weighted calculation:
 
-<!-- - **30%** - Test Coverage -->
-
-- **35%** - Linting Status
-- **35%** - Security Status
-- **30%** - Build Health
+- **30 Points** - Build Status
+- **25 Points** - Test Coverage
+- **25 Points** - Linting Status
+- **20 Points** - Security Audit
 
 ## Accessing Health Data
 
@@ -65,13 +65,13 @@ Each package receives an overall health score (0-100) based on:
 
 ```bash
 # Get all packages health
-curl http://localhost:8999/api/health/packages
+curl http://localhost:4000/api/health/packages
 
 # Get specific package health
-curl http://localhost:8999/api/health/packages/@scope/backend
+curl http://localhost:4000/api/health/packages/@scope/backend
 
 # Refresh health data
-curl -X POST http://localhost:8999/api/health/refresh
+curl -X POST http://localhost:4000/api/health/refresh
 ```
 
 ### Via Dashboard

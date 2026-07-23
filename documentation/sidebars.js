@@ -26,6 +26,7 @@ const sidebars = {
       items: [
         'installation/install-npm',
         'installation/configure-monorepo',
+        'installation/environment-setup',
         'installation/first-run',
       ],
     },
@@ -40,6 +41,8 @@ const sidebars = {
         'features/git-integration',
         'features/release-publishing',
         'features/version-history',
+        'features/ci-cd-integration',
+        'features/scheduled-releases',
       ],
     },
     {
@@ -54,13 +57,10 @@ const sidebars = {
         'api-reference/commits',
         'api-reference/config',
         'api-reference/publish',
+        'api-reference/ci-workflows',
+        'api-reference/pipelines',
+        'api-reference/workflows',
       ],
-    },
-    {
-      type: 'category',
-      label: 'Upcoming Features',
-      collapsed: true,
-      items: ['upcoming-features/CICD', 'upcoming-features/version-control'],
     },
   ],
 };

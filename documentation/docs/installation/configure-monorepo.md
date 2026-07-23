@@ -144,7 +144,7 @@ pnpm install
 cd ./monodog/ && npm run serve
 
 # In another terminal, check packages
-curl http://localhost:8999/api/packages
+curl http://localhost:4000/api/packages
 ```
 
 You will see all the packages you have listed along with their metadata.

@@ -75,7 +75,7 @@ export const triggerCIBuild = async (
   const repoInfo = await getRepositoryInfoFromGit(monorepoRoot);
   if (!repoInfo) throw new Error('Could not determine GitHub repository info');
 
-  let inputs: Record<string, string> = {};
+  const inputs: Record<string, string> = {};
   try {
     const workflowPath = path.join(
       monorepoRoot,

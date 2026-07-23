@@ -75,7 +75,7 @@ Example:
 
 const createConfigFileIfMissing = (rootPath: string): void => {
   // --- CONFIGURATION ---
-  const configFileName = 'monodog-conf.json';
+  const configFileName = 'monodog-config.json';
   const configFilePath = path.resolve(rootPath, configFileName);
 
   // The default content for the configuration file
@@ -195,11 +195,18 @@ const initMonodogEnvironment = (rootDir: string): void => {
   // Generate Prisma & Migrate
   console.log(`\nInitializing Database...`);
   try {
-    // Create the .env file so Prisma knows where the database is
-    fs.writeFileSync(
-      path.join(monodogPath, '.env'),
-      'DATABASE_URL="file:./monodog.db"'
-    );
+    // Create the .env file so Prisma knows where the database is and GitHub Auth can be configured
+    const envContent = `DATABASE_URL="file:./monodog.db"
+
+# --- ACTION REQUIRED ---
+# GitHub OAuth Configuration for Monodog Dashboard
+# Get these from https://github.com/settings/developers
+GITHUB_CLIENT_ID=your_github_client_id_here
+GITHUB_CLIENT_SECRET=your_github_client_secret_here
+GITHUB_REDIRECT_URI=http://localhost:3010/auth/callback
+CORS_ORIGINS=http://localhost:3010
+`;
+    fs.writeFileSync(path.join(monodogPath, '.env'), envContent);
 
     // Add prisma client so we can generate
     spawnSync(
@@ -259,11 +266,14 @@ const initMonodogEnvironment = (rootDir: string): void => {
 
   console.log(`\n*** MONODOG INSTALLATION COMPLETE ***`);
   console.log(
-    `1. pnpm install    (Run this in your root folder to wire up the new workspaces!)`
+    `1. Edit monodog/.env and add your GitHub OAuth credentials! (REQUIRED)`
   );
-  console.log(`2. cd monodog`);
-  console.log(`3. pnpm run build`);
-  console.log(`4. pnpm run serve`);
+  console.log(
+    `2. pnpm install    (Run this in your root folder to wire up the new workspaces!)`
+  );
+  console.log(`3. cd monodog`);
+  console.log(`4. pnpm run build`);
+  console.log(`5. pnpm run serve`);
 };
 
 const run = async () => {

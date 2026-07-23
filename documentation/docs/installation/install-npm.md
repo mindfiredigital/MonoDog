@@ -50,7 +50,7 @@ monodog/
 Once installed, proceed to:
 
 1. [Configure Your Monorepo](/installation/configure-monorepo)
-2. [Set Up Environment Variables](/installation/environment-setup)
-3. [Run Your First Instance](/installation/first-run)
+2. [Environment Setup](/installation/environment-setup)
+3. [First Run](/installation/first-run)
 
 Or jump directly to [Quick Start](/getting-started/quick-start)!
