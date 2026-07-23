@@ -48,6 +48,7 @@ export const DASHBOARD_API_ENDPOINTS = {
   CI: {
     STATUS: '/ci/status',
     TRIGGER: '/ci/trigger',
+    AVAILABLE_WORKFLOWS: '/ci/workflows/available',
     TOGGLE: (pipelineId: string) => `/ci/pipelines/${pipelineId}/toggle`,
     CANCEL: (buildId: string) => `/ci/pipelines/${buildId}/cancel`,
     RETRY: (buildId: string) => `/ci/pipelines/${buildId}/retry`,

@@ -6,7 +6,11 @@ import { Package } from '../../../../types/monorepo-service.types';
 interface TriggerBuildModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (packageName: string, branch: string) => void;
+  onSubmit: (
+    packageName: string,
+    branch: string,
+    workflowFileName: string
+  ) => void;
   isLoading: boolean;
 }
 
@@ -19,25 +23,34 @@ export default function TriggerBuildModal({
   const [packages, setPackages] = useState<Package[]>([]);
   const [selectedPackage, setSelectedPackage] = useState<string>('');
   const [branch, setBranch] = useState<string>('main');
-  const [loadingPackages, setLoadingPackages] = useState<boolean>(true);
+  const [workflows, setWorkflows] = useState<any[]>([]);
+  const [selectedWorkflow, setSelectedWorkflow] = useState<string>('');
+  const [loadingData, setLoadingData] = useState<boolean>(true);
 
   useEffect(() => {
     if (isOpen) {
-      const fetchPackages = async () => {
-        setLoadingPackages(true);
+      const fetchData = async () => {
+        setLoadingData(true);
         try {
-          const pkgs = await monorepoService.getPackages();
+          const [pkgs, wfs] = await Promise.all([
+            monorepoService.getPackages(),
+            monorepoService.getAvailableWorkflows(),
+          ]);
           setPackages(pkgs);
           if (pkgs.length > 0) {
             setSelectedPackage(pkgs[0].name);
           }
+          setWorkflows(wfs);
+          if (wfs.length > 0) {
+            setSelectedWorkflow(wfs[0].path.split('/').pop() || wfs[0].name);
+          }
         } catch (error) {
-          console.error('Failed to load packages:', error);
+          console.error('Failed to load data:', error);
         } finally {
-          setLoadingPackages(false);
+          setLoadingData(false);
         }
       };
-      fetchPackages();
+      fetchData();
     }
   }, [isOpen]);
 
@@ -45,8 +58,8 @@ export default function TriggerBuildModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (selectedPackage && branch) {
-      onSubmit(selectedPackage, branch);
+    if (selectedPackage && branch && selectedWorkflow) {
+      onSubmit(selectedPackage, branch, selectedWorkflow);
     }
   };
 
@@ -74,11 +87,11 @@ export default function TriggerBuildModal({
               <select
                 value={selectedPackage}
                 onChange={e => setSelectedPackage(e.target.value)}
-                disabled={loadingPackages || isLoading}
+                disabled={loadingData || isLoading}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
                 required
               >
-                {loadingPackages ? (
+                {loadingData ? (
                   <option value="">Loading packages...</option>
                 ) : (
                   packages.map(pkg => (
@@ -86,6 +99,34 @@ export default function TriggerBuildModal({
                       {pkg.name}
                     </option>
                   ))
+                )}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Select Workflow
+              </label>
+              <select
+                value={selectedWorkflow}
+                onChange={e => setSelectedWorkflow(e.target.value)}
+                disabled={loadingData || isLoading}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
+                required
+              >
+                {loadingData ? (
+                  <option value="">Loading workflows...</option>
+                ) : workflows.length === 0 ? (
+                  <option value="">No workflows found in repository</option>
+                ) : (
+                  workflows.map(wf => {
+                    const filename = wf.path.split('/').pop() || wf.name;
+                    return (
+                      <option key={wf.id || filename} value={filename}>
+                        {wf.name} ({filename})
+                      </option>
+                    );
+                  })
                 )}
               </select>
             </div>
@@ -117,7 +158,7 @@ export default function TriggerBuildModal({
             </button>
             <button
               type="submit"
-              disabled={isLoading || !selectedPackage || loadingPackages}
+              disabled={isLoading || !selectedPackage || loadingData}
               className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
             >
               {isLoading ? (

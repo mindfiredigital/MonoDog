@@ -211,19 +211,39 @@ class MonorepoService {
       throw error;
     }
   }
-
-  async triggerCIBuild(packageName: string, branch: string): Promise<any> {
+  async triggerCIBuild(
+    packageName: string,
+    branch: string,
+    workflowFileName?: string
+  ): Promise<any> {
     try {
       const res = await apiClient.post(DASHBOARD_API_ENDPOINTS.CI.TRIGGER, {
         packageName,
         providerName: 'github',
         branch,
+        workflowFileName,
       });
       if (!res.success)
         throw new Error(res.error?.message || 'Failed to trigger build');
       return res.data;
     } catch (error) {
       console.error('Error triggering build:', error);
+      throw error;
+    }
+  }
+
+  async getAvailableWorkflows(): Promise<any[]> {
+    try {
+      const res = await apiClient.get(
+        DASHBOARD_API_ENDPOINTS.CI.AVAILABLE_WORKFLOWS
+      );
+      if (!res.success)
+        throw new Error(
+          res.error?.message || 'Failed to fetch available workflows'
+        );
+      return res.data?.workflows || [];
+    } catch (error) {
+      console.error('Error fetching workflows:', error);
       throw error;
     }
   }
