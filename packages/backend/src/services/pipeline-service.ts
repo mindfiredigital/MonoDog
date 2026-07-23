@@ -163,6 +163,20 @@ export async function scheduleRelease(
   triggeredBy: string
 ) {
   try {
+    const existing = await prisma.scheduledRelease.findFirst({
+      where: {
+        packageName,
+        releaseVersion,
+        status: 'pending',
+      },
+    });
+
+    if (existing) {
+      throw new Error(
+        `A pending release for ${packageName} at version ${releaseVersion} is already scheduled.`
+      );
+    }
+
     const scheduledRelease = await prisma.scheduledRelease.create({
       data: {
         releaseVersion,

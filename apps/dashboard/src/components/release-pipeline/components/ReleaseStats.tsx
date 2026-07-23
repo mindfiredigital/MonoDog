@@ -16,13 +16,6 @@ export function ReleaseStats({ stats, fetchPipelines }: ReleaseStatsProps) {
             step, and dispatch reruns without leaving MonoDog.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => fetchPipelines(true)}
-          className="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700 transition hover:border-primary-400 hover:text-primary-700"
-        >
-          Refresh now
-        </button>
       </div>
 
       <div className="mt-6 grid gap-4 md:grid-cols-4">

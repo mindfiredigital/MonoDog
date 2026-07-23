@@ -1,13 +1,15 @@
-import { CloudArrowUpIcon } from '../../../icons/heroicons';
+import { CloudArrowUpIcon, ArrowPathIcon } from '../../../icons/heroicons';
 
 interface PublishHeaderProps {
   packageCount: number;
   onNewRelease: () => void;
+  onRefresh?: () => void;
 }
 
 export default function PublishHeader({
   packageCount,
   onNewRelease,
+  onRefresh,
 }: PublishHeaderProps) {
   return (
     <div className="flex items-center justify-between">
@@ -18,13 +20,24 @@ export default function PublishHeader({
           {packageCount} packages)
         </p>
       </div>
-      <button
-        onClick={onNewRelease}
-        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2"
-      >
-        <CloudArrowUpIcon className="w-5 h-5" />
-        <span>New Release</span>
-      </button>
+      <div className="flex space-x-3">
+        <button
+          onClick={onNewRelease}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2 transition-colors"
+        >
+          <CloudArrowUpIcon className="w-5 h-5" />
+          <span>New Release</span>
+        </button>
+        {onRefresh && (
+          <button
+            onClick={onRefresh}
+            className="btn-primary flex items-center space-x-2 transition-colors"
+          >
+            <ArrowPathIcon className="w-5 h-5" />
+            <span>Refresh</span>
+          </button>
+        )}
+      </div>
     </div>
   );
 }
