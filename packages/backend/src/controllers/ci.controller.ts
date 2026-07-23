@@ -9,6 +9,7 @@ import {
   retryCIBuild as retryCIBuildService,
   togglePipeline as togglePipelineService,
   getAvailableWorkflows as getAvailableWorkflowsService,
+  getRepoBranches as getRepoBranchesService,
 } from '../services/ci-status.service';
 
 export const getMonorepoCIStatus = async (req: Request, res: Response) => {
@@ -18,11 +19,19 @@ export const getMonorepoCIStatus = async (req: Request, res: Response) => {
     const ciStatus = await getMonorepoCIStatusService(rootPath, accessToken);
 
     res.json(ciStatus);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to fetch monorepo CI status:', error);
 
-    res.status(500).json({
-      error: 'Failed to fetch CI status',
+    const isUnauthorized =
+      error.message?.includes('token') ||
+      error.message?.includes('401') ||
+      error.message?.includes('403') ||
+      error.message?.includes('404');
+
+    res.status(isUnauthorized ? 403 : 500).json({
+      success: false,
+      error: isUnauthorized ? 'UNAUTHORIZED' : 'Failed to fetch CI status',
+      message: error.message,
     });
   }
 };
@@ -194,6 +203,21 @@ export const getAvailableWorkflows = async (req: Request, res: Response) => {
         error instanceof Error
           ? error.message
           : 'Failed to fetch available workflows',
+    });
+  }
+};
+
+export const getAvailableBranches = async (req: Request, res: Response) => {
+  try {
+    const rootPath = req.app.locals.rootPath;
+    const accessToken = (req as any).accessToken as string | undefined;
+    const result = await getRepoBranchesService(rootPath, accessToken);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error:
+        error instanceof Error ? error.message : 'Failed to fetch branches',
     });
   }
 };

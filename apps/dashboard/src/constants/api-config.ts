@@ -55,6 +55,7 @@ export const DASHBOARD_API_ENDPOINTS = {
     TOGGLE: (pipelineId: string) => `/ci/pipelines/${pipelineId}/toggle`,
     CANCEL: (buildId: string) => `/ci/pipelines/${buildId}/cancel`,
     RETRY: (buildId: string) => `/ci/pipelines/${buildId}/retry`,
+    BRANCHES: '/ci/branches',
   },
 
   // Publish endpoints
