@@ -1,6 +1,6 @@
 {
   "name": "@mindfiredigital/docs",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Monodog - Complete documentation for installation and usage",
   "private": true,
   "scripts": {
