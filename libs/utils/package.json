@@ -1,6 +1,6 @@
 {
   "name": "@mindfiredigital/utils",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Shared utility functions for monodog monorepo dashboard",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
