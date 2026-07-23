@@ -2,6 +2,13 @@
   "name": "@mindfiredigital/utils",
   "version": "1.0.2",
   "description": "Shared utility functions for monodog monorepo dashboard",
+  "keywords": [
+    "monodog",
+    "monodog-utils",
+    "monorepo",
+    "helpers",
+    "mindfiredigital"
+  ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "license": "MIT",
