@@ -59,7 +59,12 @@ export const callback = async (req: Request, res: Response) => {
       return;
     }
 
-    const result = await handleOAuthCallback(code as string, state as string);
+    const rootPath = req.app.locals.rootPath;
+    const result = await handleOAuthCallback(
+      code as string,
+      state as string,
+      rootPath
+    );
 
     res.json({
       success: true,

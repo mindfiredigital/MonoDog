@@ -183,7 +183,13 @@ export const refreshPackagesHealth = async (rootPath?: string) => {
       } catch {
         return {
           packageName: pkg.name,
-          health: null,
+          health: {
+            buildStatus: 'unknown',
+            testCoverage: 0,
+            lintStatus: 'unknown',
+            securityAudit: { vulnerabilities: 0, severity: 'none' },
+            overallScore: 0,
+          },
           isHealthy: false,
           error: 'Failed to fetch health metrics',
         };

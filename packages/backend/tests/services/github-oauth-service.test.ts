@@ -15,9 +15,9 @@ describe('GitHub OAuth Service', () => {
       expect(mapPermissionToRole('maintain')).toBe('Maintainer');
     });
 
-    it('should map write and read to Collaborator', () => {
+    it('should map write and read to Collaborator and Viewer', () => {
       expect(mapPermissionToRole('write')).toBe('Collaborator');
-      expect(mapPermissionToRole('read')).toBe('Collaborator');
+      expect(mapPermissionToRole('read')).toBe('Viewer');
     });
 
     it('should map none to Denied', () => {
