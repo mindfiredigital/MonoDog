@@ -1,11 +1,12 @@
 ---
-'@mindfiredigital/monodog': minor
+'@mindfiredigital/monodog-dashboard': minor
+'@mindfiredigital/monodog': patch
 '@mindfiredigital/monorepo-scanner': patch
+'@mindfiredigital/utils': patch
 ---
 
-### New Features
+### Features
 
-- `Branch Selection:` Added remote branch selection dropdown via GitHub REST API for manual pipeline dispatches.
-- `RBAC & Viewer Role:` Implemented `Viewer` read-only role, public repository permission fallback, and `RoleGuard` UI wrapper.
-- `Release Pipeline Enhancements:` Filtered pipeline history by repository owner/repo, automated changeset git commits, and enabled `rootPath` configuration.
-- `Changelog Viewer:` Added local and GitHub Releases changelog parser with Markdown rendering and version filtering.
+- **Dashboard Package Publish:** Renamed package to `@mindfiredigital/monodog-dashboard` and removed `private` flag to enable npm registry publishing for CLI initialization support.
+- **Documentation:** Added detailed `README.md` files for `@mindfiredigital/monorepo-scanner`, `@mindfiredigital/utils`, `@mindfiredigital/monodog-dashboard`, and `@mindfiredigital/monodog`.
+- **NPM Keywords Integration:** Added domain-specific keywords (`monodog`, `monorepo`, `ci-cd`, `mindfiredigital`, `pnpm`, `turborepo`, etc.) to all workspace packages to improve npm discoverability.
