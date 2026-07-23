@@ -46,13 +46,13 @@ export class MonorepoScanner {
 
       console.log('Starting monorepo scan...');
 
-      const packages = scanMonorepo(this.rootDir);
+      const packages = await scanMonorepo(this.rootDir);
       console.log(`Found ${packages.length} packages`);
 
       const stats = generateMonorepoStats(packages);
       const dependencyGraph = generateDependencyGraph(packages);
       const circularDependencies = findCircularDependencies(packages);
-      const outdatedPackages = findOutdatedPackages(packages);
+      const outdatedPackages = await findOutdatedPackages(packages);
 
       const result: ScanResult = {
         packages,
@@ -75,7 +75,7 @@ export class MonorepoScanner {
   }
 
   async generatePackageReports(): Promise<PackageReport[]> {
-    const packages = scanMonorepo(this.rootDir);
+    const packages = await scanMonorepo(this.rootDir);
     const reports: PackageReport[] = [];
 
     for (const pkg of packages) {
@@ -92,8 +92,8 @@ export class MonorepoScanner {
 
   async generatePackageReport(pkg: PackageInfo): Promise<PackageReport> {
     const health = await assessPackageHealth(pkg);
-    const size = getPackageSize(pkg.path);
-    const outdatedDeps = checkOutdatedDependencies(pkg);
+    const size = await getPackageSize(pkg.path);
+    const outdatedDeps = await checkOutdatedDependencies(pkg);
     const lastModified = getLastModified(pkg.path);
     const gitInfo = await getGitInfo(pkg.path);
 
@@ -113,8 +113,11 @@ export class MonorepoScanner {
     return checkBuildStatus(pkg);
   }
 
-  async checkTestCoverage(pkg: PackageInfo): Promise<number> {
-    return checkTestCoverage(pkg);
+  async checkTestCoverage(
+    pkg: PackageInfo,
+    coverageOverridePath?: string
+  ): Promise<number> {
+    return checkTestCoverage(pkg, coverageOverridePath);
   }
 
   async checkLintStatus(
@@ -129,8 +132,10 @@ export class MonorepoScanner {
     return checkSecurityAudit(pkg);
   }
 
-  scanForFileTypes(fileTypes: string[]): Record<string, string[]> {
-    return scanForFileTypes(this.rootDir, fileTypes);
+  async scanForFileTypes(
+    fileTypes: string[]
+  ): Promise<Record<string, string[]>> {
+    return await scanForFileTypes(this.rootDir, fileTypes);
   }
 
   clearCache(): void {
@@ -154,8 +159,10 @@ export async function generateReports(): Promise<PackageReport[]> {
   return scanner.generatePackageReports();
 }
 
-export function scanForFiles(fileTypes: string[]): Record<string, string[]> {
-  return scanner.scanForFileTypes(fileTypes);
+export async function scanForFiles(
+  fileTypes: string[]
+): Promise<Record<string, string[]>> {
+  return await scanner.scanForFileTypes(fileTypes);
 }
 
 export async function funCheckBuildStatus(
@@ -164,8 +171,11 @@ export async function funCheckBuildStatus(
   return scanner.checkBuildStatus(pkg);
 }
 
-export async function funCheckTestCoverage(pkg: PackageInfo): Promise<number> {
-  return scanner.checkTestCoverage(pkg);
+export async function funCheckTestCoverage(
+  pkg: PackageInfo,
+  coverageOverridePath?: string
+): Promise<number> {
+  return scanner.checkTestCoverage(pkg, coverageOverridePath);
 }
 
 export async function funCheckLintStatus(

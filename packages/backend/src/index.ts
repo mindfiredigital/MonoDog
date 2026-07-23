@@ -6,9 +6,11 @@ import express, {
   type NextFunction,
 } from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import path from 'path';
 import { json } from 'body-parser';
+import { rateLimit } from 'express-rate-limit';
 import apiRouter from './routes';
 import { prisma } from './db/prisma';
 import { setupSwaggerDocs } from './middleware/swagger-middleware';
@@ -16,6 +18,10 @@ import {
   startScheduledReleaseWorker,
   stopScheduledReleaseWorker,
 } from './workers/scheduled-release-worker';
+import {
+  startNpmSyncWorker,
+  stopNpmSyncWorker,
+} from './workers/npm-sync-worker';
 import { refreshAllPackages } from './services/package.service';
 
 export { scanner } from './services/scan.service';
@@ -55,12 +61,27 @@ export function startServer(
     })
   );
 
+  // Security headers
+  app.use(helmet());
+
   // Cookie parser middleware
   app.use(cookieParser());
   app.use(json());
 
+  // Rate Limiting Middleware
+  const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 1000,
+    standardHeaders: 'draft-7',
+    legacyHeaders: false,
+    message: {
+      success: false,
+      error: 'Too many requests!',
+    },
+  });
+
   // Mount API router
-  app.use('/api', apiRouter);
+  app.use('/api', apiLimiter, apiRouter);
   setupSwaggerDocs(app);
 
   // Error handling middleware
@@ -74,7 +95,10 @@ export function startServer(
       console.error('Error:', error);
       res.status(500).json({
         error: 'Internal server error',
-        message: error.message,
+        message:
+          process.env.NODE_ENV === 'production'
+            ? 'Something went wrong'
+            : error.message,
         timestamp: Date.now(),
       });
     }
@@ -102,6 +126,8 @@ export function startServer(
 
       // Start background worker for scheduled releases & pipeline cleanup
       startScheduledReleaseWorker(rootPath);
+      // Start NPM Sync Worker
+      startNpmSyncWorker(rootPath);
     })
     .on('error', (err: any) => {
       // Handle common errors like EADDRINUSE (port already in use)
@@ -122,6 +148,7 @@ export function startServer(
 
     // Stop the background worker
     stopScheduledReleaseWorker();
+    stopNpmSyncWorker();
 
     // Close the HTTP server (stop accepting new connections)
     server.close(() => {

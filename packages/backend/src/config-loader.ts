@@ -5,8 +5,12 @@ import { MonodogConfig } from './types';
 // Global variable to hold the loaded config
 let config: MonodogConfig | null = null;
 
+function resolveRootPath(): string {
+  return path.resolve(process.cwd(), '.');
+}
+
 /**
- * Loads the monodog-conf.json file from the monorepo root.
+ * Loads the monodog-config.json file from the monorepo root.
  * This should be called only once during application startup.
  * @returns The application configuration object.
  */
@@ -17,8 +21,8 @@ export function loadConfig(): MonodogConfig {
 
   // We assume the backend package is running from the monorepo root (cwd is root)
   // or that we can navigate up to the root from the current file's location.
-  const rootPath = path.resolve(process.cwd(), '.'); // Adjust based on your workspace folder depth  from root if needed
-  const configPath = path.resolve(rootPath, 'monodog-conf.json');
+  const rootPath = resolveRootPath();
+  const configPath = path.resolve(rootPath, 'monodog-config.json');
   createConfigFileIfMissing(rootPath);
 
   if (!fs.existsSync(configPath)) {
@@ -38,14 +42,14 @@ export function loadConfig(): MonodogConfig {
     process.stderr.write('[Config] Loaded configuration from: ...\n');
     return config;
   } catch (error) {
-    console.error('ERROR: Failed to read or parse monodog-conf.json.');
+    console.error('ERROR: Failed to read or parse monodog-config.json.');
     console.error(error);
     process.exit(1);
   }
 }
 
 function createConfigFileIfMissing(rootPath: string): void {
-  const configFileName = 'monodog-conf.json';
+  const configFileName = 'monodog-config.json';
   const configFilePath = path.resolve(rootPath, configFileName);
 
   // The default content for the configuration file
@@ -64,6 +68,9 @@ function createConfigFileIfMissing(rootPath: string): void {
     server: {
       host: '0.0.0.0', // Default host for the API server
       port: 4000, // Default port for the API server
+    },
+    health: {
+      testCoveragePath: 'coverage/coverage-summary.json',
     },
   };
 

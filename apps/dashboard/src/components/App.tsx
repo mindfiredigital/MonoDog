@@ -6,6 +6,7 @@ import { PermissionProvider } from '../services/permission-context';
 import LoginPage from '../pages/LoginPage';
 import AuthCallbackPage from '../pages/AuthCallbackPage';
 import ProtectedRoute from './ProtectedRoute';
+import { ErrorBoundary } from './ErrorBoundary';
 
 export default function App() {
   return (
@@ -22,9 +23,11 @@ export default function App() {
               path="/*"
               element={
                 <ProtectedRoute>
-                  <Layout>
-                    <AppRouter />
-                  </Layout>
+                  <ErrorBoundary>
+                    <Layout>
+                      <AppRouter />
+                    </Layout>
+                  </ErrorBoundary>
                 </ProtectedRoute>
               }
             />

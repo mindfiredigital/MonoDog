@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { runNpmSync } from '../workers/npm-sync-worker';
 import {
   getAllPackages,
   refreshAllPackages,
@@ -34,6 +35,21 @@ export const refreshPackages = async (req: Request, res: Response) => {
   } catch (error) {
     res.status(500).json({
       error: 'Failed to refresh packages',
+    });
+  }
+};
+
+export const syncNpmData = async (req: Request, res: Response) => {
+  try {
+    const rootPath = req.app.locals.rootPath;
+
+    // We run it async and immediately return to avoid timeout
+    runNpmSync(rootPath);
+
+    res.json({ success: true, message: 'NPM sync started in background' });
+  } catch (error) {
+    res.status(500).json({
+      error: 'Failed to start NPM sync',
     });
   }
 };

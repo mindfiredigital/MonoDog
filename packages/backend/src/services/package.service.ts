@@ -30,19 +30,22 @@ export const getAllPackages = async (rootPath?: string) => {
   const resolvedRootPath = rootPath || process.cwd();
 
   let dbPackages = await prisma.package.findMany({
-    include: { _count: { select: { commits: true } } },
+    include: { _count: { select: { commits: true } }, dependenciesInfo: true },
   });
 
   if (!dbPackages.length) {
     const rootDir = path.resolve(resolvedRootPath);
-    const packages = scanMonorepo(rootDir);
+    const packages = await scanMonorepo(rootDir);
 
     for (const pkg of packages) {
       await storePackage(pkg);
     }
 
     dbPackages = await prisma.package.findMany({
-      include: { _count: { select: { commits: true } } },
+      include: {
+        _count: { select: { commits: true } },
+        dependenciesInfo: true,
+      },
     });
   }
 
@@ -60,7 +63,7 @@ export const getPackagesService = async (rootPath: string) => {
     try {
       const rootDir = rootPath;
       AppLogger.debug('rootDir: ' + rootDir);
-      const packages = scanMonorepo(rootDir);
+      const packages = await scanMonorepo(rootDir);
       AppLogger.debug('packages scanned: ' + packages.length);
       for (const pkg of packages) {
         await storePackage(pkg);
@@ -112,7 +115,7 @@ export const refreshAllPackages = async (rootPath?: string) => {
   const resolvedRootPath = rootPath || process.cwd();
   const rootDir = path.resolve(resolvedRootPath);
 
-  const packages = scanMonorepo(rootDir);
+  const packages = await scanMonorepo(rootDir);
   const packageNames = packages.map(p => p.name);
 
   const packagesToDelete = await prisma.package.findMany({
@@ -175,7 +178,7 @@ export const getPackageByName = async (name: string) => {
 
   let packageReport = null;
   const rootPath = process.cwd();
-  const allPackages = scanMonorepo(rootPath);
+  const allPackages = await scanMonorepo(rootPath);
   const pkgInfo = allPackages.find(p => p.name === name);
 
   if (pkgInfo) {

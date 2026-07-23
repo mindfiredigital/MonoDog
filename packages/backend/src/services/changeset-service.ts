@@ -4,6 +4,8 @@
  */
 
 import path from 'path';
+import * as yaml from 'js-yaml';
+import { readFileSync, existsSync } from 'fs';
 import fs from 'fs/promises';
 import https from 'https';
 import { exec } from 'child_process';
@@ -294,21 +296,17 @@ export async function triggerPublishPipeline(
       try {
         const repoInfo = await getRepositoryInfoFromGit(rootPath);
         if (repoInfo) {
-          let inputs: Record<string, string> = {};
+          const inputs: Record<string, string> = {};
           try {
-            const fs = require('fs');
-            const path = require('path');
-            const yaml = require('js-yaml');
-
             const workflowPath = path.join(
               rootPath,
               '.github',
               'workflows',
               'release.yml'
             );
-            if (fs.existsSync(workflowPath)) {
-              const fileContents = fs.readFileSync(workflowPath, 'utf8');
-              const workflowData = yaml.load(fileContents);
+            if (existsSync(workflowPath)) {
+              const fileContents = readFileSync(workflowPath, 'utf8');
+              const workflowData = yaml.load(fileContents) as any;
               const dispatchInputs =
                 workflowData?.on?.workflow_dispatch?.inputs || {};
 
@@ -375,7 +373,7 @@ export async function checkCIPassing(
   try {
     if (!accessToken) {
       AppLogger.warn('No access token available for CI check');
-      return true; // Allow publishing if no token
+      return false;
     }
 
     const { runs } = await getWorkflowRuns(owner, repo, accessToken, {
@@ -387,7 +385,7 @@ export async function checkCIPassing(
 
     if (!runs || runs.length === 0) {
       AppLogger.warn('No completed workflow runs found');
-      return true; // Allow if no runs exist
+      return false;
     }
 
     const latestRun = runs[0];
@@ -404,7 +402,7 @@ export async function checkCIPassing(
     return passed;
   } catch (error) {
     AppLogger.error(`Failed to check CI status: ${error}`);
-    return true; // Allow on error
+    return false;
   }
 }
 
@@ -434,23 +432,23 @@ export async function checkVersionAvailableOnNpm(
           resolve(true); // Version doesn't exist, safe to publish
         } else {
           AppLogger.warn(`NPM check unexpected status ${response.statusCode}`);
-          resolve(true); // Default to allowing publish
+          resolve(false); // Default to denying publish on unexpected status
         }
       });
 
       request.on('error', error => {
         AppLogger.error(`Failed to check npm version: ${error}`);
-        resolve(true); // Allow on error
+        resolve(false); // Deny on error
       });
 
       request.setTimeout(5000, () => {
         request.destroy();
         AppLogger.warn('NPM registry check timeout');
-        resolve(true); // Allow on timeout
+        resolve(false); // Deny on timeout
       });
     } catch (error) {
       AppLogger.error(`NPM version check error: ${error}`);
-      resolve(true); // Allow on error
+      resolve(false); // Deny on error
     }
   });
 }

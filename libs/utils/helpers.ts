@@ -51,80 +51,64 @@ export interface MonorepoStats {
   totalDependencies: number;
 }
 
+async function fileExists(filePath: string): Promise<boolean> {
+  try {
+    await fs.promises.access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Scans the monorepo and returns information about all packages
  */
-function scanMonorepo(rootDir: string): PackageInfo[] {
+async function scanMonorepo(rootDir: string): Promise<PackageInfo[]> {
   const packages: PackageInfo[] = [];
-  console.log('rootDir', rootDir);
-  // Scan packages directory
-  const packagesDir = path.join(rootDir, 'packages');
-  if (fs.existsSync(packagesDir)) {
-    const packageDirs = fs
-      .readdirSync(packagesDir, { withFileTypes: true })
-      .filter(dirent => dirent.isDirectory())
-      .map(dirent => dirent.name);
 
-    for (const packageName of packageDirs) {
-      const packagePath = path.join(packagesDir, packageName);
-      const packageInfo = parsePackageInfo(packagePath, packageName);
-      if (packageInfo) {
-        packages.push(packageInfo);
-      }
+  const scanDir = async (dirName: string, type?: 'app' | 'lib' | 'tool') => {
+    const fullDir = path.join(rootDir, dirName);
+    if (!(await fileExists(fullDir))) return;
+
+    const dirents = await fs.promises.readdir(fullDir, { withFileTypes: true });
+    const packageDirs = dirents.filter(d => d.isDirectory()).map(d => d.name);
+
+    const parsedPackages = await Promise.all(
+      packageDirs.map(async packageName => {
+        const packagePath = path.join(fullDir, packageName);
+        return await parsePackageInfo(packagePath, packageName, type);
+      })
+    );
+
+    for (const pkg of parsedPackages) {
+      if (pkg) packages.push(pkg);
     }
-  }
+  };
 
-  // Scan apps directory
-  const appsDir = path.join(rootDir, 'apps');
-  if (fs.existsSync(appsDir)) {
-    const appDirs = fs
-      .readdirSync(appsDir, { withFileTypes: true })
-      .filter(dirent => dirent.isDirectory())
-      .map(dirent => dirent.name);
-
-    for (const appName of appDirs) {
-      const appPath = path.join(appsDir, appName);
-      const appInfo = parsePackageInfo(appPath, appName, 'app');
-      if (appInfo) {
-        packages.push(appInfo);
-      }
-    }
-  }
-
-  // Scan libs directory
-  const libsDir = path.join(rootDir, 'libs');
-  if (fs.existsSync(libsDir)) {
-    const libDirs = fs
-      .readdirSync(libsDir, { withFileTypes: true })
-      .filter(dirent => dirent.isDirectory())
-      .map(dirent => dirent.name);
-
-    for (const libName of libDirs) {
-      const libPath = path.join(libsDir, libName);
-      const libInfo = parsePackageInfo(libPath, libName, 'lib');
-      if (libInfo) {
-        packages.push(libInfo);
-      }
-    }
-  }
+  await Promise.all([
+    scanDir('packages'),
+    scanDir('apps', 'app'),
+    scanDir('libs', 'lib'),
+  ]);
 
   return packages;
 }
 
 /*** Parses package.json and determines package type */
-function parsePackageInfo(
+async function parsePackageInfo(
   packagePath: string,
   packageName: string,
   forcedType?: 'app' | 'lib' | 'tool'
-): PackageInfo | null {
+): Promise<PackageInfo | null> {
   const packageJsonPath = path.join(packagePath, 'package.json');
 
-  if (!fs.existsSync(packageJsonPath)) {
+  if (!(await fileExists(packageJsonPath))) {
     return null;
   }
 
   try {
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+    const packageJsonData = await fs.promises.readFile(packageJsonPath, 'utf8');
+    const packageJson = JSON.parse(packageJsonData);
 
     // Determine package type
     let packageType: 'app' | 'lib' | 'tool' = 'lib';
@@ -155,21 +139,6 @@ function parsePackageInfo(
     return null;
   }
 }
-
-/**
- * Analyzes dependencies and determines their status
- */
-// function analyzeDependencies(
-//   dependencies: Record<string, string>,
-//   type: 'production' | 'development' = 'production'
-// ): DependencyInfo[] {
-//   return Object.entries(dependencies).map(([name, version]) => ({
-//     name,
-//     currentVersion: version,
-//     status: 'unknown', // Would be determined by npm registry check
-//     type,
-//   }));
-// }
 
 /**
  * Calculates package health score based on various metrics
@@ -337,92 +306,123 @@ function generateDependencyGraph(packages: PackageInfo[]) {
   return { nodes, edges };
 }
 
+const npmCache = new Map<string, string>();
+
 /**
- * Checks if a package has outdated dependencies
+ * Checks if a package has outdated dependencies by querying the NPM registry.
+ * Uses an in-memory cache to avoid rate-limiting.
  */
-function checkOutdatedDependencies(packageInfo: PackageInfo): DependencyInfo[] {
+async function checkOutdatedDependencies(
+  packageInfo: PackageInfo
+): Promise<DependencyInfo[]> {
   const outdated: DependencyInfo[] = [];
 
-  // This would typically involve checking against npm registry
-  // For now, we'll simulate with some basic checks
-  Object.entries(packageInfo.dependencies).forEach(([name, version]) => {
-    if (version.startsWith('^') || version.startsWith('~')) {
-      // Could be outdated, would need registry check
+  const checkDep = async (
+    name: string,
+    version: string,
+    type: 'dependency' | 'devDependency' | 'peerDependency'
+  ) => {
+    // Strip standard semver prefixes
+    const currentVersion = version.replace(/^[\^~]/, '');
+    let latestVersion = npmCache.get(name);
+
+    if (!latestVersion) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+        const response = await fetch(
+          `https://registry.npmjs.org/${name}/latest`,
+          {
+            signal: controller.signal,
+          }
+        );
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+          const data = await response.json();
+          latestVersion = data.version;
+          if (latestVersion) npmCache.set(name, latestVersion);
+        }
+      } catch (error) {
+        // Timeout or network error, fallback to unknown
+      }
+    }
+
+    if (latestVersion && latestVersion !== currentVersion) {
       outdated.push({
         name,
-        version: version,
-        status: 'unknown',
-        type: 'dependency',
+        version: currentVersion,
+        latest: latestVersion,
+        status: 'outdated',
+        type,
+        outdated: true,
+      });
+    } else {
+      outdated.push({
+        name,
+        version: currentVersion,
+        latest: latestVersion || currentVersion,
+        status: latestVersion ? 'up-to-date' : 'unknown',
+        type,
+        outdated: false,
       });
     }
+  };
+
+  const promises: Promise<void>[] = [];
+  const depGroups = [
+    { data: packageInfo.dependencies, type: 'dependency' },
+    { data: packageInfo.devDependencies, type: 'devDependency' },
+    { data: packageInfo.peerDependencies, type: 'peerDependency' },
+  ] as const;
+
+  depGroups.forEach(group => {
+    Object.entries(group.data || {}).forEach(([name, version]) =>
+      promises.push(checkDep(name, version, group.type))
+    );
   });
+
+  await Promise.all(promises);
 
   return outdated;
 }
 
 /**
- * Formats version numbers for comparison
- */
-// function parseVersion(version: string): number[] {
-//   return version
-//     .replace(/^[^0-9]*/, '')
-//     .split('.')
-//     .map(Number);
-// }
-
-/**
- * Compares two version strings
- */
-// function compareVersions(v1: string, v2: string): number {
-//   const parsed1 = parseVersion(v1);
-//   const parsed2 = parseVersion(v2);
-
-//   for (let i = 0; i < Math.max(parsed1.length, parsed2.length); i++) {
-//     const num1 = parsed1[i] || 0;
-//     const num2 = parsed2[i] || 0;
-
-//     if (num1 > num2) return 1;
-//     if (num1 < num2) return -1;
-//   }
-
-//   return 0;
-// }
-
-/**
  * Gets package size information
  */
-function getPackageSize(packagePath: string): {
+async function getPackageSize(packagePath: string): Promise<{
   size: number;
   files: number;
-} {
+}> {
   try {
     let totalSize = 0;
     let fileCount = 0;
 
-    const calculateSize = (dirPath: string): void => {
-      const items = fs.readdirSync(dirPath, { withFileTypes: true });
+    const calculateSize = async (dirPath: string): Promise<void> => {
+      const items = await fs.promises.readdir(dirPath, { withFileTypes: true });
 
-      for (const item of items) {
+      const promises = items.map(async item => {
         const fullPath = path.join(dirPath, item.name);
 
         if (item.isDirectory()) {
           // Skip node_modules and other build artifacts
           if (!['node_modules', 'dist', 'build', '.git'].includes(item.name)) {
-            calculateSize(fullPath);
+            await calculateSize(fullPath);
           }
         } else {
           try {
-            const stats = fs.statSync(fullPath);
+            const stats = await fs.promises.stat(fullPath);
             totalSize += stats.size;
             fileCount++;
           } catch (error) {
             // Skip files we can't read
           }
         }
-      }
+      });
+      await Promise.all(promises);
     };
 
-    calculateSize(packagePath);
+    await calculateSize(packagePath);
 
     return {
       size: totalSize,
@@ -440,6 +440,5 @@ export {
   generateDependencyGraph,
   checkOutdatedDependencies,
   getPackageSize,
-  // analyzeDependencies,
   calculatePackageHealth,
 };

@@ -30,7 +30,7 @@ Analyzing monorepo at root:
 Serving static files from:
 App listening on localhost:3010
 [Database] Total packages found: 15
-Backend server running on http://localhost:8999
+Backend server running on http://localhost:4000
 ```
 
 ## Access the dashboard
@@ -48,7 +48,7 @@ http://localhost:3010
 Check if all of the packages were discovered:
 
 ```bash
-curl http://localhost:8999/api/packages
+curl http://localhost:4000/api/packages
 ```
 
 Expected response (partial):
@@ -100,7 +100,7 @@ Expected response (partial):
 **Get health metrics for all packages:**
 
 ```bash
-curl http://localhost:8999/api/health/packages
+curl http://localhost:4000/api/health/packages
 ```
 
 This shows test coverage, lint status, and build heath for each package.
@@ -133,7 +133,7 @@ To run app on custom port update monodog-config.json
 
 ````json
   "server": {
-    "port": 8999
+    "port": 4000
   }```
 
 ## What Happens After First Run
@@ -148,16 +148,16 @@ Regular operations:
 
 ```bash
 # Get package list (cached)
-curl http://localhost:8999/api/packages
+curl http://localhost:4000/api/packages
 
 # Refresh data (recalculates)
-curl http://localhost:8999/api/packages/refresh
+curl http://localhost:4000/api/packages/refresh
 
 # Get specific package
-curl http://localhost:8999/api/packages/packagename
+curl http://localhost:4000/api/packages/packagename
 
 # Get health metrics
-curl http://localhost:8999/api/health/packages
+curl http://localhost:4000/api/health/packages
 ````
 
 ## Troubleshooting First Run
@@ -169,7 +169,7 @@ curl http://localhost:8999/api/health/packages
 node --version  # Should be >= 18
 
 # Check port is available
-lsof -i :8999  # Should return nothing
+lsof -i :4000  # Should return nothing
 
 # Check dependencies installed
 pnpm install

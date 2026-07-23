@@ -23,4 +23,7 @@ export interface MonodogConfig {
     host: string;
     port: number;
   };
+  health?: {
+    testCoveragePath?: string;
+  };
 }

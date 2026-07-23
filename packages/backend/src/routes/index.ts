@@ -12,6 +12,7 @@ import authRoutes from './auth.routes';
 import pipelineRoutes from './pipeline.routes';
 import workflowRoutes from './workflow.routes';
 import changelogRoutes from './changelog.routes';
+import permissionRoutes from './permission-routes';
 import { getSystemInfo, getStats } from '../controllers/system.controller';
 
 const router = Router();
@@ -29,6 +30,7 @@ router.use('/activity', activityRoutes);
 router.use('/pipelines', pipelineRoutes);
 router.use('/workflows', workflowRoutes);
 router.use('/changelog', changelogRoutes);
+router.use('/permissions', permissionRoutes);
 
 router.get('/system', getSystemInfo);
 router.get('/stats', getStats);

@@ -184,21 +184,21 @@ export async function previewPublish(req: Request, res: Response) {
             }
           } else {
             AppLogger.warn('Release workflow not found, skipping CI check');
-            ciPassing = true; // Allow if no workflow found
+            ciPassing = false;
           }
         } catch (workflowError) {
           AppLogger.error(
             `Failed to fetch workflows for CI check: ${workflowError}`
           );
-          ciPassing = true; // Allow if workflow fetch fails
+          ciPassing = false;
         }
       } else {
         AppLogger.warn('No repository info or access token to check CI');
-        ciPassing = true; // Allow if no auth
+        ciPassing = false;
       }
     } catch (ciCheckError) {
       AppLogger.error(`CI check error: ${ciCheckError}`);
-      ciPassing = true; // Allow on error
+      ciPassing = false;
     }
 
     // Check 4: Version available on npm - Verify new versions don't exist on npm
@@ -218,8 +218,8 @@ export async function previewPublish(req: Request, res: Response) {
       }
     } catch (npmCheckError) {
       AppLogger.error(`NPM version check error: ${npmCheckError}`);
-      // Don't fail the check on error, set to true
-      versionAvailable = true;
+      // Fail the check on error
+      versionAvailable = false;
     }
 
     AppLogger.info(

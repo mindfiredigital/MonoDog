@@ -1,5 +1,7 @@
 import { AppLogger } from '../middleware/logger';
 import { makeGitHubRequest, requestOptions } from './github-actions-service';
+import { randomUUID } from 'crypto';
+import { GITHUB_REPO } from '../constants/features';
 
 /**
  * Creates a Pull Request containing a newly generated .changeset file using the GitHub API
@@ -15,21 +17,30 @@ export async function createChangesetPullRequest(
     const timestamp = Date.now();
     const branchName = `monodog/scheduled-release-${packageName.replace(/[^a-zA-Z0-9-]/g, '-')}-${timestamp}`;
     const commitMessage = `chore: scheduled release for ${packageName}`;
-    const baseBranch = 'main';
-
     AppLogger.info(
       `[GitHubRepoService] Starting PR creation for ${packageName} on ${owner}/${repo}`
     );
 
+    // Get repository info to determine default branch
+    const repoPath = GITHUB_REPO.REPOSITORY_ENDPOINT(owner, repo);
+    const { data: repoData } = await makeGitHubRequest<any>(
+      requestOptions('GET', repoPath, accessToken)
+    );
+    const baseBranch = repoData.default_branch || 'main';
+
     // Get the latest commit SHA of the base branch
-    const refPath = `/repos/${owner}/${repo}/git/ref/heads/${baseBranch}`;
+    const refPath = GITHUB_REPO.REF_ENDPOINT(
+      owner,
+      repo,
+      `heads/${baseBranch}`
+    );
     const { data: refData } = await makeGitHubRequest<any>(
       requestOptions('GET', refPath, accessToken)
     );
     const baseSha = refData.object.sha;
 
     // Create a new branch pointing to the base branch SHA
-    const createRefPath = `/repos/${owner}/${repo}/git/refs`;
+    const createRefPath = GITHUB_REPO.REFS_ENDPOINT(owner, repo);
     const createRefPayload = JSON.stringify({
       ref: `refs/heads/${branchName}`,
       sha: baseSha,
@@ -38,12 +49,14 @@ export async function createChangesetPullRequest(
       requestOptions('POST', createRefPath, accessToken, createRefPayload),
       createRefPayload
     );
-    AppLogger.info(`[GitHubRepoService] Created branch ${branchName}`);
+    AppLogger.info(
+      `[GitHubRepoService] Created branch ${branchName} from ${baseBranch}`
+    );
 
     // Create the .changeset file on the new branch
-    const randomHex = Math.random().toString(16).substring(2, 10);
+    const randomHex = randomUUID().split('-')[0];
     const fileName = `.changeset/scheduled-${randomHex}.md`;
-    const filePath = `/repos/${owner}/${repo}/contents/${fileName}`;
+    const filePath = GITHUB_REPO.CONTENTS_ENDPOINT(owner, repo, fileName);
     const filePayload = JSON.stringify({
       message: commitMessage,
       content: Buffer.from(changesetContent).toString('base64'),
@@ -56,7 +69,7 @@ export async function createChangesetPullRequest(
     AppLogger.info(`[GitHubRepoService] Created changeset file ${fileName}`);
 
     // Open a Pull Request against the base branch
-    const pullsPath = `/repos/${owner}/${repo}/pulls`;
+    const pullsPath = GITHUB_REPO.PULLS_ENDPOINT(owner, repo);
     const pullsPayload = JSON.stringify({
       title: `Scheduled Release: ${packageName}`,
       head: branchName,
