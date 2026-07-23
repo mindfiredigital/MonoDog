@@ -1,6 +1,6 @@
 {
   "name": "@mindfiredigital/monorepo-scanner",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Monorepo scanner for analyzing packages, dependencies, and health",
   "main": "dist/index.js",
   "license": "MIT",
