@@ -64,7 +64,7 @@ export interface GraphVisualizationProps {
   hoveredPackage: string | null;
   onPackageSelect: (packageId: string | null) => void;
   onPackageHover: (packageId: string | null) => void;
-  layout: 'hierarchical' | 'circular' | 'force';
+  layout: 'TB' | 'LR';
 }
 
 export interface DependencyListProps {
@@ -85,8 +85,8 @@ export interface DependencyDetailsProps {
 export interface GraphToolbarProps {
   viewMode: 'graph' | 'list';
   onViewModeChange: (mode: 'graph' | 'list') => void;
-  layout: 'hierarchical' | 'circular' | 'force';
-  onLayoutChange: (layout: 'hierarchical' | 'circular' | 'force') => void;
+  layout: 'TB' | 'LR';
+  onLayoutChange: (layout: 'TB' | 'LR') => void;
   showLegend: boolean;
   onToggleLegend: () => void;
   zoomLevel: number;

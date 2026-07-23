@@ -1,7 +1,24 @@
+import { useMemo, useCallback, useEffect } from 'react';
+import {
+  ReactFlow,
+  Controls,
+  Background,
+  useNodesState,
+  useEdgesState,
+  BackgroundVariant,
+  Node,
+  Edge,
+  MarkerType,
+} from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
 import { GraphVisualizationProps } from '../types/dependency.types';
-import { formatPackageName } from '../utils/dependency.utils';
+import { getNodeLayout } from '../utils/dependency.utils';
+import PackageNode from './PackageNode';
 import { LinkIcon } from '../../../../icons/heroicons';
-import { getConnectionPoints } from '../utils/graph.utils';
+
+const nodeTypes = {
+  packageNode: PackageNode,
+};
 
 export default function GraphVisualization({
   packages,
@@ -9,175 +26,184 @@ export default function GraphVisualization({
   hoveredPackage,
   onPackageSelect,
   onPackageHover,
+  layout,
 }: GraphVisualizationProps) {
-  return (
-    <div className="relative bg-white rounded-lg shadow-sm border border-gray-200 p-6 min-h-[600px]">
-      <svg
-        className="w-full h-full absolute inset-0"
-        viewBox={`-50 -50 ${600} ${600 + 50 * 2}`}
-      >
-        {/* Render dependency arrows */}
-        {packages.map(pkg =>
-          Object.keys(pkg.dependencies).map(depName => {
-            const dep = packages.find(d => d.name === depName);
-            if (!dep) return null;
+  const { nodes: initialNodes, edges: initialEdges } = useMemo(() => {
+    const nodes: Node[] = packages.map(pkg => ({
+      id: pkg.name,
+      type: 'packageNode',
+      position: { x: 0, y: 0 },
+      data: pkg,
+    }));
 
-            const isHighlighted = [pkg.name, depName].some(
-              name => name === hoveredPackage || name === selectedPackage
-            );
+    const edges: Edge[] = [];
+    packages.forEach(pkg => {
+      Object.keys(pkg.dependencies || {}).forEach(depName => {
+        if (!packages.some(p => p.name === depName)) return;
 
-            const { sourceX, sourceY, targetX, targetY } = getConnectionPoints(
-              pkg,
-              dep
-            );
+        edges.push({
+          id: `e-${pkg.name}-${depName}`,
+          source: pkg.name,
+          target: depName,
+          animated: true,
+          type: 'smoothstep',
+          style: { stroke: '#94A3B8', strokeWidth: 2 },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            width: 20,
+            height: 20,
+            color: '#94A3B8',
+          },
+        });
+      });
+    });
 
-            return (
-              <g key={`${pkg.name}-${depName}`}>
-                <defs>
-                  <marker
-                    id={`arrow-${pkg.name}-${depName}`}
-                    viewBox="0 0 10 10"
-                    refX="9"
-                    refY="5"
-                    markerWidth="6"
-                    markerHeight="6"
-                    orient="auto-start-reverse"
-                  >
-                    <path
-                      d="M 0 0 L 10 5 L 0 10 z"
-                      fill={isHighlighted ? '#3B82F6' : '#94A3B8'}
-                    />
-                  </marker>
-                </defs>
-                <line
-                  x1={sourceX}
-                  y1={sourceY}
-                  x2={targetX}
-                  y2={targetY}
-                  stroke={isHighlighted ? '#3B82F6' : '#6B7280'}
-                  strokeWidth={isHighlighted ? '3' : '2'}
-                  markerEnd={`url(#arrow-${pkg.name}-${depName})`}
-                  className="transition-all duration-200"
-                  style={{
-                    opacity: isHighlighted ? 1 : 0.6,
-                  }}
-                />
-              </g>
-            );
-          })
-        )}
+    return getNodeLayout(nodes, edges, layout);
+  }, [packages, layout]);
 
-        {/* Render package nodes */}
-        {packages.map(pkg => {
-          const isSelected = selectedPackage === pkg.name;
-          const isHovered = hoveredPackage === pkg.name;
-          const isConnected =
-            selectedPackage &&
-            (Object.keys(pkg.dependencies).includes(selectedPackage) ||
-              Object.keys(pkg.dependents).includes(selectedPackage));
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
-          return (
-            <g key={pkg.name} className="select-none">
-              {/* Main Card */}
-              <rect
-                x={pkg.x}
-                y={pkg.y}
-                width="100"
-                height="50"
-                rx="8"
-                fill="white"
-                stroke={
-                  isSelected
-                    ? '#3B82F6'
-                    : isConnected
-                      ? '#10B981'
-                      : isHovered
-                        ? '#6B7280'
-                        : '#E5E7EB'
-                }
-                strokeWidth={isSelected ? '3' : '2'}
-                className="cursor-pointer transition-all duration-200"
-                style={{
-                  filter:
-                    isHovered || isSelected || isConnected
-                      ? 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1))'
-                      : 'none',
-                }}
-                onMouseEnter={() => onPackageHover(pkg.name)}
-                onMouseLeave={() => onPackageHover(null)}
-                onClick={() => onPackageSelect(isSelected ? null : pkg.name)}
-              />
+  useEffect(() => {
+    setNodes(initialNodes);
+    setEdges(initialEdges);
+  }, [initialNodes, initialEdges, setNodes, setEdges]);
 
-              {/* Status Indicator */}
-              <circle
-                cx={pkg.x + 90}
-                cy={pkg.y + 10}
-                r="4"
-                fill={
-                  pkg.status === 'healthy'
-                    ? '#10B981'
-                    : pkg.status === 'warning'
-                      ? '#F59E0B'
-                      : '#EF4444'
-                }
-                className="pointer-events-none"
-              />
+  const onNodeClick = useCallback(
+    (_: React.MouseEvent, node: Node) => {
+      onPackageSelect(selectedPackage === node.id ? null : node.id);
+    },
+    [selectedPackage, onPackageSelect]
+  );
 
-              {/* Type Indicator */}
-              <rect
-                x={pkg.x + 8}
-                y={pkg.y + 7}
-                width="10"
-                height="6"
-                rx="1"
-                fill={
-                  pkg.type === 'app'
-                    ? '#3B82F6'
-                    : pkg.type === 'lib'
-                      ? '#8B5CF6'
-                      : '#F97316'
-                }
-                className="pointer-events-none"
-              />
+  const onPaneClick = useCallback(() => {
+    onPackageSelect(null);
+  }, [onPackageSelect]);
 
-              {/* Package Name */}
-              <text
-                x={pkg.x + 50}
-                y={pkg.y + 26}
-                textAnchor="middle"
-                className="text-[10px] font-bold fill-gray-900 pointer-events-none"
-              >
-                {formatPackageName(pkg.name)}
-              </text>
+  const activePackage = hoveredPackage || selectedPackage;
 
-              {/* Package Version */}
-              <text
-                x={pkg.x + 50}
-                y={pkg.y + 38}
-                textAnchor="middle"
-                className="text-[9px] fill-gray-500 pointer-events-none"
-              >
-                v{pkg.version}
-              </text>
-            </g>
-          );
-        })}
-      </svg>
+  useEffect(() => {
+    if (!activePackage) {
+      setNodes(nds =>
+        nds.map(n => ({
+          ...n,
+          style: { ...n.style, opacity: 1 },
+        }))
+      );
+      setEdges(eds =>
+        eds.map(e => ({
+          ...e,
+          style: {
+            ...e.style,
+            opacity: 1,
+            stroke: '#94A3B8',
+            strokeWidth: 2,
+          },
+          animated: true,
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            width: 20,
+            height: 20,
+            color: '#94A3B8',
+          },
+          zIndex: 0,
+        }))
+      );
+      return;
+    }
 
-      {/* No packages state */}
-      {packages.length === 0 && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center">
-            <div className="flex justify-center text-gray-400 text-6xl mb-4">
-              <LinkIcon className="w-6 h-6 text-primary-600" />
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              No dependencies found
-            </h3>
-            <p className="text-gray-600">No package dependencies to display.</p>
+    // Find all transitive connections
+    const connectedNodeIds = new Set<string>();
+    const queue = [activePackage];
+
+    while (queue.length > 0) {
+      const current = queue.shift()!;
+      if (!connectedNodeIds.has(current)) {
+        connectedNodeIds.add(current);
+        initialEdges.forEach(e => {
+          if (e.source === current && !connectedNodeIds.has(e.target))
+            queue.push(e.target);
+        });
+      }
+    }
+
+    setNodes(nds =>
+      nds.map(n => ({
+        ...n,
+        style: {
+          ...n.style,
+          opacity: connectedNodeIds.has(n.id) ? 1 : 0.2,
+          transition: 'opacity 0.2s ease-in-out',
+        },
+      }))
+    );
+
+    setEdges(eds =>
+      eds.map(e => {
+        const isConnected =
+          connectedNodeIds.has(e.source) && connectedNodeIds.has(e.target);
+        return {
+          ...e,
+          style: {
+            ...e.style,
+            opacity: isConnected ? 1 : 0.15,
+            stroke: isConnected ? '#3B82F6' : '#94A3B8',
+            strokeWidth: isConnected ? 3 : 2,
+            transition: 'opacity 0.2s, stroke 0.2s, stroke-width 0.2s',
+          },
+          animated: isConnected,
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            width: 20,
+            height: 20,
+            color: isConnected ? '#3B82F6' : '#94A3B8',
+          },
+          zIndex: isConnected ? 10 : 0,
+        };
+      })
+    );
+  }, [activePackage, initialEdges, setNodes, setEdges]);
+
+  if (packages.length === 0) {
+    return (
+      <div className="relative bg-white rounded-lg shadow-sm border border-gray-200 min-h-[600px] flex items-center justify-center">
+        <div className="text-center">
+          <div className="flex justify-center text-gray-400 text-6xl mb-4">
+            <LinkIcon className="w-6 h-6 text-primary-600" />
           </div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            No dependencies found
+          </h3>
+          <p className="text-gray-600">No package dependencies to display.</p>
         </div>
-      )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative bg-white rounded-lg shadow-sm border border-gray-200 h-[600px] w-full">
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onNodeClick={onNodeClick}
+        onPaneClick={onPaneClick}
+        onNodeMouseEnter={(_, node) => onPackageHover(node.id)}
+        onNodeMouseLeave={() => onPackageHover(null)}
+        nodeTypes={nodeTypes}
+        fitView
+        minZoom={0.1}
+        maxZoom={1.5}
+        translateExtent={[
+          [-1000, -1000],
+          [4000, 4000],
+        ]}
+        proOptions={{ hideAttribution: true }}
+      >
+        <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
+        <Controls />
+      </ReactFlow>
     </div>
   );
 }
