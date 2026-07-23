@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import path from 'path';
 import { appConfig } from '../config-loader';
 import { AppLogger } from '../middleware/logger';
-import { calculatePackageHealth } from './health-utils';
+import { calculatePackageHealth } from '@mindfiredigital/utils/helpers';
 import * as yaml from 'js-yaml';
 
 import type { PackageInfo, DependencyInfo, MonorepoStats } from '../types';
@@ -128,10 +128,19 @@ export function getWorkspacesFromRoot(rootDir: string): string[] | undefined {
   return undefined;
 }
 
+async function fileExists(filePath: string): Promise<boolean> {
+  try {
+    await fs.promises.access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Scans the monorepo and returns information about all packages
  */
-function scanMonorepo(rootDir: string): PackageInfo[] {
+async function scanMonorepo(rootDir: string): Promise<PackageInfo[]> {
   const packages: PackageInfo[] = [];
   AppLogger.debug('rootDir: ' + rootDir);
   const workspacesGlobs = appConfig.workspace.globs;
@@ -165,16 +174,21 @@ function scanMonorepo(rootDir: string): PackageInfo[] {
     }
 
     // 2. Integration of the requested loop structure for package scanning
-    for (const workspacePath of resolvedPackagePaths) {
-      const fullPackagePath = path.join(rootDir, workspacePath);
-      // The package name would be read from the package.json inside this path
-      const packageName = path.basename(fullPackagePath);
+    const parsedPackages = await Promise.all(
+      resolvedPackagePaths.map(async packagePath => {
+        const fullPackagePath = path.join(rootDir, packagePath);
+        // The package name would be read from the package.json inside this path
+        const packageName = path.basename(fullPackagePath);
 
-      AppLogger.debug(
-        `- Scanning path: ${workspacePath} (Package: ${packageName})`
-      );
+        AppLogger.debug(
+          `- Scanning path: ${packagePath} (Package: ${packageName})`
+        );
 
-      const packageInfo = parsePackageInfo(fullPackagePath, packageName);
+        return await parsePackageInfo(fullPackagePath, packageName);
+      })
+    );
+
+    for (const packageInfo of parsedPackages) {
       if (packageInfo) {
         packages.push(packageInfo);
       }
@@ -189,19 +203,20 @@ function scanMonorepo(rootDir: string): PackageInfo[] {
 }
 
 /*** Parses package.json and determines package type */
-export function parsePackageInfo(
+export async function parsePackageInfo(
   packagePath: string,
   packageName: string,
   forcedType?: 'app' | 'lib' | 'tool'
-): PackageInfo | null {
+): Promise<PackageInfo | null> {
   const packageJsonPath = path.join(packagePath, 'package.json');
 
-  if (!fs.existsSync(packageJsonPath)) {
+  if (!(await fileExists(packageJsonPath))) {
     return null;
   }
 
   try {
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+    const packageJsonData = await fs.promises.readFile(packageJsonPath, 'utf8');
+    const packageJson = JSON.parse(packageJsonData);
 
     // Determine package type
     let packageType: 'app' | 'lib' | 'tool' = 'lib';

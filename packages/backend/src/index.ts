@@ -17,6 +17,10 @@ import {
   startScheduledReleaseWorker,
   stopScheduledReleaseWorker,
 } from './workers/scheduled-release-worker';
+import {
+  startNpmSyncWorker,
+  stopNpmSyncWorker,
+} from './workers/npm-sync-worker';
 import { refreshAllPackages } from './services/package.service';
 
 export { scanner } from './services/scan.service';
@@ -115,6 +119,8 @@ export function startServer(
 
       // Start background worker for scheduled releases & pipeline cleanup
       startScheduledReleaseWorker(rootPath);
+      // Start NPM Sync Worker
+      startNpmSyncWorker(rootPath);
     })
     .on('error', (err: any) => {
       // Handle common errors like EADDRINUSE (port already in use)
@@ -135,6 +141,7 @@ export function startServer(
 
     // Stop the background worker
     stopScheduledReleaseWorker();
+    stopNpmSyncWorker();
 
     // Close the HTTP server (stop accepting new connections)
     server.close(() => {

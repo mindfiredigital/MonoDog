@@ -1,15 +1,14 @@
 import path from 'path';
 import { prisma } from '../db/prisma';
-import {
-  scanMonorepo,
-  calculatePackageHealth,
-} from '@mindfiredigital/utils/helpers';
+import { calculatePackageHealth } from '@mindfiredigital/utils/helpers';
+import { scanMonorepo } from '../utils/utilities';
 import {
   funCheckBuildStatus,
   funCheckTestCoverage,
   funCheckLintStatus,
   funCheckSecurityAudit,
 } from '@mindfiredigital/monorepo-scanner';
+import { appConfig } from '../config-loader';
 
 export const getSystemHealth = () => {
   return {
@@ -24,7 +23,7 @@ export const getSystemHealth = () => {
   };
 };
 export const getPackageHealthMetrics = async (name: string) => {
-  const packages = scanMonorepo(process.cwd());
+  const packages = await scanMonorepo(process.cwd());
 
   const pkg = packages.find(p => p.name === name);
 
@@ -33,7 +32,10 @@ export const getPackageHealthMetrics = async (name: string) => {
   }
 
   const buildStatus = await funCheckBuildStatus(pkg);
-  const testCoverage = await funCheckTestCoverage(pkg);
+  const testCoverage = await funCheckTestCoverage(
+    pkg,
+    appConfig.health?.testCoveragePath
+  );
   const lintStatus = await funCheckLintStatus(pkg);
   const securityAudit = await funCheckSecurityAudit(pkg);
 
@@ -109,13 +111,16 @@ export const refreshPackagesHealth = async (rootPath?: string) => {
   const resolvedRootPath = rootPath || process.cwd();
   const rootDir = path.resolve(resolvedRootPath);
 
-  const packages = scanMonorepo(rootDir);
+  const packages = await scanMonorepo(rootDir);
 
   const healthMetrics = await Promise.all(
     packages.map(async (pkg: any) => {
       try {
         const buildStatus = await funCheckBuildStatus(pkg);
-        const testCoverage = await funCheckTestCoverage(pkg);
+        const testCoverage = await funCheckTestCoverage(
+          pkg,
+          appConfig.health?.testCoveragePath
+        );
         const lintStatus = await funCheckLintStatus(pkg);
         const securityAudit = await funCheckSecurityAudit(pkg);
 

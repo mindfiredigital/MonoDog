@@ -65,6 +65,9 @@ function createConfigFileIfMissing(rootPath: string): void {
       host: '0.0.0.0', // Default host for the API server
       port: 4000, // Default port for the API server
     },
+    health: {
+      testCoveragePath: 'coverage/coverage-summary.json',
+    },
   };
 
   const contentString = JSON.stringify(defaultContent, null, 2);

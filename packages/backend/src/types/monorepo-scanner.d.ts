@@ -7,7 +7,7 @@ declare module '@mindfiredigital/monorepo-scanner' {
    * The actual implementation and return type reside in the source package.
    */
   export function funCheckSecurityAudit(options?: any): any;
-  export function funCheckTestCoverage(options?: any): any;
+  export function funCheckTestCoverage(pkg?: any, overridePath?: any): any;
   export function funCheckLintStatus(options?: any): any;
   export function funCheckBuildStatus(options?: any): any;
   export function generateReports(options?: any): any;

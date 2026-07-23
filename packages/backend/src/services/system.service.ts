@@ -20,7 +20,7 @@ export const getSystemInformation = () => {
 };
 
 export const getMonorepoStats = async () => {
-  const packages = scanMonorepo(process.cwd());
+  const packages = await scanMonorepo(process.cwd());
   const stats = generateMonorepoStats(packages);
 
   return {

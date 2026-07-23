@@ -2,39 +2,42 @@ import fs from 'fs';
 import path from 'path';
 import { scanMonorepo } from '@mindfiredigital/utils/helpers';
 
-export function scanForFileTypes(
+export async function scanForFileTypes(
   rootDir: string,
   fileTypes: string[]
-): Record<string, string[]> {
+): Promise<Record<string, string[]>> {
   const results: Record<string, string[]> = {};
 
   for (const fileType of fileTypes) {
     results[fileType] = [];
   }
 
-  const packages = scanMonorepo(rootDir);
+  const packages = await scanMonorepo(rootDir);
 
-  for (const pkg of packages) {
-    scanPackageForFiles(pkg.path, fileTypes, results);
-  }
+  const promises = packages.map(pkg =>
+    scanPackageForFiles(pkg.path, fileTypes, results)
+  );
+  await Promise.all(promises);
 
   return results;
 }
 
-export function scanPackageForFiles(
+export async function scanPackageForFiles(
   packagePath: string,
   fileTypes: string[],
   results: Record<string, string[]>
-): void {
+): Promise<void> {
   try {
-    const items = fs.readdirSync(packagePath, { withFileTypes: true });
+    const items = await fs.promises.readdir(packagePath, {
+      withFileTypes: true,
+    });
 
-    for (const item of items) {
+    const promises = items.map(async item => {
       const fullPath = path.join(packagePath, item.name);
 
       if (item.isDirectory()) {
         if (!['node_modules', 'dist', 'build', '.git'].includes(item.name)) {
-          scanPackageForFiles(fullPath, fileTypes, results);
+          await scanPackageForFiles(fullPath, fileTypes, results);
         }
       } else {
         const ext = path.extname(item.name);
@@ -42,7 +45,9 @@ export function scanPackageForFiles(
           results[ext].push(fullPath);
         }
       }
-    }
+    });
+
+    await Promise.all(promises);
   } catch (error) {
     // Skip directories we can't read
   }

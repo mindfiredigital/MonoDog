@@ -21,8 +21,8 @@
     "generate": "tsx src/run-db.ts prisma generate",
     "migrate": "tsx src/run-db.ts prisma migrate dev",
     "serve": "tsx src/run-db.ts node dist/cli.js --serve --root ../../",
-    "test": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test": "vitest run --fileParallelism=false",
+    "test:coverage": "vitest run --coverage --fileParallelism=false"
   },
   "dependencies": {
     "@mindfiredigital/monorepo-scanner": "1.0.9",

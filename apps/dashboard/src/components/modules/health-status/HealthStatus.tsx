@@ -8,6 +8,7 @@ import {
   ChartBarIcon,
   ShieldCheckIcon,
   BeakerIcon,
+  ArrowUpIcon,
 } from '../../../icons/heroicons';
 import { CubeIcon } from '../../../icons/heroicons';
 import { monorepoService } from '../../../services/monorepoService';
@@ -20,6 +21,7 @@ export default function HealthStatus() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [syncing, setSyncing] = useState(false);
 
   useEffect(() => {
     const fetchHealthData = async () => {
@@ -60,6 +62,17 @@ export default function HealthStatus() {
       console.error('Error refreshing health data:', err);
     } finally {
       setRefreshing(false);
+    }
+  };
+
+  const syncNPMData = async () => {
+    setSyncing(true);
+    try {
+      await monorepoService.syncNpmData();
+    } catch (err) {
+      console.error('Error starting NPM sync:', err);
+    } finally {
+      setSyncing(false);
     }
   };
 
@@ -233,18 +246,32 @@ export default function HealthStatus() {
             Monitor the health and performance of your monorepo packages
           </p>
         </div>
-        <button
-          onClick={refreshData}
-          disabled={refreshing}
-          className="btn-primary flex items-center space-x-2 transition-colors"
-        >
-          {refreshing ? (
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
-          ) : (
-            <ArrowPathIcon className="w-5 h-5" />
-          )}
-          <span>{refreshing ? 'Refreshing...' : 'Refresh'}</span>
-        </button>
+        <div className="flex space-x-4">
+          <button
+            onClick={syncNPMData}
+            disabled={syncing}
+            className="btn-outline flex items-center space-x-2 transition-colors"
+          >
+            {syncing ? (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600" />
+            ) : (
+              <ArrowUpIcon className="w-5 h-5" />
+            )}
+            <span>{syncing ? 'Syncing NPM...' : 'Sync NPM'}</span>
+          </button>
+          <button
+            onClick={refreshData}
+            disabled={refreshing}
+            className="btn-primary flex items-center space-x-2 transition-colors"
+          >
+            {refreshing ? (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+            ) : (
+              <ArrowPathIcon className="w-5 h-5" />
+            )}
+            <span>{refreshing ? 'Refreshing...' : 'Refresh'}</span>
+          </button>
+        </div>
       </div>
 
       {/* Show refreshing overlay when refreshing with existing data */}

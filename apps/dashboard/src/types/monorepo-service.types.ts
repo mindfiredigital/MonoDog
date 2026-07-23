@@ -11,6 +11,7 @@ export interface Package {
   dependencies?: Record<string, string>;
   devDependencies?: Record<string, string>;
   peerDependencies?: Record<string, string>;
+  dependenciesInfo?: DependencyInfo[];
 }
 
 export interface DependencyInfo {
