@@ -2,6 +2,16 @@
   "name": "@mindfiredigital/monorepo-scanner",
   "version": "1.0.10",
   "description": "Monorepo scanner for analyzing packages, dependencies, and health",
+  "keywords": [
+    "monorepo-scanner",
+    "monorepo",
+    "package-analyzer",
+    "dependency-scanner",
+    "monorepo-health",
+    "pnpm",
+    "turborepo",
+    "mindfiredigital"
+  ],
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {

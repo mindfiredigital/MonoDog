@@ -2,6 +2,18 @@
   "name": "@mindfiredigital/monodog",
   "version": "1.6.0",
   "description": "Backend API server for monodog monorepo dashboard",
+  "keywords": [
+    "monodog",
+    "monorepo",
+    "monorepo-dashboard",
+    "package-manager",
+    "ci-cd",
+    "changesets",
+    "dependency-graph",
+    "pnpm",
+    "turborepo",
+    "mindfiredigital"
+  ],
   "license": "MIT",
   "bin": {
     "monodog-cli": "dist/cli.js"

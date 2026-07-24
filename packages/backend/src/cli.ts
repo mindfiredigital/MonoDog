@@ -151,14 +151,14 @@ const initMonodogEnvironment = (rootDir: string): void => {
   fs.writeFileSync(pkgJsonPath, JSON.stringify(pkgJsonContent, null, 2));
 
   // Download and configure Dashboard
-  console.log(`\nFetching @mindfiredigital/dashboard...`);
+  console.log(`\nFetching @mindfiredigital/monodog-dashboard...`);
   try {
     // Run pnpm add inside the monodog directory to fetch the dashboard
     spawnSync(
       'pnpm',
       [
         'add',
-        '@mindfiredigital/dashboard',
+        '@mindfiredigital/monodog-dashboard',
         '@mindfiredigital/monodog',
         '--ignore-workspace',
       ],
@@ -169,7 +169,7 @@ const initMonodogEnvironment = (rootDir: string): void => {
     const dashboardSource = path.join(
       monodogPath,
       'node_modules',
-      '@mindfiredigital/dashboard'
+      '@mindfiredigital/monodog-dashboard'
     );
     const dashboardDest = path.join(monodogPath, 'monodog-dashboard');
     fs.cpSync(dashboardSource, dashboardDest, {
