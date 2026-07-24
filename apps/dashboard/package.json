@@ -1,6 +1,6 @@
 {
   "name": "@mindfiredigital/monodog-dashboard",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "React dashboard for monodog monorepo management",
   "keywords": [
     "monodog",
