@@ -1,6 +1,7 @@
 {
   "name": "@mindfiredigital/monorepo-scanner",
   "version": "1.0.11",
+  "private": true,
   "description": "Monorepo scanner for analyzing packages, dependencies, and health",
   "keywords": [
     "monorepo-scanner",
