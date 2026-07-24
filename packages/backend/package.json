@@ -16,13 +16,17 @@
   ],
   "license": "MIT",
   "bin": {
-    "monodog-cli": "dist/cli.js"
+    "monodog": "dist/cli.js"
   },
+  "files": [
+    "dist",
+    "prisma"
+  ],
   "scripts": {
     "dev": "tsx src/run-db.ts tsx watch --exclude \"../../.changeset/**\" src/serve-dev.ts",
     "start": "tsx index.ts",
     "prepublishOnly": "pnpm run build",
-    "build": "rimraf dist && tsc -p tsconfig.json",
+    "build": "rimraf dist && tsc -p tsconfig.json && node scripts/copy-dashboard.js",
     "prestart": "npm run build",
     "cli": "pnpm run build && node dist/cli.js",
     "clean": "rimraf dist node_modules/.cache",

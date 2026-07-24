@@ -177,18 +177,18 @@ export function serveDashboard(
 ): void {
   const app = express();
 
-  const staticPath = path.resolve(
-    rootPath,
-    'monodog',
-    'monodog-dashboard',
-    'dist'
-  );
-  const indexHtmlPath = path.join(staticPath, 'index.html');
+  const candidatePaths = [
+    path.resolve(__dirname, 'dashboard'),
+    path.resolve(__dirname, '../../apps/dashboard/dist'),
+  ];
 
-  if (!fs.existsSync(indexHtmlPath)) {
-    console.error(`Dashboard build not found at ${indexHtmlPath}.`);
+  const staticPath = candidatePaths.find(p =>
+    fs.existsSync(path.join(p, 'index.html'))
+  );
+
+  if (!staticPath) {
     console.error(
-      'Please build the dashboard first with: pnpm --dir monodog/monodog-dashboard run build'
+      'Unable to load dashboard. Please ensure @mindfiredigital/monodog was built and installed correctly.'
     );
     process.exit(1);
   }
