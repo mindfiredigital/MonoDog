@@ -177,11 +177,7 @@ const run = async () => {
   // Lazy loaded imports!
   const { startServer, serveDashboard } = await import('./index.js');
   startServer(rootPath, port, host);
-  serveDashboard(
-    rootPath,
-    appConfig.dashboard.port,
-    appConfig.dashboard.host
-  );
+  serveDashboard(rootPath, appConfig.dashboard.port, appConfig.dashboard.host);
 };
 
 run().catch(e => {

@@ -182,7 +182,7 @@ export function serveDashboard(
     path.resolve(__dirname, '../../apps/dashboard/dist'),
   ];
 
-  const staticPath = candidatePaths.find((p) =>
+  const staticPath = candidatePaths.find(p =>
     fs.existsSync(path.join(p, 'index.html'))
   );
 
